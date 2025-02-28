@@ -43,7 +43,7 @@ const OrganizationMembers = async() => {
             </Button>
           }
         /> */}
-        
+
         <MembersTable members={organization.members as Member[]} session={session} />
 
         {/* <InviteDialog 
@@ -52,7 +52,7 @@ const OrganizationMembers = async() => {
           onSubmit={handleInviteSubmit}
         />
 
-        
+
         <InvitationTable 
           invitations={invitations}
           visible={pendingInvitationsVisible}

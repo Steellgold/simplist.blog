@@ -1,14 +1,33 @@
-import { ac,  admin, editor, member, owner } from "./permissions";
-import { betterAuth } from "better-auth";
 import { multiSession, openAPI, organization, twoFactor } from "better-auth/plugins";
+import { ac,  admin, editor, member, owner } from "./permissions";
 import { passkey } from "better-auth/plugins/passkey";
+import { betterAuth } from "better-auth";
+import { Resend } from 'resend';
 import { Pool } from "pg";
+import { EmailVerification } from "@/emails";
+
+const resend = new Resend(process.env.RESEND_API_KEY!);
 
 export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     autoSignIn: true,
-    minPasswordLength: 8
+    minPasswordLength: 8,
+    requireEmailVerification: true
+  },
+  emailVerification: {
+    autoSignInAfterVerification: true,
+    sendVerificationEmail: async ( { user, url, token }, request) => {
+      console.log("Sending email to", user.email, "with verification link", url);
+      const { data, error } = await resend.emails.send({
+        to: user.email,
+        subject: "Verify your email address",
+        from: "no-reply@simplist.blog",
+        react: <EmailVerification confirmUrl={url} invitedBy="Gaëtan" userInvited={user.name} />,
+      });
+
+      console.log("Email sent", data, error);
+    }
   },
   appName: "Simplist",
   socialProviders: {
