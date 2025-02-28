@@ -3,13 +3,13 @@ import { Button, Container, Heading, Img, Link, Preview, Section, Text } from "@
 import React from "react";
 import { EmailBase } from "./base";
 
-type EmailVerificationProps = {
-  confirmUrl: string;
+type EmailResetPasswordProps = {
+  resetUrl: string;
   name: string;
 };
 
-const EmailVerification: Component<EmailVerificationProps> = ({ confirmUrl, name }) => {
-  const previewText = `Verify your email address to finish setting up your account.`;
+const EmailResetPassword: Component<EmailResetPasswordProps> = ({ resetUrl, name }) => {
+  const previewText = `We received a request to reset your password. If you didn't make the request, you can ignore this email.`;
 
   return (
     <EmailBase>
@@ -25,26 +25,28 @@ const EmailVerification: Component<EmailVerificationProps> = ({ confirmUrl, name
           />
         </Section>
         
-        <Heading className="text-black text-[22px] font-normal text-center p-0 my-[30px] mx-0">Verify your email address</Heading>
-        
+        <Heading className="text-black text-[22px] font-normal text-center p-0 my-[30px] mx-0">
+          Reset your password
+        </Heading>
+
         <Section className="text-black text-[14px] leading-[24px]">
-          <Text className="text-[14px] leading-[24px]">Hello <strong>{name}</strong>, please click the button below to verify your email address and finish setting up your account.
+          <Text className="text-[14px] leading-[24px]">Hello <strong>{name}</strong>, we received a request to reset your password. If you didn&apos;t make the request, you can ignore this email.
           </Text>
         </Section>
 
         <Section className="text-center mt-[32px] mb-[32px]">
           <Button
             className="bg-yellow-400 rounded text-black text-[12px] font-semibold no-underline text-center px-5 py-3"
-            href={confirmUrl}
+            href={resetUrl}
           >
-            Verify Email
+            Reset Password
           </Button>
         </Section>
         
         <Text className="text-black text-[14px] leading-[24px]">
           or copy and paste this URL into your browser:{' '}
-          <Link href={confirmUrl} className="text-blue-600 no-underline">
-            {confirmUrl}
+          <Link href={resetUrl} className="text-blue-600 no-underline">
+            {resetUrl}
           </Link>
         </Text>
       </Container>
@@ -52,4 +54,4 @@ const EmailVerification: Component<EmailVerificationProps> = ({ confirmUrl, name
   );
 };
 
-export { EmailVerification };
+export { EmailResetPassword };
