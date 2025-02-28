@@ -1,45 +1,47 @@
 import { Component } from "@workspace/ui/components/utils/component";
 import { Body, Button, Container, Head, Heading, Hr, Html, Img, Link, Preview, Section, Tailwind, Text } from "@react-email/components";
 import React from "react";
+import { TailwindConfiguration } from "@/tailwind.config";
 
 type EmailVerificationProps = {
   confirmUrl: string;
-
-  invitedBy: string;
-  userInvited: string;
+  name: string;
 };
 
-const EmailVerification: Component<EmailVerificationProps> = ({ confirmUrl, invitedBy, userInvited }) => {
+const EmailVerification: Component<EmailVerificationProps> = ({ confirmUrl, name }) => {
   const previewText = `Verify your email address to finish setting up your account.`;
 
   return (
     <Html>
       <Head />
-      <Tailwind>
-        <Body className="bg-white my-auto mx-auto font-sans px-2">
+      <Tailwind config={TailwindConfiguration}>
+        <Body className="bg-[#f0f0f0] my-auto mx-auto font-sans px-2 py-2">
           <Preview>{previewText}</Preview>
-          <Container className="border border-solid border-[#eaeaea] rounded my-[40px] mx-auto p-[20px] max-w-[465px]">
+          <Container className="border border-solid rounded my-[40px] mx-auto p-[20px] max-w-[465px] border-[#1d1d1d]">
             <Section className="mt-[32px]">
               <Img
                 src={`https://github.com/Steellgold/simplist/blob/prod/public/_static/logos/simplist.png?raw=true`}
                 height="37"
-                alt="Vercel"
+                alt="Simplist"
                 className="my-0 mx-auto"
               />
             </Section>
-            <Heading className="text-black text-[24px] font-normal text-center p-0 my-[30px] mx-0">
-              You&apos;re invited to join a team on Vercel 
+            <Heading className="text-black text-[22px] font-normal text-center p-0 my-[30px] mx-0">
+              Verify your email address
             </Heading>
-            <Text className="text-black text-[14px] leading-[24px]">
-              Hello {userInvited},
-            </Text>
+          
+
+            <Section className="text-black text-[14px] leading-[24px]">
+              <Text className="text-[14px] leading-[24px]">Hello <strong>{name}</strong>, please click the button below to verify your email address and finish setting up your account.
+              </Text>
+            </Section>
 
             <Section className="text-center mt-[32px] mb-[32px]">
               <Button
-                className="bg-[#000000] rounded text-white text-[12px] font-semibold no-underline text-center px-5 py-3"
+                className="bg-yellow-400 rounded text-black text-[12px] font-semibold no-underline text-center px-5 py-3"
                 href={confirmUrl}
               >
-                Confirm Email Address
+                Verify Email
               </Button>
             </Section>
             <Text className="text-black text-[14px] leading-[24px]">
@@ -47,11 +49,6 @@ const EmailVerification: Component<EmailVerificationProps> = ({ confirmUrl, invi
               <Link href={confirmUrl} className="text-blue-600 no-underline">
                 {confirmUrl}
               </Link>
-            </Text>
-            <Hr className="border border-solid border-[#eaeaea] my-[26px] mx-0 w-full" />
-            <Text className="text-[#666666] text-[12px] leading-[24px]">
-              This invitation was intended for{' '}
-              <span className="text-black">{invitedBy}</span>
             </Text>
           </Container>
         </Body>
