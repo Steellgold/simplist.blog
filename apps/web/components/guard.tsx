@@ -1,3 +1,6 @@
+"use client";
+
+import { authClient } from "@/lib/auth-client";
 import { Permissions } from "@/lib/permissions";
 import { Skeleton } from "@workspace/ui/components/skeleton";
 import { Component } from "@workspace/ui/components/utils/component";
@@ -10,11 +13,15 @@ type GuardProps = PropsWithChildren & {
 };
 
 const permissionCache: { [key: string]: { hasPermission: boolean; timestamp: number } } = {};
+const permissionCacheOrgId: { [key: string]: string } = {};
+
 const CACHE_DURATION = 5 * 60 * 1000;
 
 export const Guard: Component<GuardProps> = ({ children, need, elseElement }) => {
   const [has, setHas] = useState<boolean | null>(null);
   const [pending, setPending] = useState(true);
+
+  const { data } = authClient.useActiveOrganization();
 
   useEffect(() => {
     if (need == undefined) {
@@ -26,7 +33,10 @@ export const Guard: Component<GuardProps> = ({ children, need, elseElement }) =>
     const permissionKey = JSON.stringify(need);
     const now = Date.now();
 
-    if (permissionCache[permissionKey] && (now - permissionCache[permissionKey].timestamp < CACHE_DURATION)) {
+    if (
+      permissionCache[permissionKey] && now - permissionCache[permissionKey].timestamp < CACHE_DURATION
+      && permissionCacheOrgId["org_id"] == data?.id
+    ) {
       setHas(permissionCache[permissionKey].hasPermission);
       setPending(false);
       return;
@@ -52,13 +62,14 @@ export const Guard: Component<GuardProps> = ({ children, need, elseElement }) =>
       }
 
       permissionCache[permissionKey] = { hasPermission, timestamp: now };
+      permissionCacheOrgId["org_id"] = data?.id || "";
 
       setHas(hasPermission);
       setPending(false);
     };
 
     check();
-  }, [need]);
+  }, [need, data]);
 
   if (need == undefined) return <>{children}</>;
   if (pending) return <Skeleton className="min-h-6 h-full w-full" />;
