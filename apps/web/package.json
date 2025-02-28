@@ -16,6 +16,7 @@
     "@polar-sh/sdk": "^0.26.0",
     "@prisma/client": "^6.4.0",
     "@radix-ui/react-slot": "^1.1.1",
+    "@react-email/components": "0.0.33",
     "@tanstack/react-query": "^5.66.7",
     "@workspace/ui": "workspace:*",
     "better-auth": "1.1.19",
@@ -28,6 +29,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-qr-code": "^2.0.15",
+    "resend": "^4.1.2",
     "ua-parser-js": "^2.0.2",
     "zod": "^3.24.1"
   },

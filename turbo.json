@@ -18,7 +18,8 @@
     "CLOUDFLARE_ACCOUNT_ID",
     "CLOUDFLARE_SECRET_ACCESS_KEY",
     "CLOUDFLARE_R2_BUCKET_NAME",
-    "CDN_DOMAIN"
+    "CDN_DOMAIN",
+    "RESEND_API_KEY"
   ],
   "tasks": {
     "build": {
@@ -42,7 +43,8 @@
         "CLOUDFLARE_ACCOUNT_ID",
         "CLOUDFLARE_SECRET_ACCESS_KEY",
         "CLOUDFLARE_R2_BUCKET_NAME",
-        "CDN_DOMAIN"
+        "CDN_DOMAIN",
+        "RESEND_API_KEY"
       ]
     },
     "lint": {
@@ -71,7 +73,8 @@
         "CLOUDFLARE_ACCOUNT_ID",
         "CLOUDFLARE_SECRET_ACCESS_KEY",
         "CLOUDFLARE_R2_BUCKET_NAME",
-        "CDN_DOMAIN"
+        "CDN_DOMAIN",
+        "RESEND_API_KEY"
       ]
     }
   }
