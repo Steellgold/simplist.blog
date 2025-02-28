@@ -8,7 +8,7 @@ import { Guard } from "@/components/guard";
 import { auth } from "@/lib/auth";
 import { forbidden } from "next/navigation";
 import { headers } from "next/headers";
-import checkPermission from "@/lib/check-permission";
+import { checkPermission } from "@/lib/check-permission";
 
 const OrganizationSettings = async(): Promise<ReactElement> => {
   const [organization] =

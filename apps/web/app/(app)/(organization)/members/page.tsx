@@ -4,7 +4,7 @@ import { MembersTable } from "./_sections/members.table.card";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { unauthorized } from "next/navigation";
-import checkPermission from "@/lib/check-permission";
+import { checkPermission } from "@/lib/check-permission";
 import { Member } from "@/lib/auth-client";
 
 const OrganizationMembers = async() => {

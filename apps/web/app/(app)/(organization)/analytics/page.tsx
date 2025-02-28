@@ -1,5 +1,5 @@
 import { auth } from "@/lib/auth";
-import checkPermission from "@/lib/check-permission";
+import { checkPermission } from "@/lib/check-permission";
 import { BreadcrumbSetter } from "@workspace/ui/components/setter-breadcrumb";
 import { headers } from "next/headers";
 import { unauthorized } from "next/navigation";

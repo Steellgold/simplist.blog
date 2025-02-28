@@ -8,7 +8,7 @@ interface CheckPermissionParams {
   organizationId: string;
 }
 
-const checkPermission = async ({ permission, organizationId }: CheckPermissionParams) => {
+export const checkPermission = async ({ permission, organizationId }: CheckPermissionParams): Promise<boolean> => {
   const hasPermission = await auth.api.hasPermission({
     body: {
       permission,
@@ -20,6 +20,6 @@ const checkPermission = async ({ permission, organizationId }: CheckPermissionPa
   if (hasPermission.error) {
     forbidden();
   }
-};
 
-export default checkPermission;
+  return hasPermission.success;
+};
