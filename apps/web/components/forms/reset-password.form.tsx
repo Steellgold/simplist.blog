@@ -23,14 +23,12 @@ export const ResetPasswordForm: Component<React.ComponentPropsWithoutRef<"div">>
   ...props
 }) => {
   const { toast } = useToast();
-  const searchParams = useSearchParams();
-
+  
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-
-  const router = useRouter();
-
   const [token, setToken] = useState<string | null>(null);
+
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
   useEffect(() => {
     if (!searchParams.has("token")) {
@@ -86,7 +84,6 @@ export const ResetPasswordForm: Component<React.ComponentPropsWithoutRef<"div">>
                 },
                 onSuccess: () => {
                   setLoading(false);
-                  setSuccess(true);
                   toast({
                     title: "Password reset successful",
                     description: "Your password has been successfully reset"
