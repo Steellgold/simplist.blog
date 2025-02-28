@@ -12,7 +12,7 @@ import { useToast } from "@workspace/ui/hooks/use-toast";
 import { Button } from "@workspace/ui/components/button";
 import { Input } from "@workspace/ui/components/input";
 import { Label } from "@workspace/ui/components/label";
-import { OAuthsButtons } from "./oauths-buttons";
+import { OAuthsButtons } from "../oauths-buttons";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@workspace/ui/lib/utils";
 import { useRouter } from "next/navigation";

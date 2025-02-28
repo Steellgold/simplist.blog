@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@workspace/ui/components/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { Input } from "@workspace/ui/components/input"
 import { Label } from "@workspace/ui/components/label"
 import { Component } from "@workspace/ui/components/utils/component"
@@ -14,12 +8,11 @@ import { Button } from "@workspace/ui/components/button"
 import { cn } from "@workspace/ui/lib/utils"
 import { PasswordInputRequirements } from "@workspace/ui/components/requirements-input-password"
 import { useToast } from "@workspace/ui/hooks/use-toast";
-import { OAuthsButtons } from "./oauths-buttons"
+import { OAuthsButtons } from "../oauths-buttons"
 import { z } from "zod"
 import { ToastAction } from "@workspace/ui/components/toast";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 
 const schema = z.object({
@@ -30,20 +23,30 @@ const schema = z.object({
   password: z.string()
 });
 
-const organizationSchema = z.object({
-  name: z.string()
-});
-
 export const RegisterForm: Component<React.ComponentPropsWithoutRef<"div">> = ({
   className,
   ...props
 }) => {
   const { toast } = useToast();
 
-  const [form, setForm] = useState<"user" | "organization">("user");
-
 	const [loading, setLoading] = useState(false);
-  const router = useRouter();
+
+  const [waiting, setWaiting] = useState(false);
+
+  if (waiting) {
+    return (
+      <div className="flex flex-col gap-6 items-center justify-center">
+        <Card>
+          <CardHeader className="text-center">
+            <CardTitle className="text-xl">Confirm your email address</CardTitle>
+            <CardDescription>
+              We have sent you an email with a confirmation link. Please check your inbox and click on the link to confirm your email address.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    )
+  }
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -96,7 +99,7 @@ export const RegisterForm: Component<React.ComponentPropsWithoutRef<"div">> = ({
                   })
                 },
                 onSuccess: async () => {
-                  router.push("/");
+                  setWaiting(true);
                 },
               },
             });

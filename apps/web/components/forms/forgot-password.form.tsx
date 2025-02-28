@@ -12,7 +12,7 @@ import { toast } from "@workspace/ui/hooks/use-toast"
 import { authClient } from "@/lib/auth-client"
 import { z } from "zod"
 import { useState } from "react";
-import { Loader2, MailCheck } from "lucide-react";
+import { Check, Loader2, MailCheck } from "lucide-react";
 
 const forgotPasswordSchema = z.object({
   email: z.string().email(),
@@ -33,8 +33,8 @@ export const ForgotPasswordForm: Component<React.ComponentPropsWithoutRef<"div">
         </CardHeader>
         <CardContent>
           {isPending === "yet" && (
-            <Alert>
-              <MailCheck className="w-6 h-6" />
+            <Alert className="mb-4">
+              <MailCheck className="w-4 h-4" />
               <AlertDescription>
                 If an account with that email exists, we will send a password reset link to your email.
               </AlertDescription>
@@ -59,9 +59,7 @@ export const ForgotPasswordForm: Component<React.ComponentPropsWithoutRef<"div">
 
             await authClient.forgetPassword({
               email: result.data.email,
-              // redirectTo: "/auth/reset-password",
-              // TODO: Create a reset password page
-              redirectTo: "/auth",
+              redirectTo: "/auth/reset-password",
               fetchOptions: {
                 onRequest: () => {
                   toast({
@@ -96,8 +94,12 @@ export const ForgotPasswordForm: Component<React.ComponentPropsWithoutRef<"div">
                 <Input id="email" name="email" type="email" placeholder="m@example.com" required />
               </div>
 
-              <Button type="submit" className="w-full">
-                {isPending !== false ? <Loader2 className="w-6 h-6 animate-spin" /> : "Reset Password"}
+              <Button type="submit" className="w-full" disabled={isPending === true || isPending === "yet"}>
+                {
+                  isPending == "yet"
+                    ? <Check className="w-6 h-6" />
+                    : isPending !== false ? <Loader2 className="w-6 h-6 animate-spin" /> : "Reset Password"
+                }
               </Button>
 
               <div className="text-center text-sm">
