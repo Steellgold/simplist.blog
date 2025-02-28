@@ -23,7 +23,7 @@ export const auth = betterAuth({
       });
 
       // TODO: Switch to AWS SES
-    }
+    },
   },
   emailVerification: {
     autoSignInAfterVerification: true,

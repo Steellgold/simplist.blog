@@ -1,7 +1,6 @@
 import { ac,  admin, editor, member, owner, Permissions } from "./permissions";
 import { organizationClient, multiSessionClient, passkeyClient, twoFactorClient } from "better-auth/client/plugins"
 import { createAuthClient } from "better-auth/react"
-import { unauthorized } from "next/navigation";
 
 export const authClient = createAuthClient({
   plugins: [
