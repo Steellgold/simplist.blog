@@ -23,7 +23,7 @@ export const auth = betterAuth({
         to: user.email,
         subject: "Verify your email address",
         from: "no-reply@simplist.blog",
-        react: <EmailVerification confirmUrl={url} invitedBy="Gaëtan" userInvited={user.name} />,
+        react: <EmailVerification confirmUrl={url} name={user.name} />,
       });
 
       console.log("Email sent", data, error);
