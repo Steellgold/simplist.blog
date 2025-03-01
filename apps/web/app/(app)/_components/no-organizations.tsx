@@ -2,7 +2,6 @@
 
 import { createOrganization } from "@/lib/actions/create-organization";
 import { authClient } from "@/lib/auth-client";
-import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import { Input } from "@workspace/ui/components/input";
 import { RadioGroup, RadioGroupItem } from "@workspace/ui/components/radio-group";
@@ -10,11 +9,11 @@ import { RadioPlanSelector } from "@workspace/ui/components/radio-plan-selector"
 import { BreadcrumbSetter } from "@workspace/ui/components/setter-breadcrumb";
 import { Component } from "@workspace/ui/components/utils/component";
 import { toast } from "@workspace/ui/hooks/use-toast";
-import { Plans } from "@workspace/ui/lib/pricing";
+import { getPlanByName } from "@workspace/ui/lib/pricing";
 import { cn } from "@workspace/ui/lib/utils";
 import { Building, Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation";
-import { ReactElement, useState } from "react";
+import { useState } from "react";
 import { z } from "zod";
 
 type NewOrganizationProps = {
@@ -135,7 +134,7 @@ export const NoOrganizations: Component<NewOrganizationProps> = ({ isFrame }) =>
                       }
                     })
                   } else {
-                    createOrganization(result.data.organizationName, plan, renewal);
+                    createOrganization(plan, renewal);
                   }
                 }
               }
@@ -160,7 +159,9 @@ export const NoOrganizations: Component<NewOrganizationProps> = ({ isFrame }) =>
             </div>
 
             {plan !== "Hobby" && (
-              <>
+              <div className="space-y-2">
+                <h2 className="text-sm font-medium">Period</h2>
+
                 <RadioGroup className="grid-cols-2" defaultValue={renewal} onValueChange={(value) => setRenewal(value as "monthly" | "yearly")} name="renewal" value={renewal}>
                   {/* Monthly */}
                   <label className="border-input has-data-[state=checked]:border-ring focus-within:border-ring focus-within:ring-ring/50 relative flex cursor-pointer flex-col gap-1 rounded-md border px-4 py-3 shadow-xs transition-[color,box-shadow] outline-none focus-within:ring-[3px]">
@@ -173,7 +174,7 @@ export const NoOrganizations: Component<NewOrganizationProps> = ({ isFrame }) =>
                       <p className="text-foreground text-sm font-medium">Monthly</p>
                     </div>
 
-                    <p className="text-muted-foreground text-sm">${Plans[plan].price.monthly}/month</p>
+                    <p className="text-muted-foreground text-sm">${getPlanByName(plan)?.price?.monthly}/month</p>
                   </label>
 
                   {/* Yearly */}
@@ -187,18 +188,21 @@ export const NoOrganizations: Component<NewOrganizationProps> = ({ isFrame }) =>
                       <p className="text-foreground text-sm font-medium">Yearly</p>
                     </div>
 
-                    <p className="text-muted-foreground text-sm">${Plans[plan].price.yearly}/year</p>
+                    <p className="text-muted-foreground text-sm">${getPlanByName(plan)?.price?.yearly}/year</p>
                   </label>
                 </RadioGroup>
-              </>
+              </div>
             )}
 
             <RadioPlanSelector
-              onChange={(value: string) => setPlan(
-                value === "1" ? "Hobby" :
-                value === "2" ? "Pro" :
-                "Business"
-              )}
+              onChange={(value: string) => {
+                setRenewal("monthly");
+                setPlan(
+                  value === "1" ? "Hobby" :
+                  value === "2" ? "Pro" :
+                  "Business"
+                )
+              }}
             />
 
             <Button
