@@ -9,14 +9,16 @@ import { dayJS } from "@/lib/dayjs";
 export const GET = async (request: NextRequest) => {
   const { searchParams } = new URL(request.url);
   const checkout_id = searchParams.get("checkout_id");
-  const customer_session_token = searchParams.get("customer_session_token");
 
-  if (!checkout_id || !customer_session_token) {
+  if (!checkout_id) {
     return NextResponse.json({ error: "Invalid checkout_id" }, { status: 400 });
   }
 
   try {
     const paymentResponse = await polar.checkouts.get({ id: checkout_id });
+    if (paymentResponse.status === "succeeded" && dayJS().diff(dayJS(paymentResponse.createdAt), "minute") > 5) {
+      return NextResponse.redirect(new URL("/settings/billing?success=false", request.url).toString());
+    }
 
     if (paymentResponse.status === "succeeded") {
       const organizationId = paymentResponse.metadata.organizationId;
@@ -46,7 +48,7 @@ export const GET = async (request: NextRequest) => {
         }
       })
 
-      return NextResponse.json({ message: "Organization updated successfully" });
+      return NextResponse.redirect(new URL("/settings/billing?success=true", request.url).toString());
     } else {
       return NextResponse.json({ error: "Payment not succeeded" }, { status: 400 });
     }
