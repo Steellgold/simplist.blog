@@ -119,3 +119,32 @@ export const PLANS: Plan[] = [
 export const getPlanByName = (name: PlanName): Plan | undefined => {
   return PLANS.find(plan => plan.type === name);
 }
+
+interface PlanCriteria {
+  priceId?: string;
+  productId?: string;
+  name?: PlanName;
+}
+
+export const getPlanByCriteria = (criteria: PlanCriteria): Plan | undefined => {
+  return PLANS.find(plan => {
+    if (criteria.priceId) {
+      return (plan.polar?.monthly.priceId === criteria.priceId) || (plan.polar?.yearly.priceId === criteria.priceId);
+    }
+    if (criteria.productId) {
+      return (plan.polar?.monthly.productId === criteria.productId) || (plan.polar?.yearly.productId === criteria.productId);
+    }
+    if (criteria.name) {
+      return plan.type === criteria.name;
+    }
+    return false;
+  });
+}
+
+export const getPeriodTypeByPID = (priceOrProductId: string): "monthly" | "yearly" | undefined => {
+  return PLANS.find(plan => {
+    return plan.polar?.monthly.priceId === priceOrProductId || plan.polar?.monthly.productId === priceOrProductId;
+  }) ? "monthly" : PLANS.find(plan => {
+    return plan.polar?.yearly.priceId === priceOrProductId || plan.polar?.yearly.productId === priceOrProductId;
+  }) ? "yearly" : undefined;
+}
