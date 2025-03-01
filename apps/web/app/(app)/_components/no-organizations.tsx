@@ -1,12 +1,16 @@
 "use client";
 
+import { createOrganization } from "@/lib/actions/create-organization";
 import { authClient } from "@/lib/auth-client";
+import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import { Input } from "@workspace/ui/components/input";
+import { RadioGroup, RadioGroupItem } from "@workspace/ui/components/radio-group";
 import { RadioPlanSelector } from "@workspace/ui/components/radio-plan-selector";
 import { BreadcrumbSetter } from "@workspace/ui/components/setter-breadcrumb";
 import { Component } from "@workspace/ui/components/utils/component";
 import { toast } from "@workspace/ui/hooks/use-toast";
+import { Plans } from "@workspace/ui/lib/pricing";
 import { cn } from "@workspace/ui/lib/utils";
 import { Building, Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation";
@@ -29,7 +33,9 @@ const schema = z.object({
 });
 
 export const NoOrganizations: Component<NewOrganizationProps> = ({ isFrame }) => {
-  const [plan, setPlan] = useState<"hobby" | "pro" | "business">("hobby");
+  const [plan, setPlan] = useState<"Hobby" | "Pro" | "Business">("Hobby");
+  const [renewal, setRenewal] = useState<"monthly" | "yearly">("monthly");
+
   const [isPending, setPending] = useState(false);
   const router = useRouter();
 
@@ -80,7 +86,7 @@ export const NoOrganizations: Component<NewOrganizationProps> = ({ isFrame }) =>
               name: result.data.organizationName,
               slug: organizationSlug,
               metadata: {
-                plan
+                plan: "Hobby", // INFO: We always create a Hobby organization first to avoid billing issues
               },
               fetchOptions: {
                 onError: (error) => {
@@ -102,9 +108,9 @@ export const NoOrganizations: Component<NewOrganizationProps> = ({ isFrame }) =>
                   toast({
                     title: "Organization created",
                     description: "Your organization has been created successfully.",
-                  })
+                  });
 
-                  if (plan === "hobby") {
+                  if (plan === "Hobby") {
                     await authClient.organization.setActive({
                       organizationSlug,
                       fetchOptions: {
@@ -129,7 +135,7 @@ export const NoOrganizations: Component<NewOrganizationProps> = ({ isFrame }) =>
                       }
                     })
                   } else {
-                    // createOrganization(formData);
+                    createOrganization(result.data.organizationName, plan, renewal);
                   }
                 }
               }
@@ -153,11 +159,45 @@ export const NoOrganizations: Component<NewOrganizationProps> = ({ isFrame }) =>
               </div>
             </div>
 
+            {plan !== "Hobby" && (
+              <>
+                <RadioGroup className="grid-cols-2" defaultValue={renewal} onValueChange={(value) => setRenewal(value as "monthly" | "yearly")} name="renewal" value={renewal}>
+                  {/* Monthly */}
+                  <label className="border-input has-data-[state=checked]:border-ring focus-within:border-ring focus-within:ring-ring/50 relative flex cursor-pointer flex-col gap-1 rounded-md border px-4 py-3 shadow-xs transition-[color,box-shadow] outline-none focus-within:ring-[3px]">
+                    <div className="flex items-center gap-3">
+                      <RadioGroupItem
+                        id="radio-monthly"
+                        value="monthly"
+                        className="after:absolute after:inset-0"
+                      />
+                      <p className="text-foreground text-sm font-medium">Monthly</p>
+                    </div>
+
+                    <p className="text-muted-foreground text-sm">${Plans[plan].price.monthly}/month</p>
+                  </label>
+
+                  {/* Yearly */}
+                  <label className="border-input has-data-[state=checked]:border-ring focus-within:border-ring focus-within:ring-ring/50 relative flex cursor-pointer flex-col gap-1 rounded-md border px-4 py-3 shadow-xs transition-[color,box-shadow] outline-none focus-within:ring-[3px]">
+                    <div className="flex items-center gap-3">
+                      <RadioGroupItem
+                        id="radio-yearly"
+                        value="yearly"
+                        className="after:absolute after:inset-0"
+                      />
+                      <p className="text-foreground text-sm font-medium">Yearly</p>
+                    </div>
+
+                    <p className="text-muted-foreground text-sm">${Plans[plan].price.yearly}/year</p>
+                  </label>
+                </RadioGroup>
+              </>
+            )}
+
             <RadioPlanSelector
               onChange={(value: string) => setPlan(
-                value === "1" ? "hobby" :
-                value === "2" ? "pro" :
-                "business"
+                value === "1" ? "Hobby" :
+                value === "2" ? "Pro" :
+                "Business"
               )}
             />
 
@@ -168,8 +208,8 @@ export const NoOrganizations: Component<NewOrganizationProps> = ({ isFrame }) =>
             >
               {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
               {isPending ? "Creating..." : (
-                plan === "hobby" ? "Create organization" :
-                `Continue with ${plan === "pro" ? "Pro" : "Business"}`
+                plan === "Hobby" ? "Create organization" :
+                `Continue with ${plan}`
               )}
             </Button>
           </form>
