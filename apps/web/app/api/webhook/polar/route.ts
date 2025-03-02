@@ -57,15 +57,20 @@ const handleSubscriptionCreated = async (payload: WebhookSubscriptionCreatedPayl
 
   const plan = getPlanByCriteria({ productId: payload.data.productId });
 
-  await prisma.$queryRaw`UPDATE "organization" SET metadata = ${{
-    plan: plan?.name.toLowerCase(),
-    startedAt: payload.data.currentPeriodStart,
-    endsAt: payload.data.currentPeriodEnd,
-    subscriptionId: payload.data.id,
-    checkoutId: payload.data.checkoutId,
-    customerId: payload.data.customerId,
-    status: "active"
-  }}::jsonb WHERE id = ${schema.data.organizationId}`;
+  await prisma.organization.update({
+    where: { id: schema.data.organizationId },
+    data: {
+      metadata: JSON.stringify({
+        plan: plan?.name.toLowerCase(),
+        startedAt: payload.data.currentPeriodStart,
+        endsAt: payload.data.currentPeriodEnd,
+        subscriptionId: payload.data.id,
+        checkoutId: payload.data.checkoutId,
+        customerId: payload.data.customerId,
+        status: "active"
+      })
+    }
+  });
 }
 
 const handleSubscriptionCanceled = async (payload: WebhookSubscriptionCanceledPayload) => {
@@ -73,7 +78,10 @@ const handleSubscriptionCanceled = async (payload: WebhookSubscriptionCanceledPa
   const schema = z.object({ organizationId: z.string() }).safeParse({ organizationId });
   if (!schema.success) return;
 
-  const metadata = await prisma.$queryRaw`SELECT metadata FROM "organization" WHERE id = ${schema.data.organizationId}`;
+  const metadata = await prisma.organization.findUnique({
+    where: { id: schema.data.organizationId },
+    select: { metadata: true }
+  });
   if (!metadata) return;
 
   const newMetadata = {
@@ -81,7 +89,10 @@ const handleSubscriptionCanceled = async (payload: WebhookSubscriptionCanceledPa
     status: "canceled"
   };
 
-  await prisma.$queryRaw`UPDATE "organization" SET metadata = ${newMetadata}::jsonb WHERE id = ${schema.data.organizationId}`;
+  await prisma.organization.update({
+    where: { id: schema.data.organizationId },
+    data: { metadata: JSON.stringify(newMetadata) }
+  });
 }
 
 const handleSubscriptionUncanceled = async (payload: WebhookSubscriptionUncanceledPayload) => {
@@ -89,7 +100,11 @@ const handleSubscriptionUncanceled = async (payload: WebhookSubscriptionUncancel
   const schema = z.object({ organizationId: z.string() }).safeParse({ organizationId });
   if (!schema.success) return;
 
-  const metadata = await prisma.$queryRaw`SELECT metadata FROM "organization" WHERE id = ${schema.data.organizationId}`;
+  const metadata = await prisma.organization.findUnique({
+    where: { id: schema.data.organizationId },
+    select: { metadata: true }
+  });
+
   if (!metadata) return;
 
   const newMetadata = {
@@ -97,5 +112,8 @@ const handleSubscriptionUncanceled = async (payload: WebhookSubscriptionUncancel
     status: "active"
   };
 
-  await prisma.$queryRaw`UPDATE "organization" SET metadata = ${newMetadata}::jsonb WHERE id = ${schema.data.organizationId}`;
+  await prisma.organization.update({
+    where: { id: schema.data.organizationId },
+    data: { metadata: JSON.stringify(newMetadata) }
+  });
 }
