@@ -6,12 +6,13 @@ import { headers } from "next/headers";
 import { checkPermission } from "@/lib/check-permission";
 import { z } from "zod";
 import { polar } from "@/lib/polar";
+import { BillingCurrentPlanCard } from "./_components/current-plan.card";
 
 const metadataSchema = z.object({
   plan: z.enum(["hobby", "pro", "business"]),
   startedAt: z.string(),
   endsAt: z.string(),
-  subscriptionId: z.string().nullable(),
+  subscriptionId: z.string(),
   checkoutId: z.string(),
   customerId: z.string(),
 });
@@ -32,14 +33,10 @@ const OrganizationBilling = async(): Promise<ReactElement> => {
   });
 
   const metadata = metadataSchema.safeParse(JSON.parse(organization.metadata));
-  if (!metadata.success) {
-    throw new Error("Invalid metadata");
-  }
+  if (!metadata.success) throw new Error("Invalid metadata");
 
-  const checkout = await polar.checkouts.get({ id: metadata.data.checkoutId });
-  if (!checkout) {
-    throw new Error("Subscription not found");
-  }
+  const subscription = await polar.subscriptions.get({ id: metadata.data.subscriptionId });
+  if (!subscription) throw new Error("Subscription not found");
 
   return (
     <>
@@ -52,11 +49,7 @@ const OrganizationBilling = async(): Promise<ReactElement> => {
       } />
 
       <div>
-        <h1>Organization Billing</h1>
-
-        <pre>
-          {JSON.stringify(checkout, null, 2)}
-        </pre>
+        <BillingCurrentPlanCard subscription={subscription} />
       </div>
     </>
   );
