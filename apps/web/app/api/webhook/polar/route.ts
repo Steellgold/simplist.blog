@@ -9,33 +9,39 @@ type WebhookSubscriptionCreatedPayload = {
   data: Subscription;
 };
 
+type WebhookSubscriptionCanceledPayload = {
+  type?: "subscription.canceled" | undefined;
+  data: Subscription;
+};
+
+type WebhookSubscriptionUncanceledPayload = {
+  type?: "subscription.uncanceled" | undefined;
+  data: Subscription;
+};
+
 export const POST = Webhooks({
 	webhookSecret: process.env.POLAR_WEBHOOK_SECRET!,
 	onPayload: async (payload) => {
-		// Handle the event
 		switch (payload.type) {
 			case "subscription.created":
         await handleSubscriptionCreated(payload as WebhookSubscriptionCreatedPayload);
 				break;
 
-			// A catch-all case to handle all subscription webhook events
 			case "subscription.updated":
 				break;
 
-			// Subscription has been activated
 			case "subscription.active":
 				break;
 
-			// Subscription has been revoked/peroid has ended with no renewal
 			case "subscription.revoked":
 				break;
 
-			// Subscription has been explicitly canceled by the user
 			case "subscription.canceled":
+        await handleSubscriptionCanceled(payload as WebhookSubscriptionCanceledPayload);
 				break;
 
-      // Subscription has been un-canceled by the user
       case "subscription.uncanceled":
+        await handleSubscriptionUncanceled(payload as WebhookSubscriptionUncanceledPayload);
         break;
 
 			default:
@@ -47,11 +53,7 @@ export const POST = Webhooks({
 const handleSubscriptionCreated = async (payload: WebhookSubscriptionCreatedPayload) => {
   const organizationId = payload.data.metadata.organizationId;
   const schema = z.object({ organizationId: z.string() }).safeParse({ organizationId });
-
-  if (!schema.success) {
-    console.error("Invalid organizationId");
-    return;
-  }
+  if (!schema.success) return;
 
   const plan = getPlanByCriteria({ productId: payload.data.productId });
 
@@ -61,6 +63,39 @@ const handleSubscriptionCreated = async (payload: WebhookSubscriptionCreatedPayl
     endsAt: payload.data.currentPeriodEnd,
     subscriptionId: payload.data.id,
     checkoutId: payload.data.checkoutId,
-    customerId: payload.data.customerId
+    customerId: payload.data.customerId,
+    status: "active"
   }}::jsonb WHERE id = ${schema.data.organizationId}`;
+}
+
+const handleSubscriptionCanceled = async (payload: WebhookSubscriptionCanceledPayload) => {
+  const organizationId = payload.data.metadata.organizationId;
+  const schema = z.object({ organizationId: z.string() }).safeParse({ organizationId });
+  if (!schema.success) return;
+
+  const metadata = await prisma.$queryRaw`SELECT metadata FROM "organization" WHERE id = ${schema.data.organizationId}`;
+  if (!metadata) return;
+
+  const newMetadata = {
+    ...metadata,
+    status: "canceled"
+  };
+
+  await prisma.$queryRaw`UPDATE "organization" SET metadata = ${newMetadata}::jsonb WHERE id = ${schema.data.organizationId}`;
+}
+
+const handleSubscriptionUncanceled = async (payload: WebhookSubscriptionUncanceledPayload) => {
+  const organizationId = payload.data.metadata.organizationId;
+  const schema = z.object({ organizationId: z.string() }).safeParse({ organizationId });
+  if (!schema.success) return;
+
+  const metadata = await prisma.$queryRaw`SELECT metadata FROM "organization" WHERE id = ${schema.data.organizationId}`;
+  if (!metadata) return;
+
+  const newMetadata = {
+    ...metadata,
+    status: "active"
+  };
+
+  await prisma.$queryRaw`UPDATE "organization" SET metadata = ${newMetadata}::jsonb WHERE id = ${schema.data.organizationId}`;
 }
