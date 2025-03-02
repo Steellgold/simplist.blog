@@ -7,8 +7,10 @@ import { Pool } from "pg";
 import { resend } from "./resend";
 import Stripe from "stripe";
 import { BUSINESS_PRICE_IDS, PRO_PRICE_IDS } from "@workspace/ui/lib/pricing";
+import { PrismaClient } from "@prisma/client";
 
 const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!);
+const prisma = new PrismaClient();
 
 export const auth = betterAuth({
   emailAndPassword: {
@@ -91,6 +93,9 @@ export const auth = betterAuth({
   database: new Pool({
     connectionString: process.env.DATABASE_URL!
   }),
+  // database: prismaAdapter(prisma, {
+  //   provider: "postgresql"
+  // }),
   trustedOrigins: [
     "http://192.168.1.132:3000" // Desktop at home - Remove when branch merged
   ]
