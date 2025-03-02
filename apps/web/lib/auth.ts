@@ -1,10 +1,13 @@
 import { multiSession, openAPI, organization, twoFactor } from "better-auth/plugins";
+import { stripe } from "@better-auth/stripe";
 import { ac,  admin, editor, member, owner } from "./permissions";
 import { passkey } from "better-auth/plugins/passkey";
 import { betterAuth } from "better-auth";
 import { Pool } from "pg";
-import { EmailResetPassword, EmailVerification } from "@/emails";
 import { resend } from "./resend";
+import Stripe from "stripe";
+
+const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export const auth = betterAuth({
   emailAndPassword: {
@@ -17,7 +20,8 @@ export const auth = betterAuth({
         to: user.email,
         subject: "Reset your password",
         from: "no-reply@simplist.blog",
-        react: <EmailResetPassword resetUrl={url} name={user.name} />
+        html: `Click <a href="${url}">here</a> to reset your password`, // Temporary
+        // react: <EmailResetPassword resetUrl={url} name={user.name} />
       });
 
       // TODO: Switch to AWS SES
@@ -30,7 +34,8 @@ export const auth = betterAuth({
         to: user.email,
         subject: "Verify your email address",
         from: "no-reply@simplist.blog",
-        react: <EmailVerification confirmUrl={url} name={user.name} />,
+        html: `Click <a href="${url}">here</a> to verify your email address`, // Temporary
+        // react: <EmailVerification confirmUrl={url} name={user.name} />,
       });
 
       // TODO: Switch to AWS SES
@@ -68,7 +73,12 @@ export const auth = betterAuth({
     twoFactor({
       issuer: "simplist"
     }),
-    openAPI()
+    openAPI(),
+    stripe({
+      stripeClient,
+      stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET!,
+      createCustomerOnSignUp: true
+    })
   ],
   database: new Pool({
     connectionString: process.env.DATABASE_URL!
