@@ -1,3 +1,13 @@
+export const PRO_PRICE_IDS = {
+	monthly: process.env.NODE_ENV === "production" ? "" : "price_1QyFLhI0lz8qZXd60sHlArXd",
+  yearly: process.env.NODE_ENV === "production" ? "" : "price_1QyFLhI0lz8qZXd6ZD2rCECq"
+};
+
+export const BUSINESS_PRICE_IDS = {
+  monthly: process.env.NODE_ENV === "production" ? "" : "price_1QyFJaI0lz8qZXd6f1fxiafj",
+  yearly: process.env.NODE_ENV === "production" ? "" : "price_1QyFJaI0lz8qZXd6W0dwyUSK"
+};
+
 enum PlanType {
   HOBBY = "Hobby",
   PRO = "Pro",
@@ -35,11 +45,6 @@ export interface FeatureLimits {
   [Feature.POSTS]: number;
 }
 
-type Polar = {
-  priceId: string;
-  productId: string;
-}
-
 interface Plan {
   type: PlanType;
   name: string;
@@ -51,9 +56,9 @@ interface Plan {
   limits: FeatureLimits;
   recommended?: boolean;
 
-  polar?: {
-    monthly: Polar;
-    yearly: Polar;
+  priceIds?: {
+    monthly: string;
+    yearly: string;
   }
 }
 
@@ -79,16 +84,9 @@ export const PLANS: Plan[] = [
       [Feature.POSTS]: 500
     },
     recommended: true,
-    polar: {
-      monthly: {
-        priceId: "7f87925c-3d23-4bae-bed4-86e331df9d40",
-        productId: "4c07234b-737a-408e-b287-5505ad0a9b1d"
-      },
-  
-      yearly: {
-        priceId: "d9fb49ea-a0ce-4fb1-854b-e3b938653489",
-        productId: "9a7a4608-c6d2-4baf-b8f6-5e2e6db249d5"
-      }
+    priceIds: {
+      monthly: PRO_PRICE_IDS.monthly,
+      yearly: PRO_PRICE_IDS.yearly
     }
   },
   {
@@ -103,15 +101,9 @@ export const PLANS: Plan[] = [
       [Feature.POSTS]: 1000
     },
     recommended: false,
-    polar: {
-      monthly: {
-        priceId: "3914fe73-08d0-4409-8bc3-04d35d6c24fe",
-        productId: "c6b9f423-6ff9-42b0-8ed9-314ef94cfceb"
-      },
-      yearly: {
-        priceId: "27ef5f89-1a9e-4b49-bacd-fd5e9fe70b63",
-        productId: "a728459b-f242-4bd3-bb5b-f0f4a62c7e0c"
-      }
+    priceIds: {
+      monthly: BUSINESS_PRICE_IDS.monthly,
+      yearly: BUSINESS_PRICE_IDS.yearly
     }
   }
 ];
@@ -122,17 +114,13 @@ export const getPlanByName = (name: PlanName): Plan | undefined => {
 
 interface PlanCriteria {
   priceId?: string;
-  productId?: string;
   name?: PlanName;
 }
 
 export const getPlanByCriteria = (criteria: PlanCriteria): Plan | undefined => {
   return PLANS.find(plan => {
     if (criteria.priceId) {
-      return (plan.polar?.monthly.priceId === criteria.priceId) || (plan.polar?.yearly.priceId === criteria.priceId);
-    }
-    if (criteria.productId) {
-      return (plan.polar?.monthly.productId === criteria.productId) || (plan.polar?.yearly.productId === criteria.productId);
+      return (plan.priceIds?.monthly === criteria.priceId) || (plan.priceIds?.yearly === criteria.priceId);
     }
     if (criteria.name) {
       return plan.type === criteria.name;
@@ -141,10 +129,18 @@ export const getPlanByCriteria = (criteria: PlanCriteria): Plan | undefined => {
   });
 }
 
-export const getPeriodTypeByPID = (priceOrProductId: string): "monthly" | "yearly" | undefined => {
-  return PLANS.find(plan => {
-    return plan.polar?.monthly.priceId === priceOrProductId || plan.polar?.monthly.productId === priceOrProductId;
-  }) ? "monthly" : PLANS.find(plan => {
-    return plan.polar?.yearly.priceId === priceOrProductId || plan.polar?.yearly.productId === priceOrProductId;
-  }) ? "yearly" : undefined;
+export const getPeriodTypeByPID = (priceId: string): "monthly" | "yearly" | undefined => {
+  const plan = PLANS.find(plan => {
+    return plan.priceIds?.monthly === priceId || plan.priceIds?.yearly === priceId;
+  });
+
+  if (plan) {
+    if (plan.priceIds?.monthly === priceId) {
+      return "monthly";
+    } else if (plan.priceIds?.yearly === priceId) {
+      return "yearly";
+    }
+  }
+
+  return undefined;
 }

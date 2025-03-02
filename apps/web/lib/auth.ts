@@ -6,6 +6,7 @@ import { betterAuth } from "better-auth";
 import { Pool } from "pg";
 import { resend } from "./resend";
 import Stripe from "stripe";
+import { BUSINESS_PRICE_IDS, PRO_PRICE_IDS } from "@workspace/ui/lib/pricing";
 
 const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -77,7 +78,14 @@ export const auth = betterAuth({
     stripe({
       stripeClient,
       stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET!,
-      createCustomerOnSignUp: true
+      createCustomerOnSignUp: true,
+      subscription: {
+        enabled: true,
+        plans: [
+          { name: "Pro", priceId: PRO_PRICE_IDS.monthly, annualDiscountPriceId: PRO_PRICE_IDS.yearly },
+          { name: "Business", priceId: BUSINESS_PRICE_IDS.monthly, annualDiscountPriceId: BUSINESS_PRICE_IDS.yearly }
+        ]
+      }
     })
   ],
   database: new Pool({
