@@ -20,7 +20,7 @@ export const createOrganization = async (plan: "Pro" | "Business", interval: "mo
 
   const checkout = await polar.checkouts.create({
     productId: info.polar[interval].productId,
-    successUrl: new URL("/checkout/success?checkout_id={CHECKOUT_ID}", process.env.PUBLIC_BETTER_AUTH_URL).toString(),
+    successUrl: new URL("/settings/billing", process.env.PUBLIC_BETTER_AUTH_URL).toString(),
     metadata: { organizationId: organization.id }
   })
 

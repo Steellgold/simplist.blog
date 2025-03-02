@@ -1,12 +1,21 @@
+import { prisma } from "@/lib/prisma";
 import { Webhooks } from "@polar-sh/nextjs";
+import { Subscription } from "@polar-sh/sdk/models/components/subscription.js";
+import { getPlanByCriteria } from "@workspace/ui/lib/pricing";
+import { z } from "zod";
+
+type WebhookSubscriptionCreatedPayload = {
+  type?: "subscription.created" | undefined;
+  data: Subscription;
+};
 
 export const POST = Webhooks({
 	webhookSecret: process.env.POLAR_WEBHOOK_SECRET!,
 	onPayload: async (payload) => {
 		// Handle the event
 		switch (payload.type) {
-			// Subscription has been created
 			case "subscription.created":
+        await handleSubscriptionCreated(payload as WebhookSubscriptionCreatedPayload);
 				break;
 
 			// A catch-all case to handle all subscription webhook events
@@ -34,3 +43,24 @@ export const POST = Webhooks({
 		}
 	}
 })
+
+const handleSubscriptionCreated = async (payload: WebhookSubscriptionCreatedPayload) => {
+  const organizationId = payload.data.metadata.organizationId;
+  const schema = z.object({ organizationId: z.string() }).safeParse({ organizationId });
+
+  if (!schema.success) {
+    console.error("Invalid organizationId");
+    return;
+  }
+
+  const plan = getPlanByCriteria({ productId: payload.data.productId });
+
+  await prisma.$queryRaw`UPDATE "organization" SET metadata = ${{
+    plan: plan?.name.toLowerCase(),
+    startedAt: payload.data.currentPeriodStart,
+    endsAt: payload.data.currentPeriodEnd,
+    subscriptionId: payload.data.id,
+    checkoutId: payload.data.checkoutId,
+    customerId: payload.data.customerId
+  }}::jsonb WHERE id = ${schema.data.organizationId}`;
+}
