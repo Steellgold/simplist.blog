@@ -1,6 +1,5 @@
 "use client";
 
-import { createOrganization } from "@/lib/actions/create-organization";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@workspace/ui/components/button";
 import { Input } from "@workspace/ui/components/input";
@@ -103,7 +102,7 @@ export const NoOrganizations: Component<NewOrganizationProps> = ({ isFrame }) =>
                     description: "Please wait while we create your organization."
                   })
                 },
-                onSuccess: async () => {
+                onSuccess: async (ctx) => {
                   toast({
                     title: "Organization created",
                     description: "Your organization has been created successfully.",
@@ -134,11 +133,15 @@ export const NoOrganizations: Component<NewOrganizationProps> = ({ isFrame }) =>
                       }
                     })
                   } else {
-                    createOrganization(plan, renewal);
+                    await authClient.subscription.upgrade({
+                      plan: "pro",
+                      successUrl: `/settings/billing`,
+                      referenceId: ctx.data.id
+                    });
                   }
                 }
               }
-            })
+            });
           }}>
             <div className="space-y-2">
               <div className="relative">
