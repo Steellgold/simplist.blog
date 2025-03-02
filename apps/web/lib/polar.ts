@@ -1,28 +1,34 @@
 import { Polar } from "@polar-sh/sdk";
 import { SubscriptionStatus } from "@polar-sh/sdk/models/components/subscriptionstatus.js";
+import { BadgeSubscriptionVariant } from "@workspace/ui/components/badge";
 
 export const polar = new Polar({
   server: process.env.POLAR_SERVER! as "production" | "sandbox",
   accessToken: process.env.POLAR_ACCESS_TOKEN!
 })
 
-export const getStatus = (status: SubscriptionStatus) => {
+type GetStatusReturnType = {
+  classVariant: BadgeSubscriptionVariant;
+  status: string;
+};
+
+export const getStatus = (status: SubscriptionStatus): GetStatusReturnType => {
   switch (status) {
     case SubscriptionStatus.Active:
-      return "Active";
+      return { classVariant: "subscriptionActive", status: "Active" };
     case SubscriptionStatus.Canceled:
-      return "Canceled";
+      return { classVariant: "subscriptionCanceled", status: "Canceled" };
     case SubscriptionStatus.Incomplete:
-      return "Incomplete";
+      return { classVariant: "subscriptionIncomplete", status: "Incomplete" };
     case SubscriptionStatus.IncompleteExpired:
-      return "Incomplete Expired";
+      return { classVariant: "subscriptionIncompleteExpired", status: "Incomplete Expired" };
     case SubscriptionStatus.PastDue:
-      return "Past Due";
+      return { classVariant: "subscriptionPastDue", status: "Past Due" };
     case SubscriptionStatus.Trialing:
-      return "Trial Period";
+      return { classVariant: "subscriptionTrialing", status: "Trial Period" };
     case SubscriptionStatus.Unpaid:
-      return "Unpaid";
+      return { classVariant: "subscriptionUnpaid", status: "Unpaid" };
     default:
-      return "Unknown";
+      return { classVariant: "subscriptionUnknown", status: "Unknown" };
   }
 }
