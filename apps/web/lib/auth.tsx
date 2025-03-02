@@ -2,11 +2,9 @@ import { multiSession, openAPI, organization, twoFactor } from "better-auth/plug
 import { ac,  admin, editor, member, owner } from "./permissions";
 import { passkey } from "better-auth/plugins/passkey";
 import { betterAuth } from "better-auth";
-import { Resend } from "resend";
 import { Pool } from "pg";
 import { EmailResetPassword, EmailVerification } from "@/emails";
-
-const resend = new Resend(process.env.RESEND_API_KEY!);
+import { resend } from "./resend";
 
 export const auth = betterAuth({
   emailAndPassword: {
