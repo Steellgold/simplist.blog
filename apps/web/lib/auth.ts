@@ -3,13 +3,14 @@ import { stripe } from "@better-auth/stripe";
 import { ac,  admin, editor, member, owner } from "./permissions";
 import { passkey } from "better-auth/plugins/passkey";
 import { betterAuth } from "better-auth";
-import { Pool } from "pg";
 import { resend } from "./resend";
 import Stripe from "stripe";
 import { BUSINESS_PRICE_IDS, PRO_PRICE_IDS } from "@workspace/ui/lib/pricing";
+import { PrismaClient } from "@prisma/client";
+import { Pool } from "pg";
 
 const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!);
-// const prisma = new PrismaClient();
+const prisma = new PrismaClient();
 
 export const auth = betterAuth({
   emailAndPassword: {
@@ -85,7 +86,19 @@ export const auth = betterAuth({
         plans: [
           { name: "Pro", priceId: PRO_PRICE_IDS.monthly, annualDiscountPriceId: PRO_PRICE_IDS.yearly },
           { name: "Business", priceId: BUSINESS_PRICE_IDS.monthly, annualDiscountPriceId: BUSINESS_PRICE_IDS.yearly }
-        ]
+        ],
+        authorizeReference: async ({ user, session, referenceId, action }) => {
+          if (action === "upgrade-subscription" || action === "cancel-subscription") {
+            const org = await prisma.member.findFirst({
+              where: {
+                organizationId: referenceId,
+                userId: user.id
+              }   
+            });
+            return org?.role === "owner"
+          }
+          return true;
+        }
       }
     })
   ],
