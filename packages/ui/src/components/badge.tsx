@@ -3,8 +3,11 @@ import * as React from "react";
 
 import { cn } from "@workspace/ui/lib/utils";
 
+export type BadgeSubscriptionVariant = "subscriptionActive" | "subscriptionCanceled" | "subscriptionIncomplete" | "subscriptionIncompleteExpired" | "subscriptionPastDue" | "subscriptionTrialing" | "subscriptionUnpaid" | "subscriptionUnknown";
+
 const badgeVariants = cva(
-  "inline-flex items-center justify-center rounded-full border px-1.5 text-xs font-medium leading-normal transition-colors outline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring/70",
+  // rounded-full
+  "inline-flex items-center justify-center rounded border px-1.5 text-xs font-medium leading-normal transition-colors outline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring/70",
   {
     variants: {
       variant: {
@@ -12,6 +15,16 @@ const badgeVariants = cva(
         secondary: "border-transparent bg-secondary text-secondary-foreground",
         destructive: "border-transparent bg-destructive text-destructive-foreground",
         outline: "text-foreground",
+
+        // Subscription Status
+        subscriptionActive: "border-transparent bg-green-200 text-green-600",
+        subscriptionCanceled: "border-transparent bg-red-100 text-red-600",
+        subscriptionIncomplete: "border-transparent bg-yellow-100 text-yellow-600",
+        subscriptionIncompleteExpired: "border-transparent bg-yellow-100 text-yellow-600",
+        subscriptionPastDue: "border-transparent bg-red-100 text-red-600",
+        subscriptionTrialing: "border-transparent bg-blue-100 text-blue-600",
+        subscriptionUnpaid: "border-transparent bg-red-100 text-red-600",
+        subscriptionUnknown: "border-transparent bg-gray-100 text-gray"
       },
     },
     defaultVariants: {
