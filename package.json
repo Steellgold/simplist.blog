@@ -9,7 +9,9 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
 
     "declaration-off-git": "git update-index --skip-worktree packages/typescript-config/base.json",
-    "declaration-on-git": "git update-index --no-skip-worktree packages/typescript-config/base.json"
+    "declaration-on-git": "git update-index --no-skip-worktree packages/typescript-config/base.json",
+
+    "windows:stripe": "stripe listen --forward-to localhost:3000/api/auth/stripe/webhook"
   },
   "devDependencies": {
     "@workspace/eslint-config": "workspace:*",
