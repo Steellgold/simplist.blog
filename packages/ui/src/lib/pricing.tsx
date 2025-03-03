@@ -144,3 +144,6 @@ export const getPeriodTypeByPID = (priceId: string): "monthly" | "yearly" | unde
 
   return undefined;
 }
+
+export default { PlanType };
+export type { PlanName };
