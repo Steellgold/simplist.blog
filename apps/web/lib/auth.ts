@@ -87,7 +87,7 @@ export const auth = betterAuth({
           { name: "Pro", priceId: PRO_PRICE_IDS.monthly, annualDiscountPriceId: PRO_PRICE_IDS.yearly },
           { name: "Business", priceId: BUSINESS_PRICE_IDS.monthly, annualDiscountPriceId: BUSINESS_PRICE_IDS.yearly }
         ],
-        authorizeReference: async ({ user, session, referenceId, action }) => {
+        authorizeReference: async ({ user, referenceId, action }) => {
           if (action === "upgrade-subscription" || action === "cancel-subscription") {
             const org = await prisma.member.findFirst({
               where: {

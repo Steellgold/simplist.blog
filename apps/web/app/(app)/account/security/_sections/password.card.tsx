@@ -1,18 +1,15 @@
 "use client";
 
-import { authClient } from "@/lib/auth-client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card";
 import { useState } from "react";
-import { Check, Lock, X } from "lucide-react";
+import { Lock, X } from "lucide-react";
 import { SetupAccountPasswordDialog } from "@/components/setup-password-dialog";
 import { definePassword } from "@/lib/actions/define-password";
 import { Button } from "@workspace/ui/components/button";
 
 export const SectionPasswordCard = () => {
-  const { data: session, isPending: isSessionPending } = authClient.useSession();
-  const [isPending, setPending] = useState(false);
 
-  const [hasPassword, setHasPassword] = useState(false);
+  const [hasPassword] = useState(false);
 
   return (
     <>

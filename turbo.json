@@ -20,7 +20,9 @@
     "CLOUDFLARE_SECRET_ACCESS_KEY",
     "CLOUDFLARE_R2_BUCKET_NAME",
     "CDN_DOMAIN",
-    "RESEND_API_KEY"
+    "RESEND_API_KEY",
+    "STRIPE_WEBHOOK_SECRET",
+    "STRIPE_SECRET_KEY"
   ],
   "tasks": {
     "build": {
@@ -45,7 +47,9 @@
         "CLOUDFLARE_SECRET_ACCESS_KEY",
         "CLOUDFLARE_R2_BUCKET_NAME",
         "CDN_DOMAIN",
-        "RESEND_API_KEY"
+        "RESEND_API_KEY",
+        "STRIPE_WEBHOOK_SECRET",
+        "STRIPE_SECRET_KEY"
       ]
     },
     "lint": {
@@ -75,7 +79,9 @@
         "CLOUDFLARE_SECRET_ACCESS_KEY",
         "CLOUDFLARE_R2_BUCKET_NAME",
         "CDN_DOMAIN",
-        "RESEND_API_KEY"
+        "RESEND_API_KEY",
+        "STRIPE_WEBHOOK_SECRET",
+        "STRIPE_SECRET_KEY"
       ]
     }
   }

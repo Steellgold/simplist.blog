@@ -45,7 +45,7 @@ export const AppSidebarOrganization: Component<AppSidebarOrganizationProps> = ({
     if (activeOrganization) {
       fetchPlan();
     }
-  }, [activeOrganization]);
+  }, [activeOrganization, list]);
 
 
   const router = useRouter();
