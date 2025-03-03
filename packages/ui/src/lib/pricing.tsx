@@ -108,9 +108,18 @@ export const PLANS: Plan[] = [
   }
 ];
 
-export const getPlanByName = (name: PlanName): Plan | undefined => {
+export const parsePlanName = (name: string): PlanName => {
+  return name.charAt(0).toUpperCase() + name.slice(1) as PlanName;
+}
+
+export const isYearlyPlan = (priceId: string): boolean => {
+  return priceId === PRO_PRICE_IDS.yearly || priceId === BUSINESS_PRICE_IDS.yearly;
+}
+
+export const getPlanByName = (name: PlanName | undefined): Plan | undefined => {
+  if (!name) return;
   return PLANS.find(plan => plan.type === name || plan.name === name.toLowerCase());
 }
 
 export default { PlanType };
-export type { PlanName };
+export type { PlanName, Plan };
