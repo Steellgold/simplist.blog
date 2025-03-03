@@ -14,8 +14,7 @@ import { NewOrganization } from "../new-organization";
 import Link from "next/link";
 import { Component } from "@workspace/ui/components/utils/component";
 import { cn } from "@workspace/ui/lib/utils";
-import { useEffect, useState } from "react";
-import { PlanName } from "@workspace/ui/lib/pricing";
+import { usePlan } from "@/hooks/use-plan";
 
 type AppSidebarOrganizationProps = {
   side?: "bottom" | "right" | "top" | "left" | undefined;
@@ -25,28 +24,8 @@ export const AppSidebarOrganization: Component<AppSidebarOrganizationProps> = ({
   const { data: session, isPending: isSessionPending } = authClient.useSession();
   const { data: activeOrganization, isPending: isActiveOrganizationPending } = authClient.useActiveOrganization();
   const { data: organizations, isPending: isOrganizationsPending } = authClient.useListOrganizations();
-  
-  const { list } = authClient.subscription;
 
-  const [plan, setPlan] = useState<string>("Hobby");
-
-  useEffect(() => {
-    const fetchPlan = async() => {
-      const { data } = await list({
-        query: {
-          referenceId: activeOrganization?.id
-        }
-      });
-
-      const plan = data?.[0];
-      if (plan) setPlan(plan.plan.charAt(0).toUpperCase() + plan.plan.slice(1));
-    }
-
-    if (activeOrganization) {
-      fetchPlan();
-    }
-  }, [activeOrganization, list]);
-
+  const { plan, isPending: isPlanPending } = usePlan(activeOrganization?.id);
 
   const router = useRouter();
   const path = usePathname();
@@ -126,9 +105,11 @@ export const AppSidebarOrganization: Component<AppSidebarOrganizationProps> = ({
                         {activeOrganization.name}
                       </span>
 
-                      <span className="truncate text-xs">
-                        {plan}
-                      </span>
+                      {isPlanPending ? (
+                        <Skeleton className="w-20 h-4" />
+                      ) : (
+                        <span className="truncate text-xs">{plan}</span>
+                      )}
                     </div>
                   </>
                 ) : (
