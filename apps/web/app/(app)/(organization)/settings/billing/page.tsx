@@ -4,21 +4,19 @@ import { auth } from "@/lib/auth";
 import { forbidden } from "next/navigation";
 import { headers } from "next/headers";
 import { checkPermission } from "@/lib/check-permission";
+import { BillingCurrentPlanCard } from "./_components/current-plan.card";
+import { getPlanByName, parsePlanName } from "@workspace/ui/lib/pricing";
 
 const OrganizationBilling = async(): Promise<ReactElement> => {
-  const [organization] =
-    await Promise.all([
-      auth.api.getFullOrganization({ headers: await headers() })
-    ]);
+  const [organization] = await Promise.all([ auth.api.getFullOrganization({ headers: await headers() }) ]);
 
-  if (!organization) {
-    forbidden();
+  if (!organization) forbidden();
+  await checkPermission({ organizationId: organization.id,permission: { settings: ["delete"] } });
+
+  const subscription = (await auth.api.listActiveSubscriptions({ headers: await headers(), query: { referenceId: organization.id } }))[0]
+  if (!subscription) {
+    return <div>No subscriptions found</div>;
   }
-
-  await checkPermission({
-    organizationId: organization.id,
-    permission: { settings: ["delete"] },
-  });
 
   return (
     <>
@@ -31,11 +29,7 @@ const OrganizationBilling = async(): Promise<ReactElement> => {
       } />
 
       <div>
-        <h1>Organization Billing</h1>
-
-        <pre>
-          {/* {JSON.stringify(checkout, null, 2)} */}
-        </pre>
+        <BillingCurrentPlanCard plan={getPlanByName(parsePlanName(subscription.plan))} subscription={subscription} />
       </div>
     </>
   );

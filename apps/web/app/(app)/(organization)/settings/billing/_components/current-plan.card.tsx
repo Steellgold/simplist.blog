@@ -1,13 +1,30 @@
 "use client";
 
+import { usePlan } from "@/hooks/use-plan";
+import { Subscription } from "@better-auth/stripe";
 import { Button } from "@workspace/ui/components/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card";
+import { Component } from "@workspace/ui/components/utils/component";
+import { isYearlyPlan, Plan } from "@workspace/ui/lib/pricing";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 
-export const BillingCurrentPlanCard = () => {
-  const [pending] = useState(false);
-  
+type BillingCurrentPlanCardProps = {
+  plan: Plan | undefined;
+  subscription: Subscription;
+};
+
+export const BillingCurrentPlanCard: Component<BillingCurrentPlanCardProps> = ({ plan, subscription }) => {
+  const [pending, setPending] = useState(false);
+
+  if (!plan) return <></>;
+
+  // return (
+  //   <pre>
+  //     {JSON.stringify({ plan, subscription }, null, 2)}
+  //   </pre>
+  // )
+
   return (
     <Card>
       <CardHeader>
@@ -17,8 +34,11 @@ export const BillingCurrentPlanCard = () => {
       <CardContent className="space-y-4">
         <div className="flex justify-between items-center">
           <div>
-            {/* <p className="text-2xl font-semibold">{subscription.product.name}</p>
-            <p className="text-muted-foreground">${(subscription.amount ?? 0) / 100},00 per {subscription.recurringInterval}</p> */}
+            <p className="text-2xl font-semibold">{plan.name}</p>
+            <p className="text-muted-foreground">
+              ${isYearlyPlan(subscription.priceId ?? "") ? plan.price?.yearly : plan.price?.monthly}
+              ,00 per {isYearlyPlan(subscription.priceId ?? "") ? "year" : "month"}
+            </p>
           </div>
 
           <Button size={"sm"}>
