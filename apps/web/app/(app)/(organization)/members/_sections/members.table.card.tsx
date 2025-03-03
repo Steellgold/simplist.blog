@@ -50,7 +50,7 @@ export const MembersTable: Component<MembersTableProps> = ({ session, members })
                 </thead>
                 <tbody className="divide-y">
                   {members.map((member) => {
-                    const isCurrentUser = member.userId === session.user.id;
+                    const isCurrentUser = member.user.id === session.user.id;
                     const isOwner = member.role === "owner";
                     
                     return (
@@ -74,7 +74,8 @@ export const MembersTable: Component<MembersTableProps> = ({ session, members })
                           <RoleBadge role={member.role as "owner" | "admin" | "editor" | "member"} />
                         </td>
                         <td className="py-3 text-muted-foreground">
-                          {new Date(member.createdAt).toLocaleDateString()}
+                          {/* {new Date(member.createdAt).toLocaleDateString()} */}
+                          {new Date().toLocaleDateString()}
                         </td>
                         <td className="py-3 text-right">
                           {!isCurrentUser && (
