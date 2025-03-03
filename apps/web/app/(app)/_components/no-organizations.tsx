@@ -124,7 +124,8 @@ export const NoOrganizations: Component<NewOrganizationProps> = ({ isFrame }) =>
                     await authClient.subscription.upgrade({
                       plan: plan,
                       successUrl: `/settings/billing`,
-                      referenceId: ctx.data.id                      
+                      referenceId: ctx.data.id,
+                      annual: renewal === "yearly"                      
                     });
                   }
                 }
