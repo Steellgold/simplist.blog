@@ -1,0 +1,82 @@
+
+{
+  "$schema": "https://turbo.build/schema.json",
+  "ui": "tui",
+  "globalEnv": [
+    "BETTER_AUTH_SECRET",
+    "BETTER_AUTH_URL",
+    "PUBLIC_BETTER_AUTH_URL",
+    "DATABASE_URL",
+    "POLAR_SERVER",
+    "POLAR_ACCESS_TOKEN",
+    "SUCCESS_URL",
+    "CLOUDFLARE_ACCESS_KEY_ID",
+    "GITHUB_CLIENT_ID",
+    "GITHUB_CLIENT_SECRET",
+    "GOOGLE_CLIENT_ID",
+    "GOOGLE_CLIENT_SECRET",
+    "NODE_ENV",
+    "CLOUDFLARE_ACCOUNT_ID",
+    "CLOUDFLARE_SECRET_ACCESS_KEY",
+    "CLOUDFLARE_R2_BUCKET_NAME",
+    "CDN_DOMAIN",
+    "RESEND_API_KEY"
+  ],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "outputs": [".next/**", "!.next/cache/**"],
+      "env": [
+        "BETTER_AUTH_SECRET",
+        "BETTER_AUTH_URL",
+        "PUBLIC_BETTER_AUTH_URL",
+        "DATABASE_URL",
+        "POLAR_SERVER",
+        "POLAR_ACCESS_TOKEN",
+        "SUCCESS_URL",
+        "CLOUDFLARE_ACCESS_KEY_ID",
+        "GITHUB_CLIENT_ID",
+        "GITHUB_CLIENT_SECRET",
+        "GOOGLE_CLIENT_ID",
+        "GOOGLE_CLIENT_SECRET",
+        "NODE_ENV",
+        "CLOUDFLARE_ACCOUNT_ID",
+        "CLOUDFLARE_SECRET_ACCESS_KEY",
+        "CLOUDFLARE_R2_BUCKET_NAME",
+        "CDN_DOMAIN",
+        "RESEND_API_KEY"
+      ]
+    },
+    "lint": {
+      "dependsOn": ["^lint"]
+    },
+    "check-types": {
+      "dependsOn": ["^check-types"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true,
+      "env": [
+        "BETTER_AUTH_SECRET",
+        "BETTER_AUTH_URL",
+        "PUBLIC_BETTER_AUTH_URL",
+        "DATABASE_URL",
+        "POLAR_SERVER",
+        "POLAR_ACCESS_TOKEN",
+        "SUCCESS_URL",
+        "CLOUDFLARE_ACCESS_KEY_ID",
+        "GITHUB_CLIENT_ID",
+        "GITHUB_CLIENT_SECRET",
+        "GOOGLE_CLIENT_ID",
+        "GOOGLE_CLIENT_SECRET",
+        "NODE_ENV",
+        "CLOUDFLARE_ACCOUNT_ID",
+        "CLOUDFLARE_SECRET_ACCESS_KEY",
+        "CLOUDFLARE_R2_BUCKET_NAME",
+        "CDN_DOMAIN",
+        "RESEND_API_KEY"
+      ]
+    }
+  }
+}
