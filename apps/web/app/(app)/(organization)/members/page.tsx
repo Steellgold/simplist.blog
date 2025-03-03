@@ -44,7 +44,7 @@ const OrganizationMembers = async() => {
           }
         /> */}
 
-        <MembersTable members={organization.members as Member[]} session={session} />
+        <MembersTable members={organization.members} session={session} />
 
         {/* <InviteDialog 
           open={inviteDialogOpen} 

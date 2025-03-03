@@ -30,13 +30,15 @@ export const can = async (permission: Permissions): Promise<boolean> => {
 export type Session = typeof authClient.$Infer.Session
 export type Organization = typeof authClient.$Infer.Organization
 
-export type Member = typeof authClient.$Infer.Member & {
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    image?: string;
-  }  
-}
+// export type Member = typeof authClient.$Infer.Member & {
+//   user: {
+//     id: string;
+//     name: string;
+//     email: string;
+//     image?: string;
+//   }  
+// }
+
+export type Member = typeof authClient.$Infer.ActiveOrganization["members"][0]
 
 export type Invitation = typeof authClient.$Infer.Invitation
