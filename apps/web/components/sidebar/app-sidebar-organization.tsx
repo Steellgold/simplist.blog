@@ -14,6 +14,8 @@ import { NewOrganization } from "../new-organization";
 import Link from "next/link";
 import { Component } from "@workspace/ui/components/utils/component";
 import { cn } from "@workspace/ui/lib/utils";
+import { useEffect, useState } from "react";
+import { PlanName } from "@workspace/ui/lib/pricing";
 
 type AppSidebarOrganizationProps = {
   side?: "bottom" | "right" | "top" | "left" | undefined;
@@ -23,6 +25,28 @@ export const AppSidebarOrganization: Component<AppSidebarOrganizationProps> = ({
   const { data: session, isPending: isSessionPending } = authClient.useSession();
   const { data: activeOrganization, isPending: isActiveOrganizationPending } = authClient.useActiveOrganization();
   const { data: organizations, isPending: isOrganizationsPending } = authClient.useListOrganizations();
+  
+  const { list } = authClient.subscription;
+
+  const [plan, setPlan] = useState<string>("Hobby");
+
+  useEffect(() => {
+    const fetchPlan = async() => {
+      const { data } = await list({
+        query: {
+          referenceId: activeOrganization?.id
+        }
+      });
+
+      const plan = data?.[0];
+      if (plan) setPlan(plan.plan.charAt(0).toUpperCase() + plan.plan.slice(1));
+    }
+
+    if (activeOrganization) {
+      fetchPlan();
+    }
+  }, [activeOrganization]);
+
 
   const router = useRouter();
   const path = usePathname();
@@ -103,11 +127,7 @@ export const AppSidebarOrganization: Component<AppSidebarOrganizationProps> = ({
                       </span>
 
                       <span className="truncate text-xs">
-                        {
-                          activeOrganization.metadata
-                            ? JSON.parse(activeOrganization?.metadata).plan.charAt(0).toUpperCase() + JSON.parse(activeOrganization?.metadata).plan.slice(1)
-                            : "Hobby"
-                        }
+                        {plan}
                       </span>
                     </div>
                   </>
