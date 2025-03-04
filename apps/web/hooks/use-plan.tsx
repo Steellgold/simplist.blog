@@ -1,7 +1,7 @@
 "use client";
 
 import { authClient } from "@/lib/auth-client";
-import { PlanName } from "@workspace/ui/lib/pricing";
+import { PlanName } from "@/lib/pricing";
 import { useEffect, useMemo, useState } from "react";
 
 export const usePlan = (referenceId: string) => {

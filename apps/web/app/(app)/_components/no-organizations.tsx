@@ -8,7 +8,7 @@ import { RadioPlanSelector } from "@workspace/ui/components/radio-plan-selector"
 import { BreadcrumbSetter } from "@workspace/ui/components/setter-breadcrumb";
 import { Component } from "@workspace/ui/components/utils/component";
 import { toast } from "@workspace/ui/hooks/use-toast";
-import { getPlanByName } from "@workspace/ui/lib/pricing";
+import { getPlanByName } from "@/lib/pricing";
 import { cn } from "@workspace/ui/lib/utils";
 import { Building, Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation";

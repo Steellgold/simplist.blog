@@ -5,11 +5,11 @@ import { passkey } from "better-auth/plugins/passkey";
 import { betterAuth } from "better-auth";
 import { resend } from "./resend";
 import Stripe from "stripe";
-import { BUSINESS_PRICE_IDS, PRO_PRICE_IDS } from "@workspace/ui/lib/pricing";
+import { BUSINESS_PRICE_IDS, PRO_PRICE_IDS } from "@/lib/pricing";
 import { PrismaClient } from "@prisma/client";
 import { Pool } from "pg";
 
-const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!);
+export const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!);
 const prisma = new PrismaClient();
 
 export const auth = betterAuth({
