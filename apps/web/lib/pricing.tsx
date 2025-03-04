@@ -1,3 +1,6 @@
+import { Subscription } from "@better-auth/stripe";
+import { dayJS } from "./dayjs";
+
 export const PRO_PRICE_IDS = {
 	monthly: process.env.NODE_ENV === "production" ? "" : "price_1QyFLhI0lz8qZXd60sHlArXd",
   yearly: process.env.NODE_ENV === "production" ? "" : "price_1QyFLhI0lz8qZXd6ZD2rCECq"
@@ -112,8 +115,18 @@ export const parsePlanName = (name: string): PlanName => {
   return name.charAt(0).toUpperCase() + name.slice(1) as PlanName;
 }
 
-export const isYearlyPlan = (priceId: string): boolean => {
-  return priceId === PRO_PRICE_IDS.yearly || priceId === BUSINESS_PRICE_IDS.yearly;
+export const isYearlyPlan = (sub: Subscription): boolean => {
+  if (!sub.priceId) {
+    if (sub.periodStart && sub.periodEnd) {
+      const start = dayJS(sub.periodStart);
+      const end = dayJS(sub.periodEnd);
+      return end.diff(start, "month") >= 12;
+    }
+
+    return false;
+  }
+
+  return sub.priceId === PRO_PRICE_IDS.yearly || sub.priceId === BUSINESS_PRICE_IDS.yearly;
 }
 
 export const getPlanByName = (name: PlanName | undefined): Plan | undefined => {
