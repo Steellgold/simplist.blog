@@ -1,5 +1,7 @@
 import { Subscription } from "@better-auth/stripe";
 import { dayJS } from "./dayjs";
+import { ReactElement } from "react";
+import { CheckCircle2, X } from "lucide-react";
 
 export const PRO_PRICE_IDS = {
 	monthly: process.env.NODE_ENV === "production" ? "" : "price_1QyFLhI0lz8qZXd60sHlArXd",
@@ -128,6 +130,43 @@ export const isYearlyPlan = (sub: Subscription): boolean => {
 
   return sub.priceId === PRO_PRICE_IDS.yearly || sub.priceId === BUSINESS_PRICE_IDS.yearly;
 }
+
+type GetBetterStatusReturn = {
+  icon: ReactElement;
+  text: string;
+  badgeVariant: "subscriptionActive" |
+                "subscriptionCanceled" |
+                "subscriptionIncomplete" |
+                "subscriptionIncompleteExpired" |
+                "subscriptionPastDue" |
+                "subscriptionTrialing" |
+                "subscriptionUnpaid" |
+                "subscriptionUnknown";
+}
+
+export const getBtterStatus = (status: Subscription["status"]): GetBetterStatusReturn => {
+  switch (status) {
+    case "active":
+      return { icon: <CheckCircle2 />, text: "Active", badgeVariant: "subscriptionActive" };
+    case "canceled":
+      return { icon: <X />, text: "Canceled", badgeVariant: "subscriptionCanceled" };
+    case "incomplete":
+      return { icon: <X />, text: "Incomplete", badgeVariant: "subscriptionIncomplete" };
+    case "incomplete_expired":
+      return { icon: <X />, text: "Incomplete Expired", badgeVariant: "subscriptionIncompleteExpired" };
+    case "past_due":
+      return { icon: <X />, text: "Past Due", badgeVariant: "subscriptionPastDue" };
+    case "trialing":
+      return { icon: <X />, text: "Trialing", badgeVariant: "subscriptionTrialing" };
+    case "unpaid":
+      return { icon: <X />, text: "Unpaid", badgeVariant: "subscriptionUnpaid" };
+    case "paused":
+      return { icon: <X />, text: "Paused", badgeVariant: "subscriptionUnknown" };
+    default:
+      return { icon: <X />, text: "Unknown", badgeVariant: "subscriptionUnknown" };
+  }
+}
+
 
 export const getPlanByName = (name: PlanName | undefined): Plan | undefined => {
   if (!name) return;
