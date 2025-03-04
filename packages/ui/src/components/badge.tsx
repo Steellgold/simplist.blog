@@ -18,13 +18,13 @@ const badgeVariants = cva(
 
         // Subscription Status
         subscriptionActive: "border-transparent bg-green-200 text-green-600",
-        subscriptionCanceled: "border-transparent bg-red-100 text-red-600",
-        subscriptionIncomplete: "border-transparent bg-yellow-100 text-yellow-600",
-        subscriptionIncompleteExpired: "border-transparent bg-yellow-100 text-yellow-600",
-        subscriptionPastDue: "border-transparent bg-red-100 text-red-600",
-        subscriptionTrialing: "border-transparent bg-blue-100 text-blue-600",
-        subscriptionUnpaid: "border-transparent bg-red-100 text-red-600",
-        subscriptionUnknown: "border-transparent bg-gray-100 text-gray"
+        subscriptionCanceled: "border-transparent bg-red-200 text-red-600",
+        subscriptionIncomplete: "border-transparent bg-yellow-200 text-yellow-600",
+        subscriptionIncompleteExpired: "border-transparent bg-yellow-200 text-yellow-600",
+        subscriptionPastDue: "border-transparent bg-red-200 text-red-600",
+        subscriptionTrialing: "border-transparent bg-blue-200 text-blue-600",
+        subscriptionUnpaid: "border-transparent bg-red-200 text-red-600",
+        subscriptionUnknown: "border-transparent bg-gray-200 text-gray-600",
       },
     },
     defaultVariants: {
