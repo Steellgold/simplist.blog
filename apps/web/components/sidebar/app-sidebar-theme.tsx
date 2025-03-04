@@ -8,6 +8,7 @@ import { SidebarMenuButton } from "@workspace/ui/components/sidebar";
 import { Skeleton } from "@workspace/ui/components/skeleton";
 import { AppWindow, Check, Minus, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
+import Image from "next/image";
 import { useId } from "react";
 
 const items = [
@@ -75,7 +76,7 @@ export const AppSidebarTheme = () => {
                     value={item.value}
                     className="peer sr-only after:absolute after:inset-0"
                   />
-                  <img
+                  <Image
                     src={item.image}
                     alt={item.label}
                     width={88}

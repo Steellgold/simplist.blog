@@ -1,42 +1,28 @@
 import { ReactElement } from "react";
 import { BreadcrumbSetter } from "@workspace/ui/components/setter-breadcrumb";
-import { auth } from "@/lib/auth";
-import { forbidden } from "next/navigation";
+import { auth, stripeClient } from "@/lib/auth";
+import { forbidden, unauthorized } from "next/navigation";
 import { headers } from "next/headers";
 import { checkPermission } from "@/lib/check-permission";
-import { z } from "zod";
-import { polar } from "@/lib/polar";
 import { BillingCurrentPlanCard } from "./_components/current-plan.card";
-
-const metadataSchema = z.object({
-  plan: z.enum(["hobby", "pro", "business"]),
-  startedAt: z.string(),
-  endsAt: z.string(),
-  subscriptionId: z.string(),
-  checkoutId: z.string(),
-  customerId: z.string(),
-});
+import { getPlanByName, parsePlanName } from "@/lib/pricing";
+import { BillingInvoicesCard } from "./_components/invoices.card";
 
 const OrganizationBilling = async(): Promise<ReactElement> => {
-  const [organization] =
-    await Promise.all([
-      auth.api.getFullOrganization({ headers: await headers() })
-    ]);
+  const [organization, session] = await Promise.all([
+    auth.api.getFullOrganization({ headers: await headers() }),
+    auth.api.getSession({ headers: await headers() }),
+  ]);
 
-  if (!organization) {
-    forbidden();
-  }
+  if (!session) return unauthorized();
+  if (!organization) return forbidden();
+  await checkPermission({ organizationId: organization.id,permission: { settings: ["delete"] } });
 
-  await checkPermission({
-    organizationId: organization.id,
-    permission: { settings: ["delete"] },
-  });
+  const subscription = (await auth.api.listActiveSubscriptions({ headers: await headers(), query: { referenceId: organization.id } }))[0]
+  if (!subscription || !subscription.stripeSubscriptionId) return <div>No subscriptions found</div>;
 
-  const metadata = metadataSchema.safeParse(JSON.parse(organization.metadata));
-  if (!metadata.success) throw new Error("Invalid metadata");
-
-  const subscription = await polar.subscriptions.get({ id: metadata.data.subscriptionId });
-  if (!subscription) throw new Error("Subscription not found");
+  const charges = await stripeClient.charges.list({ customer: subscription.stripeCustomerId });
+  if (!charges) return <div>No charges found</div>;
 
   return (
     <>
@@ -48,9 +34,10 @@ const OrganizationBilling = async(): Promise<ReactElement> => {
         ]
       } />
 
-      <div>
-        <BillingCurrentPlanCard subscription={subscription} />
-      </div>
+      <>
+        <BillingCurrentPlanCard plan={getPlanByName(parsePlanName(subscription.plan))} subscription={subscription} />
+        <BillingInvoicesCard {...charges} />
+      </>
     </>
   );
 }

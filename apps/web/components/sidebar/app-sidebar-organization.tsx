@@ -14,6 +14,7 @@ import { NewOrganization } from "../new-organization";
 import Link from "next/link";
 import { Component } from "@workspace/ui/components/utils/component";
 import { cn } from "@workspace/ui/lib/utils";
+import { usePlan } from "@/hooks/use-plan";
 
 type AppSidebarOrganizationProps = {
   side?: "bottom" | "right" | "top" | "left" | undefined;
@@ -23,6 +24,8 @@ export const AppSidebarOrganization: Component<AppSidebarOrganizationProps> = ({
   const { data: session, isPending: isSessionPending } = authClient.useSession();
   const { data: activeOrganization, isPending: isActiveOrganizationPending } = authClient.useActiveOrganization();
   const { data: organizations, isPending: isOrganizationsPending } = authClient.useListOrganizations();
+
+  const { plan, isPending: isPlanPending } = usePlan(activeOrganization?.id);
 
   const router = useRouter();
   const path = usePathname();
@@ -102,13 +105,11 @@ export const AppSidebarOrganization: Component<AppSidebarOrganizationProps> = ({
                         {activeOrganization.name}
                       </span>
 
-                      <span className="truncate text-xs">
-                        {
-                          activeOrganization.metadata
-                            ? JSON.parse(activeOrganization?.metadata).plan.charAt(0).toUpperCase() + JSON.parse(activeOrganization?.metadata).plan.slice(1)
-                            : "Hobby"
-                        }
-                      </span>
+                      {isPlanPending ? (
+                        <Skeleton className="w-20 h-4" />
+                      ) : (
+                        <span className="truncate text-xs">{plan}</span>
+                      )}
                     </div>
                   </>
                 ) : (

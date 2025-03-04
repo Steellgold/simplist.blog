@@ -4,6 +4,7 @@ import timezone from "dayjs/plugin/timezone";
 import duration from "dayjs/plugin/duration";
 import relativeTime from "dayjs/plugin/relativeTime";
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 require("dayjs/locale/en");
 
 dayjs.extend(duration);

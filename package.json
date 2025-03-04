@@ -7,15 +7,15 @@
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-
     "declaration-off-git": "git update-index --skip-worktree packages/typescript-config/base.json",
-    "declaration-on-git": "git update-index --no-skip-worktree packages/typescript-config/base.json"
+    "declaration-on-git": "git update-index --no-skip-worktree packages/typescript-config/base.json",
+    "windows:stripe": "stripe listen --forward-to localhost:3000/api/auth/stripe/webhook"
   },
   "devDependencies": {
     "@workspace/eslint-config": "workspace:*",
     "@workspace/typescript-config": "workspace:*",
     "prettier": "^3.2.5",
-    "turbo": "^2.4.2",
+    "turbo": "^2.4.4",
     "typescript": "5.5.4"
   },
   "packageManager": "pnpm@9.12.3",

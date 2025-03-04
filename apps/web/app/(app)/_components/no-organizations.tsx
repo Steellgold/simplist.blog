@@ -1,6 +1,5 @@
 "use client";
 
-import { createOrganization } from "@/lib/actions/create-organization";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@workspace/ui/components/button";
 import { Input } from "@workspace/ui/components/input";
@@ -9,7 +8,7 @@ import { RadioPlanSelector } from "@workspace/ui/components/radio-plan-selector"
 import { BreadcrumbSetter } from "@workspace/ui/components/setter-breadcrumb";
 import { Component } from "@workspace/ui/components/utils/component";
 import { toast } from "@workspace/ui/hooks/use-toast";
-import { getPlanByName } from "@workspace/ui/lib/pricing";
+import { getPlanByName } from "@/lib/pricing";
 import { cn } from "@workspace/ui/lib/utils";
 import { Building, Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation";
@@ -84,9 +83,6 @@ export const NoOrganizations: Component<NewOrganizationProps> = ({ isFrame }) =>
             await authClient.organization.create({
               name: result.data.organizationName,
               slug: organizationSlug,
-              metadata: {
-                plan: "Hobby", // INFO: We always create a Hobby organization first to avoid billing issues
-              },
               fetchOptions: {
                 onError: (error) => {
                   setPending(false);
@@ -98,16 +94,10 @@ export const NoOrganizations: Component<NewOrganizationProps> = ({ isFrame }) =>
                 },
                 onRequest: () => {
                   setPending(true);
-                  toast({
-                    title: "Creating organization",
-                    description: "Please wait while we create your organization."
-                  })
+                  toast({ title: "Creating organization", description: "Please wait while we create your organization." })
                 },
-                onSuccess: async () => {
-                  toast({
-                    title: "Organization created",
-                    description: "Your organization has been created successfully.",
-                  });
+                onSuccess: async (ctx) => {
+                  toast({ title: "Organization created", description: "Your organization has been created successfully.", });
 
                   if (plan === "Hobby") {
                     await authClient.organization.setActive({
@@ -123,10 +113,7 @@ export const NoOrganizations: Component<NewOrganizationProps> = ({ isFrame }) =>
                         },
                         onRequest: () => {
                           setPending(true);
-                          toast({
-                            title: "Setting active organization",
-                            description: "Please wait while we set your organization as active."
-                          })
+                          toast({ title: "Setting active organization", description: "Please wait while we set your organization as active." })
                         },
                         onSuccess: () => {
                           router.refresh();
@@ -134,11 +121,16 @@ export const NoOrganizations: Component<NewOrganizationProps> = ({ isFrame }) =>
                       }
                     })
                   } else {
-                    createOrganization(plan, renewal);
+                    await authClient.subscription.upgrade({
+                      plan: plan,
+                      successUrl: `/settings/billing`,
+                      referenceId: ctx.data.id,
+                      annual: renewal === "yearly"                      
+                    });
                   }
                 }
               }
-            })
+            });
           }}>
             <div className="space-y-2">
               <div className="relative">

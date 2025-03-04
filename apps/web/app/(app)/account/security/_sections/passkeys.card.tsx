@@ -100,7 +100,8 @@ export const SectionPasskeysCard = () => {
                         description: "Please wait while we add the passkey to your account."
                       });
                     },
-                    onError: (error: any) => {
+                    onError: (error) => {
+                      console.log(error);
                       setLoading(false);
                       toast({
                         title: "Error while adding passkey",
@@ -191,7 +192,8 @@ export const SectionPasskeysCard = () => {
                                     description: "Please wait while we update the passkey."
                                   });
                                 },
-                                onError: (error: any) => {
+                                onError: (error) => {
+                                  console.log(error);
                                   setLoading(false);
                                   toast({
                                     title: "Error while updating passkey",

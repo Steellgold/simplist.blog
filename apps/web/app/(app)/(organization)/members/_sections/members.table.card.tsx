@@ -51,7 +51,6 @@ export const MembersTable: Component<MembersTableProps> = ({ session, members })
                 <tbody className="divide-y">
                   {members.map((member) => {
                     const isCurrentUser = member.userId === session.user.id;
-                    const isOwner = member.role === "owner";
                     
                     return (
                       <tr key={member.id} className="text-sm">

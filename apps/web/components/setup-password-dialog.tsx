@@ -120,6 +120,7 @@ export const SetupAccountPasswordDialog: Component<SetupAccountPasswordDialogPro
               
               setOpen(false);
             } catch (error) {
+              console.error(error);
               setPending(false);
               toast({
                 title: "Setup failed",

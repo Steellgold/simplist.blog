@@ -3,9 +3,8 @@
 import { useImageUpload } from "@/hooks/use-image-upload";
 import { Button } from "@workspace/ui/components/button";
 import { Component } from "@workspace/ui/components/utils/component";
-import { Building, CircleUserRoundIcon, XIcon } from "lucide-react";
+import { Building, XIcon } from "lucide-react";
 import Image from "next/image";
-import { ReactElement } from "react";
 
 type ImageUploadProps = {
   defaultImageUrl?: string;

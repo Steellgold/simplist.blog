@@ -5,6 +5,9 @@ const nextConfig: NextConfig = {
   experimental: {
     authInterrupts: true
   },
+  compiler: {
+    removeConsole: process.env.NODE_ENV === "production"
+  },
   images: {
     remotePatterns: [
       { hostname: "cdn.simplist.blog" },

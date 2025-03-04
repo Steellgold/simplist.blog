@@ -1,3 +1,4 @@
+import { stripeClient } from "@better-auth/stripe/client";
 import { ac,  admin, editor, member, owner, Permissions } from "./permissions";
 import { organizationClient, multiSessionClient, passkeyClient, twoFactorClient } from "better-auth/client/plugins"
 import { createAuthClient } from "better-auth/react"
@@ -10,7 +11,10 @@ export const authClient = createAuthClient({
     }),
     multiSessionClient(),
     passkeyClient(),
-    twoFactorClient()
+    twoFactorClient(),
+    stripeClient({
+      subscription: true
+    })
   ],
   baseURL: process.env.PUBLIC_BETTER_AUTH_URL!,
 });
@@ -26,13 +30,15 @@ export const can = async (permission: Permissions): Promise<boolean> => {
 export type Session = typeof authClient.$Infer.Session
 export type Organization = typeof authClient.$Infer.Organization
 
-export type Member = typeof authClient.$Infer.Member & {
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    image?: string;
-  }  
-}
+// export type Member = typeof authClient.$Infer.Member & {
+//   user: {
+//     id: string;
+//     name: string;
+//     email: string;
+//     image?: string;
+//   }  
+// }
+
+export type Member = typeof authClient.$Infer.ActiveOrganization["members"][0]
 
 export type Invitation = typeof authClient.$Infer.Invitation

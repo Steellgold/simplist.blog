@@ -133,6 +133,7 @@ export const GET = async (req: NextRequest) => {
       const fileUrl = await R2.getFileUrl(fileKey);
       return NextResponse.json({ success: true, url: fileUrl });
     } catch (error) {
+      console.error("Error retrieving file:", error);
       return NextResponse.json({ success: false, error: "File not found" }, { status: 404 });
     }
   } catch (error) {
