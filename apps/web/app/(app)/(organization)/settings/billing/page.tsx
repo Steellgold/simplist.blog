@@ -5,7 +5,7 @@ import { forbidden } from "next/navigation";
 import { headers } from "next/headers";
 import { checkPermission } from "@/lib/check-permission";
 import { BillingCurrentPlanCard } from "./_components/current-plan.card";
-import { getPlanByName, parsePlanName } from "@workspace/ui/lib/pricing";
+import { getPlanByName, parsePlanName } from "@/lib/pricing";
 
 const OrganizationBilling = async(): Promise<ReactElement> => {
   const [organization] = await Promise.all([ auth.api.getFullOrganization({ headers: await headers() }) ]);
@@ -14,9 +14,7 @@ const OrganizationBilling = async(): Promise<ReactElement> => {
   await checkPermission({ organizationId: organization.id,permission: { settings: ["delete"] } });
 
   const subscription = (await auth.api.listActiveSubscriptions({ headers: await headers(), query: { referenceId: organization.id } }))[0]
-  if (!subscription) {
-    return <div>No subscriptions found</div>;
-  }
+  if (!subscription || !subscription.stripeSubscriptionId) return <div>No subscriptions found</div>;
 
   return (
     <>
