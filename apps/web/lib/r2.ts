@@ -158,6 +158,14 @@ const deleteFile = async (key: string): Promise<void> => {
   }
 };
 
+/**
+ * Deletes all objects within a specified folder in an S3 bucket.
+ *
+ * @param {string} prefix - The prefix (folder path) of the objects to delete.
+ * @returns {Promise<void>} - A promise that resolves when the folder and its contents have been deleted.
+ *
+ * @throws Will throw an error if there is an issue with listing or deleting the objects.
+ */
 const deleteFolder = async (prefix: string): Promise<void> => {
   try {
     const listCommand = new ListObjectsV2Command({
