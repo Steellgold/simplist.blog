@@ -66,11 +66,18 @@ export const auth = betterAuth({
     organization({
       ac: ac,
       roles: { member, editor, admin, owner },
+      sendInvitationEmail: async ({ email, id, inviter, organization }) => {
+        await resend.emails.send({
+          to: email,
+          subject: `You've been invited to join ${organization.name}`,
+          from: "no-reply@simplist.blog",
+          html: `Hey ${inviter.user.name} has invited you to join ${organization.name}. Click <a href="${process.env.BETTER_AUTH_URL}/organizations/${organization.id}/accept/${id}">here</a> to accept the invitation`
+          // react: <EmailInvitation acceptUrl={url} name={organization.name} />
+        });
+      },
       organizationDeletion: {
         afterDelete: async(data, request) => {
           if (!data.organization.logo || !data.organization.logo.startsWith("https://cdn.simplist.blog")) return;
-          const fileName = data.organization.logo.split("/").pop();
-
           await R2.deleteFolder(`organizations/${data.organization.id}`);
         },
       }
