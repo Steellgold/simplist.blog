@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand, ListObjectsV2Command } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 const CLOUDFLARE_ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID || "";
@@ -158,11 +158,34 @@ const deleteFile = async (key: string): Promise<void> => {
   }
 };
 
+const deleteFolder = async (prefix: string): Promise<void> => {
+  try {
+    const listCommand = new ListObjectsV2Command({
+      Bucket: R2_BUCKET_NAME,
+      Prefix: prefix,
+    });
+
+    const { Contents } = await s3Client.send(listCommand);
+
+    if (Contents) {
+      const deleteCommands = Contents.map(({ Key }) => new DeleteObjectCommand({
+        Bucket: R2_BUCKET_NAME,
+        Key,
+      }));
+
+      await Promise.all(deleteCommands.map((command) => s3Client.send(command)));
+    }
+  } catch (error) {
+    console.error("Error deleting folder:", error);
+    throw error;
+  }
+};
+
 const R2 = {
   uploadFile,
   getFileUrl,
   getSignedFileUrl,
-  deleteFile,
+  deleteFile, deleteFolder,
   client: s3Client,
   bucketName: R2_BUCKET_NAME
 };
