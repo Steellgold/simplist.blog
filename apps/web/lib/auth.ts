@@ -8,6 +8,7 @@ import Stripe from "stripe";
 import { BUSINESS_PRICE_IDS, PRO_PRICE_IDS } from "@/lib/pricing";
 import { PrismaClient } from "@prisma/client";
 import { Pool } from "pg";
+import R2 from "./r2";
 
 export const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!);
 const prisma = new PrismaClient();
@@ -64,7 +65,15 @@ export const auth = betterAuth({
   plugins: [
     organization({
       ac: ac,
-      roles: { member, editor, admin, owner }
+      roles: { member, editor, admin, owner },
+      organizationDeletion: {
+        afterDelete: async(data, request) => {
+          if (!data.organization.logo || !data.organization.logo.startsWith("https://cdn.simplist.blog")) return;
+          const fileName = data.organization.logo.split("/").pop();
+
+          await R2.deleteFolder(`organizations/${data.organization.id}`);
+        },
+      }
     }),
     multiSession({
       maximumSessions: 1 // testing purposes
