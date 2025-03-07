@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
   },
   images: {
     remotePatterns: [
-      { hostname: "cdn.simplist.blog" },
+      { hostname: "cdn.simplist.blog" }, // 😎😎😎
       { hostname: "avatars.githubusercontent.com" }
     ]
   }
