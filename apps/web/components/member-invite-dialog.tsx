@@ -36,11 +36,9 @@ export const MemberInviteDialog = (): ReactElement => {
         </div>
 
         <form className="space-y-5">
-          <div className="space-y-4">
-            <div className="*:not-first:mt-2">
-              <Label>Invite via email</Label>
-              <Input />
-            </div>
+          <div className="space-y-1">
+            <Label>Invite via email</Label>
+            <Input />
           </div>
 
           <Button type="button" className="w-full">
