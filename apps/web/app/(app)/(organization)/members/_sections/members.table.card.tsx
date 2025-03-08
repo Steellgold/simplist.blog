@@ -11,6 +11,7 @@ import { Crown, Loader2, MoreHorizontal, PenSquare, Shield, User, X } from "luci
 import { Member, Session } from "@/lib/auth-client";
 import { Component } from "@workspace/ui/components/utils/component";
 import { useState } from "react";
+import { MemberInviteDialog } from "@/components/member-invite-dialog";
 
 type MembersTableProps = {
   members: Member[];
@@ -27,11 +28,15 @@ export const MembersTable: Component<MembersTableProps> = ({ session, members })
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Organization Members</CardTitle>
-        <CardDescription>
-          Members and their roles.
-        </CardDescription>
+      <CardHeader className="flex flex-row justify-between">
+        <div>
+          <CardTitle>Organization Members</CardTitle>
+          <CardDescription>
+            Members and their roles.
+          </CardDescription>
+        </div>
+
+        <MemberInviteDialog />
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
