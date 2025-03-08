@@ -13,6 +13,10 @@ import R2 from "./r2";
 export const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!);
 const prisma = new PrismaClient();
 
+export const pool = new Pool({
+  connectionString: process.env.DATABASE_URL!
+})
+
 export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
@@ -118,9 +122,7 @@ export const auth = betterAuth({
       }
     })
   ],
-  database: new Pool({
-    connectionString: process.env.DATABASE_URL!
-  }),
+  database: pool,
   // database: prismaAdapter(prisma, {
   //   provider: "postgresql"
   // }),
