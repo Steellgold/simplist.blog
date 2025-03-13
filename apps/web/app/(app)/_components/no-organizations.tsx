@@ -14,6 +14,7 @@ import { Building, Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { z } from "zod";
+import { PendingInvitations } from "@/components/pending-invitations";
 
 type NewOrganizationProps = {
   isFrame?: boolean;
