@@ -1,7 +1,8 @@
-![opengraph-image](https://github.com/Steellgold/simplist/assets/51505384/39caa4ac-da4b-4b42-80a9-f69c257d210e)
+## Simplist — Supabase OSS Hackathon 2024
 
-A project for the Supabase OSS Hackaton 2024
+**Simplist** is a simple and fast posting API. Post your content in the easiest way possible, and retrieve it through a clean API.
 
-Simplist is a simple, fast posting API. Post your content in the simplest way possible, and just get your content back with an API
+This project is **still fully functional** and is **actively used in production**.
+A **new version** of Simplist is currently **being developed**, with major improvements on the way.
 
-[Demo vidéo](https://youtu.be/DssHBnrg4jk?si=0eatVLv1ZMfu2uGH)
+🎥 [Watch the demo video](https://youtu.be/DssHBnrg4jk?si=0eatVLv1ZMfu2uGH)
