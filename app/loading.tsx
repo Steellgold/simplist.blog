@@ -1,6 +1,6 @@
 import type { FC, PropsWithChildren } from "react";
 
-export const LoadingPage: FC<PropsWithChildren> = ({ children }) => {
+const LoadingPage: FC<PropsWithChildren> = ({ children }) => {
   return (
     <div className="flex flex-col h-screen w-full items-center justify-center bg-background gap-10">
       {children}
@@ -12,3 +12,5 @@ export const LoadingPage: FC<PropsWithChildren> = ({ children }) => {
     </div>
   );
 }
+
+export default LoadingPage;
