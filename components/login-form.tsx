@@ -1,29 +1,47 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-  FieldSeparator,
-} from "@/components/ui/field"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Field, FieldDescription, FieldGroup, FieldLabel, FieldSeparator } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { authClient } from "@/lib/auth-client"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
 import { OAuthProviders } from "./oauth-providers"
 import { PasswordInput } from "./password-input"
 
 export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
-  const lastMethod = authClient.getLastUsedLoginMethod()
+  const router = useRouter()
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [error, setError] = useState("")
+  const [loading, setLoading] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError("")
+    setLoading(true)
+
+    try {
+      await authClient.signIn.email({
+        email,
+        password,
+      }, {
+        onSuccess: () => {
+          router.push("/")
+        },
+        onError: (ctx) => {
+          setError(ctx.error.message || "Invalid email or password")
+        }
+      })
+    } catch (err) {
+      setError("An error occurred during login")
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <div className={cn("flex flex-col gap-3", className)} {...props}>
@@ -36,7 +54,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
         </CardHeader>
 
         <CardContent>
-          <form>
+          <form onSubmit={handleSubmit}>
             <FieldGroup>
               <OAuthProviders />
 
@@ -45,9 +63,20 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
               </FieldSeparator>
 
               <div className="flex flex-col gap-4">
+                {error && (
+                  <div className="text-destructive text-sm text-center">{error}</div>
+                )}
+
                 <Field>
                   <FieldLabel htmlFor="email">Email</FieldLabel>
-                  <Input id="email" type="email" placeholder="jondoe@company.com" required />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="jondoe@company.com"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
                 </Field>
 
                 <Field>
@@ -58,11 +87,18 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                     </Link>
                   </div>
 
-                  <PasswordInput id="password" required />
+                  <PasswordInput
+                    id="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
                 </Field>
 
                 <Field>
-                  <Button type="submit">Login</Button>
+                  <Button type="submit" disabled={loading}>
+                    {loading ? "Logging in..." : "Login"}
+                  </Button>
                   <FieldDescription className="text-center">
                     Don&apos;t have an account? <Link href="/auth/register">Sign up</Link>
                   </FieldDescription>
