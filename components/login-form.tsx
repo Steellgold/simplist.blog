@@ -1,47 +1,61 @@
 "use client"
 
+import { zodResolver } from "@hookform/resolvers/zod"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
+import { useForm } from "react-hook-form"
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Field, FieldDescription, FieldGroup, FieldLabel, FieldSeparator } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { authClient } from "@/lib/auth-client"
 import { cn } from "@/lib/utils"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { LoginInput, loginSchema } from "@/lib/validations/auth"
 import { OAuthProviders, OAuthProvidersProvider, useOAuthProviders } from "./oauth-providers"
 import { PasswordInput } from "./password-input"
+import { toast } from "@/components/ui/sonner"
 
 function LoginFormContent({ className, ...props }: React.ComponentProps<"div">) {
   const router = useRouter()
   const { isAuthenticating } = useOAuthProviders()
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
   const [error, setError] = useState("")
-  const [loading, setLoading] = useState(false)
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginInput>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  })
+
+  const onSubmit = async (data: LoginInput) => {
     setError("")
-    setLoading(true)
 
-    try {
-      await authClient.signIn.email({
-        email,
-        password,
+    await toast.promise(
+      authClient.signIn.email({
+        email: data.email,
+        password: data.password,
       }, {
         onSuccess: () => {
-          router.push("/")
+          router.push("/dashboard")
         },
         onError: (ctx) => {
           setError(ctx.error.message || "Invalid email or password")
+          throw new Error(ctx.error.message)
         }
-      })
-    } catch (err) {
-      setError("An error occurred during login")
-    } finally {
-      setLoading(false)
-    }
+      }),
+      {
+        loading: "Logging in...",
+        success: "Logged in successfully",
+        error: (err) => err?.message || "An error occurred during login",
+      }
+    )
   }
 
   return (
@@ -55,7 +69,7 @@ function LoginFormContent({ className, ...props }: React.ComponentProps<"div">) 
         </CardHeader>
 
         <CardContent>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit(onSubmit)}>
             <FieldGroup>
               <OAuthProviders />
 
@@ -74,10 +88,11 @@ function LoginFormContent({ className, ...props }: React.ComponentProps<"div">) 
                     id="email"
                     type="email"
                     placeholder="jondoe@company.com"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    {...register("email")}
                   />
+                  {errors.email && (
+                    <p className="text-destructive text-sm mt-1">{errors.email.message}</p>
+                  )}
                 </Field>
 
                 <Field>
@@ -90,15 +105,16 @@ function LoginFormContent({ className, ...props }: React.ComponentProps<"div">) 
 
                   <PasswordInput
                     id="password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    {...register("password")}
                   />
+                  {errors.password && (
+                    <p className="text-destructive text-sm mt-1">{errors.password.message}</p>
+                  )}
                 </Field>
 
                 <Field>
-                  <Button type="submit" disabled={loading || isAuthenticating}>
-                    {loading ? "Logging in..." : "Login"}
+                  <Button type="submit" disabled={isSubmitting || isAuthenticating}>
+                    {isSubmitting ? "Logging in..." : "Login"}
                   </Button>
                   <FieldDescription className="text-center">
                     Don&apos;t have an account? <Link href="/auth/register">Sign up</Link>

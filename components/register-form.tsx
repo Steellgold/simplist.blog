@@ -1,62 +1,65 @@
 "use client"
 
+import { zodResolver } from "@hookform/resolvers/zod"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
+import { useForm } from "react-hook-form"
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Field, FieldDescription, FieldGroup, FieldLabel, FieldSeparator } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { authClient } from "@/lib/auth-client"
 import { cn } from "@/lib/utils"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { RegisterInput, registerSchema } from "@/lib/validations/auth"
 import { OAuthProviders, OAuthProvidersProvider, useOAuthProviders } from "./oauth-providers"
 import { PasswordInput } from "./password-input"
+import { toast } from "@/components/ui/sonner"
 
 function RegisterFormContent({ className, ...props }: React.ComponentProps<"div">) {
   const router = useRouter()
   const { isAuthenticating } = useOAuthProviders()
-  const [firstName, setFirstName] = useState("")
-  const [lastName, setLastName] = useState("")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
   const [error, setError] = useState("")
-  const [loading, setLoading] = useState(false)
+  
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<RegisterInput>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
+  })
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const onSubmit = async (data: RegisterInput) => {
     setError("")
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match")
-      return
-    }
-
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters long")
-      return
-    }
-
-    setLoading(true)
-
-    try {
-      await authClient.signUp.email({
-        name: `${firstName} ${lastName}`,
-        email,
-        password,
+    await toast.promise(
+      authClient.signUp.email({
+        name: `${data.firstName} ${data.lastName}`,
+        email: data.email,
+        password: data.password,
       }, {
         onSuccess: () => {
-          router.push("/")
+          router.push("/dashboard")
         },
         onError: (ctx) => {
           setError(ctx.error.message || "Failed to create account")
+          throw new Error(ctx.error.message)
         }
-      })
-    } catch (err) {
-      setError("An error occurred during registration")
-    } finally {
-      setLoading(false)
-    }
+      }),
+      {
+        loading: "Creating account...",
+        success: "Account created",
+        error: (err) => err?.message || "An error occurred during registration",
+      }
+    )
   }
 
   return (
@@ -70,7 +73,7 @@ function RegisterFormContent({ className, ...props }: React.ComponentProps<"div"
         </CardHeader>
 
         <CardContent>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit(onSubmit)}>
             <FieldGroup>
               <OAuthProviders />
 
@@ -90,10 +93,11 @@ function RegisterFormContent({ className, ...props }: React.ComponentProps<"div"
                       id="firstName"
                       type="text"
                       placeholder="John"
-                      required
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
+                      {...register("firstName")}
                     />
+                    {errors.firstName && (
+                      <p className="text-destructive text-sm mt-1">{errors.firstName.message}</p>
+                    )}
                   </Field>
 
                   <Field>
@@ -102,10 +106,11 @@ function RegisterFormContent({ className, ...props }: React.ComponentProps<"div"
                       id="lastName"
                       type="text"
                       placeholder="Doe"
-                      required
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
+                      {...register("lastName")}
                     />
+                    {errors.lastName && (
+                      <p className="text-destructive text-sm mt-1">{errors.lastName.message}</p>
+                    )}
                   </Field>
                 </div>
 
@@ -115,35 +120,38 @@ function RegisterFormContent({ className, ...props }: React.ComponentProps<"div"
                     id="email"
                     type="email"
                     placeholder="jondoe@company.com"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    {...register("email")}
                   />
+                  {errors.email && (
+                    <p className="text-destructive text-sm mt-1">{errors.email.message}</p>
+                  )}
                 </Field>
 
                 <Field>
                   <FieldLabel htmlFor="password">Password</FieldLabel>
                   <PasswordInput
                     id="password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    {...register("password")}
                   />
+                  {errors.password && (
+                    <p className="text-destructive text-sm mt-1">{errors.password.message}</p>
+                  )}
                 </Field>
 
                 <Field>
                   <FieldLabel htmlFor="confirmPassword">Confirm Password</FieldLabel>
                   <PasswordInput
                     id="confirmPassword"
-                    required
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    {...register("confirmPassword")}
                   />
+                  {errors.confirmPassword && (
+                    <p className="text-destructive text-sm mt-1">{errors.confirmPassword.message}</p>
+                  )}
                 </Field>
 
                 <Field>
-                  <Button type="submit" disabled={loading || isAuthenticating}>
-                    {loading ? "Creating account..." : "Sign up"}
+                  <Button type="submit" disabled={isSubmitting || isAuthenticating}>
+                    {isSubmitting ? "Creating account..." : "Sign up"}
                   </Button>
                   <FieldDescription className="text-center">
                     Already have an account? <Link href="/auth/login">Login</Link>
