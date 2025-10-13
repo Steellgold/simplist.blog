@@ -9,11 +9,12 @@ import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { OAuthProviders } from "./oauth-providers"
+import { OAuthProviders, OAuthProvidersProvider, useOAuthProviders } from "./oauth-providers"
 import { PasswordInput } from "./password-input"
 
-export function RegisterForm({ className, ...props }: React.ComponentProps<"div">) {
+function RegisterFormContent({ className, ...props }: React.ComponentProps<"div">) {
   const router = useRouter()
+  const { isAuthenticating } = useOAuthProviders()
   const [firstName, setFirstName] = useState("")
   const [lastName, setLastName] = useState("")
   const [email, setEmail] = useState("")
@@ -141,7 +142,7 @@ export function RegisterForm({ className, ...props }: React.ComponentProps<"div"
                 </Field>
 
                 <Field>
-                  <Button type="submit" disabled={loading}>
+                  <Button type="submit" disabled={loading || isAuthenticating}>
                     {loading ? "Creating account..." : "Sign up"}
                   </Button>
                   <FieldDescription className="text-center">
@@ -159,5 +160,13 @@ export function RegisterForm({ className, ...props }: React.ComponentProps<"div"
         and <a href="#">Privacy Policy</a>.
       </FieldDescription>
     </div>
+  )
+}
+
+export function RegisterForm(props: React.ComponentProps<"div">) {
+  return (
+    <OAuthProvidersProvider>
+      <RegisterFormContent {...props} />
+    </OAuthProvidersProvider>
   )
 }

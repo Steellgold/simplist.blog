@@ -9,11 +9,12 @@ import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { OAuthProviders } from "./oauth-providers"
+import { OAuthProviders, OAuthProvidersProvider, useOAuthProviders } from "./oauth-providers"
 import { PasswordInput } from "./password-input"
 
-export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
+function LoginFormContent({ className, ...props }: React.ComponentProps<"div">) {
   const router = useRouter()
+  const { isAuthenticating } = useOAuthProviders()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
@@ -96,7 +97,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
                 </Field>
 
                 <Field>
-                  <Button type="submit" disabled={loading}>
+                  <Button type="submit" disabled={loading || isAuthenticating}>
                     {loading ? "Logging in..." : "Login"}
                   </Button>
                   <FieldDescription className="text-center">
@@ -114,5 +115,13 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
         and <a href="#">Privacy Policy</a>.
       </FieldDescription>
     </div>
+  )
+}
+
+export function LoginForm(props: React.ComponentProps<"div">) {
+  return (
+    <OAuthProvidersProvider>
+      <LoginFormContent {...props} />
+    </OAuthProvidersProvider>
   )
 }
