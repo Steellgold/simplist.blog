@@ -50,7 +50,7 @@ export function ProviderButton({ type, onAuthStart, onAuthEnd, disabled }: Provi
       const { authClient } = await import("@/lib/auth-client")
       await authClient.signIn.social({
         provider: type,
-        callbackURL: "/",
+        callbackURL: "/dashboard",
       })
     } catch (error) {
       console.error(`Failed to login with ${type}:`, error)
