@@ -108,3 +108,67 @@ export async function deleteProject(projectId: string) {
 
   revalidatePath("/")
 }
+
+export async function updateProject(
+  projectId: string,
+  input: { name: string; description?: string }
+) {
+  const user = await getCurrentUser()
+
+  if (!user) {
+    redirect("/auth/login")
+  }
+
+  const project = await prisma.project.findFirst({
+    where: {
+      id: projectId,
+      userId: user.id,
+    },
+  })
+
+  if (!project) {
+    throw new Error("Project not found or you don't have permission")
+  }
+
+  // Generate a slug from the new name and ensure uniqueness per user
+  const baseSlug = input.name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/[\s_-]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+
+  let finalSlug = baseSlug
+  let counter = 1
+
+  while (true) {
+    const existing = await prisma.project.findFirst({
+      where: {
+        slug: finalSlug,
+        userId: user.id,
+        NOT: { id: projectId },
+      },
+    })
+
+    if (!existing) break
+    finalSlug = `${baseSlug}-${counter}`
+    counter++
+  }
+
+  const updated = await prisma.project.update({
+    where: { id: projectId },
+    data: {
+      name: input.name,
+      slug: finalSlug,
+      description: input.description ?? project.description,
+    },
+  })
+
+  // Revalidate dashboard pages that show project info
+  revalidatePath("/")
+  revalidatePath("/dashboard")
+  revalidatePath("/settings")
+  return updated
+}

@@ -5,10 +5,13 @@ import {
   Key,
   LayoutDashboard,
   LogOut,
+  Moon,
   PencilRuler,
   Settings,
+  Sun,
 } from "lucide-react"
 import Link from "next/link"
+import * as React from "react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
@@ -32,6 +35,8 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import { cn } from "@/lib/utils"
+import { useTheme } from "next-themes"
 
 interface User {
   id: string
@@ -80,7 +85,13 @@ export function AppSidebar({
   project,
   onLogout,
 }: AppSidebarProps) {
-  const { isMobile } = useSidebar()
+  const { isMobile, state } = useSidebar();
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const getUserInitials = () => {
     if (!user.name) return "?"
@@ -92,7 +103,7 @@ export function AppSidebar({
   }
 
   return (
-    <Sidebar>
+    <Sidebar variant="floating" collapsible="icon">
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -105,7 +116,7 @@ export function AppSidebar({
                   {project.name}
                 </span>
                 <span className="truncate text-xs text-muted-foreground">
-                  {project.slug}
+                  {project.id.slice(0, 8)}...
                 </span>
               </div>
             </SidebarMenuButton>
@@ -136,6 +147,30 @@ export function AppSidebar({
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
+            <SidebarMenuButton
+              size="sm"
+              className="w-full justify-center"
+              variant="outline"
+              onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+              disabled={!mounted}
+            >
+              {!mounted ? (
+                <div className="size-4" />
+              ) : theme === "light" ? (
+                <Sun className="size-4" />
+              ) : (
+                <Moon className="size-4" />
+              )}
+
+              <span className={cn({
+                "sr-only": state == "collapsed",
+              })}>
+                {!mounted ? "Toggle theme" : `Switch to ${theme === "light" ? "dark" : "light"} mode`}
+              </span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+
+          <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton
@@ -156,6 +191,7 @@ export function AppSidebar({
                   </div>
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
+
               <DropdownMenuContent
                 className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
                 side={isMobile ? "bottom" : "right"}
@@ -181,7 +217,9 @@ export function AppSidebar({
                     </div>
                   </div>
                 </DropdownMenuLabel>
+
                 <DropdownMenuSeparator />
+
                 <DropdownMenuItem onClick={onLogout}>
                   <LogOut className="size-4" />
                   Log out

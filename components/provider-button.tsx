@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
+import { authClient } from "@/lib/auth-client"
 import { cn } from "@/lib/utils"
 import { useState } from "react"
 
@@ -49,7 +50,6 @@ export function ProviderButton({ type, onAuthStart, onAuthEnd, disabled, isLastU
     onAuthStart?.()
 
     try {
-      const { authClient } = await import("@/lib/auth-client")
       await authClient.signIn.social({
         provider: type,
         callbackURL: "/dashboard",
