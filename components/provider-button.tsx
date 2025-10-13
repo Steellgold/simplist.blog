@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
+import { cn } from "@/lib/utils"
 import { useState } from "react"
 
 type ProviderType = "github" | "google"
@@ -11,6 +12,7 @@ interface ProviderButtonProps {
   onAuthStart?: () => void
   onAuthEnd?: () => void
   disabled?: boolean
+  isLastUsed?: boolean
 }
 
 const providerConfig = {
@@ -38,7 +40,7 @@ const providerConfig = {
   },
 }
 
-export function ProviderButton({ type, onAuthStart, onAuthEnd, disabled }: ProviderButtonProps) {
+export function ProviderButton({ type, onAuthStart, onAuthEnd, disabled, isLastUsed }: ProviderButtonProps) {
   const [loading, setLoading] = useState(false)
   const config = providerConfig[type]
 
@@ -61,14 +63,28 @@ export function ProviderButton({ type, onAuthStart, onAuthEnd, disabled }: Provi
   }
 
   return (
-    <Button
-      variant="outline"
-      type="button"
-      onClick={handleClick}
-      disabled={disabled || loading}
-    >
-      {loading ? <Spinner /> : config.icon}
-      Login with {config.name}
-    </Button>
+    <div className="relative w-full">
+      <Button
+        variant="outline"
+        type="button"
+        onClick={handleClick}
+        disabled={disabled || loading}
+        className="w-full"
+      >
+        {loading ? <Spinner /> : config.icon}
+        Login with {config.name}
+      </Button>
+
+      {isLastUsed && (
+        <span className={cn(
+          "absolute top-1/2 right-1 -translate-y-1/2",
+          "rounded-md bg-primary/10 px-3 py-1",
+          "text-xs font-medium text-primary",
+          "border border-primary/20 whitespace-nowrap"
+        )}>
+          Last used
+        </span>
+      )}
+    </div>
   )
 }
