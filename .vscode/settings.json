@@ -31,5 +31,6 @@
   },
   "[markdown]": {
     "editor.tabSize": 2
-  }
+  },
+  "deepscan.ignoreConfirmWarning": true
 }
