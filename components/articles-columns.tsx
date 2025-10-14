@@ -1,11 +1,23 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { MoreHorizontal, Copy, Edit, TrendingUp } from "lucide-react"
+import { format } from "date-fns"
+import { Copy, Edit, MoreHorizontal, Trash, TrendingUp } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { format } from "date-fns"
+import { useState } from "react"
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -15,8 +27,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Badge } from "@/components/ui/badge"
 import { toast } from "@/components/ui/sonner"
+import { deleteArticle } from "@/lib/actions/articles"
+import { Spinner } from "./ui/spinner"
 
 type Article = {
   id: string
@@ -126,35 +139,79 @@ export const articlesColumns: ColumnDef<Article>[] = [
     id: "actions",
     cell: ({ row }) => {
       const article = row.original
+      const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+      const [isDeleting, setIsDeleting] = useState(false)
 
       const copyId = () => {
         navigator.clipboard.writeText(article.id)
         toast.success("Article ID copied to clipboard")
       }
 
+      const handleDelete = async () => {
+        setIsDeleting(true)
+        toast.promise(
+          deleteArticle(article.id),
+          {
+            loading: "Deleting article...",
+            success: "Article deleted successfully",
+            error: "Failed to delete article",
+          }
+        )
+      }
+
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem onClick={copyId}>
-              <Copy className="mr-2 h-4 w-4" />
-              Copy ID
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link href={`/articles/${article.id}/edit`}>
-                <Edit className="mr-2 h-4 w-4" />
-                Edit article
-              </Link>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem onClick={copyId}>
+                <Copy />
+                Copy ID
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link href={`/articles/${article.id}/edit`}>
+                  <Edit />
+                  Edit article
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setShowDeleteDialog(true)}
+                className="text-destructive focus:text-destructive"
+              >
+                <Trash className="text-destructive" />
+                Delete article
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will permanently delete the article "{article.title}". This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
+                  {isDeleting ? <Spinner /> : "I'm sure"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </>
       )
     },
   },

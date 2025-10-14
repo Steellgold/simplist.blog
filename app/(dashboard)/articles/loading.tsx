@@ -1,5 +1,5 @@
-import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Plus } from "lucide-react"
 
 export default function ArticlesLoading() {
@@ -14,7 +14,7 @@ export default function ArticlesLoading() {
         </div>
 
         <Button disabled>
-          <Plus className="mr-2 h-4 w-4" />
+          <Plus />
           New Article
         </Button>
       </div>

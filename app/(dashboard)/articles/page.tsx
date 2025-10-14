@@ -1,8 +1,8 @@
-import { ArticlesDataTable } from "@/components/articles-data-table"
 import { articlesColumns } from "@/components/articles-columns"
+import { ArticlesDataTable } from "@/components/articles-data-table"
+import { buttonVariants } from "@/components/ui/button"
 import { getProjectArticles } from "@/lib/actions/articles"
 import { getUserProjects } from "@/lib/actions/projects"
-import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
 import Link from "next/link"
 
@@ -35,12 +35,10 @@ export default async function ArticlesPage() {
           </p>
         </div>
 
-        <Button asChild>
-          <Link href="/articles/new">
-            <Plus className="mr-2 h-4 w-4" />
-            New Article
-          </Link>
-        </Button>
+        <Link href="/articles/new" className={buttonVariants({ variant: "default" })}>
+          <Plus />
+          New Article
+        </Link>
       </div>
 
       <ArticlesDataTable columns={articlesColumns} data={articles} />
