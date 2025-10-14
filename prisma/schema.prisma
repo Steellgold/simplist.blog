@@ -105,20 +105,28 @@ model ApiKey {
 }
 
 model Article {
-  id           String   @id @default(cuid())
-  title        String
-  slug         String
-  content      String
-  excerpt      String?
-  coverImage   String?
-  published    Boolean  @default(false)
-  status       String   @default("draft") // draft, published, archived
-  viewCount    Int      @default(0)
-  projectId    String
-  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  publishedAt  DateTime?
+  id             String   @id @default(cuid())
+  title          String
+  slug           String
+  content        String
+  excerpt        String?
+  coverImage     String?
+  published      Boolean  @default(false)
+  status         String   @default("draft") // draft, published, deleted
+  viewCount      Int      @default(0)
+
+  // Content statistics
+  wordCount      Int      @default(0)
+  characterCount Int      @default(0)
+  lineCount      Int      @default(0)
+  readTimeMinutes Int     @default(0)
+
+  projectId      String
+  project        Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  publishedAt    DateTime?
+  deletedAt      DateTime?
 
   @@unique([slug, projectId])
   @@map("article")
