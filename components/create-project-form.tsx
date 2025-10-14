@@ -9,12 +9,12 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { toast } from "@/components/ui/sonner"
 import { Textarea } from "@/components/ui/textarea"
 import { createProject } from "@/lib/actions/projects"
-import { cn } from "@/lib/utils"
+import { cn, generateSlug } from "@/lib/utils"
 import { CreateProjectInput, createProjectSchema } from "@/lib/validations/project"
 import { Spinner } from "./ui/spinner"
-import { toast } from "@/components/ui/sonner"
 
 export function CreateProjectForm({ className, ...props }: React.ComponentProps<"div">) {
   const router = useRouter()
@@ -33,27 +33,12 @@ export function CreateProjectForm({ className, ...props }: React.ComponentProps<
     },
   })
 
-  const generateSlug = (text: string) => {
-    return text
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .toLowerCase()
-      .trim()
-      .replace(/[^\w\s-]/g, "")
-      .replace(/[\s_-]+/g, "-")
-      .replace(/^-+|-+$/g, "")
-  }
-
   const onSubmit = async (data: CreateProjectInput) => {
     setError("")
     const slug = generateSlug(data.name)
 
-    await toast.promise(
-      createProject({
-        name: data.name,
-        slug,
-        description: data.description,
-      }),
+    toast.promise(
+      createProject({ name: data.name, slug, description: data.description }),
       {
         loading: "Creating project...",
         success: () => {
