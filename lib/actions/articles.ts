@@ -4,10 +4,11 @@ import { getCurrentUser } from "@/lib/auth-helper"
 import { prisma } from "@/lib/db"
 import { generateSlug } from "@/lib/utils"
 import { revalidatePath } from "next/cache"
+import { getR2PublicUrl, assertR2ObjectIsImage } from "@/lib/actions/images"
 import { forbidden, redirect } from "next/navigation"
 
 // Helper function to ensure unique slug
-async function generateUniqueSlug(baseSlug: string, projectId: string): Promise<string> {
+const generateUniqueSlug = async (baseSlug: string, projectId: string): Promise<string> => {
   let slug = baseSlug;
   let counter = 1;
 
@@ -29,7 +30,7 @@ async function generateUniqueSlug(baseSlug: string, projectId: string): Promise<
 }
 
 // Calculate content statistics
-function calculateStats(content: string) {
+const calculateStats = (content: string) => {
   const words = content.trim() ? content.trim().split(/\s+/).length : 0;
   const characters = content.length;
   const lines = content.split('\n').length;
@@ -43,13 +44,13 @@ function calculateStats(content: string) {
   };
 }
 
-export async function createArticle(formData: {
+export const createArticle = async (formData: {
   title: string;
   excerpt: string;
   content: string;
   status: "draft" | "published";
   coverImage?: string;
-}) {
+}) => {
   const user = await getCurrentUser();
 
   if (!user) redirect("/auth/login");
@@ -90,7 +91,36 @@ export async function createArticle(formData: {
   return article;
 }
 
-export async function getProjectArticles(projectId: string) {
+export const updateArticleCoverImage = async (params: { articleId: string; objectKey: string }) => {
+  const user = await getCurrentUser()
+  if (!user) {
+    redirect("/auth/login")
+  }
+
+  const article = await prisma.article.findFirst({
+    where: { id: params.articleId },
+    include: { project: true },
+  })
+
+  if (!article || article.project.userId !== user.id) {
+    forbidden()
+  }
+
+  // Validate the uploaded object is an image
+  await assertR2ObjectIsImage(params.objectKey)
+
+  const coverImageUrl = await getR2PublicUrl(params.objectKey)
+
+  const updated = await prisma.article.update({
+    where: { id: params.articleId },
+    data: { coverImage: coverImageUrl },
+  })
+
+  revalidatePath("/articles")
+  return updated
+}
+
+export const getProjectArticles = async (projectId: string) => {
   const user = await getCurrentUser()
 
   if (!user) {
@@ -122,7 +152,7 @@ export async function getProjectArticles(projectId: string) {
   return articles
 }
 
-export async function deleteArticle(articleId: string) {
+export const deleteArticle = async (articleId: string) => {
   const user = await getCurrentUser()
 
   if (!user) {
