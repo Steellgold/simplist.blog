@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack -p 4000",
+    "dev": "next dev --turbopack -p 3000 --experimental-https",
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint",
@@ -42,7 +42,9 @@
     "recharts": "2.15.4",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.3.1",
-    "zod": "^4.1.12"
+    "zod": "^4.1.12",
+    "@aws-sdk/client-s3": "^3.701.0",
+    "@aws-sdk/s3-request-presigner": "^3.701.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
