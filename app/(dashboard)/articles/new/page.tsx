@@ -1,6 +1,13 @@
 import { CreateArticleForm } from "@/components/create-article-form";
+import { getUserProjects } from "@/lib/actions/projects";
+import { redirect } from "next/navigation";
 
-export default function NewArticlePage() {
+export default async function NewArticlePage() {
+  const projects = await getUserProjects();
+  const project = projects[0];
+
+  if (!project) redirect("/create-project");
+
   return (
     <div className="container max-w-7xl">
       <div className="mb-8">
@@ -12,7 +19,7 @@ export default function NewArticlePage() {
         </p>
       </div>
 
-      <CreateArticleForm />
+      <CreateArticleForm projectId={project.id} />
     </div>
   );
 }

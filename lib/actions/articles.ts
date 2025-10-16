@@ -120,6 +120,30 @@ export const updateArticleCoverImage = async (params: { articleId: string; objec
   return updated
 }
 
+export const removeArticleCoverImage = async (articleId: string) => {
+  const user = await getCurrentUser()
+  if (!user) {
+    redirect("/auth/login")
+  }
+
+  const article = await prisma.article.findFirst({
+    where: { id: articleId },
+    include: { project: true },
+  })
+
+  if (!article || article.project.userId !== user.id) {
+    forbidden()
+  }
+
+  const updated = await prisma.article.update({
+    where: { id: articleId },
+    data: { coverImage: null },
+  })
+
+  revalidatePath("/articles")
+  return updated
+}
+
 export const getProjectArticles = async (projectId: string) => {
   const user = await getCurrentUser()
 

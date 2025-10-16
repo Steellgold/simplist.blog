@@ -30,7 +30,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { updateArticle, updateArticleCoverImage } from "@/lib/actions/articles";
+import { updateArticle, updateArticleCoverImage, removeArticleCoverImage } from "@/lib/actions/articles";
 import {
   Bold,
   Code, FileCode2,
@@ -50,6 +50,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Spinner } from "./ui/spinner";
+import { AssetGallery } from "./asset-gallery";
 
 type ArticleStatus = "draft" | "published";
 
@@ -100,7 +101,19 @@ export function EditArticleForm({ article }: EditArticleFormProps) {
   };
 
   // Remove image
-  const handleRemoveImage = () => {
+  const handleRemoveImage = async () => {
+    // If there's a server image, delete it
+    if (article.coverImage && !imageFile) {
+      try {
+        await removeArticleCoverImage(article.id);
+        router.refresh();
+      } catch (error) {
+        console.error("Failed to remove cover image:", error);
+        alert("Failed to remove image");
+        return;
+      }
+    }
+    
     setImagePreview(null);
     setImageFile(null);
     // Reset file input
@@ -345,6 +358,10 @@ export function EditArticleForm({ article }: EditArticleFormProps) {
                               <action.icon className="h-4 w-4" />
                             </Button>
                           ))}
+
+                          {groupName === "media" && (
+                            <AssetGallery projectId={article.projectId} />
+                          )}
                         </ButtonGroup>
                       ))}
                     </ButtonGroup>

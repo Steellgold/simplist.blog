@@ -49,10 +49,15 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Spinner } from "./ui/spinner";
+import { AssetGallery } from "./asset-gallery";
 
 type ArticleStatus = "draft" | "published";
 
-export function CreateArticleForm() {
+type CreateArticleFormProps = {
+  projectId: string;
+};
+
+export function CreateArticleForm({ projectId }: CreateArticleFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -327,10 +332,14 @@ export function CreateArticleForm() {
                               onClick={action.action}
                               title={action.label}
                               className="h-8 px-2"
-                            >
+                              >
                               <action.icon className="h-4 w-4" />
                             </Button>
                           ))}
+
+                          {groupName === "media" && (
+                            <AssetGallery projectId={projectId} />
+                          )}
                         </ButtonGroup>
                       ))}
                     </ButtonGroup>
