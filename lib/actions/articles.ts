@@ -152,6 +152,72 @@ export const getProjectArticles = async (projectId: string) => {
   return articles
 }
 
+export const getArticle = async (articleId: string) => {
+  const user = await getCurrentUser()
+  if (!user) {
+    redirect("/auth/login")
+  }
+
+  const article = await prisma.article.findFirst({
+    where: {
+      id: articleId,
+      status: {
+        not: "deleted",
+      },
+    },
+    include: {
+      project: true,
+    },
+  })
+
+  if (!article || article.project.userId !== user.id) {
+    return null
+  }
+
+  return article
+}
+
+export const updateArticle = async (articleId: string, formData: {
+  title: string
+  excerpt: string
+  content: string
+  status: "draft" | "published"
+}) => {
+  const user = await getCurrentUser()
+  if (!user) {
+    redirect("/auth/login")
+  }
+
+  const article = await prisma.article.findFirst({
+    where: { id: articleId },
+    include: { project: true },
+  })
+
+  if (!article || article.project.userId !== user.id) {
+    forbidden()
+  }
+
+  // Calculate content statistics
+  const stats = calculateStats(formData.content)
+
+  // Update article
+  const updated = await prisma.article.update({
+    where: { id: articleId },
+    data: {
+      title: formData.title,
+      excerpt: formData.excerpt,
+      content: formData.content,
+      status: formData.status,
+      published: formData.status === "published",
+      publishedAt: formData.status === "published" && !article.publishedAt ? new Date() : article.publishedAt,
+      ...stats,
+    },
+  })
+
+  revalidatePath("/articles")
+  return updated
+}
+
 export const deleteArticle = async (articleId: string) => {
   const user = await getCurrentUser()
 
@@ -177,6 +243,59 @@ export const deleteArticle = async (articleId: string) => {
   await prisma.article.update({
     where: {
       id: articleId,
+    },
+    data: {
+      status: "deleted",
+      deletedAt: new Date(),
+    },
+  })
+
+  revalidatePath("/articles")
+}
+
+export const bulkDeleteArticles = async (articleIds: string[]) => {
+  const user = await getCurrentUser()
+
+  if (!user) {
+    redirect("/auth/login")
+  }
+
+  if (!articleIds || articleIds.length === 0) {
+    throw new Error("No articles to delete")
+  }
+
+  // Verify all articles belong to the user's projects
+  const articles = await prisma.article.findMany({
+    where: {
+      id: {
+        in: articleIds,
+      },
+    },
+    include: {
+      project: true,
+    },
+  })
+
+  // Check if all articles belong to user
+  const unauthorizedArticles = articles.filter(
+    (article) => article.project.userId !== user.id
+  )
+
+  if (unauthorizedArticles.length > 0) {
+    throw new Error("You don't have permission to delete some of these articles")
+  }
+
+  // Verify count matches (no missing articles)
+  if (articles.length !== articleIds.length) {
+    throw new Error("Some articles were not found")
+  }
+
+  // Soft delete all articles
+  await prisma.article.updateMany({
+    where: {
+      id: {
+        in: articleIds,
+      },
     },
     data: {
       status: "deleted",

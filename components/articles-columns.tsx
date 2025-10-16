@@ -5,7 +5,8 @@ import { format } from "date-fns"
 import { Copy, Edit, MoreHorizontal, Trash, TrendingUp } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 
 import {
   AlertDialog,
@@ -19,6 +20,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -50,6 +52,28 @@ const statusConfig = {
 }
 
 export const articlesColumns: ColumnDef<Article>[] = [
+  {
+    id: "select",
+    header: ({ table }) => (
+      <Checkbox
+        checked={
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() && "indeterminate")
+        }
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label="Select all"
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label="Select row"
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  },
   {
     accessorKey: "coverImage",
     header: () => null,
@@ -87,7 +111,7 @@ export const articlesColumns: ColumnDef<Article>[] = [
         <>
           <div className="font-medium">{title}</div>
           {excerpt && (
-            <div className="text-sm text-muted-foreground line-clamp-2 max-w-md">
+            <div className="text-sm text-muted-foreground line-clamp-1 max-w-md">
               {excerpt}
             </div>
           )}
@@ -140,8 +164,16 @@ export const articlesColumns: ColumnDef<Article>[] = [
     id: "actions",
     cell: ({ row }) => {
       const article = row.original
+      const router = useRouter()
       const [showDeleteDialog, setShowDeleteDialog] = useState(false)
       const [isDeleting, setIsDeleting] = useState(false)
+
+      // Reset isDeleting when dialog closes
+      useEffect(() => {
+        if (!showDeleteDialog) {
+          setIsDeleting(false)
+        }
+      }, [showDeleteDialog])
 
       const copyId = () => {
         navigator.clipboard.writeText(article.id)
@@ -149,15 +181,21 @@ export const articlesColumns: ColumnDef<Article>[] = [
       }
 
       const handleDelete = async () => {
-        setIsDeleting(true)
-        toast.promise(
-          deleteArticle(article.id),
-          {
-            loading: "Deleting article...",
-            success: "Article deleted successfully",
-            error: "Failed to delete article",
-          }
-        )
+        try {
+          setIsDeleting(true)
+          await toast.promise(
+            deleteArticle(article.id),
+            {
+              loading: "Deleting article...",
+              success: "Article deleted successfully",
+              error: "Failed to delete article",
+            }
+          )
+          setShowDeleteDialog(false)
+          router.refresh()
+        } catch (error) {
+          setIsDeleting(false)
+        }
       }
 
       return (
