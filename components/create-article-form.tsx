@@ -30,7 +30,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { createArticle } from "@/lib/actions/articles";
+import { createArticle, updateArticleCoverImage } from "@/lib/actions/articles";
 import {
   Bold,
   Code, FileCode2,
@@ -184,18 +184,38 @@ export function CreateArticleForm() {
     setIsSubmitting(true);
 
     try {
-      // TODO: Handle image upload to storage (CLOUDFLARE)
-      // For now, we'll just use the data URL if an image is present
-      const coverImageUrl = imagePreview || undefined;
-
-      // Create article with server action
-      await createArticle({
+      // Create article first
+      const article = await createArticle({
         title,
         excerpt,
         content,
         status,
-        coverImage: coverImageUrl,
+        coverImage: undefined,
       });
+
+      // If an image is selected, upload via server API (avoid CORS) then set cover
+      if (imageFile && article) {
+        const form = new FormData()
+        form.append("file", imageFile)
+        form.append("projectId", article.projectId)
+        form.append("postId", article.id)
+
+        const res = await fetch("/api/uploads/banner", {
+          method: "POST",
+          body: form,
+        })
+
+        if (!res.ok) {
+          throw new Error("Failed to upload image to storage")
+        }
+
+        const data = await res.json()
+
+        await updateArticleCoverImage({
+          articleId: article.id,
+          objectKey: data.key,
+        })
+      }
 
       // Redirect to articles page
       router.push("/articles");
@@ -210,8 +230,8 @@ export function CreateArticleForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-2 space-y-4">
           {/* Post Information */}
           <Card>
             <CardHeader>
@@ -353,7 +373,7 @@ export function CreateArticleForm() {
         </div>
 
         {/* Right Column - Sidebar (1/3 width on desktop) */}
-        <div className="lg:col-span-1 space-y-6">
+        <div className="lg:col-span-1 space-y-4">
           {/* Visibility */}
           <Card>
             <CardHeader>
@@ -420,6 +440,7 @@ export function CreateArticleForm() {
                         <span className="font-semibold">Upload Image</span>
                       </p>
                     </div>
+
                     <input
                       id="image-upload"
                       type="file"
@@ -436,9 +457,11 @@ export function CreateArticleForm() {
                       src={imagePreview}
                       alt="Post banner preview"
                       fill
+                      sizes="(max-width: 1024px) 100vw, 33vw"
                       className="object-cover"
                     />
                   </div>
+
                   <div className="flex gap-2">
                     <Button
                       type="button"
@@ -450,6 +473,7 @@ export function CreateArticleForm() {
                       <Trash2 />
                       Remove Image
                     </Button>
+
                     <Button
                       type="button"
                       variant="outline"

@@ -52,18 +52,19 @@ const statusConfig = {
 export const articlesColumns: ColumnDef<Article>[] = [
   {
     accessorKey: "coverImage",
-    header: "Cover",
+    header: () => null,
     cell: ({ row }) => {
       const coverImage = row.getValue("coverImage") as string | null
       const title = row.getValue("title") as string
 
       return (
-        <div className="w-16 h-12 relative rounded-md overflow-hidden bg-muted">
+        <div className="w-24 h-16 relative rounded-md overflow-hidden bg-muted">
           {coverImage ? (
             <Image
               src={coverImage}
               alt={title}
               fill
+              sizes="128px"
               className="object-cover"
             />
           ) : (
@@ -83,14 +84,14 @@ export const articlesColumns: ColumnDef<Article>[] = [
       const excerpt = row.original.excerpt
 
       return (
-        <div className="space-y-1">
+        <>
           <div className="font-medium">{title}</div>
           {excerpt && (
             <div className="text-sm text-muted-foreground line-clamp-2 max-w-md">
               {excerpt}
             </div>
           )}
-        </div>
+        </>
       )
     },
   },
@@ -168,6 +169,7 @@ export const articlesColumns: ColumnDef<Article>[] = [
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
+
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuItem onClick={copyId}>
