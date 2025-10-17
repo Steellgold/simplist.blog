@@ -1,0 +1,136 @@
+---
+alwaysApply: true
+---
+
+# Simplist-R Codebase Rules
+
+These norms guide contributions and AI edits in this repo.
+
+## Function and Export Conventions
+- Use arrow functions for all top-level functions and React components.
+  - Components/pages/layouts: `const Component = (props) => { ... }` then `export default Component`.
+  - Hooks/util fns: `export const useX = (...) => { ... }` / `export const doX = (...) => { ... }`.
+- Next.js route handlers (app router): export arrow consts.
+  - Example: `export const POST = async (req: Request) => { ... }`.
+- Avoid relying on hoisting; declare before use.
+
+## React/Next.js
+- Prefer server components by default; add "use client" only when needed (state, effects, event handlers, browser APIs).
+- Pages and layouts must remain default-exported symbols.
+- Keep client components pure (no side effects at module scope).
+- Place page data fetching in server components/route handlers when possible.
+
+## TypeScript
+- Strict typing for public APIs and component props.
+- Keep explicit function signatures for exported items; allow local inference.
+- Do not use `any` unless unavoidable; prefer safe unions and generics.
+
+## Naming
+- Functions/components: `verbNoun` for actions, `Noun` for components.
+- No single-letter names; use descriptive identifiers.
+- Hooks start with `use` and return stable shapes.
+
+## Control Flow & Errors
+- Use early returns to reduce nesting.
+- Never swallow errors silently. Log with context and return typed error responses in routes.
+- Async code: prefer `try/catch` only around operations that can throw.
+
+## Styling & Formatting
+- Follow existing formatting; do not reflow unrelated code.
+- Keep lines readable; break long JSX props over multiple lines.
+- Minimal comments; only add non-obvious rationale or invariants.
+
+## File Structure
+- `app/**`: route segments, pages, layouts, and route handlers.
+- `components/**`: shared UI and feature components.
+  - Do not modify `components/ui/**` with sweeping codemods unless requested.
+- `hooks/**`: reusable hooks.
+- `lib/**`: actions, auth, db, utils, validations.
+
+## Imports
+- Absolute imports via `@/` alias when available; otherwise relative, shortest path.
+- Group imports: external → internal → styles/assets. Keep side-effect imports last.
+
+## Accessibility
+- Buttons/links with clear text; icons require accessible text or `aria-label`.
+- Forms: associate `Label` with controls; provide error text.
+
+## Performance
+- Memoize heavy calculations or lists where needed.
+- Avoid unnecessary state; derive from props when possible.
+
+## Project-Specific Rules
+- Images upload flows must use server routes (`/api/uploads/*`) rather than direct client-to-bucket calls.
+- Article editor mutations should go through `lib/actions/**`.
+- Keep banner/image constraints enforced server-side (mime/size) and client-side hints.
+
+## Lint/Checks
+- Must pass TypeScript and ESLint. Fix new errors introduced by edits.
+
+
+# Simplist-R Codebase Rules
+
+These norms guide contributions and AI edits in this repo.
+
+## Function and Export Conventions
+- Use arrow functions for all top-level functions and React components.
+  - Components/pages/layouts: `const Component = (props) => { ... }` then `export default Component`.
+  - Hooks/util fns: `export const useX = (...) => { ... }` / `export const doX = (...) => { ... }`.
+- Next.js route handlers (app router): export arrow consts.
+  - Example: `export const POST = async (req: Request) => { ... }`.
+- Avoid relying on hoisting; declare before use.
+
+## React/Next.js
+- Prefer server components by default; add "use client" only when needed (state, effects, event handlers, browser APIs).
+- Pages and layouts must remain default-exported symbols.
+- Keep client components pure (no side effects at module scope).
+- Place page data fetching in server components/route handlers when possible.
+
+## TypeScript
+- Strict typing for public APIs and component props.
+- Keep explicit function signatures for exported items; allow local inference.
+- Do not use `any` unless unavoidable; prefer safe unions and generics.
+
+## Naming
+- Functions/components: `verbNoun` for actions, `Noun` for components.
+- No single-letter names; use descriptive identifiers.
+- Hooks start with `use` and return stable shapes.
+
+## Control Flow & Errors
+- Use early returns to reduce nesting.
+- Never swallow errors silently. Log with context and return typed error responses in routes.
+- Async code: prefer `try/catch` only around operations that can throw.
+
+## Styling & Formatting
+- Follow existing formatting; do not reflow unrelated code.
+- Keep lines readable; break long JSX props over multiple lines.
+- Minimal comments; only add non-obvious rationale or invariants.
+
+## File Structure
+- `app/**`: route segments, pages, layouts, and route handlers.
+- `components/**`: shared UI and feature components.
+  - Do not modify `components/ui/**` with sweeping codemods unless requested.
+- `hooks/**`: reusable hooks.
+- `lib/**`: actions, auth, db, utils, validations.
+
+## Imports
+- Absolute imports via `@/` alias when available; otherwise relative, shortest path.
+- Group imports: external → internal → styles/assets. Keep side-effect imports last.
+
+## Accessibility
+- Buttons/links with clear text; icons require accessible text or `aria-label`.
+- Forms: associate `Label` with controls; provide error text.
+
+## Performance
+- Memoize heavy calculations or lists where needed.
+- Avoid unnecessary state; derive from props when possible.
+
+## Project-Specific Rules
+- Images upload flows must use server routes (`/api/uploads/*`) rather than direct client-to-bucket calls.
+- Article editor mutations should go through `lib/actions/**`.
+- Keep banner/image constraints enforced server-side (mime/size) and client-side hints.
+
+## Lint/Checks
+- Must pass TypeScript and ESLint. Fix new errors introduced by edits.
+
+
