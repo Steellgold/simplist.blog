@@ -9,9 +9,9 @@ const NewArticleLoading = () => {
         <h1 className="text-3xl font-bold tracking-tight">
           <Skeleton className="h-8 w-[260px]" />
         </h1>
-        <p className="text-muted-foreground mt-2">
+        <div className="text-muted-foreground mt-2">
           <Skeleton className="h-4 w-[360px]" />
-        </p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -88,12 +88,8 @@ const NewArticleLoading = () => {
                 <Skeleton className="h-10 w-full" />
               </div>
               <div className="flex items-center justify-between pt-2">
-                <Button disabled size="sm">
-                  <Skeleton className="h-4 w-14" />
-                </Button>
-                <Button disabled size="sm">
-                  <Skeleton className="h-4 w-14" />
-                </Button>
+                <Skeleton className="h-4 w-14" />
+                <Skeleton className="h-4 w-14" />
               </div>
             </CardContent>
           </Card>
