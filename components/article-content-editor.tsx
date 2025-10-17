@@ -65,9 +65,9 @@ export const ArticleContentEditor = ({ content, onContentChange, projectId, text
       </CardHeader>
       <CardContent>
         <div className="space-y-2">
-          <InputGroup>
+          <InputGroup className="min-w-0 overflow-hidden">
             <InputGroupAddon align="block-start" className="w-full">
-              <ButtonGroup>
+              <ButtonGroup className="flex-wrap gap-2">
                 {Object.entries(markdownActions).map(([groupName, actions]) => (
                   <ButtonGroup key={groupName}>
                     {groupName === "media" && (
@@ -109,7 +109,7 @@ export const ArticleContentEditor = ({ content, onContentChange, projectId, text
               onChange={(e) => onContentChange(e.target.value)}
               required
               rows={20}
-              className="font-mono text-sm resize-y min-h-[400px] resize-none"
+              className="font-mono text-sm resize-y min-h-[400px] min-w-0"
             />
 
             <InputGroupAddon align="block-end" className="w-full">
