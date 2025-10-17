@@ -20,7 +20,6 @@ export const metadata: Metadata = {
   description: "Simple blog management system",
 };
 
-// const RootLayout = ({ children }: Readonly<{ children: React.ReactNode; }>) => {
 const RootLayout: FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <html lang="en" suppressHydrationWarning>
