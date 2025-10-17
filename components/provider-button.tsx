@@ -41,7 +41,7 @@ const providerConfig = {
   },
 }
 
-export function ProviderButton({ type, onAuthStart, onAuthEnd, disabled, isLastUsed }: ProviderButtonProps) {
+export const ProviderButton = ({ type, onAuthStart, onAuthEnd, disabled, isLastUsed }: ProviderButtonProps) => {
   const [loading, setLoading] = useState(false)
   const config = providerConfig[type]
 

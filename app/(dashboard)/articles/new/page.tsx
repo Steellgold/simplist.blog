@@ -2,7 +2,7 @@ import { CreateArticleForm } from "@/components/create-article-form";
 import { getUserProjects } from "@/lib/actions/projects";
 import { redirect } from "next/navigation";
 
-export default async function NewArticlePage() {
+const NewArticlePage = async () => {
   const projects = await getUserProjects();
   const project = projects[0];
 
@@ -23,3 +23,5 @@ export default async function NewArticlePage() {
     </div>
   );
 }
+
+export default NewArticlePage;

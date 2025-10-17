@@ -3,11 +3,12 @@ import { getCurrentUser } from "@/lib/auth-helper"
 import { getArticle } from "@/lib/actions/articles"
 import { EditArticleForm } from "@/components/edit-article-form"
 
-export default async function EditArticlePage({ params }: { params: { id: string } }) {
+const EditArticlePage = async ({ params }: { params: Promise<{ id: string }> }) => {
   const user = await getCurrentUser()
   if (!user) redirect("/auth/login")
 
-  const article = await getArticle(params.id)
+  const { id } = await params
+  const article = await getArticle(id)
   if (!article) notFound()
 
   return (
@@ -23,4 +24,6 @@ export default async function EditArticlePage({ params }: { params: { id: string
     </div>
   )
 }
+
+export default EditArticlePage
 

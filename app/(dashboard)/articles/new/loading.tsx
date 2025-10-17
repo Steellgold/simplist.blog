@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 
-export default function NewArticleLoading() {
+const NewArticleLoading = () => {
   return (
     <div className="container max-w-7xl">
       <div className="mb-8">
@@ -127,5 +127,7 @@ export default function NewArticleLoading() {
     </div>
   )
 }
+
+export default NewArticleLoading
 
 

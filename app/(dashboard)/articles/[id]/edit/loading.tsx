@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 
-export default function EditArticleLoading() {
+const EditArticleLoading = () => {
   return (
     <div className="space-y-6">
       <div>
@@ -67,4 +67,6 @@ export default function EditArticleLoading() {
     </div>
   )
 }
+
+export default EditArticleLoading
 

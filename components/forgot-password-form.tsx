@@ -13,7 +13,7 @@ import { useState } from "react"
 import { ForgotPasswordInput, forgotPasswordSchema } from "@/lib/validations/auth"
 import { toast } from "@/components/ui/sonner"
 
-export function ForgotPasswordForm({ className, ...props }: React.ComponentProps<"div">) {
+export const ForgotPasswordForm = ({ className, ...props }: React.ComponentProps<"div">) => {
   const [error, setError] = useState("")
   const [success, setSuccess] = useState(false)
 

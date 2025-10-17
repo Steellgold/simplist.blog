@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Plus } from "lucide-react"
 
-export default function ArticlesLoading() {
+const ArticlesLoading = () => {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
@@ -62,3 +62,5 @@ export default function ArticlesLoading() {
     </div>
   )
 }
+
+export default ArticlesLoading

@@ -22,7 +22,7 @@ interface AppSidebarWrapperProps {
   project: Project
 }
 
-export function AppSidebarWrapper({ user, project }: AppSidebarWrapperProps) {
+export const AppSidebarWrapper = ({ user, project }: AppSidebarWrapperProps) => {
   const router = useRouter()
 
   const handleLogout = async () => {

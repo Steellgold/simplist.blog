@@ -12,13 +12,13 @@ interface PasswordInputProps {
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
 }
 
-export function PasswordInput({
+export const PasswordInput = ({
   id,
   placeholder = "••••••••",
   required = false,
   value,
   onChange
-}: PasswordInputProps) {
+}: PasswordInputProps) => {
   const [showPassword, setShowPassword] = useState(false)
 
   return (

@@ -4,11 +4,11 @@ import { getCurrentUser } from "@/lib/auth-helper";
 import { getUserProjects } from "@/lib/actions/projects";
 import { redirect } from "next/navigation";
 
-export default async function DashboardLayout({
+const DashboardLayout = async ({
   children,
 }: {
   children: React.ReactNode;
-}) {
+}) => {
   const user = await getCurrentUser();
 
   if (!user) {
@@ -38,3 +38,5 @@ export default async function DashboardLayout({
     </SidebarProvider>
   );
 }
+
+export default DashboardLayout;

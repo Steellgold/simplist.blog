@@ -27,7 +27,7 @@ type AssetGalleryProps = {
   projectId: string
 }
 
-export function AssetGallery({ projectId }: AssetGalleryProps) {
+export const AssetGallery = ({ projectId }: AssetGalleryProps) => {
   const [assets, setAssets] = useState<Asset[]>([])
   const [storageInfo, setStorageInfo] = useState<{
     used: number

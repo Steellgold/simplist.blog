@@ -17,7 +17,7 @@ import { OAuthProviders, OAuthProvidersProvider, useOAuthProviders } from "./oau
 import { PasswordInput } from "./password-input"
 import { toast } from "@/components/ui/sonner"
 
-function RegisterFormContent({ className, ...props }: React.ComponentProps<"div">) {
+const RegisterFormContent = ({ className, ...props }: React.ComponentProps<"div">) => {
   const router = useRouter()
   const { isAuthenticating } = useOAuthProviders()
   const [error, setError] = useState("")
@@ -171,7 +171,7 @@ function RegisterFormContent({ className, ...props }: React.ComponentProps<"div"
   )
 }
 
-export function RegisterForm(props: React.ComponentProps<"div">) {
+export const RegisterForm = (props: React.ComponentProps<"div">) => {
   return (
     <OAuthProvidersProvider>
       <RegisterFormContent {...props} />

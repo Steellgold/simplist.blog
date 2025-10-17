@@ -1,6 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton"
 
-export default function ApiKeysLoading() {
+const ApiKeysLoading = () => {
   return (
     <div className="flex flex-col gap-6">
       {/* Header section */}
@@ -44,3 +44,5 @@ export default function ApiKeysLoading() {
     </div>
   )
 }
+
+export default ApiKeysLoading

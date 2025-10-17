@@ -3,7 +3,7 @@ import { CreateApiKeyForm } from "@/components/create-api-key-form"
 import { getProjectApiKeys } from "@/lib/actions/api-keys"
 import { getUserProjects } from "@/lib/actions/projects"
 
-export default async function ApiKeysPage() {
+const ApiKeysPage = async () => {
   const projects = await getUserProjects()
   const project = projects[0]
 
@@ -39,3 +39,5 @@ export default async function ApiKeysPage() {
     </div>
   )
 }
+
+export default ApiKeysPage

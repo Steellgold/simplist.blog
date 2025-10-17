@@ -1,7 +1,7 @@
 import { getCurrentUser } from "@/lib/auth-helper";
 import { redirect } from "next/navigation";
 
-export default async function RootPage() {
+const RootPage = async () => {
   const user = await getCurrentUser();
 
   if (user) {
@@ -10,3 +10,5 @@ export default async function RootPage() {
 
   redirect("/auth/login");
 }
+
+export default RootPage;

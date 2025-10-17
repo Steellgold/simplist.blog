@@ -8,7 +8,7 @@ import sharp from "sharp"
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 const ALLOWED_MIME_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"]
 
-export async function POST(req: Request) {
+export const POST = async (req: Request) => {
   try {
     const user = await getCurrentUser()
     if (!user) {

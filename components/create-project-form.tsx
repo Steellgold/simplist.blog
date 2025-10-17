@@ -16,7 +16,7 @@ import { cn, generateSlug } from "@/lib/utils"
 import { CreateProjectInput, createProjectSchema } from "@/lib/validations/project"
 import { Spinner } from "./ui/spinner"
 
-export function CreateProjectForm({ className, ...props }: React.ComponentProps<"div">) {
+export const CreateProjectForm = ({ className, ...props }: React.ComponentProps<"div">) => {
   const router = useRouter()
   const [error, setError] = useState("")
 

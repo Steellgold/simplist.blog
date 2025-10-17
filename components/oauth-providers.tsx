@@ -12,7 +12,7 @@ interface OAuthProvidersContextType {
 
 const OAuthProvidersContext = createContext<OAuthProvidersContextType | null>(null)
 
-export function useOAuthProviders() {
+export const useOAuthProviders = () => {
   const context = useContext(OAuthProvidersContext)
   if (!context) {
     throw new Error("useOAuthProviders must be used within OAuthProvidersProvider")
@@ -20,7 +20,7 @@ export function useOAuthProviders() {
   return context
 }
 
-export function OAuthProvidersProvider({ children }: { children: React.ReactNode }) {
+export const OAuthProvidersProvider = ({ children }: { children: React.ReactNode }) => {
   const [isAuthenticating, setIsAuthenticating] = useState(false)
 
   return (
@@ -30,7 +30,7 @@ export function OAuthProvidersProvider({ children }: { children: React.ReactNode
   )
 }
 
-export function OAuthProviders() {
+export const OAuthProviders = () => {
   const { isAuthenticating, setIsAuthenticating } = useOAuthProviders();
   const [lastLogin, setLastLogin] = useState<string | null>(null);
 

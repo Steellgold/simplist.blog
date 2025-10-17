@@ -80,11 +80,11 @@ const navigationItems = [
   },
 ]
 
-export function AppSidebar({
+export const AppSidebar = ({
   user,
   project,
   onLogout,
-}: AppSidebarProps) {
+}: AppSidebarProps) => {
   const { isMobile, state } = useSidebar();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = React.useState(false);

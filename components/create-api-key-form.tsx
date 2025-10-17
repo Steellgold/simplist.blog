@@ -33,7 +33,7 @@ interface CreateApiKeyFormProps {
   onSuccess?: () => void
 }
 
-export function CreateApiKeyForm({ projectId, onSuccess }: CreateApiKeyFormProps) {
+export const CreateApiKeyForm = ({ projectId, onSuccess }: CreateApiKeyFormProps) => {
   const [open, setOpen] = useState(false)
   const [newApiKey, setNewApiKey] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)

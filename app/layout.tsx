@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 };
 
 // Hello
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode; }>) {
+const RootLayout = ({ children }: Readonly<{ children: React.ReactNode; }>) => {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
@@ -36,3 +36,5 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     </html>
   );
 }
+
+export default RootLayout;

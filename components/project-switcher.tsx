@@ -31,12 +31,12 @@ interface ProjectSwitcherProps {
   onCreateProject?: () => void
 }
 
-export function ProjectSwitcher({
+export const ProjectSwitcher = ({
   projects,
   activeProjectId,
   onProjectChange,
   onCreateProject,
-}: ProjectSwitcherProps) {
+}: ProjectSwitcherProps) => {
   const { isMobile } = useSidebar()
   const [activeProject, setActiveProject] = useState<Project | undefined>(
     projects.find((p) => p.id === activeProjectId) || projects[0]

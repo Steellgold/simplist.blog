@@ -20,7 +20,7 @@ interface ApiKeysListProps {
   apiKeys: ApiKey[]
 }
 
-export function ApiKeysList({ apiKeys }: ApiKeysListProps) {
+export const ApiKeysList = ({ apiKeys }: ApiKeysListProps) => {
   const router = useRouter()
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [keyToDelete, setKeyToDelete] = useState<string | null>(null)

@@ -6,7 +6,7 @@ import { getUserProjects } from "@/lib/actions/projects"
 import { Plus } from "lucide-react"
 import Link from "next/link"
 
-export default async function ArticlesPage() {
+const ArticlesPage = async () => {
   const projects = await getUserProjects()
   const project = projects[0]
 
@@ -45,3 +45,5 @@ export default async function ArticlesPage() {
     </div>
   )
 }
+
+export default ArticlesPage

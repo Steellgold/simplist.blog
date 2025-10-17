@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { uploadAsset } from "@/lib/actions/assets"
 
-export async function POST(req: Request) {
+export const POST = async (req: Request) => {
   try {
     const formData = await req.formData()
     const result = await uploadAsset(formData)

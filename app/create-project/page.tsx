@@ -3,7 +3,7 @@ import { getUserProjects } from "@/lib/actions/projects"
 import { getCurrentUser } from "@/lib/auth-helper"
 import { redirect } from "next/navigation"
 
-export default async function CreateProjectPage() {
+const CreateProjectPage = async () => {
   const user = await getCurrentUser()
 
   if (!user) {
@@ -25,3 +25,5 @@ export default async function CreateProjectPage() {
     </div>
   )
 }
+
+export default CreateProjectPage
