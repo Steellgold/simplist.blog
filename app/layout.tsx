@@ -3,6 +3,7 @@ import { Toaster } from "@/components/ui/sonner";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { FC } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,8 +20,8 @@ export const metadata: Metadata = {
   description: "Simple blog management system",
 };
 
-// Hello
-const RootLayout = ({ children }: Readonly<{ children: React.ReactNode; }>) => {
+// const RootLayout = ({ children }: Readonly<{ children: React.ReactNode; }>) => {
+const RootLayout: FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
