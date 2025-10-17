@@ -1,0 +1,25 @@
+{
+  "$schema": "https://raw.githubusercontent.com/getcursor/cursor-rules/main/schema.v1.json",
+  "projectName": "simplist-r",
+  "description": "Simple blog management system in Next.js with Prisma and R2 storage",
+  "include": [
+    "app/**",
+    "components/**",
+    "hooks/**",
+    "lib/**",
+    "prisma/schema.prisma"
+  ],
+  "exclude": [
+    "components/ui/**",
+    "node_modules/**",
+    ".next/**",
+    "prisma/migrations/**"
+  ],
+  "rulesFiles": [".cursor/rules.md"],
+  "style": {
+    "preferArrowFunctions": true,
+    "typescript": true,
+    "react": true,
+    "respectExistingFormatting": true
+  }
+}
