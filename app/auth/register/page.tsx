@@ -1,4 +1,10 @@
 import { RegisterForm } from "@/components/register-form"
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Register",
+  robots: { index: false, follow: false },
+}
 
 const LoginPage = () => {
   return (

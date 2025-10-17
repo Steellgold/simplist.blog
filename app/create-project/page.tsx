@@ -2,6 +2,12 @@ import { CreateProjectForm } from "@/components/create-project-form"
 import { getUserProjects } from "@/lib/actions/projects"
 import { getCurrentUser } from "@/lib/auth-helper"
 import { redirect } from "next/navigation"
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Create Project",
+  robots: { index: false, follow: false },
+}
 
 const CreateProjectPage = async () => {
   const user = await getCurrentUser()

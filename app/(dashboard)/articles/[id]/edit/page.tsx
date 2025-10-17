@@ -2,6 +2,22 @@ import { notFound, redirect } from "next/navigation"
 import { getCurrentUser } from "@/lib/auth-helper"
 import { getArticle } from "@/lib/actions/articles"
 import { EditArticleForm } from "@/components/edit-article-form"
+import type { Metadata, ResolvingMetadata } from "next"
+
+type PageParams = { id: string }
+
+export async function generateMetadata(
+  { params }: { params: Promise<PageParams> },
+  _parent: ResolvingMetadata
+): Promise<Metadata> {
+  const { id } = await params
+  const article = await getArticle(id);
+
+  return {
+    title: article?.title ?? "Edit Article",
+    robots: { index: false, follow: false }
+  }
+}
 
 const EditArticlePage = async ({ params }: { params: Promise<{ id: string }> }) => {
   const user = await getCurrentUser()

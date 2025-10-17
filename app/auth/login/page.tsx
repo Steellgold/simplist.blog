@@ -1,5 +1,11 @@
 import { LoginForm } from "@/components/login-form"
 import { GalleryVerticalEnd } from "lucide-react"
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Login",
+  robots: { index: false, follow: false }
+}
 
 const LoginPage = () => {
   return (

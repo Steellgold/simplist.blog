@@ -3,6 +3,20 @@ import { AppSidebarWrapper } from "@/components/app-sidebar-wrapper";
 import { getCurrentUser } from "@/lib/auth-helper";
 import { getUserProjects } from "@/lib/actions/projects";
 import { redirect } from "next/navigation";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+    nocache: true,
+    googleBot: {
+      index: false,
+      follow: false,
+      noimageindex: true,
+    },
+  },
+};
 
 const DashboardLayout = async ({
   children,

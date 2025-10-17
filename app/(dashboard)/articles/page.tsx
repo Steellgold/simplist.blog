@@ -5,6 +5,12 @@ import { getProjectArticles } from "@/lib/actions/articles"
 import { getUserProjects } from "@/lib/actions/projects"
 import { Plus } from "lucide-react"
 import Link from "next/link"
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Articles",
+  robots: { index: false, follow: false }
+}
 
 const ArticlesPage = async () => {
   const projects = await getUserProjects()

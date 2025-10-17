@@ -1,6 +1,12 @@
 import { CreateArticleForm } from "@/components/create-article-form";
 import { getUserProjects } from "@/lib/actions/projects";
 import { redirect } from "next/navigation";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "New Article",
+  robots: { index: false, follow: false }
+};
 
 const NewArticlePage = async () => {
   const projects = await getUserProjects();
