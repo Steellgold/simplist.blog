@@ -11,3 +11,6 @@ export const prisma =
   })
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma
+
+// Re-export apiKeyCache from the shared package
+export { apiKeyCache } from "@simplist/db"
