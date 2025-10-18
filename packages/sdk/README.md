@@ -1,21 +1,21 @@
-# @simplist/sdk
+# @simplist.blog/sdk
 
 TypeScript SDK for the Simplist API - easily access your blog content programmatically.
 
 ## Installation
 
 ```bash
-npm install @simplist/sdk
+npm install @simplist.blog/sdk
 # or
-pnpm add @simplist/sdk
+pnpm add @simplist.blog/sdk
 # or
-yarn add @simplist/sdk
+yarn add @simplist.blog/sdk
 ```
 
 ## Quick Start
 
 ```typescript
-import { SimplistClient } from '@simplist/sdk'
+import { SimplistClient } from '@simplist.blog/sdk'
 
 const client = new SimplistClient({
   apiKey: 'sk_your_api_key_here' // Get this from your Simplist dashboard
@@ -123,7 +123,7 @@ console.log(health.status) // 'ok'
 The SDK throws `SimplistApiError` for API errors:
 
 ```typescript
-import { SimplistApiError } from '@simplist/sdk'
+import { SimplistApiError } from '@simplist.blog/sdk'
 
 try {
   const article = await client.articles.get('non-existent-slug')
@@ -141,7 +141,7 @@ try {
 The SDK is written in TypeScript and includes full type definitions:
 
 ```typescript
-import type { Article, ArticleListItem, ProjectInfo } from '@simplist/sdk'
+import type { Article, ArticleListItem, ProjectInfo } from '@simplist.blog/sdk'
 
 const articles: ArticleListItem[] = response.data
 const article: Article = singleResponse.data
@@ -175,7 +175,7 @@ export async function getStaticProps() {
 
 ```typescript
 // React component
-import { SimplistClient } from '@simplist/sdk'
+import { SimplistClient } from '@simplist.blog/sdk'
 
 const client = new SimplistClient({
   apiKey: 'sk_your_api_key'
