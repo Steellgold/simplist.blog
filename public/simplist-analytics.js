@@ -32,6 +32,48 @@
   const API_URL = config.apiUrl || 'https://api.simplist.blog/v1';
   const DEBUG = config.debug || false;
   
+  // Bot detection function
+  const isBot = () => {
+    const userAgent = navigator.userAgent.toLowerCase();
+    
+    // Known bot patterns
+    const botPatterns = [
+      'googlebot', 'bingbot', 'slurp', 'duckduckbot', 'baiduspider', 'yandexbot',
+      'facebookexternalhit', 'twitterbot', 'linkedinbot', 'whatsapp', 'telegrambot',
+      'ahrefsbot', 'semrushbot', 'mj12bot', 'dotbot', 'screaming frog', 'seobilitybot',
+      'pingdom', 'uptimerobot', 'monitor', 'nagios', 'zabbix',
+      'bot', 'crawler', 'spider', 'scraper', 'fetch', 'curl', 'wget',
+      'python-requests', 'go-http-client', 'axios', 'http', 'node',
+      'headlesschrome', 'phantomjs', 'selenium', 'puppeteer', 'playwright'
+    ];
+    
+    // Check if user agent matches any bot pattern
+    for (const pattern of botPatterns) {
+      if (userAgent.includes(pattern)) {
+        return true;
+      }
+    }
+    
+    // Additional checks for automated access
+    // Check if webdriver is present (automated browsers)
+    if (window.navigator.webdriver) {
+      return true;
+    }
+    
+    // Check for missing features that real browsers should have
+    if (!window.chrome && !window.safari && !window.opera && userAgent.includes('chrome')) {
+      return true; // Headless Chrome often lacks window.chrome
+    }
+    
+    return false;
+  };
+
+  // Check if this is a bot before initializing
+  if (isBot()) {
+    if (DEBUG) console.log('[Simplist Analytics] Bot detected, skipping analytics');
+    return;
+  }
+
   // Utility functions
   const log = (...args) => {
     if (DEBUG) console.log('[Simplist Analytics]', ...args);

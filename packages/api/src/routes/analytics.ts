@@ -1,6 +1,7 @@
 import * as db from '@simplist/db'
 import { FastifyPluginAsync } from 'fastify'
 import crypto from 'crypto'
+import { isBot, getBotInfo } from '../utils/bot-detection'
 
 const { prisma } = db
 
@@ -48,6 +49,17 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
     const forwardedFor = request.headers['x-forwarded-for'] as string
     const realIp = request.headers['x-real-ip'] as string
     const clientIp = forwardedFor?.split(',')[0] || realIp || request.ip
+
+    // Bot detection - reject bot traffic
+    const botInfo = getBotInfo(userAgent)
+    if (botInfo.isBot) {
+      fastify.log.info(`Bot detected and blocked: ${botInfo.reason}`, { userAgent, ip: clientIp })
+      return reply.code(400).send({
+        error: 'Bot Detected',
+        message: 'Analytics tracking is not available for automated requests',
+        statusCode: 400
+      })
+    }
 
     try {
       // Validate required fields
@@ -191,6 +203,18 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
     const { pageViewId } = request.params as { pageViewId: string }
     const body = request.body as any
     const projectId = request.apiKey!.projectId
+    const userAgent = request.headers['user-agent'] || ''
+
+    // Bot detection - reject bot traffic
+    const botInfo = getBotInfo(userAgent)
+    if (botInfo.isBot) {
+      fastify.log.info(`Bot detected and blocked on update: ${botInfo.reason}`, { userAgent, pageViewId })
+      return reply.code(400).send({
+        error: 'Bot Detected',
+        message: 'Analytics tracking is not available for automated requests',
+        statusCode: 400
+      })
+    }
 
     try {
       // Verify page view belongs to this project
