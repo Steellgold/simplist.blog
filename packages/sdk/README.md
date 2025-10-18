@@ -17,6 +17,10 @@ yarn add @simplist.blog/sdk
 ```typescript
 import { SimplistClient } from '@simplist.blog/sdk'
 
+// Method 1: Auto-detect API key from environment (recommended)
+const client = new SimplistClient() // Uses SIMPLIST_API_KEY env var
+
+// Method 2: Explicit API key
 const client = new SimplistClient({
   apiKey: 'sk_your_api_key_here' // Get this from your Simplist dashboard
 })
@@ -33,12 +37,39 @@ const project = await client.project.get()
 
 ## Authentication
 
-You need an API key to use the Simplist API. Get one from your Simplist dashboard:
+You need an API key to use the Simplist API. The SDK supports two authentication methods:
+
+### Method 1: Environment Variable (Recommended)
+
+Set the `SIMPLIST_API_KEY` environment variable:
+
+```bash
+# .env
+SIMPLIST_API_KEY=sk_your_api_key_here
+```
+
+```typescript
+// SDK auto-detects the key
+const client = new SimplistClient()
+```
+
+### Method 2: Explicit API Key
+
+```typescript
+const client = new SimplistClient({
+  apiKey: 'sk_your_api_key_here'
+})
+```
+
+### Getting an API Key
 
 1. Go to your Simplist dashboard
-2. Navigate to "API Keys"
+2. Navigate to "API Keys"  
 3. Create a new API key
-4. Copy the key (it starts with `sk_`)
+4. Choose the appropriate type:
+   - **Secret Key (sk_)**: For server-side use (full access)
+   - **Public Key (pk_)**: For client-side use (analytics only)
+5. Copy the key
 
 ## API Reference
 
@@ -46,7 +77,7 @@ You need an API key to use the Simplist API. Get one from your Simplist dashboar
 
 ```typescript
 const client = new SimplistClient({
-  apiKey: 'sk_xxx',           // Required: Your API key
+  apiKey: 'sk_xxx',           // Optional: Your API key (auto-detected from SIMPLIST_API_KEY if not provided)
   baseUrl: 'https://api.simplist.blog', // Optional: API base URL
   timeout: 10000,             // Optional: Request timeout (ms)
   retries: 3,                 // Optional: Number of retries
@@ -156,11 +187,9 @@ The API has rate limits (100 requests per minute per API key). The SDK will auto
 ### Static Site Generation
 
 ```typescript
-// Next.js getStaticProps
+// Next.js getStaticProps - API key auto-detected from environment
 export async function getStaticProps() {
-  const client = new SimplistClient({
-    apiKey: process.env.SIMPLIST_API_KEY!
-  })
+  const client = new SimplistClient() // Uses SIMPLIST_API_KEY env var
   
   const articles = await client.articles.published({ limit: 10 })
   
@@ -174,12 +203,10 @@ export async function getStaticProps() {
 ### Blog Widget
 
 ```typescript
-// React component
+// React component - API key auto-detected from environment
 import { SimplistClient } from '@simplist.blog/sdk'
 
-const client = new SimplistClient({
-  apiKey: 'sk_your_api_key'
-})
+const client = new SimplistClient() // Uses SIMPLIST_API_KEY or REACT_APP_SIMPLIST_API_KEY
 
 function BlogWidget() {
   const [articles, setArticles] = useState([])
@@ -201,6 +228,20 @@ function BlogWidget() {
     </div>
   )
 }
+```
+
+### Environment Variables
+
+For different environments, you can use:
+
+```bash
+# Server-side (Node.js, Next.js API routes)
+SIMPLIST_API_KEY=sk_your_secret_key
+
+# Client-side (React, Vue.js)  
+REACT_APP_SIMPLIST_API_KEY=pk_your_public_key
+VITE_SIMPLIST_API_KEY=pk_your_public_key
+NEXT_PUBLIC_SIMPLIST_API_KEY=pk_your_public_key
 ```
 
 ## License
