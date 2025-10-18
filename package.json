@@ -7,9 +7,15 @@
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint",
-    "db:push": "prisma db push",
-    "db:migrate": "prisma migrate dev",
-    "db:studio": "prisma studio"
+    "db:push": "pnpm --filter @simplist/db run db:push",
+    "db:migrate": "pnpm --filter @simplist/db run db:migrate",
+    "db:studio": "pnpm --filter @simplist/db run db:studio",
+    "api:dev": "pnpm --filter @simplist/api run dev",
+    "api:build": "pnpm --filter @simplist/api run build",
+    "api:start": "pnpm --filter @simplist/api run start",
+    "sdk:build": "pnpm --filter @simplist/sdk run build",
+    "sdk:dev": "pnpm --filter @simplist/sdk run dev",
+    "build:packages": "pnpm --filter @simplist/db run build && pnpm --filter @simplist/api run build && pnpm --filter @simplist/sdk run build"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.701.0",
