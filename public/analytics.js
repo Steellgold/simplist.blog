@@ -10,7 +10,7 @@
  *     debug: false
  *   };
  * </script>
- * <script src="https://simplist.blog/simplist-analytics.js"></script>
+ * <script src="https://simplist.blog/analytics.js"></script>
  */
 
 (function() {

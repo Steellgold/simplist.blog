@@ -1,14 +1,15 @@
-import { getCurrentUser } from '@/lib/auth-helper'
-import { getUserProjects } from '@/lib/actions/projects'
-import { getProjectAnalytics } from '@/lib/actions/analytics'
 import { AnalyticsDashboard } from '@/components/analytics-dashboard'
+import { getProjectAnalytics } from '@/lib/actions/analytics'
+import { getUserProjects } from '@/lib/actions/projects'
+import { getCurrentUser } from '@/lib/auth-helper'
 import { redirect } from 'next/navigation'
 
 export default async function AnalyticsPage({
-  searchParams,
+  params,
 }: {
-  searchParams: { days?: string }
+  params: Promise<{ days: string }>;
 }) {
+  const { days } = await params;
   const user = await getCurrentUser()
   
   if (!user) {
@@ -22,8 +23,7 @@ export default async function AnalyticsPage({
     redirect('/create-project')
   }
 
-  const days = searchParams.days ? parseInt(searchParams.days) : 30
-  const analytics = await getProjectAnalytics(project.id, days)
+  const analytics = await getProjectAnalytics(project.id, parseInt(days) || 30)
 
   return (
     <div className="space-y-6">
@@ -37,7 +37,7 @@ export default async function AnalyticsPage({
       <AnalyticsDashboard 
         project={project} 
         analytics={analytics} 
-        selectedDays={days}
+        selectedDays={parseInt(days) || 30}
       />
     </div>
   )
