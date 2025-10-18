@@ -11,7 +11,7 @@
     "db:migrate": "pnpm --filter @simplist/db run db:migrate",
     "db:studio": "pnpm --filter @simplist/db run db:studio",
     "api:dev": "pnpm --filter @simplist/api run dev",
-    "api:build": "pnpm --filter @simplist/api run build",
+    "api:build": "pnpm --filter @simplist/db run build && pnpm --filter @simplist/api run build",
     "api:start": "pnpm --filter @simplist/api run start",
     "sdk:build": "pnpm --filter @simplist/sdk run build",
     "sdk:dev": "pnpm --filter @simplist/sdk run dev",
