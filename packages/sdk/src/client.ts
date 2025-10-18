@@ -5,9 +5,9 @@ import { AnalyticsResource } from './resources/analytics.js'
 
 export interface SimplistClientOptions {
   /**
-   * API key for authentication (required)
+   * API key for authentication (optional if SIMPLIST_API_KEY env var is set)
    */
-  apiKey: string
+  apiKey?: string
   
   /**
    * Base URL for the API (default: https://api.simplist.blog)
@@ -66,18 +66,23 @@ export class SimplistClient {
   public readonly project: ProjectsResource
   public readonly analytics: AnalyticsResource
 
-  constructor(options: SimplistClientOptions) {
-    if (!options.apiKey) {
-      throw new Error('API key is required')
+  constructor(options: SimplistClientOptions = {}) {
+    // Auto-detect API key from environment if not provided
+    const apiKey = options.apiKey || 
+                   (typeof process !== 'undefined' && process.env?.SIMPLIST_API_KEY) ||
+                   (typeof globalThis !== 'undefined' && (globalThis as any).SIMPLIST_API_KEY)
+    
+    if (!apiKey) {
+      throw new Error('API key is required. Provide it via options.apiKey or set SIMPLIST_API_KEY environment variable.')
     }
 
-    if (!options.apiKey.startsWith('sk_') && !options.apiKey.startsWith('pk_')) {
+    if (!apiKey.startsWith('sk_') && !apiKey.startsWith('pk_')) {
       throw new Error('Invalid API key format. API key should start with "sk_" (secret) or "pk_" (public)')
     }
 
     const httpOptions: HttpClientOptions = {
       baseUrl: options.baseUrl || 'https://api.simplist.blog',
-      apiKey: options.apiKey,
+      apiKey: apiKey,
       timeout: options.timeout,
       retries: options.retries,
       retryDelay: options.retryDelay

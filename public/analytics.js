@@ -2,6 +2,10 @@
  * Simplist Analytics Widget
  * 
  * Usage:
+ * Method 1 - URL Parameters (recommended):
+ * <script src="https://simplist.blog/analytics.js?apiKey=pk_your_key&slug=article-slug&debug=true"></script>
+ *
+ * Method 2 - Global Variable:
  * <script>
  *   window.SimplistAnalytics = {
  *     apiKey: 'pk_your_public_key_here',
@@ -16,16 +20,31 @@
 (function() {
   'use strict';
 
-  // Configuration from global variable
-  const config = window.SimplistAnalytics || {};
+  // Get script element to check for URL parameters
+  const scriptElement = document.currentScript || document.querySelector('script[src*="analytics.js"]');
+  const scriptUrl = scriptElement ? new URL(scriptElement.src) : null;
+  
+  // Parse URL parameters
+  const urlParams = scriptUrl ? {
+    apiKey: scriptUrl.searchParams.get('apiKey'),
+    articleSlug: scriptUrl.searchParams.get('slug'),
+    apiUrl: scriptUrl.searchParams.get('apiUrl'),
+    debug: scriptUrl.searchParams.get('debug') === 'true'
+  } : {};
+  
+  // Configuration from URL parameters or global variable (URL params take priority)
+  const config = {
+    ...(window.SimplistAnalytics || {}),
+    ...Object.fromEntries(Object.entries(urlParams).filter(([, value]) => value !== null))
+  };
   
   if (!config.apiKey) {
-    console.warn('Simplist Analytics: API key not provided');
+    console.warn('Simplist Analytics: API key not provided via URL parameter (?apiKey=pk_...) or window.SimplistAnalytics');
     return;
   }
   
   if (!config.articleSlug) {
-    console.warn('Simplist Analytics: Article slug not provided');
+    console.warn('Simplist Analytics: Article slug not provided via URL parameter (?slug=...) or window.SimplistAnalytics');
     return;
   }
 
@@ -176,16 +195,17 @@
     log('Event added:', type, data);
   };
 
-  // Fetch geographic data from IP API
+  // Fetch geographic data from IP API (using HTTP for compatibility)
   const fetchGeoData = async () => {
     try {
-      const response = await fetch('https://ipapi.co/json/');
+      // Use HTTP version of ip-api.com for compatibility
+      const response = await fetch('http://ip-api.com/json/?fields=status,country,countryCode,region,city,timezone');
       if (response.ok) {
         const data = await response.json();
-        if (data.country_name) {
+        if (data.status === 'success') {
           return {
-            country: data.country_name,
-            countryCode: data.country_code,
+            country: data.country,
+            countryCode: data.countryCode,
             region: data.region,
             city: data.city,
             timezone: data.timezone
@@ -193,7 +213,8 @@
         }
       }
     } catch (err) {
-      log('Failed to fetch geo data:', err);
+      // Fallback: try without geo data if request fails
+      log('Failed to fetch geo data (mixed content/CORS):', err);
     }
     return null;
   };

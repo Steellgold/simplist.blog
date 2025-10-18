@@ -10,7 +10,7 @@ export default fp(async function (fastify) {
     if (!origin) return callback(null, true)
     
     // Allow all localhost requests (useful for development and testing)
-    if (origin.startsWith('http://localhost:')) {
+    if (origin.startsWith('http://localhost:') || origin.startsWith('https://localhost:')) {
       return callback(null, true)
     }
     
