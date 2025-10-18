@@ -53,7 +53,7 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
     // Bot detection - reject bot traffic
     const botInfo = getBotInfo(userAgent)
     if (botInfo.isBot) {
-      fastify.log.info(`Bot detected and blocked: ${botInfo.reason}`, { userAgent, ip: clientIp })
+      fastify.log.info({ userAgent, ip: clientIp }, `Bot detected and blocked: ${botInfo.reason}`)
       return reply.code(400).send({
         error: 'Bot Detected',
         message: 'Analytics tracking is not available for automated requests',
@@ -208,7 +208,7 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
     // Bot detection - reject bot traffic
     const botInfo = getBotInfo(userAgent)
     if (botInfo.isBot) {
-      fastify.log.info(`Bot detected and blocked on update: ${botInfo.reason}`, { userAgent, pageViewId })
+      fastify.log.info({ userAgent, pageViewId }, `Bot detected and blocked on update: ${botInfo.reason}`)
       return reply.code(400).send({
         error: 'Bot Detected',
         message: 'Analytics tracking is not available for automated requests',
