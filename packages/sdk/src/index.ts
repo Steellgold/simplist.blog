@@ -1,9 +1,9 @@
 // Main exports
-export { SimplistClient } from './client.js'
-export type { SimplistClientOptions } from './client.js'
+export { SimplistClient } from './client'
+export type { SimplistClientOptions } from './client'
 
 // Error classes
-export { SimplistApiError } from './utils/http.js'
+export { SimplistApiError } from './utils/http'
 
 // Type exports
 export type {
@@ -15,7 +15,7 @@ export type {
   ProjectStats,
   ProjectInfo,
   ArticleListParams
-} from './types/api.js'
+} from './types/api'
 
 // Analytics types
 export type {
@@ -23,5 +23,5 @@ export type {
   PageEvent,
   PageViewResponse,
   AnalyticsStats
-} from './resources/analytics.js'
+} from './resources/analytics'
 
