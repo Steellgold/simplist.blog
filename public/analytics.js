@@ -179,13 +179,13 @@
   // Fetch geographic data from IP API
   const fetchGeoData = async () => {
     try {
-      const response = await fetch('http://ip-api.com/json/?fields=status,country,countryCode,region,city,timezone');
+      const response = await fetch('https://ipapi.co/json/');
       if (response.ok) {
         const data = await response.json();
-        if (data.status === 'success') {
+        if (data.country_name) {
           return {
-            country: data.country,
-            countryCode: data.countryCode,
+            country: data.country_name,
+            countryCode: data.country_code,
             region: data.region,
             city: data.city,
             timezone: data.timezone
