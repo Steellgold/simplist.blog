@@ -21,6 +21,8 @@
 
 # production
 /build
+/dist
+**/dist/
 
 # misc
 .DS_Store
@@ -43,3 +45,7 @@ yarn-error.log*
 next-env.d.ts
 
 certificates
+
+# Documentation files (auto-generated)
+API.md
+REQUESTS.md
