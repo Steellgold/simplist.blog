@@ -195,17 +195,16 @@
     log('Event added:', type, data);
   };
 
-  // Fetch geographic data from IP API (using HTTP for compatibility)
+  // Fetch geographic data from ipinfo.io (HTTPS compatible)
   const fetchGeoData = async () => {
     try {
-      // Use HTTP version of ip-api.com for compatibility
-      const response = await fetch('http://ip-api.com/json/?fields=status,country,countryCode,region,city,timezone');
+      const response = await fetch('https://ipinfo.io/json');
       if (response.ok) {
         const data = await response.json();
-        if (data.status === 'success') {
+        if (data.country) {
           return {
-            country: data.country,
-            countryCode: data.countryCode,
+            country: data.country === 'FR' ? 'France' : data.country, // Convert code to name for FR
+            countryCode: data.country,
             region: data.region,
             city: data.city,
             timezone: data.timezone
@@ -213,8 +212,7 @@
         }
       }
     } catch (err) {
-      // Fallback: try without geo data if request fails
-      log('Failed to fetch geo data (mixed content/CORS):', err);
+      log('Failed to fetch geo data:', err);
     }
     return null;
   };
