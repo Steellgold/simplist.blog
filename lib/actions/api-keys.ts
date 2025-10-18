@@ -2,9 +2,9 @@
 
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
-import { getCurrentUser } from "../auth-helper"
-import { prisma, apiKeyCache } from "../db"
-import { createApiKeySchema } from "../validations/api-key"
+import { getCurrentUser } from "@/lib/auth-helper"
+import { prisma, apiKeyCache } from "@/lib/db"
+import { createApiKeySchema } from "@/lib/validations/api-key"
 
 // Generate a random API key
 function generateApiKey(type: "secret" | "public" = "secret"): string {
