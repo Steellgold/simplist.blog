@@ -194,10 +194,6 @@ const detectObjectMime = async (
     )
     const body = await obj.Body?.transformToByteArray()
     if (body && body.length > 4) {
-      // Magic signatures
-      const sig4 = (i: number) =>
-        `${body[i]?.toString(16)} ${body[i + 1]?.toString(16)} ${body[i + 2]?.toString(16)} ${body[i + 3]?.toString(16)}`
-
       // JPEG: FF D8 FF
       if (body[0] === 0xff && body[1] === 0xd8 && body[2] === 0xff) {
         return { mime: "image/jpeg", isImage: true }

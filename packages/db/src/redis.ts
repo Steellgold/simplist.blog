@@ -28,7 +28,11 @@ export const apiKeyCache = {
       const redis = getRedis()
       const cacheKey = `${CACHE_PREFIX}${key}`
       const cached = await redis.get(cacheKey)
-      return cached ? JSON.parse(cached as string) : null
+      if (!cached) return null
+      
+      // Ensure cached is a string before parsing
+      const cacheString = typeof cached === 'string' ? cached : JSON.stringify(cached)
+      return JSON.parse(cacheString)
     } catch (error) {
       console.error('Error getting from cache:', error)
       return null

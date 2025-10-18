@@ -14,7 +14,7 @@ const Forbidden: FC<Props> = ({ actions }) => {
 
         <div className="space-y-2">
           <p className="text-4xl font-bold">Access Denied</p>
-          <p className="text-center">You don't have the necessary permissions to access this page.</p>
+          <p className="text-center">You don&apos;t have the necessary permissions to access this page.</p>
         </div>
 
         <div className="flex justify-center gap-2">

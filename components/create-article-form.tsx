@@ -1,12 +1,11 @@
 "use client";
 
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { createArticle, updateArticleCoverImage } from "@/lib/actions/articles";
 import { Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Spinner } from "./ui/spinner";
 import { ArticleInfoFields } from "./article-info-fields";
 import { ArticleContentEditor } from "./article-content-editor";
 import { ArticleVisibilityCard } from "./article-visibility-card";
@@ -73,7 +72,7 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
       if (imageFile && article) {
         const form = new FormData()
         form.append("file", imageFile)
-        form.append("projectId", article.projectId)
+        form.append("projectId", projectId)
         form.append("postId", article.id)
 
         const res = await fetch("/api/uploads/banner", {
@@ -119,7 +118,6 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
           <ArticleContentEditor
             content={content}
             onContentChange={setContent}
-            projectId={projectId}
             textareaId="content"
             placeholder="Write your new article here... tell your idea, your story, or share an interesting piece of information."
           />

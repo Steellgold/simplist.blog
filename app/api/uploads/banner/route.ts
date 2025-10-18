@@ -59,7 +59,6 @@ export const POST = async (req: Request) => {
 
     try {
       const image = sharp(buffer)
-      const metadata = await image.metadata()
 
       // Compress based on type
       if (file.type === "image/png") {
@@ -72,7 +71,7 @@ export const POST = async (req: Request) => {
         processedBuffer = await image.jpeg({ quality: 85, progressive: true }).toBuffer()
         finalMimeType = "image/jpeg"
       }
-    } catch (error) {
+    } catch {
       return NextResponse.json({ error: "Failed to process image" }, { status: 500 })
     }
 

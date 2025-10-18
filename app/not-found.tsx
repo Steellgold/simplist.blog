@@ -14,7 +14,7 @@ const NotFound: FC<Props> = ({ actions }) => {
 
         <div className="space-y-2">
           <p className="text-4xl font-bold">Page Not Found</p>
-          <p className="text-center">It seems you've lost your compass...</p>
+          <p className="text-center">It seems you&apos;ve lost your compass...</p>
         </div>
 
         <div className="flex justify-center gap-2">

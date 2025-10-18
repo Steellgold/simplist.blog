@@ -6,18 +6,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { InputGroup, InputGroupAddon, InputGroupTextarea } from "@/components/ui/input-group";
 import { Bold, Code, FileCode2, Heading2, Image as ImageIcon, Italic, Link as LinkIcon, List, ListOrdered, Quote } from "lucide-react";
-import { useMemo } from "react";
+import { useMemo, useCallback } from "react";
 
 type ArticleContentEditorProps = {
   content: string;
   onContentChange: (value: string) => void;
-  projectId: string;
   textareaId?: string;
   placeholder?: string;
 };
 
-export const ArticleContentEditor = ({ content, onContentChange, projectId, textareaId = "content", placeholder = "Write your article here... tell your idea, your story, or share an interesting piece of information." }: ArticleContentEditorProps) => {
-  const insertMarkdown = (before: string, after: string = "") => {
+export const ArticleContentEditor = ({ content, onContentChange, textareaId = "content", placeholder = "Write your article here... tell your idea, your story, or share an interesting piece of information." }: ArticleContentEditorProps) => {
+  const insertMarkdown = useCallback((before: string, after: string = "") => {
     const textarea = document.getElementById(textareaId) as HTMLTextAreaElement | null;
     if (!textarea) return;
     const start = textarea.selectionStart;
@@ -29,7 +28,7 @@ export const ArticleContentEditor = ({ content, onContentChange, projectId, text
       textarea.focus();
       textarea.setSelectionRange(start + before.length, start + before.length + selectedText.length);
     }, 0);
-  };
+  }, [textareaId, onContentChange, content]);
 
   const markdownActions = useMemo(() => ({
     formatting: [
@@ -49,7 +48,7 @@ export const ArticleContentEditor = ({ content, onContentChange, projectId, text
       { icon: LinkIcon, label: "Link", action: () => insertMarkdown("[", "](url)") },
       { icon: ImageIcon, label: "Image", action: () => insertMarkdown("![alt](", ")") },
     ],
-  }), [content, textareaId]);
+  }), [insertMarkdown]);
 
   const contentStats = useMemo(() => ({
     characters: content.length,

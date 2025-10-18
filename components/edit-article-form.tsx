@@ -1,12 +1,11 @@
 "use client";
 
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { updateArticle, updateArticleCoverImage, removeArticleCoverImage } from "@/lib/actions/articles";
-import { Trash2, X } from "lucide-react";
+import { X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Spinner } from "./ui/spinner";
 import { ArticleInfoFields } from "./article-info-fields";
 import { ArticleContentEditor } from "./article-content-editor";
 import { ArticleVisibilityCard } from "./article-visibility-card";
@@ -141,7 +140,6 @@ export const EditArticleForm = ({ article }: EditArticleFormProps) => {
           <ArticleContentEditor
             content={content}
             onContentChange={setContent}
-            projectId={article.projectId}
             textareaId="content"
             placeholder="Write your article here... tell your idea, your story, or share an interesting piece of information."
           />

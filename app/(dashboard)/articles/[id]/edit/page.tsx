@@ -2,13 +2,12 @@ import { notFound, redirect } from "next/navigation"
 import { getCurrentUser } from "@/lib/auth-helper"
 import { getArticle } from "@/lib/actions/articles"
 import { EditArticleForm } from "@/components/edit-article-form"
-import type { Metadata, ResolvingMetadata } from "next"
+import type { Metadata } from "next"
 
 type PageParams = { id: string }
 
 export async function generateMetadata(
-  { params }: { params: Promise<PageParams> },
-  _parent: ResolvingMetadata
+  { params }: { params: Promise<PageParams> }
 ): Promise<Metadata> {
   const { id } = await params
   const article = await getArticle(id);

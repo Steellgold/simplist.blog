@@ -1,8 +1,6 @@
 'use server'
 
-import * as db from '@simplist/db'
-
-const { prisma } = db
+import { prisma } from '@/lib/db'
 
 export interface AnalyticsData {
   summary: {

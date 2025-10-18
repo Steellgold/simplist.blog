@@ -41,12 +41,12 @@ import { bulkDeleteArticles } from "@/lib/actions/articles"
 import { toast } from "@/components/ui/sonner"
 import { Spinner } from "./ui/spinner"
 
-interface DataTableProps<TData, TValue> {
+interface DataTableProps<TData extends { id: string }, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
 }
 
-export function ArticlesDataTable<TData, TValue>({
+export function ArticlesDataTable<TData extends { id: string }, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
@@ -80,7 +80,7 @@ export function ArticlesDataTable<TData, TValue>({
   const handleBulkDelete = async () => {
     try {
       setIsDeleting(true)
-      const ids = selectedRows.map((row) => (row.original as any).id)
+      const ids = selectedRows.map((row) => row.original.id)
       await toast.promise(
         bulkDeleteArticles(ids),
         {

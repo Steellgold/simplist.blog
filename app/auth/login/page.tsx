@@ -1,5 +1,4 @@
 import { LoginForm } from "@/components/login-form"
-import { GalleryVerticalEnd } from "lucide-react"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {

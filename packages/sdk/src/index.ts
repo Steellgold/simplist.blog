@@ -25,5 +25,3 @@ export type {
   AnalyticsStats
 } from './resources/analytics.js'
 
-// Default export
-export default SimplistClient

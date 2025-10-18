@@ -24,7 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { createApiKey } from "@/lib/actions/api-keys"
-import { CreateApiKeyInput, createApiKeySchema, apiKeyTypes, apiKeyPermissions } from "@/lib/validations/api-key"
+import { CreateApiKeyInput, createApiKeySchema, apiKeyPermissions } from "@/lib/validations/api-key"
 import { Spinner } from "./ui/spinner"
 import { toast } from "@/components/ui/sonner"
 import { Plus, Copy, Check } from "lucide-react"
@@ -69,8 +69,8 @@ export const CreateApiKeyForm = ({ projectId, onSuccess }: CreateApiKeyFormProps
       reset()
       toast.success("API key created successfully")
       onSuccess?.()
-    } catch (err: any) {
-      const message = err?.message || "Failed to create API key"
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to create API key"
       setError(message)
       toast.error(message)
     }

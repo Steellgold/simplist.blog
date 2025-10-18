@@ -30,7 +30,7 @@ const StatCard = ({
   title: string
   value: number | string
   description: string
-  icon: any
+  icon: React.ComponentType<{ className?: string }>
   suffix?: string
 }) => (
   <Card>
@@ -58,7 +58,7 @@ const DeviceIcon = ({ device }: { device: string }) => {
   }
 }
 
-export const AnalyticsDashboard = ({ project, analytics, selectedDays }: AnalyticsDashboardProps) => {
+export const AnalyticsDashboard = ({ analytics, selectedDays }: AnalyticsDashboardProps) => {
   const [timeRange, setTimeRange] = useState(selectedDays.toString())
 
   const handleTimeRangeChange = (days: string) => {

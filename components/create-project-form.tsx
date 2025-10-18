@@ -24,7 +24,6 @@ export const CreateProjectForm = ({ className, ...props }: React.ComponentProps<
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-    watch,
   } = useForm<CreateProjectInput>({
     resolver: zodResolver(createProjectSchema),
     defaultValues: {
@@ -46,8 +45,8 @@ export const CreateProjectForm = ({ className, ...props }: React.ComponentProps<
           router.refresh()
           return "Project created"
         },
-        error: (err: any) => {
-          const message = err?.message || "Failed to create project"
+        error: (err: unknown) => {
+          const message = err instanceof Error ? err.message : "Failed to create project"
           setError(message)
           return message
         },

@@ -36,8 +36,8 @@ export const ApiKeysList = ({ apiKeys }: ApiKeysListProps) => {
       setDeleteDialogOpen(false)
       setKeyToDelete(null)
       router.refresh()
-    } catch (err: any) {
-      toast.error(err?.message || "Failed to delete API key")
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to delete API key")
     } finally {
       setIsDeleting(false)
     }
