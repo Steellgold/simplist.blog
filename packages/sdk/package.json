@@ -1,0 +1,53 @@
+{
+  "name": "@simplist/sdk",
+  "version": "0.1.0",
+  "description": "TypeScript SDK for Simplist API",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -c --watch",
+    "type-check": "tsc --noEmit",
+    "test": "vitest",
+    "prepublishOnly": "pnpm run build"
+  },
+  "keywords": [
+    "simplist",
+    "blog",
+    "api",
+    "sdk",
+    "typescript"
+  ],
+  "author": "Simplist",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/simplist/simplist.blog.git",
+    "directory": "packages/sdk"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^15.3.0",
+    "@rollup/plugin-typescript": "^12.1.1",
+    "@types/node": "^20",
+    "rollup": "^4.31.0",
+    "rollup-plugin-dts": "^6.1.1",
+    "typescript": "^5",
+    "vitest": "^2.1.8"
+  },
+  "peerDependencies": {},
+  "engines": {
+    "node": ">=18"
+  }
+}
