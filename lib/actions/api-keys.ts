@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { getCurrentUser } from "../auth-helper"
-import { prisma } from "../db"
+import { prisma, apiKeyCache } from "../db"
 import { createApiKeySchema } from "../validations/api-key"
 
 // Generate a random API key
@@ -99,6 +99,11 @@ export async function createApiKey(projectId: string, input: { name: string; exp
     },
   })
 
+  // Invalidate cache for the new API key (fire and forget)
+  apiKeyCache.invalidate(apiKey).catch(() => {
+    // Ignore cache invalidation errors
+  })
+
   revalidatePath("/api-keys")
   return newApiKey
 }
@@ -134,6 +139,11 @@ export async function deleteApiKey(apiKeyId: string) {
       status: "deleted",
       deletedAt: new Date(),
     },
+  })
+
+  // Invalidate cache for the deleted API key (fire and forget)
+  apiKeyCache.invalidate(apiKey.key).catch(() => {
+    // Ignore cache invalidation errors
   })
 
   revalidatePath("/api-keys")
