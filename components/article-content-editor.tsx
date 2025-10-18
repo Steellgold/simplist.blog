@@ -5,7 +5,6 @@ import { ButtonGroup } from "@/components/ui/button-group";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { InputGroup, InputGroupAddon, InputGroupTextarea } from "@/components/ui/input-group";
-import { AssetGallery } from "./asset-gallery";
 import { Bold, Code, FileCode2, Heading2, Image as ImageIcon, Italic, Link as LinkIcon, List, ListOrdered, Quote } from "lucide-react";
 import { useMemo } from "react";
 
@@ -94,9 +93,6 @@ export const ArticleContentEditor = ({ content, onContentChange, projectId, text
                       </Button>
                     ))}
 
-                    {groupName === "media" && (
-                      <AssetGallery projectId={projectId} />
-                    )}
                   </ButtonGroup>
                 ))}
               </ButtonGroup>
