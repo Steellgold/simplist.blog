@@ -5,7 +5,7 @@ export default fp(async function (fastify) {
   const allowedOrigins = (fastify as any).config.ALLOWED_ORIGINS.split(',').map((origin: string) => origin.trim())
   
   // Custom origin function to allow all localhost in development
-  const originFunction = (origin: string, callback: Function) => {
+  const originFunction = (origin: string | undefined, callback: (err: Error | null, allow: boolean) => void) => {
     // Allow requests with no origin (like mobile apps or curl)
     if (!origin) return callback(null, true)
     
