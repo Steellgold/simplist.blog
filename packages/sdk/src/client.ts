@@ -57,6 +57,13 @@ export interface SimplistClientOptions {
  * 
  * // Get analytics stats (requires read permission)
  * const stats = await client.analytics.getStats({ days: 7 })
+ * 
+ * // Generate RSS feed
+ * const rssXml = await client.articles.rss({
+ *   hostname: 'https://yourblog.com',
+ *   title: 'My Blog',
+ *   description: 'Latest posts from my blog'
+ * })
  * ```
  */
 export class SimplistClient {
