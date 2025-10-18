@@ -1,6 +1,7 @@
 "use client"
 
 import {
+  BarChart3,
   FileText,
   Key,
   LayoutDashboard,
@@ -67,6 +68,11 @@ const navigationItems = [
     title: "Articles",
     icon: FileText,
     href: "/articles",
+  },
+  {
+    title: "Analytics",
+    icon: BarChart3,
+    href: "/analytics",
   },
   {
     title: "API Keys",

@@ -1,6 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { ColumnDef } from "@tanstack/react-table"
 import { Trash2 } from "lucide-react"
 
@@ -8,6 +9,8 @@ export type ApiKey = {
   id: string
   name: string
   key: string
+  type: string
+  permissions: string[]
   lastUsedAt: Date | null
   expiresAt: Date | null
   status: string
@@ -43,10 +46,44 @@ export const columns: ColumnDef<ApiKey>[] = [
     header: "API Key",
     cell: ({ row }) => {
       const key = row.getValue("key") as string
+      const type = row.getValue("type") as string
       return (
-        <code className="text-sm font-mono">
-          {maskKey(key)}
-        </code>
+        <div className="flex items-center gap-2">
+          <code className="text-sm font-mono">
+            {maskKey(key)}
+          </code>
+          <Badge variant={type === "public" ? "secondary" : "default"} className="text-xs">
+            {type === "public" ? "PK" : "SK"}
+          </Badge>
+        </div>
+      )
+    },
+  },
+  {
+    accessorKey: "type",
+    header: "Type",
+    cell: ({ row }) => {
+      const type = row.getValue("type") as string
+      return (
+        <Badge variant={type === "public" ? "outline" : "default"}>
+          {type === "public" ? "Public" : "Secret"}
+        </Badge>
+      )
+    },
+  },
+  {
+    accessorKey: "permissions",
+    header: "Permissions",
+    cell: ({ row }) => {
+      const permissions = row.getValue("permissions") as string[]
+      return (
+        <div className="flex flex-wrap gap-1">
+          {permissions.map((permission) => (
+            <Badge key={permission} variant="secondary" className="text-xs">
+              {permission}
+            </Badge>
+          ))}
+        </div>
       )
     },
   },

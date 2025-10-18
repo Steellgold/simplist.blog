@@ -7,8 +7,8 @@ import { prisma, apiKeyCache } from "../db"
 import { createApiKeySchema } from "../validations/api-key"
 
 // Generate a random API key
-function generateApiKey(): string {
-  const prefix = "sk"
+function generateApiKey(type: "secret" | "public" = "secret"): string {
+  const prefix = type === "secret" ? "sk" : "pk"
   const randomBytes = crypto.getRandomValues(new Uint8Array(32))
   const key = Array.from(randomBytes)
     .map(b => b.toString(16).padStart(2, "0"))
@@ -47,6 +47,8 @@ export async function getProjectApiKeys(projectId: string) {
       id: true,
       name: true,
       key: true,
+      type: true,
+      permissions: true,
       lastUsedAt: true,
       expiresAt: true,
       status: true,
@@ -57,7 +59,7 @@ export async function getProjectApiKeys(projectId: string) {
   return apiKeys
 }
 
-export async function createApiKey(projectId: string, input: { name: string; expiresInDays?: number | null }) {
+export async function createApiKey(projectId: string, input: { name: string; type?: "secret" | "public"; permissions?: string[]; expiresInDays?: number | null }) {
   const user = await getCurrentUser()
 
   if (!user) {
@@ -80,7 +82,7 @@ export async function createApiKey(projectId: string, input: { name: string; exp
   const validatedData = createApiKeySchema.parse(input)
 
   // Generate unique API key
-  const apiKey = generateApiKey()
+  const apiKey = generateApiKey(validatedData.type)
 
   // Calculate expiration date if provided
   let expiresAt: Date | null = null
@@ -93,6 +95,8 @@ export async function createApiKey(projectId: string, input: { name: string; exp
     data: {
       name: validatedData.name,
       key: apiKey,
+      type: validatedData.type,
+      permissions: validatedData.permissions,
       projectId: projectId,
       expiresAt: expiresAt,
       status: "active",

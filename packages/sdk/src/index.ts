@@ -17,5 +17,13 @@ export type {
   ArticleListParams
 } from './types/api.js'
 
+// Analytics types
+export type {
+  PageViewData,
+  PageEvent,
+  PageViewResponse,
+  AnalyticsStats
+} from './resources/analytics.js'
+
 // Default export
 export default SimplistClient

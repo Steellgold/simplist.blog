@@ -1,6 +1,7 @@
 import { HttpClient, HttpClientOptions } from './utils/http.js'
 import { ArticlesResource } from './resources/articles.js'
 import { ProjectsResource } from './resources/projects.js'
+import { AnalyticsResource } from './resources/analytics.js'
 
 export interface SimplistClientOptions {
   /**
@@ -46,6 +47,16 @@ export interface SimplistClientOptions {
  * 
  * // Get project info
  * const project = await client.project.get()
+ * 
+ * // Track analytics (requires analytics permission)
+ * const result = await client.analytics.track({
+ *   articleSlug: 'my-article',
+ *   timeOnPage: 120,
+ *   scrollDepth: 75
+ * })
+ * 
+ * // Get analytics stats (requires read permission)
+ * const stats = await client.analytics.getStats({ days: 7 })
  * ```
  */
 export class SimplistClient {
@@ -53,14 +64,15 @@ export class SimplistClient {
   
   public readonly articles: ArticlesResource
   public readonly project: ProjectsResource
+  public readonly analytics: AnalyticsResource
 
   constructor(options: SimplistClientOptions) {
     if (!options.apiKey) {
       throw new Error('API key is required')
     }
 
-    if (!options.apiKey.startsWith('sk_')) {
-      throw new Error('Invalid API key format. API key should start with "sk_"')
+    if (!options.apiKey.startsWith('sk_') && !options.apiKey.startsWith('pk_')) {
+      throw new Error('Invalid API key format. API key should start with "sk_" (secret) or "pk_" (public)')
     }
 
     const httpOptions: HttpClientOptions = {
@@ -74,6 +86,7 @@ export class SimplistClient {
     this.http = new HttpClient(httpOptions)
     this.articles = new ArticlesResource(this.http)
     this.project = new ProjectsResource(this.http)
+    this.analytics = new AnalyticsResource(this.http)
   }
 
   /**

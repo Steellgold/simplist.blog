@@ -14,6 +14,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import {
   Select,
@@ -23,7 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { createApiKey } from "@/lib/actions/api-keys"
-import { CreateApiKeyInput, createApiKeySchema } from "@/lib/validations/api-key"
+import { CreateApiKeyInput, createApiKeySchema, apiKeyTypes, apiKeyPermissions } from "@/lib/validations/api-key"
 import { Spinner } from "./ui/spinner"
 import { toast } from "@/components/ui/sonner"
 import { Plus, Copy, Check } from "lucide-react"
@@ -50,11 +51,15 @@ export const CreateApiKeyForm = ({ projectId, onSuccess }: CreateApiKeyFormProps
     resolver: zodResolver(createApiKeySchema),
     defaultValues: {
       name: "",
+      type: "secret",
+      permissions: ["read"],
       expiresInDays: null,
     },
   })
 
   const expiresInDays = watch("expiresInDays")
+  const keyType = watch("type")
+  const permissions = watch("permissions")
 
   const onSubmit = async (data: CreateApiKeyInput) => {
     setError("")
@@ -156,6 +161,63 @@ export const CreateApiKeyForm = ({ projectId, onSuccess }: CreateApiKeyFormProps
                   />
                   {errors.name && (
                     <p className="text-destructive text-sm mt-1">{errors.name.message}</p>
+                  )}
+                </Field>
+
+                <Field>
+                  <FieldLabel htmlFor="type">Key Type</FieldLabel>
+                  <Select
+                    value={keyType}
+                    onValueChange={(value) => {
+                      setValue("type", value as "secret" | "public")
+                      // Reset permissions when changing type
+                      if (value === "public") {
+                        setValue("permissions", ["analytics"])
+                      } else {
+                        setValue("permissions", ["read"])
+                      }
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select key type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="secret">Secret Key (sk_) - Server-side use</SelectItem>
+                      <SelectItem value="public">Public Key (pk_) - Client-side use</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {errors.type && (
+                    <p className="text-destructive text-sm mt-1">{errors.type.message}</p>
+                  )}
+                </Field>
+
+                <Field>
+                  <FieldLabel>Permissions *</FieldLabel>
+                  <div className="space-y-2">
+                    {apiKeyPermissions.map((permission) => (
+                      <div key={permission} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={permission}
+                          checked={permissions.includes(permission)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setValue("permissions", [...permissions, permission])
+                            } else {
+                              setValue("permissions", permissions.filter(p => p !== permission))
+                            }
+                          }}
+                        />
+                        <label
+                          htmlFor={permission}
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 capitalize"
+                        >
+                          {permission === "read" ? "Read Articles & Project Data" : "Analytics Tracking"}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                  {errors.permissions && (
+                    <p className="text-destructive text-sm mt-1">{errors.permissions.message}</p>
                   )}
                 </Field>
 

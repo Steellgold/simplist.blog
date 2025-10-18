@@ -1,0 +1,330 @@
+/**
+ * Simplist Analytics Widget
+ * 
+ * Usage:
+ * <script>
+ *   window.SimplistAnalytics = {
+ *     apiKey: 'pk_your_public_key_here',
+ *     apiUrl: 'https://api.simplist.blog/v1',
+ *     articleSlug: 'your-article-slug',
+ *     debug: false
+ *   };
+ * </script>
+ * <script src="https://simplist.blog/simplist-analytics.js"></script>
+ */
+
+(function() {
+  'use strict';
+
+  // Configuration from global variable
+  const config = window.SimplistAnalytics || {};
+  
+  if (!config.apiKey) {
+    console.warn('Simplist Analytics: API key not provided');
+    return;
+  }
+  
+  if (!config.articleSlug) {
+    console.warn('Simplist Analytics: Article slug not provided');
+    return;
+  }
+
+  const API_URL = config.apiUrl || 'https://api.simplist.blog/v1';
+  const DEBUG = config.debug || false;
+  
+  // Utility functions
+  const log = (...args) => {
+    if (DEBUG) console.log('[Simplist Analytics]', ...args);
+  };
+
+  const error = (...args) => {
+    console.error('[Simplist Analytics]', ...args);
+  };
+
+  // Generate session ID
+  const generateSessionId = () => {
+    const stored = sessionStorage.getItem('simplist_session_id');
+    if (stored) return stored;
+    
+    const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    sessionStorage.setItem('simplist_session_id', sessionId);
+    return sessionId;
+  };
+
+  // Get UTM parameters from URL
+  const getUtmParams = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    return {
+      utmSource: urlParams.get('utm_source'),
+      utmMedium: urlParams.get('utm_medium'),
+      utmCampaign: urlParams.get('utm_campaign'),
+      utmTerm: urlParams.get('utm_term'),
+      utmContent: urlParams.get('utm_content')
+    };
+  };
+
+  // Get screen dimensions
+  const getScreenDimensions = () => {
+    return {
+      screenWidth: window.screen.width,
+      screenHeight: window.screen.height
+    };
+  };
+
+  // Calculate scroll depth
+  const getScrollDepth = () => {
+    const windowHeight = window.innerHeight;
+    const documentHeight = Math.max(
+      document.body.scrollHeight,
+      document.body.offsetHeight,
+      document.documentElement.clientHeight,
+      document.documentElement.scrollHeight,
+      document.documentElement.offsetHeight
+    );
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    
+    return Math.min(100, Math.round(((scrollTop + windowHeight) / documentHeight) * 100));
+  };
+
+  // Analytics state
+  let pageViewId = null;
+  let sessionId = generateSessionId();
+  let startTime = Date.now();
+  let maxScrollDepth = 0;
+  let events = [];
+  let isUnloading = false;
+  let lastScrollTime = 0;
+  
+  // Track scroll depth
+  const trackScroll = () => {
+    const now = Date.now();
+    // Throttle scroll events to every 100ms
+    if (now - lastScrollTime < 100) return;
+    lastScrollTime = now;
+    
+    const currentScrollDepth = getScrollDepth();
+    if (currentScrollDepth > maxScrollDepth) {
+      maxScrollDepth = currentScrollDepth;
+      
+      // Track scroll milestones
+      if (currentScrollDepth >= 25 && !events.find(e => e.type === 'scroll_25')) {
+        addEvent('scroll_milestone', { milestone: 25 }, currentScrollDepth);
+      }
+      if (currentScrollDepth >= 50 && !events.find(e => e.type === 'scroll_50')) {
+        addEvent('scroll_milestone', { milestone: 50 }, currentScrollDepth);
+      }
+      if (currentScrollDepth >= 75 && !events.find(e => e.type === 'scroll_75')) {
+        addEvent('scroll_milestone', { milestone: 75 }, currentScrollDepth);
+      }
+      if (currentScrollDepth >= 90 && !events.find(e => e.type === 'scroll_90')) {
+        addEvent('scroll_milestone', { milestone: 90 }, currentScrollDepth);
+      }
+    }
+  };
+
+  // Add event to buffer
+  const addEvent = (type, data = {}, position = null) => {
+    events.push({
+      type,
+      data,
+      position,
+      timestamp: new Date().toISOString(),
+      timeOffset: Date.now() - startTime
+    });
+    log('Event added:', type, data);
+  };
+
+  // Fetch geographic data from IP API
+  const fetchGeoData = async () => {
+    try {
+      const response = await fetch('http://ip-api.com/json/?fields=status,country,countryCode,region,city,timezone');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.status === 'success') {
+          return {
+            country: data.country,
+            countryCode: data.countryCode,
+            region: data.region,
+            city: data.city,
+            timezone: data.timezone
+          };
+        }
+      }
+    } catch (err) {
+      log('Failed to fetch geo data:', err);
+    }
+    return null;
+  };
+
+  // Send data to API
+  const sendToAPI = async (endpoint, data, method = 'POST') => {
+    try {
+      const response = await fetch(`${API_URL}${endpoint}`, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-API-Key': config.apiKey
+        },
+        body: JSON.stringify(data)
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      return await response.json();
+    } catch (err) {
+      error('API request failed:', err);
+      throw err;
+    }
+  };
+
+  // Initial page view tracking
+  const trackPageView = async () => {
+    try {
+      const utmParams = getUtmParams();
+      const screenDims = getScreenDimensions();
+      
+      // Fetch geo data from client-side
+      log('Fetching geo data...');
+      const geoData = await fetchGeoData();
+      
+      const data = {
+        articleSlug: config.articleSlug,
+        sessionId,
+        pageUrl: window.location.href,
+        pageTitle: document.title,
+        referrer: document.referrer,
+        ...utmParams,
+        ...screenDims,
+        ...geoData, // Include geo data from client
+        timestamp: new Date().toISOString(),
+        fetchGeo: false // Tell API not to fetch geo data
+      };
+
+      log('Tracking page view:', data);
+      const result = await sendToAPI('/analytics/track', data);
+      
+      pageViewId = result.pageViewId;
+      log('Page view tracked, ID:', pageViewId);
+      
+    } catch (err) {
+      error('Failed to track page view:', err);
+    }
+  };
+
+  // Update page view with final metrics
+  const updatePageView = async () => {
+    if (!pageViewId || isUnloading) return;
+    
+    try {
+      const timeOnPage = Math.round((Date.now() - startTime) / 1000);
+      const currentScrollDepth = getScrollDepth();
+      
+      const data = {
+        timeOnPage,
+        scrollDepth: Math.max(maxScrollDepth, currentScrollDepth),
+        exitPosition: currentScrollDepth,
+        bounced: timeOnPage < 10 && maxScrollDepth < 25, // Less than 10s and scrolled less than 25%
+        events: events.length > 0 ? events : undefined
+      };
+
+      log('Updating page view:', data);
+      await sendToAPI(`/analytics/track/${pageViewId}`, data, 'PUT');
+      log('Page view updated successfully');
+      
+      // Clear events after sending
+      events = [];
+      
+    } catch (err) {
+      error('Failed to update page view:', err);
+    }
+  };
+
+  // Handle page unload
+  const handleUnload = () => {
+    if (isUnloading) return;
+    isUnloading = true;
+    
+    // Use sendBeacon for more reliable delivery on page unload
+    if (navigator.sendBeacon && pageViewId) {
+      const timeOnPage = Math.round((Date.now() - startTime) / 1000);
+      const currentScrollDepth = getScrollDepth();
+      
+      const data = JSON.stringify({
+        timeOnPage,
+        scrollDepth: Math.max(maxScrollDepth, currentScrollDepth),
+        exitPosition: currentScrollDepth,
+        bounced: timeOnPage < 10 && maxScrollDepth < 25,
+        events: events.length > 0 ? events : undefined
+      });
+
+      const success = navigator.sendBeacon(
+        `${API_URL}/analytics/track/${pageViewId}`,
+        new Blob([data], { type: 'application/json' })
+      );
+      
+      log('Beacon sent:', success);
+    } else {
+      // Fallback to synchronous request (less reliable)
+      updatePageView();
+    }
+  };
+
+  // Handle visibility change (tab switching)
+  const handleVisibilityChange = () => {
+    if (document.hidden) {
+      // Tab is hidden, send current data
+      updatePageView();
+    } else {
+      // Tab is visible again, reset start time for accurate time tracking
+      startTime = Date.now();
+      events = []; // Clear events when resuming
+    }
+  };
+
+  // Initialize analytics
+  const init = () => {
+    log('Initializing Simplist Analytics for article:', config.articleSlug);
+    
+    // Track initial page view
+    trackPageView();
+    
+    // Set up event listeners
+    window.addEventListener('scroll', trackScroll, { passive: true });
+    window.addEventListener('beforeunload', handleUnload);
+    window.addEventListener('pagehide', handleUnload);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    // Send updates periodically (every 30 seconds)
+    setInterval(() => {
+      if (!document.hidden && !isUnloading) {
+        updatePageView();
+      }
+    }, 30000);
+    
+    // Track focus/blur events
+    window.addEventListener('focus', () => addEvent('focus'));
+    window.addEventListener('blur', () => addEvent('blur'));
+    
+    log('Analytics initialized successfully');
+  };
+
+  // Wait for DOM to be ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    // DOM is already ready
+    init();
+  }
+
+  // Expose API for manual event tracking
+  window.SimplistAnalytics.track = (eventType, data = {}, position = null) => {
+    addEvent(eventType, data, position);
+  };
+
+  window.SimplistAnalytics.flush = () => {
+    updatePageView();
+  };
+
+})();

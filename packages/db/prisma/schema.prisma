@@ -91,6 +91,8 @@ model ApiKey {
   id          String    @id @default(cuid())
   name        String
   key         String
+  type        String    @default("secret") // secret (sk_), public (pk_)
+  permissions String[]  @default(["read"]) // read, analytics
   projectId   String
   project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
   lastUsedAt  DateTime?
@@ -123,6 +125,8 @@ model Article {
 
   projectId      String
   project        Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  pageViews      PageView[]
+  pageEvents     PageEvent[]
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   publishedAt    DateTime?
@@ -130,5 +134,96 @@ model Article {
 
   @@unique([slug, projectId])
   @@map("article")
+}
+
+model PageView {
+  id            String   @id @default(cuid())
+  
+  // Relations
+  articleId     String
+  article       Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  projectId     String
+  
+  // Visitor identification (anonymized)
+  visitorId     String   // Hash of IP + User Agent for anonymous tracking
+  sessionId     String   // Browser session ID
+  
+  // Geographic data
+  ipAddress     String?  // Hashed/anonymized IP
+  country       String?
+  countryCode   String?
+  city          String?
+  region        String?
+  timezone      String?
+  
+  // Device/Browser info
+  userAgent     String?
+  device        String?  // mobile, desktop, tablet
+  browser       String?
+  browserVersion String?
+  os            String?
+  osVersion     String?
+  screenWidth   Int?
+  screenHeight  Int?
+  
+  // Traffic source
+  referrer      String?
+  referrerDomain String?
+  utmSource     String?
+  utmMedium     String?
+  utmCampaign   String?
+  utmTerm       String?
+  utmContent    String?
+  
+  // Engagement metrics
+  timeOnPage    Int?     // Time spent in seconds
+  scrollDepth   Float?   // Percentage scrolled (0-100)
+  exitPosition  Float?   // Where user was when leaving (0-100)
+  bounced       Boolean  @default(false)
+  
+  // Metadata
+  pageUrl       String?
+  pageTitle     String?
+  timestamp     DateTime @default(now())
+  createdAt     DateTime @default(now())
+
+  @@index([articleId])
+  @@index([projectId])
+  @@index([visitorId])
+  @@index([sessionId])
+  @@index([timestamp])
+  @@index([country])
+  @@map("page_view")
+}
+
+model PageEvent {
+  id            String   @id @default(cuid())
+  
+  // Relations
+  articleId     String
+  article       Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  projectId     String
+  
+  // Visitor identification
+  visitorId     String
+  sessionId     String
+  
+  // Event data
+  eventType     String   // scroll_milestone, click, focus, blur, etc.
+  eventData     Json?    // Additional event-specific data
+  position      Float?   // Position in article (0-100)
+  element       String?  // CSS selector or element identifier
+  
+  // Timing
+  timestamp     DateTime @default(now())
+  timeOffset    Int?     // Milliseconds from page load
+
+  @@index([articleId])
+  @@index([projectId])
+  @@index([visitorId])
+  @@index([sessionId])
+  @@index([eventType])
+  @@index([timestamp])
+  @@map("page_event")
 }
 
