@@ -1,15 +1,8 @@
-import { FastifyPluginAsync } from 'fastify'
 import * as db from '@simplist/db'
+import { FastifyPluginAsync } from 'fastify'
+import { formatArticle } from '../utils/format'
 
 const { prisma } = db
-import { 
-  articleListQuerySchema, 
-  articleListResponseSchema,
-  articleResponseSchema,
-  type ArticleListQuery 
-} from '../schemas/article'
-import { errorResponseSchema } from '../schemas/common'
-import { formatArticle } from '../utils/format'
 
 const articlesRoutes: FastifyPluginAsync = async (fastify) => {
   // GET /articles - List articles with pagination

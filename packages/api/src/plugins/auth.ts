@@ -1,5 +1,5 @@
-import fp from 'fastify-plugin'
 import * as db from '@simplist/db'
+import fp from 'fastify-plugin'
 
 const { prisma, apiKeyCache } = db
 

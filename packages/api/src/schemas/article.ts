@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { paginationQuerySchema, createResponseSchema } from './common'
+import { createResponseSchema, paginationQuerySchema } from './common'
 
 // Article schema for API responses
 export const articleSchema = z.object({
