@@ -30,6 +30,7 @@ type EditArticleFormProps = {
 export const EditArticleForm = ({ article }: EditArticleFormProps) => {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isRemovingImage, setIsRemovingImage] = useState(false);
 
   // Form state
   const [title, setTitle] = useState(article.title);
@@ -56,6 +57,8 @@ export const EditArticleForm = ({ article }: EditArticleFormProps) => {
 
   // Remove image
   const handleRemoveImage = async () => {
+    setIsRemovingImage(true);
+    
     // If there's a server image, delete it
     if (article.coverImage && !imageFile) {
       try {
@@ -64,6 +67,7 @@ export const EditArticleForm = ({ article }: EditArticleFormProps) => {
       } catch (error) {
         console.error("Failed to remove cover image:", error);
         alert("Failed to remove image");
+        setIsRemovingImage(false);
         return;
       }
     }
@@ -73,6 +77,8 @@ export const EditArticleForm = ({ article }: EditArticleFormProps) => {
     // Reset file input
     const input = document.getElementById("image-upload") as HTMLInputElement;
     if (input) input.value = "";
+    
+    setIsRemovingImage(false);
   };
 
 
@@ -150,7 +156,7 @@ export const EditArticleForm = ({ article }: EditArticleFormProps) => {
             status={status}
             onStatusChange={(v) => setStatus(v)}
             isSubmitting={isSubmitting}
-            submitLabel={isSubmitting ? "" : "Update"}
+            submitLabel="Update"
             leftAction={(
               <Link
                 href="/articles"
@@ -168,6 +174,7 @@ export const EditArticleForm = ({ article }: EditArticleFormProps) => {
             onRemoveImage={handleRemoveImage}
             uploadLabel="Change Image"
             emptyDescription="Update the article cover image."
+            isRemoving={isRemovingImage}
           />
         </div>
       </div>

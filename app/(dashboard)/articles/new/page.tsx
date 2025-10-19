@@ -1,5 +1,6 @@
 import { CreateArticleForm } from "@/components/create-article-form";
 import { getUserProjects } from "@/lib/actions/projects";
+import { PageHeader } from "@/components/page-header";
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 
@@ -15,17 +16,13 @@ const NewArticlePage = async () => {
   if (!project) redirect("/create-project");
 
   return (
-    <div className="container max-w-7xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight">
-          Create a new article
-        </h1>
-        <p className="text-muted-foreground mt-2">
-          Write and publish a new article for your blog
-        </p>
-      </div>
-
-      <CreateArticleForm projectId={project.id} />
+    <div className="container max-w-7xl mx-auto">
+      <PageHeader
+        title="Create a new article"
+        description="Write and publish a new article for your blog"
+      >
+        <CreateArticleForm projectId={project.id} />
+      </PageHeader>
     </div>
   );
 }
