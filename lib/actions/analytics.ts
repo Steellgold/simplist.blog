@@ -1,6 +1,7 @@
 'use server'
 
 import { analyticsCacheUtils, prisma } from '@/lib/db'
+import { Prisma } from '@prisma/client'
 
 export interface AnalyticsData {
   summary: {
@@ -137,78 +138,120 @@ export const getProjectAnalytics = async (projectId: string, days: number = 30, 
   const startDate = new Date()
   startDate.setDate(startDate.getDate() - days)
 
-  // Get total views and unique visitors
-  const totalViews = await prisma.pageView.count({
-    where: {
-      projectId,
-      timestamp: { gte: startDate },
-      article: { deletedAt: null },
-      ...(articleIds && articleIds.length ? { articleId: { in: articleIds } } : {})
-    }
-  })
+  const baseWhere = {
+    projectId,
+    timestamp: { gte: startDate },
+    article: { deletedAt: null },
+    ...(articleIds && articleIds.length ? { articleId: { in: articleIds } } : {})
+  }
 
-  const uniqueVisitors = await prisma.pageView.findMany({
-    where: {
-      projectId,
-      timestamp: { gte: startDate },
-      article: { deletedAt: null },
-      ...(articleIds && articleIds.length ? { articleId: { in: articleIds } } : {})
-    },
-    select: { visitorId: true },
-    distinct: ['visitorId']
-  })
+  // Execute all queries in parallel for better performance
+  const [
+    totalViews,
+    uniqueVisitors,
+    avgMetrics,
+    bouncedViews,
+    topArticlesData,
+    topCountriesData,
+    deviceStatsData,
+    browserStatsData,
+    viewsOverTimeData,
+    recentViewsData
+  ] = await Promise.all([
+    // Total views
+    prisma.pageView.count({ where: baseWhere }),
+    
+    // Unique visitors
+    prisma.pageView.findMany({
+      where: baseWhere,
+      select: { visitorId: true },
+      distinct: ['visitorId']
+    }),
+    
+    // Average metrics
+    prisma.pageView.aggregate({
+      where: { ...baseWhere, timeOnPage: { not: null } },
+      _avg: { timeOnPage: true, scrollDepth: true }
+    }),
+    
+    // Bounced views
+    prisma.pageView.count({
+      where: { ...baseWhere, bounced: true }
+    }),
+    
+    // Top articles
+    prisma.pageView.groupBy({
+      by: ['articleId'],
+      where: baseWhere,
+      _count: { id: true },
+      _avg: { timeOnPage: true, scrollDepth: true },
+      orderBy: { _count: { id: 'desc' } },
+      take: 10
+    }),
+    
+    // Top countries
+    prisma.pageView.groupBy({
+      by: ['country'],
+      where: { ...baseWhere, country: { not: null } },
+      _count: { id: true },
+      orderBy: { _count: { id: 'desc' } },
+      take: 10
+    }),
+    
+    // Device stats
+    prisma.pageView.groupBy({
+      by: ['device'],
+      where: { ...baseWhere, device: { not: null } },
+      _count: { id: true },
+      orderBy: { _count: { id: 'desc' } }
+    }),
+    
+    // Browser stats
+    prisma.pageView.groupBy({
+      by: ['browser'],
+      where: { ...baseWhere, browser: { not: null } },
+      _count: { id: true },
+      orderBy: { _count: { id: 'desc' } },
+      take: 5
+    }),
+    
+    // Views over time with SQL raw query for better performance
+    prisma.$queryRaw<Array<{ date: string; views: bigint; uniqueVisitors: bigint }>>`
+      SELECT 
+        DATE(timestamp) as date,
+        COUNT(*) as views,
+        COUNT(DISTINCT "visitorId") as uniqueVisitors
+      FROM "PageView" p
+      INNER JOIN "Article" a ON p."articleId" = a.id
+      WHERE p."projectId" = ${projectId} 
+        AND p.timestamp >= ${startDate}
+        AND a."deletedAt" IS NULL
+        ${articleIds && articleIds.length ? 
+          Prisma.sql`AND p."articleId" = ANY(${articleIds})` : 
+          Prisma.empty
+        }
+      GROUP BY DATE(timestamp)
+      ORDER BY date DESC
+      LIMIT ${days}
+    `,
+    
+    // Recent views
+    prisma.pageView.findMany({
+      where: baseWhere,
+      include: { article: { select: { title: true } } },
+      orderBy: { timestamp: 'desc' },
+      take: 20
+    })
+  ])
 
-  // Get average metrics
-  const avgMetrics = await prisma.pageView.aggregate({
-    where: {
-      projectId,
-      timestamp: { gte: startDate },
-      timeOnPage: { not: null },
-      article: { deletedAt: null },
-      ...(articleIds && articleIds.length ? { articleId: { in: articleIds } } : {})
-    },
-    _avg: {
-      timeOnPage: true,
-      scrollDepth: true
-    }
-  })
-
-  // Get bounce rate
-  const bouncedViews = await prisma.pageView.count({
-    where: {
-      projectId,
-      timestamp: { gte: startDate },
-      bounced: true,
-      article: { deletedAt: null },
-      ...(articleIds && articleIds.length ? { articleId: { in: articleIds } } : {})
-    }
-  })
-
-  // Get top articles
-  const topArticlesData = await prisma.pageView.groupBy({
-    by: ['articleId'],
-    where: {
-      projectId,
-      timestamp: { gte: startDate },
-      article: { deletedAt: null },
-      ...(articleIds && articleIds.length ? { articleId: { in: articleIds } } : {})
-    },
-    _count: { id: true },
-    _avg: {
-      timeOnPage: true,
-      scrollDepth: true
-    },
-    orderBy: { _count: { id: 'desc' } },
-    take: 10
-  })
-
-  // Get article details
+  // Get article details for top articles
   const topArticleIds = topArticlesData.map(a => a.articleId)
-  const articles = await prisma.article.findMany({
+  const articles = topArticleIds.length > 0 ? await prisma.article.findMany({
     where: { id: { in: topArticleIds }, deletedAt: null },
     select: { id: true, title: true, slug: true }
-  })
+  }) : []
 
+  // Process results
   const topArticles = topArticlesData.map(ta => {
     const article = articles.find(a => a.id === ta.articleId)
     return {
@@ -221,40 +264,11 @@ export const getProjectAnalytics = async (projectId: string, days: number = 30, 
     }
   })
 
-  // Get top countries
-  const topCountriesData = await prisma.pageView.groupBy({
-    by: ['country'],
-    where: {
-      projectId,
-      timestamp: { gte: startDate },
-      country: { not: null },
-      article: { deletedAt: null },
-      ...(articleIds && articleIds.length ? { articleId: { in: articleIds } } : {})
-    },
-    _count: { id: true },
-    orderBy: { _count: { id: 'desc' } },
-    take: 10
-  })
-
   const topCountries = topCountriesData.map(tc => ({
     country: tc.country || 'Unknown',
     views: tc._count.id,
     percentage: Math.round((tc._count.id / totalViews) * 100)
   }))
-
-  // Get device stats
-  const deviceStatsData = await prisma.pageView.groupBy({
-    by: ['device'],
-    where: {
-      projectId,
-      timestamp: { gte: startDate },
-      device: { not: null },
-      article: { deletedAt: null },
-      ...(articleIds && articleIds.length ? { articleId: { in: articleIds } } : {})
-    },
-    _count: { id: true },
-    orderBy: { _count: { id: 'desc' } }
-  })
 
   const deviceStats = deviceStatsData.map(ds => ({
     device: ds.device || 'Unknown',
@@ -262,80 +276,34 @@ export const getProjectAnalytics = async (projectId: string, days: number = 30, 
     percentage: Math.round((ds._count.id / totalViews) * 100)
   }))
 
-  // Get browser stats
-  const browserStatsData = await prisma.pageView.groupBy({
-    by: ['browser'],
-    where: {
-      projectId,
-      timestamp: { gte: startDate },
-      browser: { not: null },
-      article: { deletedAt: null },
-      ...(articleIds && articleIds.length ? { articleId: { in: articleIds } } : {})
-    },
-    _count: { id: true },
-    orderBy: { _count: { id: 'desc' } },
-    take: 5
-  })
-
   const browserStats = browserStatsData.map(bs => ({
     browser: bs.browser || 'Unknown',
     views: bs._count.id,
     percentage: Math.round((bs._count.id / totalViews) * 100)
   }))
 
-  // Get views over time (daily breakdown)
+  // Process views over time data and fill missing dates
+  const viewsOverTimeMap = new Map(
+    viewsOverTimeData.map(row => [
+      row.date,
+      { views: Number(row.views), uniqueVisitors: Number(row.uniqueVisitors) }
+    ])
+  )
+
   const viewsOverTime = []
   for (let i = days - 1; i >= 0; i--) {
     const date = new Date()
     date.setDate(date.getDate() - i)
-    const dayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate())
-    const dayEnd = new Date(dayStart)
-    dayEnd.setDate(dayEnd.getDate() + 1)
-
-    const dayViews = await prisma.pageView.count({
-      where: {
-        projectId,
-        timestamp: { gte: dayStart, lt: dayEnd },
-        article: { deletedAt: null },
-        ...(articleIds && articleIds.length ? { articleId: { in: articleIds } } : {})
-      }
-    })
-
-    const dayUniqueVisitors = await prisma.pageView.findMany({
-      where: {
-        projectId,
-        timestamp: { gte: dayStart, lt: dayEnd },
-        article: { deletedAt: null },
-        ...(articleIds && articleIds.length ? { articleId: { in: articleIds } } : {})
-      },
-      select: { visitorId: true },
-      distinct: ['visitorId']
-    })
-
+    const dateStr = date.toISOString().split('T')[0]
+    const data = viewsOverTimeMap.get(dateStr) || { views: 0, uniqueVisitors: 0 }
     viewsOverTime.push({
-      date: dayStart.toISOString().split('T')[0],
-      views: dayViews,
-      uniqueVisitors: dayUniqueVisitors.length
+      date: dateStr,
+      views: data.views,
+      uniqueVisitors: data.uniqueVisitors
     })
   }
 
-  // Get recent views
-  const recentViewsData = await prisma.pageView.findMany({
-    where: {
-      projectId,
-      timestamp: { gte: startDate },
-      article: { deletedAt: null },
-      ...(articleIds && articleIds.length ? { articleId: { in: articleIds } } : {})
-    },
-    include: {
-      article: {
-        select: { title: true }
-      }
-    },
-    orderBy: { timestamp: 'desc' },
-    take: 20
-  })
-
+  // Process recent views data (already fetched in parallel above)
   const recentViews = recentViewsData.map(rv => ({
     id: rv.id,
     articleTitle: rv.article.title,
