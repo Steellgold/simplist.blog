@@ -6,7 +6,7 @@ import { createProjectSchema } from "../validations/project"
 import { getCurrentUser } from "../auth-helper"
 import { prisma } from "../db"
 
-export async function getUserProjects() {
+export const getUserProjects = async () => {
   const user = await getCurrentUser()
 
   if (!user) {
@@ -25,7 +25,7 @@ export async function getUserProjects() {
   return projects
 }
 
-export async function createProject(input: { name: string; slug: string; description?: string }) {
+export const createProject = async (input: { name: string; slug: string; description?: string }) => {
   const user = await getCurrentUser()
 
   if (!user) {
@@ -82,7 +82,7 @@ export async function createProject(input: { name: string; slug: string; descrip
   return project
 }
 
-export async function deleteProject(projectId: string) {
+export const deleteProject = async (projectId: string) => {
   const user = await getCurrentUser()
 
   if (!user) {
@@ -109,10 +109,10 @@ export async function deleteProject(projectId: string) {
   revalidatePath("/")
 }
 
-export async function updateProject(
+export const updateProject = async (
   projectId: string,
   input: { name: string; description?: string }
-) {
+) => {
   const user = await getCurrentUser()
 
   if (!user) {

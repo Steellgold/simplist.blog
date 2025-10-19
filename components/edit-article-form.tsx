@@ -1,15 +1,15 @@
 "use client";
 
 import { buttonVariants } from "@/components/ui/button";
-import { updateArticle, updateArticleCoverImage, removeArticleCoverImage } from "@/lib/actions/articles";
+import { removeArticleCoverImage, updateArticle, updateArticleCoverImage } from "@/lib/actions/articles";
 import { X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ArticleInfoFields } from "./article-info-fields";
-import { ArticleContentEditor } from "./article-content-editor";
-import { ArticleVisibilityCard } from "./article-visibility-card";
 import { ArticleBannerUpload } from "./article-banner-upload";
+import { ArticleContentEditor } from "./article-content-editor";
+import { ArticleInfoFields } from "./article-info-fields";
+import { ArticleVisibilityCard } from "./article-visibility-card";
 
 type ArticleStatus = "draft" | "published";
 

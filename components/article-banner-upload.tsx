@@ -1,9 +1,10 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Spinner } from "@/components/ui/spinner";
 import { Trash2, Upload } from "lucide-react";
+import Image from "next/image";
 
 type ArticleBannerUploadProps = {
   imagePreview: string | null;
@@ -11,9 +12,10 @@ type ArticleBannerUploadProps = {
   onRemoveImage: () => void;
   uploadLabel?: string; // "Upload Image" | "Change Image"
   emptyDescription?: string;
+  isRemoving?: boolean;
 };
 
-export const ArticleBannerUpload = ({ imagePreview, onImageChange, onRemoveImage, uploadLabel = "Upload Image", emptyDescription = "On the response API it will return the URL of the image." }: ArticleBannerUploadProps) => {
+export const ArticleBannerUpload = ({ imagePreview, onImageChange, onRemoveImage, uploadLabel = "Upload Image", emptyDescription = "On the response API it will return the URL of the image.", isRemoving = false }: ArticleBannerUploadProps) => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] ?? null;
     onImageChange(file);
@@ -50,8 +52,15 @@ export const ArticleBannerUpload = ({ imagePreview, onImageChange, onRemoveImage
               <Image src={imagePreview} alt="Post banner preview" fill sizes="(max-width: 1024px) 100vw, 33vw" className="object-cover" />
             </div>
             <div className="flex gap-2">
-              <Button type="button" variant="outlineDestructive" size="sm" className="flex-1" onClick={onRemoveImage}>
-                <Trash2 />
+              <Button 
+                type="button" 
+                variant="outlineDestructive" 
+                size="sm" 
+                className="flex-1" 
+                onClick={onRemoveImage}
+                disabled={isRemoving}
+              >
+                {isRemoving ? <Spinner /> : <Trash2 />}
                 Remove Image
               </Button>
               <Button type="button" variant="outline" size="sm" className="flex-1" onClick={triggerUpload}>

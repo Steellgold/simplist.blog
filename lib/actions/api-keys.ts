@@ -7,7 +7,7 @@ import { prisma, apiKeyCache } from "@/lib/db"
 import { createApiKeySchema } from "@/lib/validations/api-key"
 
 // Generate a random API key
-function generateApiKey(type: "secret" | "public" = "secret"): string {
+const generateApiKey = (type: "secret" | "public" = "secret"): string => {
   const prefix = type === "secret" ? "sk" : "pk"
   const randomBytes = crypto.getRandomValues(new Uint8Array(32))
   const key = Array.from(randomBytes)
@@ -16,7 +16,7 @@ function generateApiKey(type: "secret" | "public" = "secret"): string {
   return `${prefix}_${key}`
 }
 
-export async function getProjectApiKeys(projectId: string) {
+export const getProjectApiKeys = async (projectId: string) => {
   const user = await getCurrentUser()
 
   if (!user) {
@@ -59,7 +59,7 @@ export async function getProjectApiKeys(projectId: string) {
   return apiKeys
 }
 
-export async function createApiKey(projectId: string, input: { name: string; type?: "secret" | "public"; permissions?: string[]; expiresInDays?: number | null }) {
+export const createApiKey = async (projectId: string, input: { name: string; type?: "secret" | "public"; permissions?: string[]; expiresInDays?: number | null }) => {
   const user = await getCurrentUser()
 
   if (!user) {
@@ -112,7 +112,7 @@ export async function createApiKey(projectId: string, input: { name: string; typ
   return newApiKey
 }
 
-export async function deleteApiKey(apiKeyId: string) {
+export const deleteApiKey = async (apiKeyId: string) => {
   const user = await getCurrentUser()
 
   if (!user) {

@@ -1,0 +1,516 @@
+'use client'
+
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent
+} from '@/components/ui/chart'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { AnalyticsDataMultiPeriod } from '@/lib/actions/analytics'
+import { formatDistanceToNow } from 'date-fns'
+import {
+  Activity,
+  Clock,
+  Eye,
+  Globe,
+  Monitor,
+  Smartphone,
+  Tablet,
+  TrendingUp,
+  Users
+} from 'lucide-react'
+import { parseAsInteger, useQueryState } from 'nuqs'
+import {
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Line,
+  LineChart,
+  XAxis,
+  YAxis
+} from "recharts"
+
+interface AnalyticsDashboardProps {
+  analyticsData: AnalyticsDataMultiPeriod
+}
+
+const StatCard = ({ 
+  title, 
+  value, 
+  description, 
+  icon: Icon,
+  suffix = '',
+  trend
+}: {
+  title: string
+  value: number | string
+  description: string
+  icon: React.ComponentType<{ className?: string }>
+  suffix?: string
+  trend?: number
+}) => (
+  <Card>
+    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <CardTitle className="text-sm font-medium">{title}</CardTitle>
+      <Icon className="h-4 w-4 text-muted-foreground" />
+    </CardHeader>
+    <CardContent>
+      <div className="text-2xl font-bold">{value}{suffix}</div>
+      <div className="flex items-center space-x-2">
+        <p className="text-xs text-muted-foreground">{description}</p>
+        {trend !== undefined && (
+          <div className={`flex items-center text-xs ${trend >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+            <TrendingUp className={`h-3 w-3 ${trend < 0 ? 'rotate-180' : ''}`} />
+            <span className="ml-1">{Math.abs(trend)}%</span>
+          </div>
+        )}
+      </div>
+    </CardContent>
+  </Card>
+)
+
+const DeviceIcon = ({ device }: { device: string }) => {
+  switch (device.toLowerCase()) {
+    case 'mobile':
+      return <Smartphone className="h-4 w-4" />
+    case 'tablet':
+      return <Tablet className="h-4 w-4" />
+    default:
+      return <Monitor className="h-4 w-4" />
+  }
+}
+
+// Chart color configuration
+const chartConfig = {
+  views: {
+    label: "Views",
+    color: "var(--chart-1)",
+  },
+  visitors: {
+    label: "Visitors",
+    color: "var(--chart-2)",
+  },
+  engagement: {
+    label: "Engagement",
+    color: "var(--chart-3)",
+  },
+  mobile: {
+    label: "Mobile",
+    color: "var(--chart-1)",
+  },
+  desktop: {
+    label: "Desktop",
+    color: "var(--chart-2)",
+  },
+  tablet: {
+    label: "Tablet", 
+    color: "var(--chart-3)",
+  }
+} satisfies ChartConfig
+
+// Pie chart colors
+const DEVICE_COLORS = [
+  "var(--chart-1)",
+  "var(--chart-2)",
+  "var(--chart-3)",
+  "var(--chart-4)",
+  "var(--chart-5)"
+]
+
+export const AnalyticsDashboard = ({ analyticsData }: AnalyticsDashboardProps) => {
+  const [selectedPeriod, setSelectedPeriod] = useQueryState('days', parseAsInteger.withDefault(30))
+
+  // Get analytics data for selected period
+  const analytics = analyticsData[selectedPeriod.toString()] || analyticsData['30']
+
+  // Chart data for views over time
+  const chartData = analytics.viewsOverTime?.map(stat => ({
+    date: new Date(stat.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    views: stat.views,
+    visitors: stat.uniqueVisitors,
+    engagement: Math.round((analytics.summary.avgTimeOnPage || 0) / 60)
+  })) || []
+
+  // Device data mapping for pie chart
+  const deviceData = analytics.deviceStats?.map((stat, index) => ({
+    device: stat.device,
+    value: stat.views,
+    percentage: stat.percentage,
+    fill: DEVICE_COLORS[index % DEVICE_COLORS.length]
+  })) || []
+
+  // Country data mapping  
+  const countryData = analytics.topCountries?.slice(0, 5).map(stat => ({
+    country: stat.country,
+    value: stat.views,
+    percentage: stat.percentage
+  })) || []
+
+  return (
+    <div className="space-y-6">
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard
+          title="Total Views"
+          value={analytics.summary.totalViews?.toLocaleString() || '0'}
+          description="Total page views"
+          icon={Eye}
+        />
+        <StatCard
+          title="Unique Visitors"
+          value={analytics.summary.uniqueVisitors?.toLocaleString() || '0'}
+          description="Different visitors"
+          icon={Users}
+        />
+        <StatCard
+          title="Avg. Time"
+          value={Math.round((analytics.summary.avgTimeOnPage || 0) / 60)}
+          description="Minutes per page"
+          icon={Clock}
+          suffix="m"
+        />
+        <StatCard
+          title="Engagement Rate"
+          value={100 - (analytics.summary.bounceRate || 0)}
+          description="Engaged visitors"
+          icon={Activity}
+          suffix="%"
+        />
+      </div>
+
+      {/* Main Chart */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Traffic Overview</CardTitle>
+              <CardDescription>
+                Views and visitors evolution over the last {selectedPeriod} days
+              </CardDescription>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant={selectedPeriod === 7 ? "default" : "outline"}
+                size="sm"
+                onClick={() => setSelectedPeriod(7)}
+              >
+                7 days
+              </Button>
+              <Button
+                variant={selectedPeriod === 30 ? "default" : "outline"}
+                size="sm"
+                onClick={() => setSelectedPeriod(30)}
+              >
+                30 days
+              </Button>
+              <Button
+                variant={selectedPeriod === 90 ? "default" : "outline"}
+                size="sm"
+                onClick={() => setSelectedPeriod(90)}
+              >
+                90 days
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="overview" className="space-y-4">
+            <TabsList>
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="views">Views</TabsTrigger>
+              <TabsTrigger value="visitors">Visitors</TabsTrigger>
+              <TabsTrigger value="engagement">Engagement</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="overview" className="space-y-4">
+              <ChartContainer config={chartConfig} className="h-64 w-full">
+                <LineChart data={chartData}>
+                  <XAxis 
+                    dataKey="date"
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    tickFormatter={(value) => value.slice(0, 3)}
+                  />
+                  <YAxis
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                  />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Line
+                    type="monotone"
+                    dataKey="views"
+                    stroke="var(--color-views)"
+                    strokeWidth={2}
+                    dot={false}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="visitors"
+                    stroke="var(--color-visitors)"
+                    strokeWidth={2}
+                    dot={false}
+                  />
+                </LineChart>
+              </ChartContainer>
+            </TabsContent>
+
+            <TabsContent value="views">
+              <ChartContainer config={chartConfig} className="h-64 w-full">
+                <LineChart data={chartData}>
+                  <XAxis 
+                    dataKey="date"
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    tickFormatter={(value) => value.slice(0, 3)}
+                  />
+                  <YAxis
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                  />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Line
+                    type="monotone"
+                    dataKey="views"
+                    stroke="var(--color-views)"
+                    strokeWidth={3}
+                    dot={{
+                      fill: "var(--color-views)",
+                      strokeWidth: 2,
+                      r: 4
+                    }}
+                    activeDot={{
+                      r: 6,
+                      stroke: "var(--color-views)",
+                      strokeWidth: 2
+                    }}
+                  />
+                </LineChart>
+              </ChartContainer>
+            </TabsContent>
+
+            <TabsContent value="visitors">
+              <ChartContainer config={chartConfig} className="h-64 w-full">
+                <LineChart data={chartData}>
+                  <XAxis 
+                    dataKey="date"
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    tickFormatter={(value) => value.slice(0, 3)}
+                  />
+                  <YAxis
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                  />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Line
+                    type="monotone"
+                    dataKey="visitors"
+                    stroke="var(--color-visitors)"
+                    strokeWidth={3}
+                    dot={{
+                      fill: "var(--color-visitors)",
+                      strokeWidth: 2,
+                      r: 4
+                    }}
+                    activeDot={{
+                      r: 6,
+                      stroke: "var(--color-visitors)",
+                      strokeWidth: 2
+                    }}
+                  />
+                </LineChart>
+              </ChartContainer>
+            </TabsContent>
+
+            <TabsContent value="engagement">
+              <ChartContainer config={chartConfig} className="h-64 w-full">
+                <AreaChart data={chartData}>
+                  <defs>
+                    <linearGradient id="fillEngagement" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="var(--color-engagement)" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="var(--color-engagement)" stopOpacity={0.1}/>
+                    </linearGradient>
+                  </defs>
+                  <XAxis 
+                    dataKey="date"
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    tickFormatter={(value) => value.slice(0, 3)}
+                  />
+                  <YAxis
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                  />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Area
+                    type="monotone"
+                    dataKey="engagement"
+                    stroke="var(--color-engagement)"
+                    strokeWidth={2}
+                    fill="url(#fillEngagement)"
+                  />
+                </AreaChart>
+              </ChartContainer>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+
+      {/* Two Column Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Left Column - Top Articles */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Popular Articles</CardTitle>
+            <CardDescription>Most viewed articles</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {analytics.topArticles?.slice(0, 5).map((article) => (
+                <div key={article.id} className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium leading-none">
+                      {article.title}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      /{article.slug}
+                    </p>
+                  </div>
+                  <div className="text-right space-y-1">
+                    <p className="text-sm font-medium">{article.views}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {Math.round(article.avgTimeOnPage / 60)}m
+                    </p>
+                  </div>
+                </div>
+              )) || (
+                <p className="text-sm text-muted-foreground">No data available</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Right Column - Devices & Countries */}
+        <div className="space-y-6">
+          {/* Devices */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Device Types</CardTitle>
+              <CardDescription>Distribution by device type</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {deviceData.length > 0 ? (
+                <div className="flex flex-col space-y-4">
+                  <ChartContainer config={chartConfig} className="min-h-[240px] w-full">
+                    <BarChart accessibilityLayer data={deviceData}>
+                      <CartesianGrid vertical={false} />
+                      <XAxis
+                        dataKey="device"
+                        tickLine={false}
+                        tickMargin={10}
+                        axisLine={false}
+                      />
+                      <ChartTooltip
+                        cursor={false}
+                        content={<ChartTooltipContent hideLabel nameKey="device" />}
+                      />
+                      <Bar dataKey="value" radius={8} />
+                    </BarChart>
+                  </ChartContainer>
+                  <div className="space-y-2">
+                    {deviceData.map((device) => (
+                      <div key={device.device} className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <div 
+                            className="h-3 w-3 rounded-full" 
+                            style={{ backgroundColor: device.fill }}
+                          />
+                          <DeviceIcon device={device.device} />
+                          <span className="text-sm font-medium capitalize">{device.device}</span>
+                        </div>
+                        <span className="text-sm text-muted-foreground">{device.percentage}%</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">No device data available</p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Countries */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Countries</CardTitle>
+              <CardDescription>Geographic origin of visitors</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {countryData.map((country) => (
+                  <div key={country.country} className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <Globe className="h-4 w-4" />
+                      <span className="text-sm font-medium">{country.country}</span>
+                    </div>
+                    <span className="text-sm text-muted-foreground">{country.percentage}%</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* Recent Activity */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Recent Activity</CardTitle>
+          <CardDescription>Latest page views and interactions</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {analytics.recentViews?.slice(0, 8).map((view, index) => (
+              <div key={`${view.id}-${index}`} className="flex items-center justify-between py-2">
+                <div className="flex items-center space-x-3">
+                  <div className="h-8 w-8 rounded bg-primary/10 flex items-center justify-center">
+                    <Eye className="h-4 w-4 text-primary" />
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium leading-none">
+                      {view.articleTitle || 'Unknown Article'}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {view.country} • {view.device}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right space-y-1">
+                  <p className="text-sm font-medium">{view.timeOnPage}s</p>
+                  <p className="text-xs text-muted-foreground">
+                    {formatDistanceToNow(new Date(view.timestamp), { addSuffix: true })}
+                  </p>
+                </div>
+              </div>
+            )) || (
+              <p className="text-sm text-muted-foreground">No recent activity</p>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}

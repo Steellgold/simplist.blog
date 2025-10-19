@@ -1,14 +1,14 @@
 'use client'
 
-import { useState } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { AnalyticsData } from '@/lib/actions/analytics'
-import { Eye, Users, Clock, MousePointer, Smartphone, Monitor, Tablet, Globe } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
+import { Clock, Eye, Globe, Monitor, MousePointer, Smartphone, Tablet, Users } from 'lucide-react'
+import { useState } from 'react'
 
 interface AnalyticsDashboardProps {
   project: {

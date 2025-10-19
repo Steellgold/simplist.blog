@@ -8,24 +8,14 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
+  RowSelectionState,
   SortingState,
   useReactTable,
-  RowSelectionState,
 } from "@tanstack/react-table"
-import { useState } from "react"
+import { Trash, TrendingUp } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { Trash } from "lucide-react"
+import { useState } from "react"
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,9 +26,19 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { ButtonGroup } from "./ui/button-group"
-import { bulkDeleteArticles } from "@/lib/actions/articles"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/sonner"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { bulkDeleteArticles } from "@/lib/actions/articles"
+import { ButtonGroup } from "./ui/button-group"
 import { Spinner } from "./ui/spinner"
 
 interface DataTableProps<TData extends { id: string }, TValue> {
@@ -46,10 +46,10 @@ interface DataTableProps<TData extends { id: string }, TValue> {
   data: TData[]
 }
 
-export function ArticlesDataTable<TData extends { id: string }, TValue>({
+export const ArticlesDataTable = <TData extends { id: string }, TValue>({
   columns,
   data,
-}: DataTableProps<TData, TValue>) {
+}: DataTableProps<TData, TValue>) => {
   const router = useRouter()
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -111,14 +111,29 @@ export function ArticlesDataTable<TData extends { id: string }, TValue>({
           className="max-w-sm"
         />
         {selectedCount > 0 && (
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={() => setShowBulkDeleteDialog(true)}
-          >
-            <Trash />
-            Delete {selectedCount} {selectedCount === 1 ? "article" : "articles"}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const ids = selectedRows.map((row) => row.original.id)
+                const params = new URLSearchParams()
+                params.set("articles", ids.join(","))
+                router.push(`/analytics?${params.toString()}`)
+              }}
+            >
+              <TrendingUp />
+              Analytics ({selectedCount})
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => setShowBulkDeleteDialog(true)}
+            >
+              <Trash />
+              Delete {selectedCount} {selectedCount === 1 ? "article" : "articles"}
+            </Button>
+          </div>
         )}
       </div>
 

@@ -5,8 +5,8 @@ import { format } from "date-fns"
 import { Copy, Edit, MoreHorizontal, Trash, TrendingUp } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 
 import {
   AlertDialog,
@@ -30,7 +30,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { toast } from "@/components/ui/sonner"
+import { ArticleViewsOverTime } from "@/lib/actions/analytics"
 import { deleteArticle } from "@/lib/actions/articles"
+import { MiniLineChart } from "./mini-line-chart"
 import { Spinner } from "./ui/spinner"
 
 type Article = {
@@ -43,6 +45,7 @@ type Article = {
   viewCount: number
   createdAt: Date
   updatedAt: Date
+  viewsOverTime?: ArticleViewsOverTime[]
 }
 
 const ArticleActionsCell = ({ article }: { article: Article }) => {
@@ -98,9 +101,15 @@ const ArticleActionsCell = ({ article }: { article: Article }) => {
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
-            <Link href={`/articles/${article.id}/edit`}>
+            <Link href={`/articles/${article.slug}/edit`}>
               <Edit />
               Edit article
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href={`/analytics?articles=${article.id}`}>
+              <TrendingUp />
+              Analytics
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem
@@ -226,11 +235,15 @@ export const articlesColumns: ColumnDef<Article>[] = [
     header: "Views",
     cell: ({ row }) => {
       const viewCount = row.getValue("viewCount") as number
+      const viewsOverTime = row.original.viewsOverTime
 
       return (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          <span className="font-medium">{viewCount.toLocaleString()}</span>
+          <span className="font-medium min-w-[3.5rem]">{viewCount.toLocaleString()}</span>
+          <div className="ml-2">
+            <MiniLineChart data={viewsOverTime || []} />
+          </div>
         </div>
       )
     },

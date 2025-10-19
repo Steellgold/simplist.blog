@@ -1,9 +1,10 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { ReactNode } from "react";
 
 type ArticleStatus = "draft" | "published";
@@ -43,7 +44,7 @@ export const ArticleVisibilityCard = ({ status, onStatusChange, isSubmitting, su
         <div className="flex items-center justify-between pt-2">
           <div>{leftAction}</div>
           <Button type="submit" disabled={isSubmitting} size="sm">
-            {submitLabel}
+            {isSubmitting ? <Spinner /> : submitLabel}
           </Button>
         </div>
       </CardContent>

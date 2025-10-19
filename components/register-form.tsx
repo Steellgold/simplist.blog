@@ -10,12 +10,12 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Field, FieldDescription, FieldGroup, FieldLabel, FieldSeparator } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { toast } from "@/components/ui/sonner"
 import { authClient } from "@/lib/auth-client"
 import { cn } from "@/lib/utils"
 import { RegisterInput, registerSchema } from "@/lib/validations/auth"
 import { OAuthProviders, OAuthProvidersProvider, useOAuthProviders } from "./oauth-providers"
 import { PasswordInput } from "./password-input"
-import { toast } from "@/components/ui/sonner"
 
 const RegisterFormContent = ({ className, ...props }: React.ComponentProps<"div">) => {
   const router = useRouter()

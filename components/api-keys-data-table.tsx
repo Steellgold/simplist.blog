@@ -30,11 +30,11 @@ interface DataTableProps<TData, TValue> {
   onDelete?: (id: string) => void
 }
 
-export function ApiKeysDataTable<TData, TValue>({
+export const ApiKeysDataTable = <TData, TValue>({
   columns,
   data,
   onDelete,
-}: DataTableProps<TData, TValue>) {
+}: DataTableProps<TData, TValue>) => {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
 

@@ -201,6 +201,30 @@ export const getArticle = async (articleId: string) => {
   return article
 }
 
+export const getArticleBySlug = async (slug: string) => {
+  const user = await getCurrentUser()
+  if (!user) {
+    redirect("/auth/login")
+  }
+
+  const article = await prisma.article.findFirst({
+    where: {
+      slug,
+      status: {
+        not: "deleted",
+      },
+      project: {
+        userId: user.id, // Ensure user owns the project
+      },
+    },
+    include: {
+      project: true,
+    },
+  })
+
+  return article
+}
+
 export const updateArticle = async (articleId: string, formData: {
   title: string
   excerpt: string

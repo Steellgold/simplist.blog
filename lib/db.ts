@@ -12,5 +12,5 @@ export const prisma =
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma
 
-// Re-export apiKeyCache from the shared package
-export { apiKeyCache } from "../packages/db/src"
+// Re-export cache utilities from the shared package
+export { apiKeyCache, analyticsCacheUtils } from "../packages/db/src"

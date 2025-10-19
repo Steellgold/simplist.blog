@@ -5,6 +5,7 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
   Dialog,
   DialogContent,
@@ -14,7 +15,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import {
   Select,
@@ -23,11 +23,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { createApiKey } from "@/lib/actions/api-keys"
-import { CreateApiKeyInput, createApiKeySchema, apiKeyPermissions } from "@/lib/validations/api-key"
-import { Spinner } from "./ui/spinner"
 import { toast } from "@/components/ui/sonner"
-import { Plus, Copy, Check } from "lucide-react"
+import { createApiKey } from "@/lib/actions/api-keys"
+import { apiKeyPermissions, CreateApiKeyInput, createApiKeySchema } from "@/lib/validations/api-key"
+import { Check, Copy, Plus } from "lucide-react"
+import { Spinner } from "./ui/spinner"
 
 interface CreateApiKeyFormProps {
   projectId: string

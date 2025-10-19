@@ -1,17 +1,17 @@
 "use client"
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { toast } from "@/components/ui/sonner"
 import { authClient } from "@/lib/auth-client"
 import { cn } from "@/lib/utils"
+import { ForgotPasswordInput, forgotPasswordSchema } from "@/lib/validations/auth"
+import { zodResolver } from "@hookform/resolvers/zod"
 import Link from "next/link"
 import { useState } from "react"
-import { ForgotPasswordInput, forgotPasswordSchema } from "@/lib/validations/auth"
-import { toast } from "@/components/ui/sonner"
+import { useForm } from "react-hook-form"
 
 export const ForgotPasswordForm = ({ className, ...props }: React.ComponentProps<"div">) => {
   const [error, setError] = useState("")

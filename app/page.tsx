@@ -8,7 +8,7 @@ const RootPage = async () => {
     redirect("/dashboard");
   }
 
-  redirect("/auth/login");
+  redirect("/home");
 }
 
 export default RootPage;

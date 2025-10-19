@@ -1,8 +1,8 @@
 "use client"
 
+import { authClient } from "@/lib/auth-client"
 import { useRouter } from "next/navigation"
 import { AppSidebar } from "./app-sidebar"
-import { authClient } from "@/lib/auth-client"
 
 interface User {
   id: string

@@ -3,7 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 const EditArticleLoading = () => {
   return (
-    <div className="space-y-6">
+    <div className="container max-w-7xl mx-auto space-y-6">
       <div>
         <Skeleton className="h-9 w-64 mb-2" />
         <Skeleton className="h-5 w-96" />
