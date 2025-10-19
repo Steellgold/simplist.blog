@@ -1,8 +1,10 @@
+import { AppSidebarWrapper } from "@/components/app-sidebar-wrapper"
 import { CreateProjectForm } from "@/components/create-project-form"
+import { SidebarProvider } from "@/components/ui/sidebar"
 import { getUserProjects } from "@/lib/actions/projects"
 import { getCurrentUser } from "@/lib/auth-helper"
-import { redirect } from "next/navigation"
 import type { Metadata } from "next"
+import { redirect } from "next/navigation"
 
 export const metadata: Metadata = {
   title: "Create Project",
@@ -24,11 +26,20 @@ const CreateProjectPage = async () => {
   }
 
   return (
-    <div className="flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
-      <div className="flex w-full max-w-sm flex-col gap-6">
-        <CreateProjectForm />
+    <SidebarProvider>
+      <AppSidebarWrapper user={user} project={null} />
+      <div className="flex-1">
+        {/* Backdrop blur */}
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40" />
+        
+        {/* Dialog container */}
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-6">
+          <div className="w-full max-w-md">
+            <CreateProjectForm />
+          </div>
+        </div>
       </div>
-    </div>
+    </SidebarProvider>
   )
 }
 

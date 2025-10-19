@@ -54,7 +54,7 @@ interface Project {
 
 interface AppSidebarProps {
   user: User
-  project: Project
+  project: Project | null
   onLogout?: () => void
 }
 
@@ -119,10 +119,10 @@ export const AppSidebar = ({
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">
-                  {project.name}
+                  {project ? project.name : "Creating Project..."}
                 </span>
                 <span className="truncate text-xs text-muted-foreground">
-                  {project.id.slice(0, 8)}...
+                  {project ? `${project.id.slice(0, 8)}...` : "Setting up your blog"}
                 </span>
               </div>
             </SidebarMenuButton>

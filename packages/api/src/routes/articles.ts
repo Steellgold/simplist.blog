@@ -196,8 +196,6 @@ const articlesRoutes: FastifyPluginAsync = async (fastify) => {
         fastify.log.error(err, 'Failed to cache article')
       )
 
-      // Note: Do not increment view count on read to avoid inflating metrics
-
       let responseData = formatArticle(article)
 
       // Add SEO metadata if requested

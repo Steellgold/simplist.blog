@@ -19,7 +19,7 @@ interface Project {
 
 interface AppSidebarWrapperProps {
   user: User
-  project: Project
+  project: Project | null
 }
 
 export const AppSidebarWrapper = ({ user, project }: AppSidebarWrapperProps) => {

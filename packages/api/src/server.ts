@@ -31,6 +31,7 @@ const createServer = async () => {
   await fastify.register(import('./plugins/rate-limit'))
   await fastify.register(import('./plugins/compression'))
   await fastify.register(import('./plugins/auth'))
+  await fastify.register(import('./plugins/project-cors'))
 
   // Register routes
   await fastify.register(import('./routes/articles'), { prefix: '/v1' })

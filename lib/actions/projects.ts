@@ -25,7 +25,7 @@ export const getUserProjects = async () => {
   return projects
 }
 
-export const createProject = async (input: { name: string; slug: string; description?: string }) => {
+export const createProject = async (input: { name: string; slug: string; description?: string; allowedOrigins?: string[] }) => {
   const user = await getCurrentUser()
 
   if (!user) {
@@ -36,6 +36,7 @@ export const createProject = async (input: { name: string; slug: string; descrip
   const validatedData = createProjectSchema.parse({
     name: input.name,
     description: input.description || "",
+    allowedOrigins: input.allowedOrigins || [],
   })
 
   // Check if user already has a project (single project mode)
@@ -74,6 +75,7 @@ export const createProject = async (input: { name: string; slug: string; descrip
       name: validatedData.name,
       slug: finalSlug,
       description: validatedData.description || null,
+      allowedOrigins: validatedData.allowedOrigins || [],
       userId: user.id,
     },
   })

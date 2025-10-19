@@ -1,35 +1,45 @@
 "use client"
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useRouter } from "next/navigation"
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@/components/ui/input-group"
 import { toast } from "@/components/ui/sonner"
 import { Textarea } from "@/components/ui/textarea"
 import { createProject } from "@/lib/actions/projects"
 import { cn, generateSlug } from "@/lib/utils"
 import { CreateProjectInput, createProjectSchema } from "@/lib/validations/project"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { Plus, X } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
+import { useFieldArray, useForm } from "react-hook-form"
 import { Spinner } from "./ui/spinner"
 
 export const CreateProjectForm = ({ className, ...props }: React.ComponentProps<"div">) => {
   const router = useRouter()
   const [error, setError] = useState("")
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<CreateProjectInput>({
+  const form = useForm({
     resolver: zodResolver(createProjectSchema),
     defaultValues: {
       name: "",
       description: "",
-    },
+      allowedOrigins: [],
+    } as CreateProjectInput,
+  })
+
+  const {
+    register,
+    control,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = form
+
+  const { fields, append, remove } = useFieldArray({
+    control: control as any,
+    name: "allowedOrigins",
   })
 
   const onSubmit = async (data: CreateProjectInput) => {
@@ -37,7 +47,7 @@ export const CreateProjectForm = ({ className, ...props }: React.ComponentProps<
     const slug = generateSlug(data.name)
 
     toast.promise(
-      createProject({ name: data.name, slug, description: data.description }),
+      createProject({ name: data.name, slug, description: data.description, allowedOrigins: data.allowedOrigins || [] }),
       {
         loading: "Creating project...",
         success: () => {
@@ -96,6 +106,51 @@ export const CreateProjectForm = ({ className, ...props }: React.ComponentProps<
                   {errors.description && (
                     <p className="text-destructive text-sm mt-1">{errors.description.message}</p>
                   )}
+                </Field>
+
+                <Field>
+                  <FieldLabel>Allowed Origins (Optional)</FieldLabel>
+                  <div className="space-y-2">
+                    {fields.map((field, index) => (
+                      <InputGroup key={field.id}>
+                        <InputGroupAddon>https://</InputGroupAddon>
+
+                        <InputGroupInput
+                          placeholder="yourdomain.com or *.yourdomain.com"
+                          {...register(`allowedOrigins.${index}`)}
+                        />
+
+                        <InputGroupAddon align="inline-end">
+                          <InputGroupButton
+                            type="button"
+                            variant="outline"
+                            onClick={() => remove(index)}
+                          >
+                            <X />
+                          </InputGroupButton>
+                        </InputGroupAddon>
+                      </InputGroup>
+                    ))}
+
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => append("")}
+                      className="w-full"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Origin
+                    </Button>
+
+                    <p className="text-muted-foreground text-sm">
+                      Add domains that can use your API. Leave empty to allow all origins.
+                    </p>
+
+                    {errors.allowedOrigins && (
+                      <p className="text-destructive text-sm">{errors.allowedOrigins.message}</p>
+                    )}
+                  </div>
                 </Field>
 
                 <Field>
