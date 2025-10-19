@@ -15,7 +15,8 @@
     "api:start": "pnpm --filter @simplist/api run start",
     "sdk:build": "pnpm --filter @simplist/sdk run build",
     "sdk:dev": "pnpm --filter @simplist/sdk run dev",
-    "build:packages": "pnpm --filter @simplist/db run build && pnpm --filter @simplist/api run build && pnpm --filter @simplist/sdk run build"
+    "build:packages": "pnpm --filter @simplist/db run build && pnpm --filter @simplist/api run build && pnpm --filter @simplist/sdk run build",
+    "vercel:build": "pnpm run build:packages && pnpm run build"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.701.0",
