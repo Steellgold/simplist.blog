@@ -221,8 +221,8 @@ export const getProjectAnalytics = async (projectId: string, days: number = 30, 
         DATE(timestamp) as date,
         COUNT(*) as views,
         COUNT(DISTINCT "visitorId") as uniqueVisitors
-      FROM "PageView" p
-      INNER JOIN "Article" a ON p."articleId" = a.id
+      FROM "page_view" p
+      INNER JOIN "article" a ON p."articleId" = a.id
       WHERE p."projectId" = ${projectId} 
         AND p.timestamp >= ${startDate}
         AND a."deletedAt" IS NULL
