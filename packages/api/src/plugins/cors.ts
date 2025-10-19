@@ -3,6 +3,11 @@ import fp from 'fastify-plugin'
 
 export default fp(async function (fastify) {
   const allowedOrigins = (fastify as any).config.ALLOWED_ORIGINS.split(',').map((origin: string) => origin.trim())
+  const suffixesRaw = ((fastify as any).config.ALLOWED_ORIGIN_SUFFIXES || '') as string
+  const allowedSuffixes = suffixesRaw
+    .split(',')
+    .map((s: string) => s.trim())
+    .filter((s: string) => s.length > 0)
   
   // Custom origin function to allow all localhost in development
   const originFunction = (origin: string | undefined, callback: (err: Error | null, allow: boolean) => void) => {
@@ -16,6 +21,11 @@ export default fp(async function (fastify) {
     
     // Check against configured allowed origins
     if (allowedOrigins.includes(origin)) {
+      return callback(null, true)
+    }
+
+    // Allow if origin ends with any configured suffix (e.g., .vercel.app)
+    if (allowedSuffixes.some((suffix: string) => origin.endsWith(suffix))) {
       return callback(null, true)
     }
     

@@ -2,6 +2,7 @@ import { HttpClient, HttpClientOptions } from './utils/http.js'
 import { ArticlesResource } from './resources/articles.js'
 import { ProjectsResource } from './resources/projects.js'
 import { AnalyticsResource } from './resources/analytics.js'
+import { SeoResource } from './resources/seo.js'
 
 export interface SimplistClientOptions {
   /**
@@ -72,6 +73,7 @@ export class SimplistClient {
   public readonly articles: ArticlesResource
   public readonly project: ProjectsResource
   public readonly analytics: AnalyticsResource
+  public readonly seo: SeoResource
 
   constructor(options: SimplistClientOptions = {}) {
     // Auto-detect API key from environment if not provided
@@ -99,6 +101,7 @@ export class SimplistClient {
     this.articles = new ArticlesResource(this.http)
     this.project = new ProjectsResource(this.http)
     this.analytics = new AnalyticsResource(this.http)
+    this.seo = new SeoResource(this.http)
   }
 
   /**

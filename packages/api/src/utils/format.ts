@@ -1,5 +1,5 @@
 // Format bytes to human readable string
-export function formatBytes(bytes: bigint): string {
+export const formatBytes = (bytes: bigint): string => {
   const sizes = ['Bytes', 'KB', 'MB', 'GB']
   if (bytes === BigInt(0)) return '0 Bytes'
   
@@ -10,7 +10,7 @@ export function formatBytes(bytes: bigint): string {
 }
 
 // Format article for API response
-export function formatArticle(article: any) {
+export const formatArticle = (article: any) => {
   return {
     ...article,
     createdAt: article.createdAt.toISOString(),
@@ -20,7 +20,7 @@ export function formatArticle(article: any) {
 }
 
 // Format project for API response
-export function formatProject(project: any) {
+export const formatProject = (project: any) => {
   return {
     ...project,
     createdAt: project.createdAt.toISOString(),

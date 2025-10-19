@@ -36,6 +36,7 @@ const createServer = async () => {
   await fastify.register(import('./routes/articles'), { prefix: '/v1' })
   await fastify.register(import('./routes/projects'), { prefix: '/v1' })
   await fastify.register(import('./routes/analytics'), { prefix: '/v1' })
+  await fastify.register(import('./routes/seo'), { prefix: '/v1' })
 
   // Health check
   fastify.get('/health', async () => {

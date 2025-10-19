@@ -1,0 +1,169 @@
+import type { SeoMetadata, ArticleSeo } from '../schemas/seo'
+
+export const generateSeoMetadata = (article: any, project: any, baseUrl?: string): SeoMetadata => {
+  const title = article.title
+  const description = article.excerpt || `${article.content.substring(0, 160)}...`
+  const canonicalUrl = baseUrl ? `${baseUrl}/${project.slug}/${article.slug}` : undefined
+  const ogImage = article.coverImage || undefined
+  const publishedTime = article.publishedAt ? new Date(article.publishedAt).toISOString() : undefined
+  const modifiedTime = new Date(article.updatedAt).toISOString()
+
+  // Generate keywords from title and content (basic implementation)
+  const keywords = generateKeywords(title, article.content)
+
+  // Generate structured data for articles
+  const structuredData = generateArticleStructuredData(article, project, canonicalUrl)
+
+  return {
+    metaTitle: title,
+    metaDescription: description,
+    ogTitle: title,
+    ogDescription: description,
+    ogImage,
+    ogType: 'article',
+    twitterTitle: title,
+    twitterDescription: description,
+    twitterImage: ogImage,
+    twitterCard: 'summary_large_image',
+    canonicalUrl,
+    structuredData,
+    keywords,
+    language: 'en',
+    author: project.name,
+    publishedTime,
+    modifiedTime,
+    readingTime: article.readTimeMinutes
+  }
+}
+
+export const generateKeywords = (title: string, content: string, maxKeywords = 10): string[] => {
+  // Simple keyword extraction (could be improved with NLP)
+  const text = `${title} ${content}`.toLowerCase()
+  
+  // Remove common stop words
+  const stopWords = new Set([
+    'the', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by',
+    'a', 'an', 'is', 'are', 'was', 'were', 'be', 'been', 'have', 'has', 'had',
+    'do', 'does', 'did', 'will', 'would', 'could', 'should', 'may', 'might',
+    'can', 'this', 'that', 'these', 'those', 'i', 'you', 'he', 'she', 'it',
+    'we', 'they', 'me', 'him', 'her', 'us', 'them'
+  ])
+  
+  // Extract words (simple regex)
+  const words = text
+    .match(/\b[a-z]{3,}\b/g) || []
+    
+  // Count word frequency
+  const wordCount = new Map<string, number>()
+  words.forEach(word => {
+    if (!stopWords.has(word)) {
+      wordCount.set(word, (wordCount.get(word) || 0) + 1)
+    }
+  })
+  
+  // Sort by frequency and return top keywords
+  return Array.from(wordCount.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, maxKeywords)
+    .map(([word]) => word)
+}
+
+export const generateArticleStructuredData = (article: any, project: any, url?: string) => {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: article.title,
+    description: article.excerpt || `${article.content.substring(0, 160)}...`,
+    image: article.coverImage || undefined,
+    author: {
+      '@type': 'Organization',
+      name: project.name,
+      description: project.description || undefined
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: project.name,
+      description: project.description || undefined
+    },
+    datePublished: article.publishedAt,
+    dateModified: article.updatedAt,
+    wordCount: article.wordCount,
+    timeRequired: `PT${article.readTimeMinutes}M`,
+    url,
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': url
+    },
+    articleSection: 'Blog',
+    inLanguage: 'en-US'
+  }
+}
+
+export const generateRSSFeed = (articles: any[], project: any, baseUrl: string): string => {
+  const feedUrl = `${baseUrl}/v1/seo/rss/${project.slug}`
+  const siteUrl = baseUrl
+  
+  const rssHeader = `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title><![CDATA[${project.name}]]></title>
+    <description><![CDATA[${project.description || `Articles from ${project.name}`}]]></description>
+    <link>${siteUrl}</link>
+    <atom:link href="${feedUrl}" rel="self" type="application/rss+xml"/>
+    <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
+    <language>en</language>
+    <generator>Simplist API</generator>`
+
+  const rssItems = articles.map(article => {
+    const articleUrl = `${siteUrl}/${project.slug}/${article.slug}`
+    const pubDate = article.publishedAt ? new Date(article.publishedAt).toUTCString() : new Date(article.createdAt).toUTCString()
+    
+    return `
+    <item>
+      <title><![CDATA[${article.title}]]></title>
+      <description><![CDATA[${article.excerpt || `${article.content.substring(0, 300)}...`}]]></description>
+      <link>${articleUrl}</link>
+      <guid isPermaLink="true">${articleUrl}</guid>
+      <pubDate>${pubDate}</pubDate>
+      <content:encoded><![CDATA[${article.content}]]></content:encoded>
+    </item>`
+  }).join('')
+
+  const rssFooter = `
+  </channel>
+</rss>`
+
+  return rssHeader + rssItems + rssFooter
+}
+
+export const generateSitemap = (articles: any[], project: any, baseUrl: string): string => {
+  const sitemapHeader = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`
+
+  const urls = articles.map(article => {
+    const articleUrl = `${baseUrl}/${project.slug}/${article.slug}`
+    const lastMod = new Date(article.updatedAt).toISOString().split('T')[0]
+    
+    return `
+  <url>
+    <loc>${articleUrl}</loc>
+    <lastmod>${lastMod}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>`
+  }).join('')
+
+  // Add project index page
+  const projectUrl = `
+  <url>
+    <loc>${baseUrl}/${project.slug}</loc>
+    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>`
+
+  const sitemapFooter = `
+</urlset>`
+
+  return sitemapHeader + projectUrl + urls + sitemapFooter
+}

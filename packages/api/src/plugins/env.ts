@@ -23,6 +23,10 @@ const schema = {
     ALLOWED_ORIGINS: {
       type: 'string',
       default: 'http://localhost:3000'
+    },
+    ALLOWED_ORIGIN_SUFFIXES: {
+      type: 'string',
+      default: ''
     }
   }
 }

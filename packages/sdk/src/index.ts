@@ -25,3 +25,12 @@ export type {
   AnalyticsStats
 } from './resources/analytics'
 
+// SEO types
+export type {
+  SeoMetadata,
+  ArticleWithSeo,
+  SitemapEntry,
+  Sitemap,
+  StructuredDataResponse
+} from './resources/seo'
+

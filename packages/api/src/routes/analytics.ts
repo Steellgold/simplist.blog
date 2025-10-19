@@ -3,7 +3,7 @@ import { FastifyPluginAsync } from 'fastify'
 import crypto from 'crypto'
 import { isBot, getBotInfo } from '../utils/bot-detection'
 
-const { prisma } = db
+const { prisma, analyticsCacheUtils } = db
 
 // Helper to generate visitor ID from IP and User Agent
 const generateVisitorId = (ip: string, userAgent: string): string => {
@@ -54,7 +54,7 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
     const botInfo = getBotInfo(userAgent)
     if (botInfo.isBot) {
       fastify.log.info({ userAgent, ip: clientIp }, `Bot detected and blocked: ${botInfo.reason}`)
-      return reply.code(400).send({
+      return reply.status(400 as any).send({
         error: 'Bot Detected',
         message: 'Analytics tracking is not available for automated requests',
         statusCode: 400
@@ -64,7 +64,7 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
     try {
       // Validate required fields
       if (!body.articleSlug) {
-        return reply.code(400).send({
+        return reply.status(400 as any).send({
           error: 'Bad Request',
           message: 'articleSlug is required',
           statusCode: 400
@@ -82,7 +82,7 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
       })
 
       if (!article) {
-        return reply.code(404).send({
+        return reply.status(404 as any).send({
           error: 'Not Found',
           message: 'Article not found or not published',
           statusCode: 404
@@ -181,6 +181,9 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
         })
       }
 
+      // Invalidate analytics cache since we added a new page view
+      await analyticsCacheUtils.invalidate(projectId)
+
       return {
         success: true,
         pageViewId: pageView.id,
@@ -190,7 +193,7 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
 
     } catch (error) {
       fastify.log.error(error, 'Error tracking analytics')
-      return reply.code(500).send({
+      return reply.status(500 as any).send({
         error: 'Internal Server Error',
         message: 'Failed to track analytics',
         statusCode: 500
@@ -209,7 +212,7 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
     const botInfo = getBotInfo(userAgent)
     if (botInfo.isBot) {
       fastify.log.info({ userAgent, pageViewId }, `Bot detected and blocked on update: ${botInfo.reason}`)
-      return reply.code(400).send({
+      return reply.status(400 as any).send({
         error: 'Bot Detected',
         message: 'Analytics tracking is not available for automated requests',
         statusCode: 400
@@ -226,7 +229,7 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
       })
 
       if (!existingPageView) {
-        return reply.code(404).send({
+        return reply.status(404 as any).send({
           error: 'Not Found',
           message: 'Page view not found',
           statusCode: 404
@@ -244,11 +247,14 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
         }
       })
 
+      // Invalidate analytics cache since metrics were updated
+      await analyticsCacheUtils.invalidate(projectId)
+
       return { success: true }
 
     } catch (error) {
       fastify.log.error(error, 'Error updating analytics')
-      return reply.code(500).send({
+      return reply.status(500 as any).send({
         error: 'Internal Server Error',
         message: 'Failed to update analytics',
         statusCode: 500
@@ -263,7 +269,7 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
     
     // Check if key has read permissions for analytics data
     if (!request.checkPermission!('read')) {
-      return reply.code(403).send({
+      return reply.status(403 as any).send({
         error: 'Forbidden',
         message: 'API key does not have read permissions.',
         statusCode: 403
@@ -351,7 +357,7 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
 
     } catch (error) {
       fastify.log.error(error, 'Error fetching analytics stats')
-      return reply.code(500).send({
+      return reply.status(500 as any).send({
         error: 'Internal Server Error',
         message: 'Failed to fetch analytics stats',
         statusCode: 500
