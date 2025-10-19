@@ -17,7 +17,7 @@ type ArticleBannerUploadProps = {
 };
 
 export const ArticleBannerUpload = ({ imagePreview, onImageChange, onRemoveImage, uploadLabel = "Upload Image", emptyDescription = "On the response API it will return the URL of the image.", isRemoving = false }: ArticleBannerUploadProps) => {
-  const MAX_FILE_SIZE = 3 * 1024 * 1024; // 3MB
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
   const ALLOWED_MIME_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"];
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
