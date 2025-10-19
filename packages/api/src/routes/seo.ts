@@ -1,6 +1,6 @@
 import * as db from '@simplist/db'
 import { FastifyPluginAsync } from 'fastify'
-import { articleSeoSchema, type SitemapEntry } from '../schemas/seo'
+import { type SitemapEntry } from '../schemas/seo'
 import { generateRSSFeed, generateSeoMetadata, generateSitemap } from '../utils/seo-generator'
 
 const { prisma } = db
@@ -23,7 +23,37 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
         }
       },
       response: {
-        200: articleSeoSchema
+        200: {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            title: { type: 'string' },
+            slug: { type: 'string' },
+            excerpt: { type: ['string', 'null'] },
+            content: { type: 'string' },
+            coverImage: { type: ['string', 'null'] },
+            published: { type: 'boolean' },
+            viewCount: { type: 'number' },
+            wordCount: { type: 'number' },
+            characterCount: { type: 'number' },
+            lineCount: { type: 'number' },
+            readTimeMinutes: { type: 'number' },
+            createdAt: { type: 'string' },
+            updatedAt: { type: 'string' },
+            publishedAt: { type: ['string', 'null'] },
+            seo: { type: 'object' },
+            project: {
+              type: 'object',
+              properties: {
+                name: { type: 'string' },
+                slug: { type: 'string' },
+                description: { type: ['string', 'null'] }
+              },
+              required: ['name', 'slug']
+            }
+          },
+          required: ['id', 'title', 'slug', 'content', 'published', 'viewCount', 'wordCount', 'characterCount', 'lineCount', 'readTimeMinutes', 'createdAt', 'updatedAt', 'seo', 'project']
+        }
       }
     }
   }, async (request, reply) => {

@@ -7,27 +7,6 @@ import { revalidatePath } from "next/cache"
 import { getR2PublicUrl, assertR2ObjectIsImage } from "@/lib/actions/images"
 import { forbidden, redirect } from "next/navigation"
 
-// Helper function to ensure unique slug
-const generateUniqueSlug = async (baseSlug: string, projectId: string): Promise<string> => {
-  let slug = baseSlug;
-  let counter = 1;
-
-  while (true) {
-    const existing = await prisma.article.findFirst({
-      where: {
-        slug,
-        projectId,
-      },
-    });
-
-    if (!existing) {
-      return slug;
-    }
-
-    slug = `${baseSlug}-${counter}`;
-    counter++;
-  }
-}
 
 // Calculate content statistics
 const calculateStats = (content: string) => {
@@ -64,27 +43,49 @@ export const createArticle = async (formData: {
 
   if (!project) redirect("/create-project");
 
-  // Generate slug from title
-  const baseSlug = generateSlug(formData.title);
-  const slug = await generateUniqueSlug(baseSlug, project.id);
+  // Use transaction to ensure atomicity
+  const article = await prisma.$transaction(async (tx) => {
+    // Generate slug from title
+    const baseSlug = generateSlug(formData.title);
+    
+    // Generate unique slug within transaction
+    let slug = baseSlug;
+    let counter = 1;
 
-  // Calculate content statistics
-  const stats = calculateStats(formData.content);
+    while (true) {
+      const existing = await tx.article.findFirst({
+        where: {
+          slug,
+          projectId: project.id,
+        },
+      });
 
-  // Create article
-  const article = await prisma.article.create({
-    data: {
-      title: formData.title,
-      slug,
-      excerpt: formData.excerpt,
-      content: formData.content,
-      coverImage: formData.coverImage,
-      status: formData.status,
-      published: formData.status === "published",
-      publishedAt: formData.status === "published" ? new Date() : null,
-      projectId: project.id,
-      ...stats,
-    },
+      if (!existing) {
+        break;
+      }
+
+      slug = `${baseSlug}-${counter}`;
+      counter++;
+    }
+
+    // Calculate content statistics
+    const stats = calculateStats(formData.content);
+
+    // Create article within transaction
+    return await tx.article.create({
+      data: {
+        title: formData.title,
+        slug,
+        excerpt: formData.excerpt,
+        content: formData.content,
+        coverImage: formData.coverImage,
+        status: formData.status,
+        published: formData.status === "published",
+        publishedAt: formData.status === "published" ? new Date() : null,
+        projectId: project.id,
+        ...stats,
+      },
+    });
   });
 
   revalidatePath("/articles");
