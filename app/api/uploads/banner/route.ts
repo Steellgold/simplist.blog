@@ -1,9 +1,8 @@
-import { NextResponse } from "next/server"
+import { buildBannerKey, createR2Client, getPublicUrlForKey } from "@/lib/actions/images"
 import { getCurrentUser } from "@/lib/auth-helper"
 import { prisma } from "@/lib/db"
-import { createR2Client, buildBannerKey, getPublicUrlForKey } from "@/lib/actions/images"
 import { PutObjectCommand } from "@aws-sdk/client-s3"
-import sharp from "sharp"
+import { NextResponse } from "next/server"
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 const ALLOWED_MIME_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"]
@@ -50,30 +49,10 @@ export const POST = async (req: Request) => {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 
-    // Process image with compression
+    // Upload image without compression (Sharp removed to avoid Vercel issues)
     const arrayBuffer = await file.arrayBuffer()
-    const buffer = Buffer.from(arrayBuffer)
-
-    let processedBuffer: Buffer
-    let finalMimeType = file.type
-
-    try {
-      const image = sharp(buffer)
-
-      // Compress based on type
-      if (file.type === "image/png") {
-        processedBuffer = await image.png({ quality: 90, compressionLevel: 9 }).toBuffer()
-      } else if (file.type === "image/webp") {
-        processedBuffer = await image.webp({ quality: 85 }).toBuffer()
-      } else if (file.type === "image/gif") {
-        processedBuffer = buffer // Don't compress GIFs
-      } else {
-        processedBuffer = await image.jpeg({ quality: 85, progressive: true }).toBuffer()
-        finalMimeType = "image/jpeg"
-      }
-    } catch {
-      return NextResponse.json({ error: "Failed to process image" }, { status: 500 })
-    }
+    const processedBuffer = Buffer.from(arrayBuffer)
+    const finalMimeType = file.type
 
     const key = await buildBannerKey({
       projectId,

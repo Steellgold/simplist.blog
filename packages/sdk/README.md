@@ -33,6 +33,18 @@ const article = await client.articles.get('my-article-slug')
 
 // Get project information
 const project = await client.project.get()
+
+// Track page views (analytics)
+await client.analytics.track({
+  slug: 'my-article-slug',
+  referrer: 'https://example.com'
+})
+
+// Get SEO metadata
+const seoData = await client.seo.getArticle('my-article-slug')
+
+// Get RSS feed
+const rss = await client.seo.getRssFeed({ baseUrl: 'https://myblog.com' })
 ```
 
 ## Authentication
@@ -141,6 +153,132 @@ const project = await client.project.getInfo()
 const stats = await client.project.getStats()
 ```
 
+### Analytics
+
+The SDK provides **server-side analytics tracking** which is more privacy-friendly and reliable than client-side scripts.
+
+#### Why Server-side Analytics?
+
+**✅ Advantages:**
+- **Never blocked** by adblockers
+- **Privacy-friendly** - No cookies or client tracking
+- **Better performance** - No additional JavaScript loaded
+- **SSR compatible** - Works with Next.js App Router
+- **More reliable** data collection
+
+**📊 vs Client-side Scripts:**
+| Feature | Server-side (SDK) | Client-side Script |
+|---------|------------------|-------------------|
+| Adblocker-proof | ✅ Yes | ❌ Often blocked |
+| Privacy compliance | ✅ GDPR-friendly | ⚠️ Requires consent |
+| Performance impact | ✅ None | ❌ Additional JS |
+| Data accuracy | ✅ Reliable | ⚠️ Can be inconsistent |
+| Implementation | Manual | Automatic |
+
+#### Track Page Views
+
+```typescript
+// Track a page view
+await client.analytics.track({
+  slug: 'article-slug',
+  referrer: 'https://google.com'
+})
+
+// Get analytics data
+const analytics = await client.analytics.get('article-slug')
+console.log(analytics.data.totalViews)
+console.log(analytics.data.uniqueVisitors)
+```
+
+#### Integration Examples
+
+**Next.js App Router:**
+```tsx
+// app/articles/[slug]/page.tsx
+export default async function ArticlePage({ params }) {
+  const client = new SimplistClient()
+  
+  // Track the page view server-side
+  await client.analytics.track({
+    slug: params.slug,
+    referrer: headers().get('referer') || undefined
+  })
+  
+  const article = await client.articles.get(params.slug)
+  return <ArticleComponent article={article} />
+}
+```
+
+**React with useEffect:**
+```tsx
+function ArticlePage({ slug }) {
+  useEffect(() => {
+    const client = new SimplistClient()
+    client.analytics.track({
+      slug,
+      referrer: document.referrer || undefined
+    })
+  }, [slug])
+  
+  return <Article />
+}
+```
+
+### SEO
+
+#### Get Article SEO Data
+
+```typescript
+// Get SEO metadata for an article
+const response = await client.seo.getArticle('article-slug', {
+  baseUrl: 'https://yourblog.com'
+})
+
+console.log(response.data.seo.metaTitle)
+console.log(response.data.seo.structuredData)
+```
+
+#### Generate Sitemap
+
+```typescript
+// Get XML sitemap
+const xmlSitemap = await client.seo.getSitemap({
+  baseUrl: 'https://yourblog.com',
+  format: 'xml'
+})
+
+// Get JSON sitemap
+const jsonSitemap = await client.seo.getSitemap({
+  baseUrl: 'https://yourblog.com',
+  format: 'json'
+})
+```
+
+#### Generate RSS Feed
+
+```typescript
+const rss = await client.seo.getRssFeed({
+  baseUrl: 'https://yourblog.com',
+  limit: 20
+})
+```
+
+#### Get Structured Data
+
+```typescript
+const structuredData = await client.seo.getStructuredData({
+  baseUrl: 'https://yourblog.com'
+})
+```
+
+#### Generate robots.txt
+
+```typescript
+const robotsTxt = await client.seo.getRobots({
+  baseUrl: 'https://yourblog.com'
+})
+```
+
 ### Health Check
 
 ```typescript
@@ -172,10 +310,18 @@ try {
 The SDK is written in TypeScript and includes full type definitions:
 
 ```typescript
-import type { Article, ArticleListItem, ProjectInfo } from '@simplist.blog/sdk'
+import type { 
+  Article, 
+  ArticleListItem, 
+  ProjectInfo,
+  PageViewData,
+  SeoMetadata,
+  AnalyticsStats 
+} from '@simplist.blog/sdk'
 
 const articles: ArticleListItem[] = response.data
 const article: Article = singleResponse.data
+const analytics: AnalyticsStats = analyticsResponse.data
 ```
 
 ## Rate Limiting
@@ -186,7 +332,7 @@ The API has rate limits (100 requests per minute per API key). The SDK will auto
 
 ### Static Site Generation
 
-```typescript
+```tsx
 // Next.js getStaticProps - API key auto-detected from environment
 export async function getStaticProps() {
   const client = new SimplistClient() // Uses SIMPLIST_API_KEY env var
@@ -202,7 +348,7 @@ export async function getStaticProps() {
 
 ### Blog Widget
 
-```typescript
+```tsx
 // React component - API key auto-detected from environment
 import { SimplistClient } from '@simplist.blog/sdk'
 

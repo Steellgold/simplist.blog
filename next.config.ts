@@ -2,8 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   experimental: {
-    authInterrupts: true,
-    serverComponentsExternalPackages: ['sharp']
+    authInterrupts: true
   },
   images: {
     remotePatterns: [
