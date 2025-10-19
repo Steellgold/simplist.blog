@@ -9,7 +9,7 @@ Simplist is a simple blog management system built with Next.js 15, using the App
 The project now includes a **monorepo architecture** with:
 - `packages/db/` - Shared Prisma schema and database client
 - `packages/api/` - Public Fastify API for content consumption (api.simplist.blog)
-- `packages/sdk/` - TypeScript SDK for NPM (@simplist/sdk)
+- `packages/sdk/` - TypeScript SDK for NPM (@simplist.blog/sdk)
 - Main Next.js app - Admin interface (simplist.blog)
 
 ## Development Commands
@@ -77,7 +77,7 @@ The public API (`packages/api/`) serves content consumption:
 The TypeScript SDK (`packages/sdk/`) provides:
 - **Type-safe** client for the public API
 - **Retry logic** with exponential backoff
-- **Published on NPM** as `@simplist/sdk`
+- **Published on NPM** as `@simplist.blog/sdk`
 - **ESM/CJS support** for maximum compatibility
 
 ### Route Structure

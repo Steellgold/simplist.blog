@@ -6,6 +6,7 @@ import { X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 import { ArticleBannerUpload } from "./article-banner-upload";
 import { ArticleContentEditor } from "./article-content-editor";
 import { ArticleInfoFields } from "./article-info-fields";
@@ -66,7 +67,7 @@ export const EditArticleForm = ({ article }: EditArticleFormProps) => {
         router.refresh();
       } catch (error) {
         console.error("Failed to remove cover image:", error);
-        alert("Failed to remove image");
+        toast.error("Failed to remove image");
         setIsRemovingImage(false);
         return;
       }
@@ -87,8 +88,11 @@ export const EditArticleForm = ({ article }: EditArticleFormProps) => {
     e.preventDefault();
     setIsSubmitting(true);
 
+    const toastId = toast.loading("Updating article...");
+
     try {
-      // Update article first
+      // Step 1: Update article
+      toast.loading("Updating article content and metadata...", { id: toastId });
       await updateArticle(article.id, {
         title,
         excerpt,
@@ -96,8 +100,9 @@ export const EditArticleForm = ({ article }: EditArticleFormProps) => {
         status,
       });
 
-      // If a new image is selected, upload to R2 and update the article cover
+      // Step 2: Upload new image if provided
       if (imageFile) {
+        toast.loading("Uploading new cover image...", { id: toastId });
         const form = new FormData()
         form.append("file", imageFile)
         form.append("projectId", article.projectId)
@@ -112,6 +117,7 @@ export const EditArticleForm = ({ article }: EditArticleFormProps) => {
           throw new Error("Failed to upload image to storage")
         }
 
+        toast.loading("Processing image and updating article...", { id: toastId });
         const data = await res.json()
 
         await updateArticleCoverImage({
@@ -120,12 +126,15 @@ export const EditArticleForm = ({ article }: EditArticleFormProps) => {
         })
       }
 
+      // Step 3: Success
+      toast.success("Article updated successfully!", { id: toastId });
+
       // Redirect to articles page
       router.push("/articles");
       router.refresh();
     } catch (error) {
       console.error("Error updating article:", error);
-      alert("Failed to update article. Please try again.");
+      toast.error("Failed to update article. Please try again.", { id: toastId });
     } finally {
       setIsSubmitting(false);
     }

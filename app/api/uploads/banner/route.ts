@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db"
 import { PutObjectCommand } from "@aws-sdk/client-s3"
 import { NextResponse } from "next/server"
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
+const MAX_FILE_SIZE = 3 * 1024 * 1024 // 3MB
 const ALLOWED_MIME_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"]
 
 export const POST = async (req: Request) => {

@@ -6,6 +6,7 @@ import { Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 import { ArticleBannerUpload } from "./article-banner-upload";
 import { ArticleContentEditor } from "./article-content-editor";
 import { ArticleInfoFields } from "./article-info-fields";
@@ -58,8 +59,11 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
     e.preventDefault();
     setIsSubmitting(true);
 
+    const toastId = toast.loading("Creating article...");
+
     try {
-      // Create article first
+      // Step 1: Create article
+      toast.loading("Generating slug and calculating stats...", { id: toastId });
       const article = await createArticle({
         title,
         excerpt,
@@ -68,8 +72,9 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
         coverImage: undefined,
       });
 
-      // If an image is selected, upload via server API (avoid CORS) then set cover
+      // Step 2: Upload image if provided
       if (imageFile && article) {
+        toast.loading("Uploading cover image...", { id: toastId });
         const form = new FormData()
         form.append("file", imageFile)
         form.append("projectId", projectId)
@@ -84,6 +89,7 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
           throw new Error("Failed to upload image to storage")
         }
 
+        toast.loading("Processing image and updating article...", { id: toastId });
         const data = await res.json()
 
         await updateArticleCoverImage({
@@ -92,12 +98,15 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
         })
       }
 
+      // Step 3: Success
+      toast.success("Article created successfully!", { id: toastId });
+
       // Redirect to articles page
       router.push("/articles");
       router.refresh();
     } catch (error) {
       console.error("Error creating article:", error);
-      alert("Failed to create article. Please try again.");
+      toast.error("Failed to create article. Please try again.", { id: toastId });
     } finally {
       setIsSubmitting(false);
     }

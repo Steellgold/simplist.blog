@@ -2,8 +2,7 @@ import { articlesColumns } from "@/components/articles-columns"
 import { ArticlesDataTable } from "@/components/articles-data-table"
 import { PageHeader } from "@/components/page-header"
 import { buttonVariants } from "@/components/ui/button"
-import { getProjectArticles } from "@/lib/actions/articles"
-import { getUserProjects } from "@/lib/actions/projects"
+import { getUserProjectWithArticles } from "@/lib/actions/articles"
 import { getArticleViewsOverTime } from "@/lib/actions/analytics"
 import { Plus } from "lucide-react"
 import Link from "next/link"
@@ -15,8 +14,8 @@ export const metadata: Metadata = {
 }
 
 const ArticlesPage = async () => {
-  const projects = await getUserProjects()
-  const project = projects[0]
+  // Single optimized query for project + articles
+  const project = await getUserProjectWithArticles()
 
   if (!project) {
     return (
@@ -27,18 +26,23 @@ const ArticlesPage = async () => {
     )
   }
 
-  const articles = await getProjectArticles(project.id)
+  const articles = project.articles
 
-  // Get 7-day analytics for all articles in parallel
-  const articlesWithAnalytics = await Promise.all(
-    articles.map(async (article) => {
-      const viewsOverTime = await getArticleViewsOverTime(article.id, 7)
-      return {
-        ...article,
-        viewsOverTime
-      }
-    })
-  )
+  // Skip analytics if no articles to avoid unnecessary processing
+  let articlesWithAnalytics = articles
+
+  if (articles.length > 0) {
+    // Only fetch analytics for existing articles
+    articlesWithAnalytics = await Promise.all(
+      articles.map(async (article) => {
+        const viewsOverTime = await getArticleViewsOverTime(article.id, 7)
+        return {
+          ...article,
+          viewsOverTime
+        }
+      })
+    )
+  }
 
   return (
     <PageHeader

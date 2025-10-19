@@ -1,10 +1,10 @@
 "use server"
 
+import { assertR2ObjectIsImage, getR2PublicUrl } from "@/lib/actions/images"
 import { getCurrentUser } from "@/lib/auth-helper"
 import { prisma } from "@/lib/db"
 import { generateSlug } from "@/lib/utils"
 import { revalidatePath } from "next/cache"
-import { getR2PublicUrl, assertR2ObjectIsImage } from "@/lib/actions/images"
 import { forbidden, redirect } from "next/navigation"
 
 
@@ -175,6 +175,37 @@ export const getProjectArticles = async (projectId: string) => {
   })
 
   return articles
+}
+
+export const getUserProjectWithArticles = async () => {
+  const user = await getCurrentUser()
+
+  if (!user) {
+    redirect("/auth/login")
+  }
+
+  const project = await prisma.project.findFirst({
+    where: {
+      userId: user.id,
+    },
+    include: {
+      articles: {
+        where: {
+          status: {
+            not: "deleted",
+          },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  })
+
+  return project
 }
 
 export const getArticle = async (articleId: string) => {
