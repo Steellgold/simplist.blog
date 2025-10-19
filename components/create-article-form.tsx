@@ -107,7 +107,6 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
     } catch (error) {
       console.error("Error creating article:", error);
       toast.error("Failed to create article. Please try again.", { id: toastId });
-    } finally {
       setIsSubmitting(false);
     }
   };

@@ -135,7 +135,6 @@ export const EditArticleForm = ({ article }: EditArticleFormProps) => {
     } catch (error) {
       console.error("Error updating article:", error);
       toast.error("Failed to update article. Please try again.", { id: toastId });
-    } finally {
       setIsSubmitting(false);
     }
   };
