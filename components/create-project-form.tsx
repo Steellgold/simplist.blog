@@ -21,25 +21,20 @@ export const CreateProjectForm = ({ className, ...props }: React.ComponentProps<
   const router = useRouter()
   const [error, setError] = useState("")
 
-  const form = useForm({
+  const form = useForm<CreateProjectInput>({
     resolver: zodResolver(createProjectSchema),
     defaultValues: {
       name: "",
       description: "",
-      allowedOrigins: [],
-    } as CreateProjectInput,
+      allowedOrigins: []
+    },
   })
 
-  const {
-    register,
-    control,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = form
+  const { register, control, handleSubmit, formState: { errors, isSubmitting } } = form
 
   const { fields, append, remove } = useFieldArray({
-    control: control as any,
-    name: "allowedOrigins",
+    control,
+    name: "allowedOrigins"
   })
 
   const onSubmit = async (data: CreateProjectInput) => {
@@ -47,8 +42,12 @@ export const CreateProjectForm = ({ className, ...props }: React.ComponentProps<
     const slug = generateSlug(data.name)
 
     toast.promise(
-      createProject({ name: data.name, slug, description: data.description, allowedOrigins: data.allowedOrigins || [] }),
-      {
+      createProject({
+        name: data.name,
+        slug,
+        description: data.description,
+        allowedOrigins: data.allowedOrigins || []
+      }), {
         loading: "Creating project...",
         success: () => {
           router.push("/dashboard")
@@ -117,7 +116,7 @@ export const CreateProjectForm = ({ className, ...props }: React.ComponentProps<
 
                         <InputGroupInput
                           placeholder="yourdomain.com or *.yourdomain.com"
-                          {...register(`allowedOrigins.${index}`)}
+                          {...register(`allowedOrigins.${index}.value`)}
                         />
 
                         <InputGroupAddon align="inline-end">
@@ -136,7 +135,7 @@ export const CreateProjectForm = ({ className, ...props }: React.ComponentProps<
                       type="button"
                       variant="outline"
                       size="sm"
-                      onClick={() => append("")}
+                      onClick={() => append({ value: "" })}
                       className="w-full"
                     >
                       <Plus className="h-4 w-4 mr-2" />

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
-import { createProjectSchema } from "../validations/project"
+import { createProjectSchema, CreateProjectActionInput } from "../validations/project"
 import { getCurrentUser } from "../auth-helper"
 import { prisma } from "../db"
 
@@ -25,7 +25,7 @@ export const getUserProjects = async () => {
   return projects
 }
 
-export const createProject = async (input: { name: string; slug: string; description?: string; allowedOrigins?: string[] }) => {
+export const createProject = async (input: CreateProjectActionInput) => {
   const user = await getCurrentUser()
 
   if (!user) {
@@ -38,6 +38,9 @@ export const createProject = async (input: { name: string; slug: string; descrip
     description: input.description || "",
     allowedOrigins: input.allowedOrigins || [],
   })
+
+  // Extract string values from the validated data
+  const allowedOriginStrings = validatedData.allowedOrigins.map(origin => origin.value)
 
   // Check if user already has a project (single project mode)
   const existingProjects = await prisma.project.findMany({
@@ -75,7 +78,7 @@ export const createProject = async (input: { name: string; slug: string; descrip
       name: validatedData.name,
       slug: finalSlug,
       description: validatedData.description || null,
-      allowedOrigins: validatedData.allowedOrigins || [],
+      allowedOrigins: allowedOriginStrings,
       userId: user.id,
     },
   })
