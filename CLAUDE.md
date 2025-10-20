@@ -59,7 +59,7 @@ pnpm run build:packages # Build DB, API, and SDK packages
 - **PostgreSQL** with Prisma ORM
 - **Upstash Redis** for API key caching shared across packages
 - Shared database package in `packages/db/` with singleton pattern for both Prisma and Redis
-- Schema includes: User, Session, Account, Verification, Project, ApiKey, Article, Asset
+- Schema includes: User, Session, Account, Verification, Project, ApiKey, Article, Asset, PageView, PageEvent
 - Connection string: `postgresql://postgres:postgres@localhost:5432/simplist?schema=public`
 
 ### API Architecture
@@ -93,6 +93,7 @@ The TypeScript SDK (`packages/sdk/`) provides:
 - `/articles` - Article management (list view with data table)
 - `/articles/new` - Article creation form (responsive 2-column layout on desktop)
 - `/api-keys` - API key management
+- `/analytics` - Analytics dashboard (shows activation UI if not enabled)
 - `/settings` - Settings
 
 **Special route**:
@@ -162,6 +163,11 @@ Located in `lib/actions/`:
   - `createApiKey()` - Create API key with cache invalidation
   - `deleteApiKey()` - Soft delete API key with cache invalidation
   - `getProjectApiKeys()` - Fetch active API keys for a project
+- `analytics.ts` - Analytics data aggregation and caching
+  - `enableAnalytics()` - Enable analytics module and generate public key
+  - `getAllProjectAnalytics()` - Load multi-period analytics with caching
+  - `getProjectAnalytics()` - Load single period analytics
+  - `getArticleViewsOverTime()` - Time-series data for article engagement
 
 ### Article Management
 
@@ -192,11 +198,51 @@ Located in `lib/actions/`:
 - Main app directly invalidates cache using shared `apiKeyCache` utilities
 - No HTTP requests needed between main app and API for cache invalidation
 
+**Analytics Caching**:
+- Analytics data cached in Redis with `analyticsCacheUtils`
+- Cache invalidated when new page views are tracked
+- Multi-period caching (7, 30, 90 days) loaded in parallel for performance
+
 **Cache Flow**:
 1. API requests check Redis cache first (`packages/api/src/plugins/auth.ts`)
 2. Cache miss triggers database lookup and cache population
 3. Main app API key actions automatically invalidate relevant cache entries
 4. Both systems share the same Redis instance for consistency
+
+### Analytics System
+
+**Analytics Activation Flow**:
+- Project-level feature flag: `analyticsEnabled` (default: false)
+- First visit to `/analytics` shows activation UI (`components/analytics-activation.tsx`)
+- Activation automatically generates a public API key (`pk_`) with `analytics` permission
+- After activation, displays integration guide with tracking script
+
+**Analytics Tracking Script** (`public/analytics.js`):
+- Client-side script using data attributes: `<script src="https://cdn.simplist.blog/analytics.js" data-api-key="pk_xxx"></script>`
+- Auto-detects article slug from URL (last path segment) if not provided via `data-slug`
+- Tracks: page views, unique visitors, time on page, scroll depth, bounce rate, device/browser, geo data
+- Bot detection to filter automated traffic
+- Uses `sendBeacon` for reliable tracking on page unload
+
+**Analytics API** (`packages/api/src/routes/analytics.ts`):
+- `POST /analytics/track` - Track new page view with initial metrics
+- `PUT /analytics/track/:pageViewId` - Update page view with final engagement metrics
+- `GET /analytics/stats` - Retrieve aggregated analytics data (requires `read` permission)
+- Public key authentication via `X-API-Key` header
+- Geo data fetched client-side from ipinfo.io (privacy-focused, no IP storage)
+
+**Analytics Dashboard** (`app/(dashboard)/analytics/page.tsx`):
+- Multi-period view (7, 30, 90 days) with parallel data loading
+- Integration guide shown at top when analytics enabled
+- Charts: views over time, engagement metrics, device/browser distribution
+- Tables: top articles, referrers, countries, recent activity
+- Optional article filtering via `?articles=id1,id2` query param
+
+**Server Actions** (`lib/actions/analytics.ts`):
+- `enableAnalytics(projectId)` - Enable analytics and generate public key
+- `getAllProjectAnalytics(projectId, articleIds?)` - Load all periods with caching
+- `getProjectAnalytics(projectId, days, articleIds?)` - Load single period
+- `getBatchArticleViewsOverTime(articleIds[], days)` - Optimized batch query for article charts
 
 ### Middleware
 
