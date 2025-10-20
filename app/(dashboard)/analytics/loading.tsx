@@ -3,12 +3,13 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 const AnalyticsLoading = () => {
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <Skeleton className="h-9 w-32 mb-2" />
-        <Skeleton className="h-5 w-96" />
-      </div>
+    <div className="container max-w-7xl mx-auto">
+      <div className="space-y-6">
+        {/* Header */}
+        <div>
+          <Skeleton className="h-9 w-32 mb-2" />
+          <Skeleton className="h-5 w-96" />
+        </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -153,6 +154,7 @@ const AnalyticsLoading = () => {
           </div>
         </CardContent>
       </Card>
+      </div>
     </div>
   )
 }

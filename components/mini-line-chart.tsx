@@ -34,7 +34,7 @@ export const MiniLineChart = ({ data, className }: MiniLineChartProps) => {
   }
 
   return (
-    <div className={`h-12 w-20 ${className}`}>
+    <div className={`h-12 w-20 relative ${className}`}>
       <ChartContainer config={chartConfig} className="h-full w-full">
         <LineChart data={data} margin={{ top: 2, right: 2, left: 2, bottom: 2 }}>
           <XAxis dataKey="date" hide />
@@ -42,6 +42,7 @@ export const MiniLineChart = ({ data, className }: MiniLineChartProps) => {
           <ChartTooltip
             content={<ChartTooltipContent hideLabel />}
             cursor={{ strokeWidth: 1 }}
+            wrapperStyle={{ zIndex: 50 }}
           />
           <Line
             type="monotone"

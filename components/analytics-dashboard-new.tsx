@@ -10,7 +10,6 @@ import {
 } from '@/components/ui/chart'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { AnalyticsDataMultiPeriod } from '@/lib/actions/analytics'
-import { formatDistanceToNow } from 'date-fns'
 import {
   Activity,
   Clock,
@@ -134,7 +133,9 @@ export const AnalyticsDashboard = ({ analyticsData }: AnalyticsDashboardProps) =
 
   // Chart data for views over time
   const chartData = analytics.viewsOverTime?.map(stat => {
-    const formattedDate = new Date(stat.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    // stat.date is already in ISO format (YYYY-MM-DD)
+    const dateObj = new Date(stat.date + 'T00:00:00') // Add time to ensure correct timezone handling
+    const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
     // Keep avgTimeOnPage in seconds for better visibility
     const engagementSeconds = Math.round(stat.avgTimeOnPage || 0)
     return {
@@ -249,142 +250,170 @@ export const AnalyticsDashboard = ({ analyticsData }: AnalyticsDashboardProps) =
             </TabsList>
             
             <TabsContent value="overview" className="space-y-4">
-              <ChartContainer config={chartConfig} className="h-64 w-full">
-                <LineChart data={chartData}>
-                  <XAxis
-                    dataKey="date"
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                    tickFormatter={(value) => value}
-                  />
-                  <YAxis
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                  />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Line
-                    type="monotone"
-                    dataKey="views"
-                    stroke="var(--color-views)"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="visitors"
-                    stroke="var(--color-visitors)"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                </LineChart>
-              </ChartContainer>
+              {chartData.length === 0 ? (
+                <div className="h-64 w-full flex items-center justify-center text-muted-foreground">
+                  No data available for this period
+                </div>
+              ) : (
+                <ChartContainer config={chartConfig} className="h-64 w-full">
+                  <LineChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <XAxis
+                      dataKey="date"
+                      tickLine={false}
+                      axisLine={false}
+                      tickMargin={8}
+                    />
+                    <YAxis
+                      tickLine={false}
+                      axisLine={false}
+                      tickMargin={8}
+                      domain={[0, 'auto']}
+                    />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Line
+                      type="monotone"
+                      dataKey="views"
+                      stroke="var(--color-views)"
+                      strokeWidth={2}
+                      dot={{ r: 3 }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="visitors"
+                      stroke="var(--color-visitors)"
+                      strokeWidth={2}
+                      dot={{ r: 3 }}
+                    />
+                  </LineChart>
+                </ChartContainer>
+              )}
             </TabsContent>
 
             <TabsContent value="views">
-              <ChartContainer config={chartConfig} className="h-64 w-full">
-                <LineChart data={chartData}>
-                  <XAxis
-                    dataKey="date"
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                    tickFormatter={(value) => value}
-                  />
-                  <YAxis
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                  />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Line
-                    type="monotone"
-                    dataKey="views"
-                    stroke="var(--color-views)"
-                    strokeWidth={3}
-                    dot={{
-                      fill: "var(--color-views)",
-                      strokeWidth: 2,
-                      r: 4
-                    }}
-                    activeDot={{
-                      r: 6,
-                      stroke: "var(--color-views)",
-                      strokeWidth: 2
-                    }}
-                  />
-                </LineChart>
-              </ChartContainer>
+              {chartData.length === 0 ? (
+                <div className="h-64 w-full flex items-center justify-center text-muted-foreground">
+                  No data available for this period
+                </div>
+              ) : (
+                <ChartContainer config={chartConfig} className="h-64 w-full">
+                  <LineChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <XAxis
+                      dataKey="date"
+                      tickLine={false}
+                      axisLine={false}
+                      tickMargin={8}
+                    />
+                    <YAxis
+                      tickLine={false}
+                      axisLine={false}
+                      tickMargin={8}
+                      domain={[0, 'auto']}
+                    />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Line
+                      type="monotone"
+                      dataKey="views"
+                      stroke="var(--color-views)"
+                      strokeWidth={3}
+                      dot={{
+                        fill: "var(--color-views)",
+                        strokeWidth: 2,
+                        r: 4
+                      }}
+                      activeDot={{
+                        r: 6,
+                        stroke: "var(--color-views)",
+                        strokeWidth: 2
+                      }}
+                    />
+                  </LineChart>
+                </ChartContainer>
+              )}
             </TabsContent>
 
             <TabsContent value="visitors">
-              <ChartContainer config={chartConfig} className="h-64 w-full">
-                <LineChart data={chartData}>
-                  <XAxis
-                    dataKey="date"
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                    tickFormatter={(value) => value}
-                  />
-                  <YAxis
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                  />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Line
-                    type="monotone"
-                    dataKey="visitors"
-                    stroke="var(--color-visitors)"
-                    strokeWidth={3}
-                    dot={{
-                      fill: "var(--color-visitors)",
-                      strokeWidth: 2,
-                      r: 4
-                    }}
-                    activeDot={{
-                      r: 6,
-                      stroke: "var(--color-visitors)",
-                      strokeWidth: 2
-                    }}
-                  />
-                </LineChart>
-              </ChartContainer>
+              {chartData.length === 0 ? (
+                <div className="h-64 w-full flex items-center justify-center text-muted-foreground">
+                  No data available for this period
+                </div>
+              ) : (
+                <ChartContainer config={chartConfig} className="h-64 w-full">
+                  <LineChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <XAxis
+                      dataKey="date"
+                      tickLine={false}
+                      axisLine={false}
+                      tickMargin={8}
+                    />
+                    <YAxis
+                      tickLine={false}
+                      axisLine={false}
+                      tickMargin={8}
+                      domain={[0, 'auto']}
+                    />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Line
+                      type="monotone"
+                      dataKey="visitors"
+                      stroke="var(--color-visitors)"
+                      strokeWidth={3}
+                      dot={{
+                        fill: "var(--color-visitors)",
+                        strokeWidth: 2,
+                        r: 4
+                      }}
+                      activeDot={{
+                        r: 6,
+                        stroke: "var(--color-visitors)",
+                        strokeWidth: 2
+                      }}
+                    />
+                  </LineChart>
+                </ChartContainer>
+              )}
             </TabsContent>
 
             <TabsContent value="engagement">
-              <ChartContainer config={chartConfig} className="h-64 w-full">
-                <AreaChart data={chartData}>
-                  <defs>
-                    <linearGradient id="fillEngagement" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="var(--color-engagement)" stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor="var(--color-engagement)" stopOpacity={0.1}/>
-                    </linearGradient>
-                  </defs>
-                  <XAxis
-                    dataKey="date"
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                    tickFormatter={(value) => value}
-                  />
-                  <YAxis
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                  />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Area
-                    type="monotone"
-                    dataKey="engagement"
-                    stroke="var(--color-engagement)"
-                    strokeWidth={2}
-                    fill="url(#fillEngagement)"
-                  />
-                </AreaChart>
-              </ChartContainer>
+              {chartData.length === 0 ? (
+                <div className="h-64 w-full flex items-center justify-center text-muted-foreground">
+                  No data available for this period
+                </div>
+              ) : (
+                <ChartContainer config={chartConfig} className="h-64 w-full">
+                  <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="fillEngagement" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="var(--color-engagement)" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="var(--color-engagement)" stopOpacity={0.1}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <XAxis
+                      dataKey="date"
+                      tickLine={false}
+                      axisLine={false}
+                      tickMargin={8}
+                    />
+                    <YAxis
+                      tickLine={false}
+                      axisLine={false}
+                      tickMargin={8}
+                      domain={[0, 'auto']}
+                    />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Area
+                      type="monotone"
+                      dataKey="engagement"
+                      stroke="var(--color-engagement)"
+                      strokeWidth={2}
+                      fill="url(#fillEngagement)"
+                    />
+                  </AreaChart>
+                </ChartContainer>
+              )}
             </TabsContent>
           </Tabs>
         </CardContent>

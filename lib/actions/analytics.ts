@@ -190,7 +190,17 @@ export const getBatchArticleViewsOverTime = async (
     viewsByArticleAndDate
       .filter(row => row.articleId === articleId)
       .forEach(row => {
-        dataMap.set(row.date, {
+        // PostgreSQL DATE can return either a string or a Date object
+        let dateStr: string
+        if (typeof row.date === 'string') {
+          dateStr = row.date.split('T')[0]
+        } else if (row.date instanceof Date) {
+          dateStr = row.date.toISOString().split('T')[0]
+        } else {
+          dateStr = new Date(row.date).toISOString().split('T')[0]
+        }
+
+        dataMap.set(dateStr, {
           views: Number(row.views),
           uniqueVisitors: Number(row.uniquevisitors),
           avgTimeOnPage: Math.round(row.avgtimeonpage || 0)
@@ -219,12 +229,10 @@ export const getAllProjectAnalytics = async (projectId: string, articleIds?: str
   // Try to get from cache first
   const useCache = !articleIds || articleIds.length === 0
   const cached = useCache ? await analyticsCacheUtils.get(projectId) : null
+
   if (cached && useCache) {
-    console.log('Analytics cache hit for project:', projectId)
     return cached
   }
-
-  console.log('Analytics cache miss for project:', projectId, '- computing fresh data')
   
   const periods = [7, 30, 90]
   const result: AnalyticsDataMultiPeriod = {}
@@ -436,8 +444,16 @@ export const getProjectAnalytics = async (projectId: string, days: number = 30, 
   // Process views over time data and fill missing dates
   const viewsOverTimeMap = new Map(
     viewsOverTimeData.map(row => {
-      // PostgreSQL DATE returns a string in ISO format, extract date portion
-      const dateStr = typeof row.date === 'string' ? row.date.split('T')[0] : String(row.date)
+      // PostgreSQL DATE can return either a string or a Date object
+      let dateStr: string
+      if (typeof row.date === 'string') {
+        dateStr = row.date.split('T')[0]
+      } else if (row.date instanceof Date) {
+        dateStr = row.date.toISOString().split('T')[0]
+      } else {
+        // Fallback for other cases
+        dateStr = new Date(row.date).toISOString().split('T')[0]
+      }
 
       return [
         dateStr,

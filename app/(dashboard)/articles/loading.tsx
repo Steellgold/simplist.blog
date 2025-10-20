@@ -4,20 +4,21 @@ import { Plus } from "lucide-react"
 
 const ArticlesLoading = () => {
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Articles</h1>
-          <p className="text-muted-foreground">
-            Manage your blog articles and track their performance.
-          </p>
-        </div>
+    <div className="container max-w-7xl mx-auto">
+      <div className="flex flex-col gap-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Articles</h1>
+            <p className="text-muted-foreground">
+              Manage your blog articles and track their performance.
+            </p>
+          </div>
 
-        <Button disabled>
-          <Plus />
-          New Article
-        </Button>
-      </div>
+          <Button disabled>
+            <Plus />
+            New Article
+          </Button>
+        </div>
 
       <div className="space-y-4">
         {/* Search input skeleton */}
@@ -59,6 +60,7 @@ const ArticlesLoading = () => {
           </div>
         </div>
       </div>
+    </div>
     </div>
   )
 }
