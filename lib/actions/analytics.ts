@@ -105,11 +105,37 @@ export const getArticleViewsOverTime = async (
     viewsMap.set(dateStr, (viewsMap.get(dateStr) || 0) + _count._all)
   })
 
+  // Get additional metrics for each date
+  const metricsByDate = await prisma.pageView.groupBy({
+    by: ['timestamp'],
+    where: {
+      articleId,
+      timestamp: { gte: startDate }
+    },
+    _count: { visitorId: true },
+    _avg: { timeOnPage: true }
+  })
+
+  // Map to date strings with metrics
+  const metricsMap = new Map<string, { uniqueVisitors: number; avgTimeOnPage: number }>()
+  metricsByDate.forEach(({ timestamp, _count, _avg }) => {
+    const dateStr = timestamp.toISOString().split('T')[0]
+    metricsMap.set(dateStr, {
+      uniqueVisitors: _count.visitorId,
+      avgTimeOnPage: Math.round(_avg.timeOnPage || 0)
+    })
+  })
+
   // Return data for all days (fill missing days with 0)
-  return dateArray.map(date => ({
-    date: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-    views: viewsMap.get(date) || 0
-  }))
+  return dateArray.map(date => {
+    const metrics = metricsMap.get(date) || { uniqueVisitors: 0, avgTimeOnPage: 0 }
+    return {
+      date: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      views: viewsMap.get(date) || 0,
+      uniqueVisitors: metrics.uniqueVisitors,
+      avgTimeOnPage: metrics.avgTimeOnPage
+    }
+  })
 }
 
 // Optimized batch query to get views over time for multiple articles at once
