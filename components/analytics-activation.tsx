@@ -33,7 +33,7 @@ export const AnalyticsActivation = ({ projectId }: AnalyticsActivationProps) => 
   }
 
   if (isEnabled && apiKey) {
-    return <AnalyticsIntegrationGuide apiKey={apiKey} />
+    return <AnalyticsIntegrationGuide apiKey={apiKey} showSuccessCard={true} />
   }
 
   return (

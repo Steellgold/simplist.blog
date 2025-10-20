@@ -1,10 +1,10 @@
-import { AnalyticsDashboard } from '@/components/analytics-dashboard-new'
 import { AnalyticsActivation } from '@/components/analytics-activation'
+import { AnalyticsDashboard } from '@/components/analytics-dashboard-new'
 import { AnalyticsIntegrationGuide } from '@/components/analytics-integration-guide'
 import { PageHeader } from '@/components/page-header'
 import { getAllProjectAnalytics } from '@/lib/actions/analytics'
-import { getUserProjects } from '@/lib/actions/projects'
 import { getProjectApiKeys } from '@/lib/actions/api-keys'
+import { getUserProjects } from '@/lib/actions/projects'
 import { getCurrentUser } from '@/lib/auth-helper'
 import { redirect } from 'next/navigation'
 import { SearchParams } from 'nuqs'
@@ -53,6 +53,9 @@ const AnalyticsPage = async ({ searchParams }: PageProps) => {
 
   // Load all periods at once
   const analyticsData = await getAllProjectAnalytics(project.id, articles ? articles.split(',') : undefined)
+  
+  // Check if we have analytics data (using 7 days as reference)
+  const hasAnalyticsData = analyticsData['7']?.summary.totalViews > 0
 
   return (
     <PageHeader
@@ -61,7 +64,11 @@ const AnalyticsPage = async ({ searchParams }: PageProps) => {
     >
       <div className="space-y-6">
         {analyticsKey && (
-          <AnalyticsIntegrationGuide apiKey={analyticsKey.key} />
+          <AnalyticsIntegrationGuide 
+            apiKey={analyticsKey.key} 
+            showSuccessCard={false} 
+            hasData={hasAnalyticsData}
+          />
         )}
 
         <AnalyticsDashboard

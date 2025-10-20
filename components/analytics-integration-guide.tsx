@@ -1,5 +1,6 @@
 'use client'
 
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Check, Copy } from 'lucide-react'
@@ -7,17 +8,18 @@ import { useState } from 'react'
 
 interface AnalyticsIntegrationGuideProps {
   apiKey: string
+  showSuccessCard?: boolean
+  hasData?: boolean
 }
 
-export const AnalyticsIntegrationGuide = ({ apiKey }: AnalyticsIntegrationGuideProps) => {
+export const AnalyticsIntegrationGuide = ({ apiKey, showSuccessCard = false, hasData = false }: AnalyticsIntegrationGuideProps) => {
   const [copiedScript, setCopiedScript] = useState(false)
   const [copiedKey, setCopiedKey] = useState(false)
 
-  const scriptCode = `<script src="https://cdn.simplist.blog/analytics.js" data-api-key="${apiKey}"></script>`
   const scriptCodeWithSlug = `<script src="https://cdn.simplist.blog/analytics.js" data-api-key="${apiKey}" data-slug="your-article-slug"></script>`
 
   const handleCopyScript = async () => {
-    await navigator.clipboard.writeText(scriptCode)
+    await navigator.clipboard.writeText(scriptCodeWithSlug)
     setCopiedScript(true)
     setTimeout(() => setCopiedScript(false), 2000)
   }
@@ -28,21 +30,20 @@ export const AnalyticsIntegrationGuide = ({ apiKey }: AnalyticsIntegrationGuideP
     setTimeout(() => setCopiedKey(false), 2000)
   }
 
+  // Don't show integration guide if analytics has data already
+  if (hasData && !showSuccessCard) {
+    return null
+  }
+
   return (
     <div className="space-y-6">
-      <Card className="border-2 border-green-500/50 bg-green-500/5">
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
-              <Check className="h-4.5 w-4.5 text-white" />
-            </div>
-            <div>
-              <CardTitle>Analytics Enabled Successfully!</CardTitle>
-              <CardDescription>Your analytics tracking is now active</CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-      </Card>
+      {showSuccessCard && (
+        <Alert className="border-green-500/50 bg-green-500/5">
+          <Check className="h-4 w-4 text-green-500" />
+          <AlertTitle>Analytics Enabled Successfully!</AlertTitle>
+          <AlertDescription>Your analytics tracking is now active</AlertDescription>
+        </Alert>
+      )}
 
       <Card>
         <CardHeader>
@@ -73,16 +74,10 @@ export const AnalyticsIntegrationGuide = ({ apiKey }: AnalyticsIntegrationGuideP
               </Button>
             </div>
             <p className="text-sm text-muted-foreground">
-              Add this script tag to the {'<head>'} section of your website. The article slug will be auto-detected from the URL.
+              Add this script tag to the {'<head>'} section of your website. Replace "your-article-slug" with the actual slug of each article.
             </p>
-            <div className="relative space-y-2">
+            <div className="relative">
               <pre className="p-4 bg-muted rounded-lg text-sm break-all whitespace-pre-wrap">
-                <code>{scriptCode}</code>
-              </pre>
-              <p className="text-xs text-muted-foreground">
-                Or specify the article slug explicitly:
-              </p>
-              <pre className="p-4 bg-muted/50 rounded-lg text-xs break-all whitespace-pre-wrap">
                 <code>{scriptCodeWithSlug}</code>
               </pre>
             </div>

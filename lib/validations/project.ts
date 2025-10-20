@@ -17,11 +17,24 @@ export const createProjectSchema = z.object({
           .min(1, "Domain is required")
           .max(200, "Domain must be less than 200 characters")
           .transform((val) => {
+            // Normalize the input first
+            let normalized = val.trim();
+            
             // Handle wildcard domains like *.example.com
-            if (val.startsWith('*.')) {
-              return `https://${val.replace('*.', 'subdomain.')}`;
+            if (normalized.startsWith('*.')) {
+              // If it already has https://, remove it before processing
+              if (normalized.startsWith('https://*.')) {
+                normalized = normalized.replace('https://*.', '*.');
+              }
+              return `https://${normalized.replace('*.', 'subdomain.')}`;
             }
-            return `https://${val}`;
+            
+            // If it already starts with https://, don't add it again
+            if (normalized.startsWith('https://') || normalized.startsWith('http://')) {
+              return normalized.startsWith('http://') ? normalized.replace('http://', 'https://') : normalized;
+            }
+            
+            return `https://${normalized}`;
           })
           .pipe(z.url("Please enter a valid domain (supports *.domain.com)"))
           .transform((url) => {
