@@ -1,7 +1,10 @@
 'use server'
 
-import { analyticsCacheUtils, prisma } from '@/lib/db'
+import { analyticsCacheUtils, prisma, apiKeyCache } from '@/lib/db'
 import { Prisma } from '@prisma/client'
+import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
+import { getCurrentUser } from '@/lib/auth-helper'
 
 export interface AnalyticsData {
   summary: {
@@ -513,5 +516,72 @@ export const getProjectAnalytics = async (projectId: string, days: number = 30, 
     topReferrers,
     viewsOverTime,
     recentViews
+  }
+}
+
+// Generate a random API key
+const generateApiKey = (type: "secret" | "public" = "secret"): string => {
+  const prefix = type === "secret" ? "sk" : "pk"
+  const randomBytes = crypto.getRandomValues(new Uint8Array(32))
+  const key = Array.from(randomBytes)
+    .map(b => b.toString(16).padStart(2, "0"))
+    .join("")
+  return `${prefix}_${key}`
+}
+
+export const enableAnalytics = async (projectId: string) => {
+  const user = await getCurrentUser()
+
+  if (!user) {
+    redirect('/auth/login')
+  }
+
+  // Verify the project belongs to the user
+  const project = await prisma.project.findFirst({
+    where: {
+      id: projectId,
+      userId: user.id,
+    },
+  })
+
+  if (!project) {
+    throw new Error('Project not found or you don\'t have permission')
+  }
+
+  // Check if analytics is already enabled
+  if (project.analyticsEnabled) {
+    throw new Error('Analytics is already enabled for this project')
+  }
+
+  // Enable analytics on the project
+  await prisma.project.update({
+    where: { id: projectId },
+    data: { analyticsEnabled: true },
+  })
+
+  // Generate a public API key for analytics tracking
+  const publicKey = generateApiKey('public')
+
+  const newApiKey = await prisma.apiKey.create({
+    data: {
+      name: 'Analytics Tracking Key',
+      key: publicKey,
+      type: 'public',
+      permissions: ['analytics'],
+      projectId: projectId,
+      status: 'active',
+    },
+  })
+
+  // Invalidate cache for the new API key (fire and forget)
+  apiKeyCache.invalidate(publicKey).catch(() => {
+    // Ignore cache invalidation errors
+  })
+
+  revalidatePath('/analytics')
+
+  return {
+    success: true,
+    apiKey: newApiKey.key,
   }
 }

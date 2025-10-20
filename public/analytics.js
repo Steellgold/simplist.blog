@@ -1,51 +1,57 @@
 /**
  * Simplist Analytics Widget
- * 
- * Usage:
- * Method 1 - URL Parameters (recommended):
- * <script src="https://simplist.blog/analytics.js?apiKey=pk_your_key&slug=article-slug&debug=true"></script>
  *
- * Method 2 - Global Variable:
- * <script>
- *   window.SimplistAnalytics = {
- *     apiKey: 'pk_your_public_key_here',
- *     apiUrl: 'https://api.simplist.blog/v1',
- *     articleSlug: 'your-article-slug',
- *     debug: false
- *   };
- * </script>
- * <script src="https://simplist.blog/analytics.js"></script>
+ * Usage:
+ *
+ * Simple (auto-detects article slug from URL):
+ * <script src="https://cdn.simplist.blog/analytics.js" data-api-key="pk_your_key"></script>
+ *
+ * With explicit slug:
+ * <script src="https://cdn.simplist.blog/analytics.js" data-api-key="pk_your_key" data-slug="my-article"></script>
+ *
+ * Notes:
+ * - data-api-key: Required. Your public API key (starts with pk_)
+ * - data-slug: Optional. Auto-detects from URL if not provided (uses last path segment)
+ * - data-api-url: Optional. Override API endpoint
+ * - data-debug: Optional. Set to "true" to enable debug logs
  */
 
 (function() {
   'use strict';
 
-  // Get script element to check for URL parameters
+  // Get script element to check for data attributes
   const scriptElement = document.currentScript || document.querySelector('script[src*="analytics.js"]');
-  const scriptUrl = scriptElement ? new URL(scriptElement.src) : null;
-  
-  // Parse URL parameters
-  const urlParams = scriptUrl ? {
-    apiKey: scriptUrl.searchParams.get('apiKey'),
-    articleSlug: scriptUrl.searchParams.get('slug'),
-    apiUrl: scriptUrl.searchParams.get('apiUrl'),
-    debug: scriptUrl.searchParams.get('debug') === 'true'
+
+  // Parse data attributes
+  const dataAttrs = scriptElement ? {
+    apiKey: scriptElement.getAttribute('data-api-key'),
+    articleSlug: scriptElement.getAttribute('data-slug'),
+    apiUrl: scriptElement.getAttribute('data-api-url'),
+    debug: scriptElement.getAttribute('data-debug') === 'true'
   } : {};
-  
-  // Configuration from URL parameters or global variable (URL params take priority)
+
+  // Configuration from data attributes or global variable (data attrs take priority)
   const config = {
     ...(window.SimplistAnalytics || {}),
-    ...Object.fromEntries(Object.entries(urlParams).filter(([, value]) => value !== null))
+    ...Object.fromEntries(Object.entries(dataAttrs).filter(([, value]) => value !== null))
   };
-  
+
   if (!config.apiKey) {
-    console.warn('Simplist Analytics: API key not provided via URL parameter (?apiKey=pk_...) or window.SimplistAnalytics');
+    console.warn('Simplist Analytics: API key not provided. Add data-api-key="pk_..." attribute to the script tag.');
     return;
   }
-  
+
+  // Auto-detect slug from URL pathname if not provided
   if (!config.articleSlug) {
-    console.warn('Simplist Analytics: Article slug not provided via URL parameter (?slug=...) or window.SimplistAnalytics');
-    return;
+    const pathname = window.location.pathname;
+    const lastSegment = pathname.split('/').filter(Boolean).pop();
+    if (lastSegment) {
+      config.articleSlug = lastSegment;
+      console.log('[Simplist Analytics] Auto-detected article slug from URL:', config.articleSlug);
+    } else {
+      console.warn('Simplist Analytics: Could not auto-detect article slug. Add data-slug="your-slug" attribute or ensure the URL has a path segment.');
+      return;
+    }
   }
 
   const API_URL = config.apiUrl || 'https://api.simplist.blog/v1';

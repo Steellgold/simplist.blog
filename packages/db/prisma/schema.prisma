@@ -72,17 +72,18 @@ model Verification {
 }
 
 model Project {
-  id             String    @id @default(cuid())
-  name           String
-  slug           String
-  description    String?
-  allowedOrigins String[]  @default([]) // Array of allowed origins for CORS
-  userId         String
-  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  apiKeys        ApiKey[]
-  articles       Article[]
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  id               String    @id @default(cuid())
+  name             String
+  slug             String
+  description      String?
+  allowedOrigins   String[]  @default([]) // Array of allowed origins for CORS
+  analyticsEnabled Boolean   @default(false) // Whether analytics tracking is enabled
+  userId           String
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  apiKeys          ApiKey[]
+  articles         Article[]
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
   @@unique([slug, userId])
   @@map("project")
