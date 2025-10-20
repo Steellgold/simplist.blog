@@ -62,7 +62,7 @@ export interface ArticleViewsOverTime {
 }
 
 export const getArticleViewsOverTime = async (
-  articleId: string, 
+  articleId: string,
   days: number = 7
 ): Promise<ArticleViewsOverTime[]> => {
   const startDate = new Date()
@@ -97,6 +97,68 @@ export const getArticleViewsOverTime = async (
     date: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
     views: viewsMap.get(date) || 0
   }))
+}
+
+// Optimized batch query to get views over time for multiple articles at once
+export const getBatchArticleViewsOverTime = async (
+  articleIds: string[],
+  days: number = 7
+): Promise<Map<string, ArticleViewsOverTime[]>> => {
+  if (articleIds.length === 0) {
+    return new Map()
+  }
+
+  const startDate = new Date()
+  startDate.setDate(startDate.getDate() - days)
+
+  // Generate array of last N days
+  const dateArray = Array.from({ length: days }, (_, i) => {
+    const date = new Date()
+    date.setDate(date.getDate() - (days - 1 - i))
+    return date.toISOString().split('T')[0]
+  })
+
+  // Single optimized query with raw SQL for better performance
+  const viewsByArticleAndDate = await prisma.$queryRaw<Array<{
+    articleId: string
+    date: string
+    views: bigint
+  }>>`
+    SELECT
+      "articleId",
+      DATE(timestamp) as date,
+      COUNT(*) as views
+    FROM "page_view"
+    WHERE "articleId" = ANY(${articleIds})
+      AND timestamp >= ${startDate}
+    GROUP BY "articleId", DATE(timestamp)
+    ORDER BY "articleId", date
+  `
+
+  // Organize data by article ID
+  const resultMap = new Map<string, ArticleViewsOverTime[]>()
+
+  // Initialize all articles with empty data
+  articleIds.forEach(articleId => {
+    const viewsMap = new Map<string, number>()
+
+    // Fill with data from query
+    viewsByArticleAndDate
+      .filter(row => row.articleId === articleId)
+      .forEach(row => {
+        viewsMap.set(row.date, Number(row.views))
+      })
+
+    // Create full array with all dates (fill missing with 0)
+    const viewsOverTime = dateArray.map(date => ({
+      date: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      views: viewsMap.get(date) || 0
+    }))
+
+    resultMap.set(articleId, viewsOverTime)
+  })
+
+  return resultMap
 }
 
 // Load all analytics periods at once to avoid page reloads

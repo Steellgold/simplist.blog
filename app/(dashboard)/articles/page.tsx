@@ -3,7 +3,7 @@ import { ArticlesDataTable } from "@/components/articles-data-table"
 import { PageHeader } from "@/components/page-header"
 import { buttonVariants } from "@/components/ui/button"
 import { getUserProjectWithArticles } from "@/lib/actions/articles"
-import { getArticleViewsOverTime } from "@/lib/actions/analytics"
+import { getBatchArticleViewsOverTime } from "@/lib/actions/analytics"
 import { Plus } from "lucide-react"
 import Link from "next/link"
 import type { Metadata } from "next"
@@ -32,16 +32,14 @@ const ArticlesPage = async () => {
   let articlesWithAnalytics = articles
 
   if (articles.length > 0) {
-    // Only fetch analytics for existing articles
-    articlesWithAnalytics = await Promise.all(
-      articles.map(async (article) => {
-        const viewsOverTime = await getArticleViewsOverTime(article.id, 7)
-        return {
-          ...article,
-          viewsOverTime
-        }
-      })
-    )
+    // Fetch analytics for all articles in a single optimized batch query
+    const articleIds = articles.map(a => a.id)
+    const viewsDataMap = await getBatchArticleViewsOverTime(articleIds, 7)
+
+    articlesWithAnalytics = articles.map(article => ({
+      ...article,
+      viewsOverTime: viewsDataMap.get(article.id) || []
+    }))
   }
 
   return (
