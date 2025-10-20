@@ -22,6 +22,20 @@ export interface AnalyticsCacheData {
     views: number
     percentage: number
   }>
+  topCities: Array<{
+    city: string
+    country: string
+    countryCode: string
+    views: number
+    percentage: number
+  }>
+  topRegions: Array<{
+    region: string
+    country: string
+    countryCode: string
+    views: number
+    percentage: number
+  }>
   deviceStats: Array<{
     device: string
     views: number

@@ -108,6 +108,55 @@
     console.error('[Simplist Analytics]', ...args);
   };
 
+  // Generate or retrieve persistent visitor ID
+  const getOrCreateVisitorId = () => {
+    const storageKey = 'simplist_visitor_id';
+    
+    // Try localStorage first (most persistent)
+    let visitorId = localStorage.getItem(storageKey);
+    
+    // Fallback to sessionStorage
+    if (!visitorId) {
+      visitorId = sessionStorage.getItem(storageKey);
+    }
+    
+    // Generate new ID if none exists
+    if (!visitorId) {
+      // Create a lightweight fingerprint for visitor identification
+      const fingerprint = [
+        navigator.userAgent,
+        navigator.language,
+        screen.width + 'x' + screen.height,
+        new Date().getTimezoneOffset()
+      ].join('|');
+      
+      // Create hash-like ID from fingerprint
+      let hash = 0;
+      for (let i = 0; i < fingerprint.length; i++) {
+        const char = fingerprint.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // Convert to 32-bit integer
+      }
+      
+      visitorId = `visitor_${Math.abs(hash)}_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
+      
+      // Store in both localStorage and sessionStorage
+      try {
+        localStorage.setItem(storageKey, visitorId);
+        sessionStorage.setItem(storageKey, visitorId);
+      } catch (e) {
+        // localStorage might be disabled, fallback to sessionStorage only
+        sessionStorage.setItem(storageKey, visitorId);
+      }
+      
+      log('Generated new visitor ID:', visitorId);
+    } else {
+      log('Using existing visitor ID:', visitorId);
+    }
+    
+    return visitorId;
+  };
+
   // Generate session ID
   const generateSessionId = () => {
     const stored = sessionStorage.getItem('simplist_session_id');
@@ -155,6 +204,7 @@
 
   // Analytics state
   let pageViewId = null;
+  let visitorId = getOrCreateVisitorId();
   let sessionId = generateSessionId();
   let startTime = Date.now();
   let maxScrollDepth = 0;
@@ -201,6 +251,26 @@
     log('Event added:', type, data);
   };
 
+  // Convert country code to full name
+  const getCountryName = (countryCode) => {
+    const countryNames = {
+      'US': 'United States', 'CA': 'Canada', 'GB': 'United Kingdom', 'FR': 'France',
+      'DE': 'Germany', 'ES': 'Spain', 'IT': 'Italy', 'NL': 'Netherlands', 'BE': 'Belgium',
+      'CH': 'Switzerland', 'AT': 'Austria', 'SE': 'Sweden', 'NO': 'Norway', 'DK': 'Denmark',
+      'FI': 'Finland', 'JP': 'Japan', 'KR': 'South Korea', 'CN': 'China', 'IN': 'India',
+      'AU': 'Australia', 'NZ': 'New Zealand', 'BR': 'Brazil', 'MX': 'Mexico', 'AR': 'Argentina',
+      'CL': 'Chile', 'CO': 'Colombia', 'PE': 'Peru', 'RU': 'Russia', 'UA': 'Ukraine',
+      'PL': 'Poland', 'CZ': 'Czech Republic', 'HU': 'Hungary', 'RO': 'Romania', 'BG': 'Bulgaria',
+      'HR': 'Croatia', 'SI': 'Slovenia', 'SK': 'Slovakia', 'LT': 'Lithuania', 'LV': 'Latvia',
+      'EE': 'Estonia', 'IE': 'Ireland', 'PT': 'Portugal', 'GR': 'Greece', 'TR': 'Turkey',
+      'IL': 'Israel', 'SA': 'Saudi Arabia', 'AE': 'United Arab Emirates', 'EG': 'Egypt',
+      'ZA': 'South Africa', 'NG': 'Nigeria', 'KE': 'Kenya', 'MA': 'Morocco', 'TH': 'Thailand',
+      'VN': 'Vietnam', 'SG': 'Singapore', 'MY': 'Malaysia', 'ID': 'Indonesia', 'PH': 'Philippines',
+      'TW': 'Taiwan', 'HK': 'Hong Kong'
+    };
+    return countryNames[countryCode] || countryCode;
+  };
+
   // Fetch geographic data from ipinfo.io (HTTPS compatible)
   const fetchGeoData = async () => {
     try {
@@ -209,7 +279,7 @@
         const data = await response.json();
         if (data.country) {
           return {
-            country: data.country === 'FR' ? 'France' : data.country, // Convert code to name for FR
+            country: getCountryName(data.country),
             countryCode: data.country,
             region: data.region,
             city: data.city,
@@ -258,6 +328,7 @@
       
       const data = {
         articleSlug: config.articleSlug,
+        visitorId,
         sessionId,
         pageUrl: window.location.href,
         pageTitle: document.title,

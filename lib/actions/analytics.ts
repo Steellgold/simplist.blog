@@ -1,10 +1,10 @@
 'use server'
 
-import { analyticsCacheUtils, prisma, apiKeyCache } from '@/lib/db'
+import { getCurrentUser } from '@/lib/auth-helper'
+import { analyticsCacheUtils, apiKeyCache, prisma } from '@/lib/db'
 import { Prisma } from '@prisma/client'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { getCurrentUser } from '@/lib/auth-helper'
 
 export interface AnalyticsData {
   summary: {
@@ -25,6 +25,20 @@ export interface AnalyticsData {
   }>
   topCountries: Array<{
     country: string
+    views: number
+    percentage: number
+  }>
+  topCities: Array<{
+    city: string
+    country: string
+    countryCode: string
+    views: number
+    percentage: number
+  }>
+  topRegions: Array<{
+    region: string
+    country: string
+    countryCode: string
     views: number
     percentage: number
   }>
@@ -182,6 +196,7 @@ export const getBatchArticleViewsOverTime = async (
     ORDER BY "articleId", date
   `
 
+
   // Organize data by article ID
   const resultMap = new Map<string, ArticleViewsOverTime[]>()
 
@@ -224,8 +239,8 @@ export const getBatchArticleViewsOverTime = async (
 
 // Load all analytics periods at once to avoid page reloads
 export const getAllProjectAnalytics = async (projectId: string, articleIds?: string[]): Promise<AnalyticsDataMultiPeriod> => {
-  // Try to get from cache first
-  const useCache = !articleIds || articleIds.length === 0
+  // Try to get from cache first (disabled temporarily for new city/region data)
+  const useCache = false // !articleIds || articleIds.length === 0
   const cached = useCache ? await analyticsCacheUtils.get(projectId) : null
 
   if (cached && useCache) {
@@ -274,6 +289,8 @@ export const getProjectAnalytics = async (projectId: string, days: number = 30, 
     bouncedViews,
     topArticlesData,
     topCountriesData,
+    topCitiesData,
+    topRegionsData,
     deviceStatsData,
     browserStatsData,
     topReferrersData,
@@ -316,6 +333,24 @@ export const getProjectAnalytics = async (projectId: string, days: number = 30, 
     prisma.pageView.groupBy({
       by: ['country'],
       where: { ...baseWhere, country: { not: null } },
+      _count: { id: true },
+      orderBy: { _count: { id: 'desc' } },
+      take: 10
+    }),
+    
+    // Top cities with country info
+    prisma.pageView.groupBy({
+      by: ['city', 'country', 'countryCode'],
+      where: { ...baseWhere, city: { not: null } },
+      _count: { id: true },
+      orderBy: { _count: { id: 'desc' } },
+      take: 10
+    }),
+    
+    // Top regions with country info
+    prisma.pageView.groupBy({
+      by: ['region', 'country', 'countryCode'],
+      where: { ...baseWhere, region: { not: null } },
       _count: { id: true },
       orderBy: { _count: { id: 'desc' } },
       take: 10
@@ -409,6 +444,22 @@ export const getProjectAnalytics = async (projectId: string, days: number = 30, 
     percentage: Math.round((tc._count.id / totalViews) * 100)
   }))
 
+  const topCities = topCitiesData.map(tc => ({
+    city: tc.city || 'Unknown',
+    country: tc.country || 'Unknown',
+    countryCode: tc.countryCode || '',
+    views: tc._count.id,
+    percentage: Math.round((tc._count.id / totalViews) * 100)
+  }))
+
+  const topRegions = topRegionsData.map(tr => ({
+    region: tr.region || 'Unknown',
+    country: tr.country || 'Unknown',
+    countryCode: tr.countryCode || '',
+    views: tr._count.id,
+    percentage: Math.round((tr._count.id / totalViews) * 100)
+  }))
+
   const deviceStats = deviceStatsData.map(ds => ({
     device: ds.device || 'Unknown',
     views: ds._count.id,
@@ -445,7 +496,7 @@ export const getProjectAnalytics = async (projectId: string, days: number = 30, 
       // PostgreSQL DATE returns a string in ISO format
       const dateStr = typeof row.date === 'string'
         ? row.date.split('T')[0]
-        : String(row.date).split('T')[0]
+        : (row.date as Date).toISOString().split('T')[0]
 
       return [
         dateStr,
@@ -462,8 +513,11 @@ export const getProjectAnalytics = async (projectId: string, days: number = 30, 
   for (let i = days - 1; i >= 0; i--) {
     const date = new Date()
     date.setDate(date.getDate() - i)
+    // Force to midnight UTC to ensure consistent date strings
+    date.setUTCHours(0, 0, 0, 0)
     const dateStr = date.toISOString().split('T')[0]
     const data = viewsOverTimeMap.get(dateStr) || { views: 0, uniqueVisitors: 0, avgTimeOnPage: 0 }
+    
     viewsOverTime.push({
       date: dateStr,
       views: data.views,
@@ -500,6 +554,8 @@ export const getProjectAnalytics = async (projectId: string, days: number = 30, 
     },
     topArticles,
     topCountries,
+    topCities,
+    topRegions,
     deviceStats,
     browserStats,
     topReferrers,

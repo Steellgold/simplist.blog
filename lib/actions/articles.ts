@@ -205,7 +205,30 @@ export const getUserProjectWithArticles = async () => {
     },
   })
 
-  return project
+  if (!project) {
+    return null
+  }
+
+  // Calculate view counts for each article
+  const articlesWithViewCount = await Promise.all(
+    project.articles.map(async (article) => {
+      const viewCount = await prisma.pageView.count({
+        where: {
+          articleId: article.id,
+        },
+      })
+      
+      return {
+        ...article,
+        viewCount,
+      }
+    })
+  )
+
+  return {
+    ...project,
+    articles: articlesWithViewCount,
+  }
 }
 
 export const getArticle = async (articleId: string) => {

@@ -5,9 +5,43 @@ import { isBot, getBotInfo } from '../utils/bot-detection'
 
 const { prisma, analyticsCacheUtils } = db
 
-// Helper to generate visitor ID from IP and User Agent
+// Helper to generate visitor ID from IP and User Agent (fallback)
 const generateVisitorId = (ip: string, userAgent: string): string => {
   return crypto.createHash('sha256').update(`${ip}:${userAgent}`).digest('hex').substring(0, 16)
+}
+
+// Helper to find or create unique visitor ID with deduplication
+const getUniqueVisitorId = async (projectId: string, clientVisitorId: string | null, ip: string, userAgent: string): Promise<string> => {
+  // 1. If client provided a visitorId, use it (most reliable)
+  if (clientVisitorId && clientVisitorId.startsWith('visitor_')) {
+    return clientVisitorId
+  }
+  
+  // 2. Check if there's already a visitor with the same IP in the last 24 hours
+  const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000)
+  const hashedIp = crypto.createHash('sha256').update(ip).digest('hex').substring(0, 16)
+  
+  const recentVisitor = await prisma.pageView.findFirst({
+    where: {
+      projectId,
+      timestamp: { gte: oneDayAgo },
+      ipAddress: hashedIp
+    },
+    select: {
+      visitorId: true
+    },
+    orderBy: {
+      timestamp: 'desc'
+    }
+  })
+  
+  // 3. If found recent visitor with same IP, reuse that visitorId
+  if (recentVisitor) {
+    return recentVisitor.visitorId
+  }
+  
+  // 4. Generate new visitor ID using old method
+  return generateVisitorId(ip, userAgent)
 }
 
 // Note: IP addresses are not stored for privacy reasons
@@ -89,8 +123,8 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
         })
       }
 
-      // Generate visitor ID (using IP for uniqueness but not storing it)
-      const visitorId = generateVisitorId(clientIp, userAgent)
+      // Get unique visitor ID with deduplication logic
+      const visitorId = await getUniqueVisitorId(projectId, body.visitorId, clientIp, userAgent)
       const sessionId = body.sessionId || `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
       
       // Parse user agent

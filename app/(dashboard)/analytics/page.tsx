@@ -1,5 +1,5 @@
 import { AnalyticsActivation } from '@/components/analytics-activation'
-import { AnalyticsDashboard } from '@/components/analytics-dashboard-new'
+import { AnalyticsDashboard } from '@/components/analytics-dashboard'
 import { AnalyticsIntegrationGuide } from '@/components/analytics-integration-guide'
 import { PageHeader } from '@/components/page-header'
 import { getAllProjectAnalytics } from '@/lib/actions/analytics'
@@ -71,9 +71,7 @@ const AnalyticsPage = async ({ searchParams }: PageProps) => {
           />
         )}
 
-        <AnalyticsDashboard
-          analyticsData={analyticsData}
-        />
+        <AnalyticsDashboard analyticsData={analyticsData} />
       </div>
     </PageHeader>
   )

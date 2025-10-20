@@ -1,24 +1,20 @@
 "use client"
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import {
   bulkDeleteArticles,
   createArticle,
   deleteArticle,
   getUserProjectWithArticles,
 } from "@/lib/actions/articles"
-import { getBatchArticleViewsOverTime } from "@/lib/actions/analytics"
 import type { Article } from "@prisma/client"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 
-export type ArticleWithAnalytics = Article & {
-  viewsOverTime?: Array<{ date: string; views: number; uniqueVisitors: number; avgTimeOnPage: number }>
-}
+export type ArticleWithAnalytics = Article
 
 export const articlesKeys = {
   all: ["articles"] as const,
   lists: () => [...articlesKeys.all, "list"] as const,
   list: () => [...articlesKeys.lists()] as const,
-  analytics: (articleIds: string[]) => [...articlesKeys.all, "analytics", articleIds] as const,
 }
 
 export const useArticles = () => {
@@ -31,20 +27,7 @@ export const useArticles = () => {
         return []
       }
 
-      const articles = project.articles
-
-      if (articles.length === 0) {
-        return []
-      }
-
-      // Fetch analytics for all articles in a single optimized batch query
-      const articleIds = articles.map(a => a.id)
-      const viewsDataMap = await getBatchArticleViewsOverTime(articleIds, 7)
-
-      return articles.map(article => ({
-        ...article,
-        viewsOverTime: viewsDataMap.get(article.id) || []
-      }))
+      return project.articles
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
   })

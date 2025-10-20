@@ -30,9 +30,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { toast } from "@/components/ui/sonner"
-import { ArticleViewsOverTime } from "@/lib/actions/analytics"
 import { deleteArticle } from "@/lib/actions/articles"
-import { MiniLineChart } from "./mini-line-chart"
 import { Spinner } from "./ui/spinner"
 
 type Article = {
@@ -45,7 +43,6 @@ type Article = {
   viewCount: number
   createdAt: Date
   updatedAt: Date
-  viewsOverTime?: ArticleViewsOverTime[]
 }
 
 const ArticleActionsCell = ({ article }: { article: Article }) => {
@@ -231,20 +228,23 @@ export const articlesColumns: ColumnDef<Article>[] = [
     },
   },
   {
-    accessorKey: "viewCount",
-    header: "Views",
+    id: "analytics",
+    header: "Analytics",
     cell: ({ row }) => {
-      const viewCount = row.getValue("viewCount") as number
-      const viewsOverTime = row.original.viewsOverTime
+      const article = row.original
 
       return (
-        <div className="flex items-center gap-3">
-          <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          <span className="font-medium min-w-[3.5rem]">{viewCount.toLocaleString()}</span>
-          <div className="ml-2">
-            <MiniLineChart data={viewsOverTime || []} />
-          </div>
-        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          asChild
+          className="h-8"
+        >
+          <Link href={`/analytics?articles=${article.id}`}>
+            <TrendingUp className="h-3 w-3 mr-1" />
+            Analytics
+          </Link>
+        </Button>
       )
     },
   },
