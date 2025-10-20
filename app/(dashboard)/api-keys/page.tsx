@@ -1,19 +1,37 @@
+"use client"
+
 import { ApiKeysList } from "@/components/api-keys-list"
 import { CreateApiKeyForm } from "@/components/create-api-key-form"
-import { getProjectApiKeys } from "@/lib/actions/api-keys"
-import { getUserProjects } from "@/lib/actions/projects"
-import type { Metadata } from "next"
+import { Spinner } from "@/components/ui/spinner"
+import { useApiKeys } from "@/hooks/use-api-keys"
 
-export const metadata: Metadata = {
-  title: "API Keys",
-  robots: { index: false, follow: false }
-}
+const ApiKeysPage = () => {
+  const { data, isLoading, error } = useApiKeys()
 
-const ApiKeysPage = async () => {
-  const projects = await getUserProjects()
-  const project = projects[0]
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Spinner />
+      </div>
+    )
+  }
 
-  if (!project) {
+  if (error) {
+    return (
+      <div className="flex flex-col gap-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">API Keys</h1>
+          <p className="text-muted-foreground">
+            Failed to load API keys. Please try again.
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  const { apiKeys, projectId } = data || { apiKeys: [], projectId: null }
+
+  if (!projectId) {
     return (
       <div className="flex flex-col gap-6">
         <div>
@@ -26,8 +44,6 @@ const ApiKeysPage = async () => {
     )
   }
 
-  const apiKeys = await getProjectApiKeys(project.id)
-
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
@@ -38,7 +54,7 @@ const ApiKeysPage = async () => {
           </p>
         </div>
 
-        <CreateApiKeyForm projectId={project.id} />
+        <CreateApiKeyForm projectId={projectId} />
       </div>
 
       <ApiKeysList apiKeys={apiKeys} />

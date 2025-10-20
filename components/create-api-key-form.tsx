@@ -24,7 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { toast } from "@/components/ui/sonner"
-import { createApiKey } from "@/lib/actions/api-keys"
+import { useCreateApiKey } from "@/hooks/use-api-keys"
 import { apiKeyPermissions, CreateApiKeyInput, createApiKeySchema } from "@/lib/validations/api-key"
 import { Check, Copy, Plus } from "lucide-react"
 import { Spinner } from "./ui/spinner"
@@ -38,12 +38,13 @@ export const CreateApiKeyForm = ({ projectId, onSuccess }: CreateApiKeyFormProps
   const [open, setOpen] = useState(false)
   const [newApiKey, setNewApiKey] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
-  const [error, setError] = useState("")
+
+  const createApiKeyMutation = useCreateApiKey()
 
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
     reset,
     setValue,
     watch,
@@ -62,16 +63,14 @@ export const CreateApiKeyForm = ({ projectId, onSuccess }: CreateApiKeyFormProps
   const permissions = watch("permissions")
 
   const onSubmit = async (data: CreateApiKeyInput) => {
-    setError("")
     try {
-      const result = await createApiKey(projectId, data)
+      const result = await createApiKeyMutation.mutateAsync({ projectId, ...data })
       setNewApiKey(result.key)
       reset()
       toast.success("API key created successfully")
       onSuccess?.()
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Failed to create API key"
-      setError(message)
       toast.error(message)
     }
   }
@@ -89,7 +88,6 @@ export const CreateApiKeyForm = ({ projectId, onSuccess }: CreateApiKeyFormProps
     setOpen(false)
     setNewApiKey(null)
     setCopied(false)
-    setError("")
     reset()
   }
 
@@ -147,10 +145,6 @@ export const CreateApiKeyForm = ({ projectId, onSuccess }: CreateApiKeyFormProps
           <form onSubmit={handleSubmit(onSubmit)}>
             <FieldGroup>
               <div className="flex flex-col gap-4">
-                {error && (
-                  <div className="text-destructive text-sm text-center">{error}</div>
-                )}
-
                 <Field>
                   <FieldLabel htmlFor="name">API Key Name *</FieldLabel>
                   <Input
@@ -249,8 +243,8 @@ export const CreateApiKeyForm = ({ projectId, onSuccess }: CreateApiKeyFormProps
                   <Button type="button" variant="outline" onClick={handleClose}>
                     Cancel
                   </Button>
-                  <Button type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? <Spinner /> : "Create"}
+                  <Button type="submit" disabled={createApiKeyMutation.isPending}>
+                    {createApiKeyMutation.isPending ? <Spinner /> : "Create"}
                   </Button>
                 </div>
               </div>

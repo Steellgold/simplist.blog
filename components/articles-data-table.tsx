@@ -37,7 +37,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { bulkDeleteArticles } from "@/lib/actions/articles"
+import { useBulkDeleteArticles } from "@/hooks/use-articles"
 import { ButtonGroup } from "./ui/button-group"
 import { Spinner } from "./ui/spinner"
 
@@ -55,7 +55,8 @@ export const ArticlesDataTable = <TData extends { id: string }, TValue>({
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
   const [showBulkDeleteDialog, setShowBulkDeleteDialog] = useState(false)
-  const [isDeleting, setIsDeleting] = useState(false)
+
+  const bulkDeleteMutation = useBulkDeleteArticles()
 
   const table = useReactTable({
     data,
@@ -78,25 +79,20 @@ export const ArticlesDataTable = <TData extends { id: string }, TValue>({
   const selectedCount = selectedRows.length
 
   const handleBulkDelete = async () => {
-    try {
-      setIsDeleting(true)
-      const ids = selectedRows.map((row) => row.original.id)
-      await toast.promise(
-        bulkDeleteArticles(ids),
-        {
-          loading: `Deleting ${selectedCount} article(s)...`,
-          success: `Successfully deleted ${selectedCount} article(s)`,
-          error: "Failed to delete articles",
-        }
-      )
-      setShowBulkDeleteDialog(false)
-      setRowSelection({})
-      router.refresh()
-    } catch (error) {
-      console.error("Bulk delete error:", error)
-    } finally {
-      setIsDeleting(false)
-    }
+    const ids = selectedRows.map((row) => row.original.id)
+
+    toast.promise(
+      bulkDeleteMutation.mutateAsync(ids),
+      {
+        loading: `Deleting ${selectedCount} article(s)...`,
+        success: () => {
+          setShowBulkDeleteDialog(false)
+          setRowSelection({})
+          return `Successfully deleted ${selectedCount} article(s)`
+        },
+        error: "Failed to delete articles",
+      }
+    )
   }
 
   return (
@@ -227,13 +223,13 @@ export const ArticlesDataTable = <TData extends { id: string }, TValue>({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={bulkDeleteMutation.isPending}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleBulkDelete}
-              disabled={isDeleting}
+              disabled={bulkDeleteMutation.isPending}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {isDeleting ? <Spinner /> : "Delete all"}
+              {bulkDeleteMutation.isPending ? <Spinner /> : "Delete all"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

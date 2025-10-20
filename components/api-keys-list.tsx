@@ -9,38 +9,38 @@ import {
   AlertDialogTitle
 } from "@/components/ui/alert-dialog"
 import { toast } from "@/components/ui/sonner"
-import { deleteApiKey } from "@/lib/actions/api-keys"
-import { useRouter } from "next/navigation"
+import { useDeleteApiKey } from "@/hooks/use-api-keys"
 import { useState } from "react"
 import { columns, type ApiKey } from "./api-keys-columns"
 import { ApiKeysDataTable } from "./api-keys-data-table"
 import { Button } from "./ui/button"
+import { Spinner } from "./ui/spinner"
 
 interface ApiKeysListProps {
   apiKeys: ApiKey[]
 }
 
 export const ApiKeysList = ({ apiKeys }: ApiKeysListProps) => {
-  const router = useRouter()
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [keyToDelete, setKeyToDelete] = useState<string | null>(null)
-  const [isDeleting, setIsDeleting] = useState(false)
+
+  const deleteApiKeyMutation = useDeleteApiKey()
 
   const handleDelete = async () => {
     if (!keyToDelete) return
 
-    setIsDeleting(true)
-    try {
-      await deleteApiKey(keyToDelete)
-      toast.success("API key deleted successfully")
-      setDeleteDialogOpen(false)
-      setKeyToDelete(null)
-      router.refresh()
-    } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Failed to delete API key")
-    } finally {
-      setIsDeleting(false)
-    }
+    toast.promise(
+      deleteApiKeyMutation.mutateAsync(keyToDelete),
+      {
+        loading: "Deleting API key...",
+        success: () => {
+          setDeleteDialogOpen(false)
+          setKeyToDelete(null)
+          return "API key deleted successfully"
+        },
+        error: (err: unknown) => err instanceof Error ? err.message : "Failed to delete API key",
+      }
+    )
   }
 
   const onDeleteClick = (id: string) => {
@@ -65,16 +65,16 @@ export const ApiKeysList = ({ apiKeys }: ApiKeysListProps) => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>
+            <AlertDialogCancel disabled={deleteApiKeyMutation.isPending}>
               Cancel
             </AlertDialogCancel>
-            
+
             <Button
               onClick={handleDelete}
-              disabled={isDeleting}
+              disabled={deleteApiKeyMutation.isPending}
               variant="destructive"
             >
-              {isDeleting ? "Deleting..." : "Delete"}
+              {deleteApiKeyMutation.isPending ? <Spinner /> : "Delete"}
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>

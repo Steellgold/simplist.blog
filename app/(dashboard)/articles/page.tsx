@@ -1,45 +1,32 @@
+"use client"
+
 import { articlesColumns } from "@/components/articles-columns"
 import { ArticlesDataTable } from "@/components/articles-data-table"
 import { PageHeader } from "@/components/page-header"
 import { buttonVariants } from "@/components/ui/button"
-import { getUserProjectWithArticles } from "@/lib/actions/articles"
-import { getBatchArticleViewsOverTime } from "@/lib/actions/analytics"
+import { Spinner } from "@/components/ui/spinner"
+import { useArticles } from "@/hooks/use-articles"
 import { Plus } from "lucide-react"
 import Link from "next/link"
-import type { Metadata } from "next"
 
-export const metadata: Metadata = {
-  title: "Articles",
-  robots: { index: false, follow: false }
-}
+const ArticlesPage = () => {
+  const { data: articles, isLoading, error } = useArticles()
 
-const ArticlesPage = async () => {
-  // Single optimized query for project + articles
-  const project = await getUserProjectWithArticles()
-
-  if (!project) {
+  if (isLoading) {
     return (
-      <PageHeader
-        title="Articles"
-        description="You need to create a project first to manage articles."
-      />
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Spinner />
+      </div>
     )
   }
 
-  const articles = project.articles
-
-  // Skip analytics if no articles to avoid unnecessary processing
-  let articlesWithAnalytics = articles
-
-  if (articles.length > 0) {
-    // Fetch analytics for all articles in a single optimized batch query
-    const articleIds = articles.map(a => a.id)
-    const viewsDataMap = await getBatchArticleViewsOverTime(articleIds, 7)
-
-    articlesWithAnalytics = articles.map(article => ({
-      ...article,
-      viewsOverTime: viewsDataMap.get(article.id) || []
-    }))
+  if (error) {
+    return (
+      <PageHeader
+        title="Articles"
+        description="Failed to load articles. Please try again."
+      />
+    )
   }
 
   return (
@@ -53,7 +40,7 @@ const ArticlesPage = async () => {
         </Link>
       }
     >
-      <ArticlesDataTable columns={articlesColumns} data={articlesWithAnalytics} />
+      <ArticlesDataTable columns={articlesColumns} data={articles || []} />
     </PageHeader>
   )
 }
