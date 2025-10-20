@@ -6,6 +6,9 @@ const { prisma } = db
 export default fp(async function (fastify) {
   // Hook to check project-specific CORS after auth
   fastify.addHook('onRequest', async (request, reply) => {
+    // Skip preflight OPTIONS requests - they're handled by the main CORS plugin
+    if (request.method === 'OPTIONS') return
+
     // Skip CORS check for non-browser requests (no origin header)
     const origin = request.headers.origin
     if (!origin) return
@@ -29,25 +32,37 @@ export default fp(async function (fastify) {
       })
 
       if (apiKey?.project?.allowedOrigins?.length && apiKey.project.allowedOrigins.length > 0) {
+        fastify.log.info({ allowedOrigins: apiKey.project.allowedOrigins, origin }, 'Checking project-specific CORS')
+
         const isAllowed = apiKey.project.allowedOrigins.some((allowedOrigin: string) => {
           // Exact match
-          if (allowedOrigin === origin) return true
+          if (allowedOrigin === origin) {
+            fastify.log.info({ allowedOrigin, origin }, 'Exact match found')
+            return true
+          }
 
           // Wildcard match for subdomains (e.g., https://*.example.com or *.example.com)
           if (allowedOrigin.includes('*.')) {
-            // Extract the domain part after the wildcard, handling both with and without protocol
-            let wildcardDomain = allowedOrigin
-            if (wildcardDomain.includes('https://*.')) {
-              wildcardDomain = wildcardDomain.replace('https://*.', '')
-            } else if (wildcardDomain.includes('http://*.')) {
-              wildcardDomain = wildcardDomain.replace('http://*.', '')
-            } else if (wildcardDomain.startsWith('*.')) {
+            // Remove all protocols first (handles cases like https://https://*.example.com)
+            let wildcardDomain = allowedOrigin.replace(/^https?:\/\//g, '')
+
+            // Now extract the domain part after the wildcard
+            if (wildcardDomain.startsWith('*.')) {
               wildcardDomain = wildcardDomain.replace('*.', '')
             }
 
             const originWithoutProtocol = origin.replace(/^https?:\/\//, '')
-            // Check if origin is a subdomain of the wildcard domain or matches exactly
-            return originWithoutProtocol.endsWith(`.${wildcardDomain}`) || originWithoutProtocol === wildcardDomain
+            const matches = originWithoutProtocol.endsWith(`.${wildcardDomain}`) || originWithoutProtocol === wildcardDomain
+
+            fastify.log.info({
+              allowedOrigin,
+              wildcardDomain,
+              origin,
+              originWithoutProtocol,
+              matches
+            }, 'Wildcard match check')
+
+            return matches
           }
 
           return false

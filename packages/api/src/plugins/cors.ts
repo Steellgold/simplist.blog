@@ -16,12 +16,12 @@ export default fp(async function (fastify) {
 
     // Allow requests with no origin (like mobile apps or curl)
     if (!origin) return callback(null, true)
-    
+
     // Allow all localhost requests (useful for development and testing)
     if (origin.startsWith('http://localhost:') || origin.startsWith('https://localhost:')) {
       return callback(null, true)
     }
-    
+
     // Check against configured allowed origins
     if (allowedOrigins.includes(origin)) {
       return callback(null, true)
@@ -31,9 +31,10 @@ export default fp(async function (fastify) {
     if (allowedSuffixes.some((suffix: string) => origin.endsWith(suffix))) {
       return callback(null, true)
     }
-    
-    // Reject all others
-    return callback(new Error('Not allowed by CORS'), false)
+
+    // Allow all origins by default - project-cors plugin will handle project-specific validation
+    // This allows CORS preflight requests to pass, then project-cors validates the actual requests
+    return callback(null, true)
   }
   
   await fastify.register(cors, {
