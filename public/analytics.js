@@ -380,6 +380,7 @@
   }
 
   // Expose API for manual event tracking
+  window.SimplistAnalytics = window.SimplistAnalytics || {};
   window.SimplistAnalytics.track = (eventType, data = {}, position = null) => {
     addEvent(eventType, data, position);
   };
