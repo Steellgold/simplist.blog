@@ -16,7 +16,9 @@ import {
   Clock,
   Eye,
   Globe,
+  Link2,
   Monitor,
+  MousePointerClick,
   Smartphone,
   Tablet,
   TrendingUp,
@@ -34,6 +36,8 @@ import {
   XAxis,
   YAxis
 } from "recharts"
+import { ButtonGroup } from './ui/button-group'
+import { RecentActivityTable } from './recent-activity-table'
 
 interface AnalyticsDashboardProps {
   analyticsData: AnalyticsDataMultiPeriod
@@ -96,7 +100,7 @@ const chartConfig = {
     color: "var(--chart-2)",
   },
   engagement: {
-    label: "Engagement",
+    label: "Engagement (s)",
     color: "var(--chart-3)",
   },
   mobile: {
@@ -123,18 +127,23 @@ const DEVICE_COLORS = [
 ]
 
 export const AnalyticsDashboard = ({ analyticsData }: AnalyticsDashboardProps) => {
-  const [selectedPeriod, setSelectedPeriod] = useQueryState('days', parseAsInteger.withDefault(30))
+  const [selectedPeriod, setSelectedPeriod] = useQueryState('days', parseAsInteger.withDefault(7))
 
   // Get analytics data for selected period
-  const analytics = analyticsData[selectedPeriod.toString()] || analyticsData['30']
+  const analytics = analyticsData[selectedPeriod.toString()] || analyticsData['7']
 
   // Chart data for views over time
-  const chartData = analytics.viewsOverTime?.map(stat => ({
-    date: new Date(stat.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-    views: stat.views,
-    visitors: stat.uniqueVisitors,
-    engagement: Math.round((analytics.summary.avgTimeOnPage || 0) / 60)
-  })) || []
+  const chartData = analytics.viewsOverTime?.map(stat => {
+    const formattedDate = new Date(stat.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    // Keep avgTimeOnPage in seconds for better visibility
+    const engagementSeconds = Math.round(stat.avgTimeOnPage || 0)
+    return {
+      date: formattedDate,
+      views: stat.views,
+      visitors: stat.uniqueVisitors,
+      engagement: engagementSeconds
+    }
+  }) || []
 
   // Device data mapping for pie chart
   const deviceData = analytics.deviceStats?.map((stat, index) => ({
@@ -144,15 +153,22 @@ export const AnalyticsDashboard = ({ analyticsData }: AnalyticsDashboardProps) =
     fill: DEVICE_COLORS[index % DEVICE_COLORS.length]
   })) || []
 
-  // Country data mapping  
-  const countryData = analytics.topCountries?.slice(0, 5).map(stat => ({
+  // Country data mapping
+  const countryData = analytics.topCountries?.slice(0, 8).map(stat => ({
     country: stat.country,
     value: stat.views,
     percentage: stat.percentage
   })) || []
 
+  // Referrer data mapping
+  const referrerData = analytics.topReferrers?.slice(0, 8).map(stat => ({
+    referrer: stat.referrer,
+    value: stat.views,
+    percentage: stat.percentage
+  })) || []
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
@@ -161,12 +177,14 @@ export const AnalyticsDashboard = ({ analyticsData }: AnalyticsDashboardProps) =
           description="Total page views"
           icon={Eye}
         />
+
         <StatCard
           title="Unique Visitors"
           value={analytics.summary.uniqueVisitors?.toLocaleString() || '0'}
           description="Different visitors"
           icon={Users}
         />
+
         <StatCard
           title="Avg. Time"
           value={Math.round((analytics.summary.avgTimeOnPage || 0) / 60)}
@@ -174,6 +192,7 @@ export const AnalyticsDashboard = ({ analyticsData }: AnalyticsDashboardProps) =
           icon={Clock}
           suffix="m"
         />
+
         <StatCard
           title="Engagement Rate"
           value={100 - (analytics.summary.bounceRate || 0)}
@@ -193,7 +212,7 @@ export const AnalyticsDashboard = ({ analyticsData }: AnalyticsDashboardProps) =
                 Views and visitors evolution over the last {selectedPeriod} days
               </CardDescription>
             </div>
-            <div className="flex gap-2">
+            <ButtonGroup>
               <Button
                 variant={selectedPeriod === 7 ? "default" : "outline"}
                 size="sm"
@@ -201,6 +220,7 @@ export const AnalyticsDashboard = ({ analyticsData }: AnalyticsDashboardProps) =
               >
                 7 days
               </Button>
+
               <Button
                 variant={selectedPeriod === 30 ? "default" : "outline"}
                 size="sm"
@@ -208,6 +228,7 @@ export const AnalyticsDashboard = ({ analyticsData }: AnalyticsDashboardProps) =
               >
                 30 days
               </Button>
+
               <Button
                 variant={selectedPeriod === 90 ? "default" : "outline"}
                 size="sm"
@@ -215,7 +236,7 @@ export const AnalyticsDashboard = ({ analyticsData }: AnalyticsDashboardProps) =
               >
                 90 days
               </Button>
-            </div>
+            </ButtonGroup>
           </div>
         </CardHeader>
         <CardContent>
@@ -230,12 +251,12 @@ export const AnalyticsDashboard = ({ analyticsData }: AnalyticsDashboardProps) =
             <TabsContent value="overview" className="space-y-4">
               <ChartContainer config={chartConfig} className="h-64 w-full">
                 <LineChart data={chartData}>
-                  <XAxis 
+                  <XAxis
                     dataKey="date"
                     tickLine={false}
                     axisLine={false}
                     tickMargin={8}
-                    tickFormatter={(value) => value.slice(0, 3)}
+                    tickFormatter={(value) => value}
                   />
                   <YAxis
                     tickLine={false}
@@ -264,12 +285,12 @@ export const AnalyticsDashboard = ({ analyticsData }: AnalyticsDashboardProps) =
             <TabsContent value="views">
               <ChartContainer config={chartConfig} className="h-64 w-full">
                 <LineChart data={chartData}>
-                  <XAxis 
+                  <XAxis
                     dataKey="date"
                     tickLine={false}
                     axisLine={false}
                     tickMargin={8}
-                    tickFormatter={(value) => value.slice(0, 3)}
+                    tickFormatter={(value) => value}
                   />
                   <YAxis
                     tickLine={false}
@@ -300,12 +321,12 @@ export const AnalyticsDashboard = ({ analyticsData }: AnalyticsDashboardProps) =
             <TabsContent value="visitors">
               <ChartContainer config={chartConfig} className="h-64 w-full">
                 <LineChart data={chartData}>
-                  <XAxis 
+                  <XAxis
                     dataKey="date"
                     tickLine={false}
                     axisLine={false}
                     tickMargin={8}
-                    tickFormatter={(value) => value.slice(0, 3)}
+                    tickFormatter={(value) => value}
                   />
                   <YAxis
                     tickLine={false}
@@ -342,12 +363,12 @@ export const AnalyticsDashboard = ({ analyticsData }: AnalyticsDashboardProps) =
                       <stop offset="95%" stopColor="var(--color-engagement)" stopOpacity={0.1}/>
                     </linearGradient>
                   </defs>
-                  <XAxis 
+                  <XAxis
                     dataKey="date"
                     tickLine={false}
                     axisLine={false}
                     tickMargin={8}
-                    tickFormatter={(value) => value.slice(0, 3)}
+                    tickFormatter={(value) => value}
                   />
                   <YAxis
                     tickLine={false}
@@ -370,41 +391,81 @@ export const AnalyticsDashboard = ({ analyticsData }: AnalyticsDashboardProps) =
       </Card>
 
       {/* Two Column Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left Column - Top Articles */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Popular Articles</CardTitle>
-            <CardDescription>Most viewed articles</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {analytics.topArticles?.slice(0, 5).map((article) => (
-                <div key={article.id} className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium leading-none">
-                      {article.title}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      /{article.slug}
-                    </p>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Left Column - Top Articles & Referrers */}
+        <div className="flex flex-col gap-4">
+          {/* Top Articles */}
+          <Card className="flex flex-col flex-1">
+            <CardHeader>
+              <CardTitle>Popular Articles</CardTitle>
+              <CardDescription>Most viewed articles</CardDescription>
+            </CardHeader>
+            <CardContent className="flex-1 overflow-auto">
+              <div className="space-y-4">
+                {analytics.topArticles?.map((article) => (
+                  <div key={article.id} className="flex items-center justify-between">
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium leading-none">
+                        {article.title}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        /{article.slug}
+                      </p>
+                    </div>
+                    <div className="text-right space-y-1">
+                      <p className="text-sm font-medium">{article.views}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {Math.round(article.avgTimeOnPage / 60)}m
+                      </p>
+                    </div>
                   </div>
-                  <div className="text-right space-y-1">
-                    <p className="text-sm font-medium">{article.views}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {Math.round(article.avgTimeOnPage / 60)}m
-                    </p>
-                  </div>
-                </div>
-              )) || (
-                <p className="text-sm text-muted-foreground">No data available</p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+                )) || (
+                  <p className="text-sm text-muted-foreground">No data available</p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Top Referrers */}
+          <Card className="flex flex-col flex-1">
+            <CardHeader>
+              <CardTitle>Top Referrers</CardTitle>
+              <CardDescription>Traffic sources</CardDescription>
+            </CardHeader>
+            <CardContent className="flex-1 overflow-auto">
+              <div className="space-y-2">
+                {referrerData.length > 0 ? (
+                  referrerData.map((referrer) => {
+                    const isDirect = referrer.referrer === 'Direct'
+                    const ReferrerIcon = isDirect ? MousePointerClick : Link2
+
+                    return (
+                      <div
+                        key={referrer.referrer}
+                        className="relative flex items-center justify-between px-3 py-2 rounded-md overflow-hidden"
+                      >
+                        <div
+                          className="absolute inset-0 bg-primary/10 transition-all duration-300"
+                          style={{ width: `${referrer.percentage}%` }}
+                        />
+                        <div className="relative flex items-center space-x-2 min-w-0">
+                          <ReferrerIcon className="h-4 w-4 flex-shrink-0" />
+                          <span className="text-sm font-medium truncate">{referrer.referrer}</span>
+                        </div>
+                        <span className="relative text-sm text-muted-foreground ml-2 flex-shrink-0">{referrer.percentage}%</span>
+                      </div>
+                    )
+                  })
+                ) : (
+                  <p className="text-sm text-muted-foreground">No referrer data available</p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Right Column - Devices & Countries */}
-        <div className="space-y-6">
+        <div className="flex flex-col gap-4">
           {/* Devices */}
           <Card>
             <CardHeader>
@@ -459,14 +520,21 @@ export const AnalyticsDashboard = ({ analyticsData }: AnalyticsDashboardProps) =
               <CardDescription>Geographic origin of visitors</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {countryData.map((country) => (
-                  <div key={country.country} className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <Globe className="h-4 w-4" />
+                  <div
+                    key={country.country}
+                    className="relative flex items-center justify-between px-3 py-2 rounded-md overflow-hidden"
+                  >
+                    <div
+                      className="absolute inset-0 bg-primary/10 transition-all duration-300"
+                      style={{ width: `${country.percentage}%` }}
+                    />
+                    <div className="relative flex items-center space-x-2">
+                      <Globe className="h-4 w-4 flex-shrink-0" />
                       <span className="text-sm font-medium">{country.country}</span>
                     </div>
-                    <span className="text-sm text-muted-foreground">{country.percentage}%</span>
+                    <span className="relative text-sm text-muted-foreground ml-2 flex-shrink-0">{country.percentage}%</span>
                   </div>
                 ))}
               </div>
@@ -482,33 +550,7 @@ export const AnalyticsDashboard = ({ analyticsData }: AnalyticsDashboardProps) =
           <CardDescription>Latest page views and interactions</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {analytics.recentViews?.slice(0, 8).map((view, index) => (
-              <div key={`${view.id}-${index}`} className="flex items-center justify-between py-2">
-                <div className="flex items-center space-x-3">
-                  <div className="h-8 w-8 rounded bg-primary/10 flex items-center justify-center">
-                    <Eye className="h-4 w-4 text-primary" />
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium leading-none">
-                      {view.articleTitle || 'Unknown Article'}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {view.country} • {view.device}
-                    </p>
-                  </div>
-                </div>
-                <div className="text-right space-y-1">
-                  <p className="text-sm font-medium">{view.timeOnPage}s</p>
-                  <p className="text-xs text-muted-foreground">
-                    {formatDistanceToNow(new Date(view.timestamp), { addSuffix: true })}
-                  </p>
-                </div>
-              </div>
-            )) || (
-              <p className="text-sm text-muted-foreground">No recent activity</p>
-            )}
-          </div>
+          <RecentActivityTable data={analytics.recentViews || []} />
         </CardContent>
       </Card>
     </div>
