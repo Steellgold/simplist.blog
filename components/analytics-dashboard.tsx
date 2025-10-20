@@ -22,6 +22,7 @@ import {
   TrendingUp,
   Users
 } from 'lucide-react'
+import Image from 'next/image'
 import { parseAsInteger, useQueryState } from 'nuqs'
 import {
   Area,
@@ -679,9 +680,11 @@ export const AnalyticsDashboard = ({ analyticsData }: AnalyticsDashboardProps) =
                     />
                     <div className="relative flex items-center space-x-2">
                       {country.flagUrl ? (
-                        <img 
+                        <Image 
                           src={country.flagUrl} 
                           alt={`Flag of ${country.country}`}
+                          width={16}
+                          height={16}
                           className="h-4 w-4 rounded flex-shrink-0"
                         />
                       ) : (
@@ -706,9 +709,11 @@ export const AnalyticsDashboard = ({ analyticsData }: AnalyticsDashboardProps) =
                         />
                         <div className="relative flex items-center space-x-2">
                           {city.flagUrl ? (
-                            <img 
+                            <Image 
                               src={city.flagUrl} 
                               alt={`Flag of ${city.country}`}
+                              width={16}
+                              height={16}
                               className="h-4 w-4 rounded flex-shrink-0"
                             />
                           ) : (
@@ -740,9 +745,11 @@ export const AnalyticsDashboard = ({ analyticsData }: AnalyticsDashboardProps) =
                         />
                         <div className="relative flex items-center space-x-2">
                           {region.flagUrl ? (
-                            <img 
+                            <Image 
                               src={region.flagUrl} 
                               alt={`Flag of ${region.country}`}
+                              width={16}
+                              height={16}
                               className="h-4 w-4 rounded flex-shrink-0"
                             />
                           ) : (

@@ -74,7 +74,7 @@ export const AnalyticsIntegrationGuide = ({ apiKey, showSuccessCard = false, has
               </Button>
             </div>
             <p className="text-sm text-muted-foreground">
-              Add this script tag to the {'<head>'} section of your website. Replace "your-article-slug" with the actual slug of each article.
+              Add this script tag to the {'<head>'} section of your website. Replace &quot;your-article-slug&quot; with the actual slug of each article.
             </p>
             <div className="relative">
               <pre className="p-4 bg-muted rounded-lg text-sm break-all whitespace-pre-wrap">
