@@ -32,10 +32,16 @@ export interface AnalyticsCacheData {
     views: number
     percentage: number
   }>
+  topReferrers: Array<{
+    referrer: string
+    views: number
+    percentage: number
+  }>
   viewsOverTime: Array<{
     date: string
     views: number
     uniqueVisitors: number
+    avgTimeOnPage: number
   }>
   recentViews: Array<{
     id: string
@@ -46,6 +52,11 @@ export interface AnalyticsCacheData {
     timeOnPage: number
     scrollDepth: number
     timestamp: string
+    referrer: string | null
+    referrerDomain: string | null
+    utmSource: string | null
+    utmMedium: string | null
+    utmCampaign: string | null
   }>
 }
 
