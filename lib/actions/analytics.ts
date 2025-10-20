@@ -436,10 +436,8 @@ export const getProjectAnalytics = async (projectId: string, days: number = 30, 
   // Process views over time data and fill missing dates
   const viewsOverTimeMap = new Map(
     viewsOverTimeData.map(row => {
-      // PostgreSQL DATE returns a Date object that needs to be converted to ISO string
-      const dateStr = row.date instanceof Date
-        ? row.date.toISOString().split('T')[0]
-        : (typeof row.date === 'string' ? row.date.split('T')[0] : row.date)
+      // PostgreSQL DATE returns a string in ISO format, extract date portion
+      const dateStr = typeof row.date === 'string' ? row.date.split('T')[0] : String(row.date)
 
       return [
         dateStr,
