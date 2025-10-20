@@ -35,10 +35,16 @@ export interface AnalyticsData {
     views: number
     percentage: number
   }>
+  topReferrers: Array<{
+    referrer: string
+    views: number
+    percentage: number
+  }>
   viewsOverTime: Array<{
     date: string
     views: number
     uniqueVisitors: number
+    avgTimeOnPage: number
   }>
   recentViews: Array<{
     id: string
@@ -49,6 +55,11 @@ export interface AnalyticsData {
     timeOnPage: number
     scrollDepth: number
     timestamp: string
+    referrer: string | null
+    referrerDomain: string | null
+    utmSource: string | null
+    utmMedium: string | null
+    utmCampaign: string | null
   }>
 }
 
@@ -59,6 +70,8 @@ export interface AnalyticsDataMultiPeriod {
 export interface ArticleViewsOverTime {
   date: string
   views: number
+  uniqueVisitors: number
+  avgTimeOnPage: number
 }
 
 export const getArticleViewsOverTime = async (
@@ -119,15 +132,20 @@ export const getBatchArticleViewsOverTime = async (
   })
 
   // Single optimized query with raw SQL for better performance
+  // Note: PostgreSQL returns column names in lowercase in raw queries
   const viewsByArticleAndDate = await prisma.$queryRaw<Array<{
     articleId: string
     date: string
     views: bigint
+    uniquevisitors: bigint
+    avgtimeonpage: number | null
   }>>`
     SELECT
       "articleId",
       DATE(timestamp) as date,
-      COUNT(*) as views
+      COUNT(*) as views,
+      COUNT(DISTINCT "visitorId") as uniquevisitors,
+      AVG("timeOnPage") as avgtimeonpage
     FROM "page_view"
     WHERE "articleId" = ANY(${articleIds})
       AND timestamp >= ${startDate}
@@ -140,20 +158,29 @@ export const getBatchArticleViewsOverTime = async (
 
   // Initialize all articles with empty data
   articleIds.forEach(articleId => {
-    const viewsMap = new Map<string, number>()
+    const dataMap = new Map<string, { views: number; uniqueVisitors: number; avgTimeOnPage: number }>()
 
     // Fill with data from query
     viewsByArticleAndDate
       .filter(row => row.articleId === articleId)
       .forEach(row => {
-        viewsMap.set(row.date, Number(row.views))
+        dataMap.set(row.date, {
+          views: Number(row.views),
+          uniqueVisitors: Number(row.uniquevisitors),
+          avgTimeOnPage: Math.round(row.avgtimeonpage || 0)
+        })
       })
 
     // Create full array with all dates (fill missing with 0)
-    const viewsOverTime = dateArray.map(date => ({
-      date: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-      views: viewsMap.get(date) || 0
-    }))
+    const viewsOverTime = dateArray.map(date => {
+      const data = dataMap.get(date) || { views: 0, uniqueVisitors: 0, avgTimeOnPage: 0 }
+      return {
+        date: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        views: data.views,
+        uniqueVisitors: data.uniqueVisitors,
+        avgTimeOnPage: data.avgTimeOnPage
+      }
+    })
 
     resultMap.set(articleId, viewsOverTime)
   })
@@ -217,6 +244,8 @@ export const getProjectAnalytics = async (projectId: string, days: number = 30, 
     topCountriesData,
     deviceStatsData,
     browserStatsData,
+    topReferrersData,
+    directTrafficCount,
     viewsOverTimeData,
     recentViewsData
   ] = await Promise.all([
@@ -276,20 +305,36 @@ export const getProjectAnalytics = async (projectId: string, days: number = 30, 
       orderBy: { _count: { id: 'desc' } },
       take: 5
     }),
-    
+
+    // Top referrers
+    prisma.pageView.groupBy({
+      by: ['referrerDomain'],
+      where: { ...baseWhere, referrerDomain: { not: null } },
+      _count: { id: true },
+      orderBy: { _count: { id: 'desc' } },
+      take: 10
+    }),
+
+    // Direct traffic (no referrer)
+    prisma.pageView.count({
+      where: { ...baseWhere, referrerDomain: null }
+    }),
+
     // Views over time with SQL raw query for better performance
-    prisma.$queryRaw<Array<{ date: string; views: bigint; uniqueVisitors: bigint }>>`
-      SELECT 
+    // Note: PostgreSQL returns column names in lowercase in raw queries
+    prisma.$queryRaw<Array<{ date: string; views: bigint; uniquevisitors: bigint; avgtimeonpage: number | null }>>`
+      SELECT
         DATE(timestamp) as date,
         COUNT(*) as views,
-        COUNT(DISTINCT "visitorId") as uniqueVisitors
+        COUNT(DISTINCT "visitorId") as uniquevisitors,
+        AVG("timeOnPage") as avgtimeonpage
       FROM "page_view" p
       INNER JOIN "article" a ON p."articleId" = a.id
-      WHERE p."projectId" = ${projectId} 
+      WHERE p."projectId" = ${projectId}
         AND p.timestamp >= ${startDate}
         AND a."deletedAt" IS NULL
-        ${articleIds && articleIds.length ? 
-          Prisma.sql`AND p."articleId" = ANY(${articleIds})` : 
+        ${articleIds && articleIds.length ?
+          Prisma.sql`AND p."articleId" = ANY(${articleIds})` :
           Prisma.empty
         }
       GROUP BY DATE(timestamp)
@@ -344,12 +389,41 @@ export const getProjectAnalytics = async (projectId: string, days: number = 30, 
     percentage: Math.round((bs._count.id / totalViews) * 100)
   }))
 
+  // Combine referrers with direct traffic
+  const topReferrers = [
+    ...topReferrersData.map(tr => ({
+      referrer: tr.referrerDomain || 'Direct',
+      views: tr._count.id,
+      percentage: Math.round((tr._count.id / totalViews) * 100)
+    })),
+    // Add direct traffic if it exists
+    ...(directTrafficCount > 0 ? [{
+      referrer: 'Direct',
+      views: directTrafficCount,
+      percentage: Math.round((directTrafficCount / totalViews) * 100)
+    }] : [])
+  ]
+  // Sort by views descending and take top 10
+  .sort((a, b) => b.views - a.views)
+  .slice(0, 10)
+
   // Process views over time data and fill missing dates
   const viewsOverTimeMap = new Map(
-    viewsOverTimeData.map(row => [
-      row.date,
-      { views: Number(row.views), uniqueVisitors: Number(row.uniqueVisitors) }
-    ])
+    viewsOverTimeData.map(row => {
+      // PostgreSQL DATE returns a Date object that needs to be converted to ISO string
+      const dateStr = row.date instanceof Date
+        ? row.date.toISOString().split('T')[0]
+        : (typeof row.date === 'string' ? row.date.split('T')[0] : row.date)
+
+      return [
+        dateStr,
+        {
+          views: Number(row.views),
+          uniqueVisitors: Number(row.uniquevisitors),
+          avgTimeOnPage: Math.round(row.avgtimeonpage || 0)
+        }
+      ]
+    })
   )
 
   const viewsOverTime = []
@@ -357,11 +431,12 @@ export const getProjectAnalytics = async (projectId: string, days: number = 30, 
     const date = new Date()
     date.setDate(date.getDate() - i)
     const dateStr = date.toISOString().split('T')[0]
-    const data = viewsOverTimeMap.get(dateStr) || { views: 0, uniqueVisitors: 0 }
+    const data = viewsOverTimeMap.get(dateStr) || { views: 0, uniqueVisitors: 0, avgTimeOnPage: 0 }
     viewsOverTime.push({
       date: dateStr,
       views: data.views,
-      uniqueVisitors: data.uniqueVisitors
+      uniqueVisitors: data.uniqueVisitors,
+      avgTimeOnPage: data.avgTimeOnPage
     })
   }
 
@@ -374,7 +449,12 @@ export const getProjectAnalytics = async (projectId: string, days: number = 30, 
     browser: rv.browser || 'Unknown',
     timeOnPage: rv.timeOnPage || 0,
     scrollDepth: rv.scrollDepth || 0,
-    timestamp: rv.timestamp.toISOString()
+    timestamp: rv.timestamp.toISOString(),
+    referrer: rv.referrer,
+    referrerDomain: rv.referrerDomain,
+    utmSource: rv.utmSource,
+    utmMedium: rv.utmMedium,
+    utmCampaign: rv.utmCampaign
   }))
 
   return {
@@ -390,6 +470,7 @@ export const getProjectAnalytics = async (projectId: string, days: number = 30, 
     topCountries,
     deviceStats,
     browserStats,
+    topReferrers,
     viewsOverTime,
     recentViews
   }

@@ -11,7 +11,7 @@ import { getBatchArticleViewsOverTime } from "@/lib/actions/analytics"
 import type { Article } from "@prisma/client"
 
 export type ArticleWithAnalytics = Article & {
-  viewsOverTime?: Array<{ date: string; views: number }>
+  viewsOverTime?: Array<{ date: string; views: number; uniqueVisitors: number; avgTimeOnPage: number }>
 }
 
 export const articlesKeys = {
