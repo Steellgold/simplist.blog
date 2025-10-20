@@ -49,18 +49,19 @@ export const RecentActivityTable = ({ data }: RecentActivityTableProps) => {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Article</TableHead>
-              <TableHead>Location & Device</TableHead>
-              <TableHead>Traffic Source</TableHead>
-              <TableHead className="text-right">Time on Page</TableHead>
-              <TableHead className="text-right">When</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+      <div className="rounded-md border overflow-hidden">
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="whitespace-nowrap">Article</TableHead>
+                <TableHead className="whitespace-nowrap hidden sm:table-cell">Location & Device</TableHead>
+                <TableHead className="whitespace-nowrap hidden md:table-cell">Traffic Source</TableHead>
+                <TableHead className="text-right whitespace-nowrap">Time on Page</TableHead>
+                <TableHead className="text-right whitespace-nowrap">When</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
             {currentData.length > 0 ? (
               currentData.map((view) => {
                 const trafficInfo = []
@@ -76,15 +77,17 @@ export const RecentActivityTable = ({ data }: RecentActivityTableProps) => {
                         <div className="h-8 w-8 rounded bg-primary/10 flex items-center justify-center flex-shrink-0">
                           <Eye className="h-4 w-4 text-primary" />
                         </div>
-                        <div className="font-medium">{view.articleTitle}</div>
+                        <div className="font-medium truncate max-w-[200px] sm:max-w-none" title={view.articleTitle}>
+                          {view.articleTitle}
+                        </div>
                       </div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden sm:table-cell">
                       <div className="text-sm">
                         {view.country} • {view.device}
                       </div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden md:table-cell">
                       <div className="text-sm text-muted-foreground max-w-xs truncate" title={trafficSummary}>
                         {trafficSummary}
                       </div>
@@ -109,13 +112,15 @@ export const RecentActivityTable = ({ data }: RecentActivityTableProps) => {
             )}
           </TableBody>
         </Table>
+        </div>
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
         <div className="text-sm text-muted-foreground">
           {data.length > 0 ? (
             <>
-              Showing {startIndex + 1} to {Math.min(endIndex, data.length)} of {data.length} entries
+              <span className="hidden sm:inline">Showing {startIndex + 1} to {Math.min(endIndex, data.length)} of {data.length} entries</span>
+              <span className="sm:hidden">{Math.min(endIndex, data.length)} of {data.length}</span>
               {totalPages > 1 && (
                 <span className="ml-2">• Page {currentPage + 1} of {totalPages}</span>
               )}
@@ -130,16 +135,20 @@ export const RecentActivityTable = ({ data }: RecentActivityTableProps) => {
             size="sm"
             onClick={() => setCurrentPage(currentPage - 1)}
             disabled={!canGoPrevious}
+            className="text-xs sm:text-sm"
           >
-            Previous
+            <span className="hidden sm:inline">Previous</span>
+            <span className="sm:hidden">Prev</span>
           </Button>
           <Button
             variant="outline"
             size="sm"
             onClick={() => setCurrentPage(currentPage + 1)}
             disabled={!canGoNext}
+            className="text-xs sm:text-sm"
           >
-            Next
+            <span className="hidden sm:inline">Next</span>
+            <span className="sm:hidden">Next</span>
           </Button>
         </ButtonGroup>
       </div>

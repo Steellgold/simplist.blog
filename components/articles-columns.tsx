@@ -207,9 +207,11 @@ export const articlesColumns: ColumnDef<Article>[] = [
 
       return (
         <>
-          <div className="font-medium">{title}</div>
+          <div className="font-medium truncate max-w-[200px] sm:max-w-md" title={title}>
+            {title}
+          </div>
           {excerpt && (
-            <div className="text-sm text-muted-foreground line-clamp-1 max-w-md">
+            <div className="text-sm text-muted-foreground line-clamp-1 max-w-[200px] sm:max-w-md hidden sm:block">
               {excerpt}
             </div>
           )}
@@ -241,8 +243,8 @@ export const articlesColumns: ColumnDef<Article>[] = [
           className="h-8"
         >
           <Link href={`/analytics?articles=${article.id}`}>
-            <TrendingUp className="h-3 w-3 mr-1" />
-            Analytics
+            <TrendingUp className="h-3 w-3 sm:mr-1" />
+            <span className="hidden sm:inline">Analytics</span>
           </Link>
         </Button>
       )
@@ -257,8 +259,8 @@ export const articlesColumns: ColumnDef<Article>[] = [
 
       return (
         <div className="space-y-1 text-sm">
-          <div>{format(new Date(createdAt), "MMM d, yyyy")}</div>
-          <div className="text-muted-foreground text-xs">
+          <div className="truncate">{format(new Date(createdAt), "MMM d, yyyy")}</div>
+          <div className="text-muted-foreground text-xs hidden sm:block">
             Updated: {format(new Date(updatedAt), "MMM d, yyyy")}
           </div>
         </div>
