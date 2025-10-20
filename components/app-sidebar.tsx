@@ -117,6 +117,7 @@ export const AppSidebar = ({
               <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                 <PencilRuler className="size-4" />
               </div>
+
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">
                   {project ? project.name : "Creating Project..."}
@@ -152,30 +153,6 @@ export const AppSidebar = ({
 
       <SidebarFooter>
         <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              size="sm"
-              className="w-full justify-center"
-              variant="outline"
-              onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-              disabled={!mounted}
-            >
-              {!mounted ? (
-                <div className="size-4" />
-              ) : theme === "light" ? (
-                <Sun className="size-4" />
-              ) : (
-                <Moon className="size-4" />
-              )}
-
-              <span className={cn({
-                "sr-only": state == "collapsed",
-              })}>
-                {!mounted ? "Toggle theme" : `Switch to ${theme === "light" ? "dark" : "light"} mode`}
-              </span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

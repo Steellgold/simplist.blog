@@ -4,6 +4,7 @@ import { getCurrentUser } from "@/lib/auth-helper";
 import { getUserProjects } from "@/lib/actions/projects";
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
+import { ThemeSwitcher } from "@/components/ui/switch-theme";
 
 export const metadata: Metadata = {
   robots: {
@@ -42,8 +43,9 @@ const DashboardLayout = async ({
     <SidebarProvider>
       <AppSidebarWrapper user={user} project={project} />
       <main className="flex-1 w-full">
-        <div className="flex h-14 items-center border-b px-4 lg:h-16">
+        <div className="flex h-14 items-center justify-between border-b px-4 lg:h-16">
           <SidebarTrigger />
+          <ThemeSwitcher />
         </div>
         <div className="flex-1 p-4 lg:p-6">
           {children}

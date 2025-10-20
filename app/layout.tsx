@@ -83,6 +83,7 @@ const RootLayout: FC<{ children: React.ReactNode }> = ({ children }) => {
             {children}
           </ThemeProvider>
         </NuqsAdapter>
+
         <Toaster />
       </body>
     </html>
