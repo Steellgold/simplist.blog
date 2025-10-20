@@ -32,15 +32,24 @@ export default fp(async function (fastify) {
         const isAllowed = apiKey.project.allowedOrigins.some((allowedOrigin: string) => {
           // Exact match
           if (allowedOrigin === origin) return true
-          
-          // Wildcard match for subdomains (e.g., https://*.example.com)
-          if (allowedOrigin.includes('https://*.')) {
-            const wildcardDomain = allowedOrigin.replace('https://*.', '')
+
+          // Wildcard match for subdomains (e.g., https://*.example.com or *.example.com)
+          if (allowedOrigin.includes('*.')) {
+            // Extract the domain part after the wildcard, handling both with and without protocol
+            let wildcardDomain = allowedOrigin
+            if (wildcardDomain.includes('https://*.')) {
+              wildcardDomain = wildcardDomain.replace('https://*.', '')
+            } else if (wildcardDomain.includes('http://*.')) {
+              wildcardDomain = wildcardDomain.replace('http://*.', '')
+            } else if (wildcardDomain.startsWith('*.')) {
+              wildcardDomain = wildcardDomain.replace('*.', '')
+            }
+
             const originWithoutProtocol = origin.replace(/^https?:\/\//, '')
-            // Check if origin is a subdomain of the wildcard domain
+            // Check if origin is a subdomain of the wildcard domain or matches exactly
             return originWithoutProtocol.endsWith(`.${wildcardDomain}`) || originWithoutProtocol === wildcardDomain
           }
-          
+
           return false
         })
         
