@@ -39,7 +39,7 @@ const AnalyticsPage = async ({ searchParams }: PageProps) => {
   if (!project.analyticsEnabled) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center">
-        <AnalyticsActivation projectId={project.id} projectSlug={project.slug} />
+        <AnalyticsActivation projectId={project.id} />
       </div>
     )
   }
@@ -61,7 +61,7 @@ const AnalyticsPage = async ({ searchParams }: PageProps) => {
     >
       <div className="space-y-6">
         {analyticsKey && (
-          <AnalyticsIntegrationGuide apiKey={analyticsKey.key} projectSlug={project.slug} />
+          <AnalyticsIntegrationGuide apiKey={analyticsKey.key} />
         )}
 
         <AnalyticsDashboard

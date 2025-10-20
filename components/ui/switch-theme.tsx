@@ -52,7 +52,7 @@ export const ThemeSwitcher = ({
       setTheme(themeKey);
       setT(themeKey);
     },
-    [setTheme]
+    [setTheme, setT]
   );
 
   // Prevent hydration mismatch

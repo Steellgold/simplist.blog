@@ -6,10 +6,8 @@ import {
   Key,
   LayoutDashboard,
   LogOut,
-  Moon,
   PencilRuler,
   Settings,
-  Sun,
 } from "lucide-react"
 import Link from "next/link"
 import * as React from "react"
@@ -36,8 +34,6 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { cn } from "@/lib/utils"
-import { useTheme } from "next-themes"
 
 interface User {
   id: string
@@ -91,13 +87,7 @@ export const AppSidebar = ({
   project,
   onLogout,
 }: AppSidebarProps) => {
-  const { isMobile, state } = useSidebar();
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = React.useState(false);
-
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
+  const { isMobile } = useSidebar();
 
   const getUserInitials = () => {
     if (!user.name) return "?"

@@ -193,15 +193,10 @@ export const getBatchArticleViewsOverTime = async (
     viewsByArticleAndDate
       .filter(row => row.articleId === articleId)
       .forEach(row => {
-        // PostgreSQL DATE can return either a string or a Date object
-        let dateStr: string
-        if (typeof row.date === 'string') {
-          dateStr = row.date.split('T')[0]
-        } else if (row.date instanceof Date) {
-          dateStr = row.date.toISOString().split('T')[0]
-        } else {
-          dateStr = new Date(row.date).toISOString().split('T')[0]
-        }
+        // PostgreSQL DATE returns a string in ISO format
+        const dateStr = typeof row.date === 'string'
+          ? row.date.split('T')[0]
+          : String(row.date).split('T')[0]
 
         dataMap.set(dateStr, {
           views: Number(row.views),
@@ -447,16 +442,10 @@ export const getProjectAnalytics = async (projectId: string, days: number = 30, 
   // Process views over time data and fill missing dates
   const viewsOverTimeMap = new Map(
     viewsOverTimeData.map(row => {
-      // PostgreSQL DATE can return either a string or a Date object
-      let dateStr: string
-      if (typeof row.date === 'string') {
-        dateStr = row.date.split('T')[0]
-      } else if (row.date instanceof Date) {
-        dateStr = row.date.toISOString().split('T')[0]
-      } else {
-        // Fallback for other cases
-        dateStr = new Date(row.date).toISOString().split('T')[0]
-      }
+      // PostgreSQL DATE returns a string in ISO format
+      const dateStr = typeof row.date === 'string'
+        ? row.date.split('T')[0]
+        : String(row.date).split('T')[0]
 
       return [
         dateStr,

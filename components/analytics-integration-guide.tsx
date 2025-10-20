@@ -7,10 +7,9 @@ import { useState } from 'react'
 
 interface AnalyticsIntegrationGuideProps {
   apiKey: string
-  projectSlug: string
 }
 
-export const AnalyticsIntegrationGuide = ({ apiKey, projectSlug }: AnalyticsIntegrationGuideProps) => {
+export const AnalyticsIntegrationGuide = ({ apiKey }: AnalyticsIntegrationGuideProps) => {
   const [copiedScript, setCopiedScript] = useState(false)
   const [copiedKey, setCopiedKey] = useState(false)
 

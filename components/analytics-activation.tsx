@@ -2,18 +2,16 @@
 
 import { AnalyticsIntegrationGuide } from '@/components/analytics-integration-guide'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Spinner } from '@/components/ui/spinner'
 import { enableAnalytics } from '@/lib/actions/analytics'
-import { BarChart3, Eye, Globe, LineChart, Lock, MousePointer, TrendingUp, Users } from 'lucide-react'
+import { BarChart3, Eye, Globe, Lock, MousePointer } from 'lucide-react'
 import { useState } from 'react'
 
 interface AnalyticsActivationProps {
   projectId: string
-  projectSlug: string
 }
 
-export const AnalyticsActivation = ({ projectId, projectSlug }: AnalyticsActivationProps) => {
+export const AnalyticsActivation = ({ projectId }: AnalyticsActivationProps) => {
   const [isLoading, setIsLoading] = useState(false)
   const [isEnabled, setIsEnabled] = useState(false)
   const [apiKey, setApiKey] = useState<string | null>(null)
@@ -35,7 +33,7 @@ export const AnalyticsActivation = ({ projectId, projectSlug }: AnalyticsActivat
   }
 
   if (isEnabled && apiKey) {
-    return <AnalyticsIntegrationGuide apiKey={apiKey} projectSlug={projectSlug} />
+    return <AnalyticsIntegrationGuide apiKey={apiKey} />
   }
 
   return (
