@@ -21,17 +21,17 @@ export const createProjectSchema = z.object({
             let normalized = val.trim();
             
             // Handle wildcard domains like *.example.com
-            if (normalized.startsWith('*.')) {
+            if (normalized.startsWith("*.")) {
               // If it already has https://, remove it before processing
-              if (normalized.startsWith('https://*.')) {
-                normalized = normalized.replace('https://*.', '*.');
+              if (normalized.startsWith("https://*.")) {
+                normalized = normalized.replace("https://*.", "*.");
               }
-              return `https://${normalized.replace('*.', 'subdomain.')}`;
+              return `https://${normalized.replace("*.", "subdomain.")}`;
             }
             
             // If it already starts with https://, don't add it again
-            if (normalized.startsWith('https://') || normalized.startsWith('http://')) {
-              return normalized.startsWith('http://') ? normalized.replace('http://', 'https://') : normalized;
+            if (normalized.startsWith("https://") || normalized.startsWith("http://")) {
+              return normalized.startsWith("http://") ? normalized.replace("http://", "https://") : normalized;
             }
             
             return `https://${normalized}`;
@@ -39,8 +39,8 @@ export const createProjectSchema = z.object({
           .pipe(z.url("Please enter a valid domain (supports *.domain.com)"))
           .transform((url) => {
             // Transform back to original format if it was a wildcard
-            if (url.includes('subdomain.')) {
-              return url.replace('https://subdomain.', 'https://*.');
+            if (url.includes("subdomain.")) {
+              return url.replace("https://subdomain.", "https://*.");
             }
             return url;
           })
