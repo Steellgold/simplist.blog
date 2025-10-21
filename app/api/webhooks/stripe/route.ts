@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db";
-import { stripe, getSubscriptionExpiryDate } from "@/lib/stripe/client";
+import { getSubscriptionExpiryDate, stripe } from "@/lib/stripe/client";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
@@ -121,9 +121,9 @@ export const POST = async (req: Request) => {
       case "invoice.payment_succeeded": {
         const invoice = event.data.object as Stripe.Invoice;
 
-        if (invoice.subscription) {
+        if ((invoice as any).subscription) {
           const subscription = await stripe.subscriptions.retrieve(
-            invoice.subscription
+            (invoice as any).subscription as string
           );
 
           const userId = subscription.metadata?.userId;
@@ -150,9 +150,9 @@ export const POST = async (req: Request) => {
       case "invoice.payment_failed": {
         const invoice = event.data.object as Stripe.Invoice;
 
-        if (invoice.subscription) {
+        if ((invoice as any).subscription) {
           const subscription = await stripe.subscriptions.retrieve(
-            invoice.subscription
+            (invoice as any).subscription as string
           );
 
           const userId = subscription.metadata?.userId;
