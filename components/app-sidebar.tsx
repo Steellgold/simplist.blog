@@ -2,6 +2,7 @@
 
 import {
   BarChart3,
+  CreditCard,
   FileText,
   Key,
   LayoutDashboard,
@@ -10,7 +11,6 @@ import {
   Settings,
 } from "lucide-react"
 import Link from "next/link"
-import * as React from "react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
@@ -40,6 +40,8 @@ interface User {
   name: string
   email: string
   image?: string | null
+  subscription?: string
+  subscriptionExpiresAt?: Date | null
 }
 
 interface Project {
@@ -54,7 +56,7 @@ interface AppSidebarProps {
   onLogout?: () => void
 }
 
-const navigationItems = [
+const getNavigationItems = (isPro: boolean) => [
   {
     title: "Dashboard",
     icon: LayoutDashboard,
@@ -80,6 +82,11 @@ const navigationItems = [
     icon: Settings,
     href: "/settings",
   },
+  {
+    title: isPro ? "Billing" : "Pricing",
+    icon: CreditCard,
+    href: isPro ? "/settings/billing" : "/pricing",
+  },
 ]
 
 export const AppSidebar = ({
@@ -98,6 +105,13 @@ export const AppSidebar = ({
     return user.name.substring(0, 2).toUpperCase()
   }
 
+  const isPro =
+    user.subscription === "pro" &&
+    user.subscriptionExpiresAt &&
+    new Date(user.subscriptionExpiresAt) > new Date();
+
+  const navigationItems = getNavigationItems(isPro ?? false);
+
   return (
     <Sidebar variant="floating" collapsible="icon">
       <SidebarHeader>
@@ -109,12 +123,26 @@ export const AppSidebar = ({
               </div>
 
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">
-                  {project ? project.name : "Creating Project..."}
-                </span>
-                <span className="truncate text-xs text-muted-foreground">
-                  {project ? `${project.id.slice(0, 8)}...` : "Setting up your blog"}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="truncate font-semibold">
+                    {project ? project.name : "Creating Project..."}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  {isPro ? (
+                    <img
+                      src="https://cdn.simplist.blog/assets/billing/badge-pro.png"
+                      alt="Pro"
+                      className="h-3.5 w-auto"
+                    />
+                  ) : (
+                    <img
+                      src="https://cdn.simplist.blog/assets/billing/badge-starter.png"
+                      alt="Starter"
+                      className="h-3.5 w-auto"
+                    />
+                  )}
+                </div>
               </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -167,7 +195,7 @@ export const AppSidebar = ({
 
               <DropdownMenuContent
                 className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-                side={isMobile ? "bottom" : "right"}
+                side={"top"}
                 align="end"
                 sideOffset={4}
               >

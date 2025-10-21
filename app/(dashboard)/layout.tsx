@@ -1,10 +1,11 @@
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebarWrapper } from "@/components/app-sidebar-wrapper";
-import { getCurrentUser } from "@/lib/auth-helper";
-import { getUserProjects } from "@/lib/actions/projects";
-import { redirect } from "next/navigation";
-import type { Metadata } from "next";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { ThemeSwitcher } from "@/components/ui/switch-theme";
+import { getUserProjects } from "@/lib/actions/projects";
+import { getCurrentUser } from "@/lib/auth-helper";
+import { prisma } from "@/lib/db";
+import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   robots: {
@@ -39,9 +40,22 @@ const DashboardLayout = async ({
 
   const project = projects[0]; // Single project mode
 
+  // Get full user data with subscription info
+  const fullUser = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      image: true,
+      subscription: true,
+      subscriptionExpiresAt: true,
+    },
+  });
+
   return (
     <SidebarProvider>
-      <AppSidebarWrapper user={user} project={project} />
+      <AppSidebarWrapper user={fullUser || user} project={project} />
       <main className="flex-1 w-full">
         <div className="flex h-14 items-center justify-between border-b px-4 lg:h-16">
           <SidebarTrigger />

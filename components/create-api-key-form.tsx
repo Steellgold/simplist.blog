@@ -25,8 +25,9 @@ import {
 } from "@/components/ui/select"
 import { toast } from "@/components/ui/sonner"
 import { useCreateApiKey } from "@/hooks/use-api-keys"
+import { useApiKeyLimits } from "@/hooks/use-subscription-limits"
 import { apiKeyPermissions, CreateApiKeyInput, createApiKeySchema } from "@/lib/validations/api-key"
-import { Check, Copy, Plus } from "lucide-react"
+import { Check, Copy, Crown, Plus } from "lucide-react"
 import { Spinner } from "./ui/spinner"
 
 interface CreateApiKeyFormProps {
@@ -40,6 +41,7 @@ export const CreateApiKeyForm = ({ projectId, onSuccess }: CreateApiKeyFormProps
   const [copied, setCopied] = useState(false)
 
   const createApiKeyMutation = useCreateApiKey()
+  const { isAtLimit, currentCount, maxCount, tier, isLoading: limitsLoading, refetch } = useApiKeyLimits()
 
   const {
     register,
@@ -68,6 +70,7 @@ export const CreateApiKeyForm = ({ projectId, onSuccess }: CreateApiKeyFormProps
       setNewApiKey(result.key)
       reset()
       toast.success("API key created successfully")
+      await refetch() // Refresh the limits data
       onSuccess?.()
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Failed to create API key"
@@ -91,6 +94,8 @@ export const CreateApiKeyForm = ({ projectId, onSuccess }: CreateApiKeyFormProps
     reset()
   }
 
+  const isButtonDisabled = limitsLoading || isAtLimit
+
   return (
     <Dialog open={open} onOpenChange={(isOpen) => {
       if (!isOpen) {
@@ -100,9 +105,9 @@ export const CreateApiKeyForm = ({ projectId, onSuccess }: CreateApiKeyFormProps
       }
     }}>
       <DialogTrigger asChild>
-        <Button>
+        <Button disabled={isButtonDisabled} title={isAtLimit ? `You've reached your limit of ${maxCount} API keys. ${tier === "free" ? "Upgrade to Pro for more API keys." : ""}` : undefined}>
           <Plus className="size-4" />
-          Create API Key
+          Create API Key {!limitsLoading && `(${currentCount}/${maxCount})`}
         </Button>
       </DialogTrigger>
       <DialogContent>
@@ -116,6 +121,33 @@ export const CreateApiKeyForm = ({ projectId, onSuccess }: CreateApiKeyFormProps
             )}
           </DialogDescription>
         </DialogHeader>
+
+        {!newApiKey && !limitsLoading && (
+          <div className="rounded-lg border bg-muted/50 p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium">API Key Limit:</span>
+                <span className="text-sm text-muted-foreground">
+                  {currentCount}/{maxCount} used
+                </span>
+              </div>
+              {tier === "free" && isAtLimit && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Crown className="h-4 w-4 text-yellow-500" />
+                  <span className="text-muted-foreground">Upgrade to Pro for more</span>
+                </div>
+              )}
+            </div>
+            {isAtLimit && (
+              <p className="text-sm text-muted-foreground mt-2">
+                {tier === "free" 
+                  ? "You've reached the free plan limit. Upgrade to Pro to create up to 10 API keys."
+                  : "You've reached your API key limit for the Pro plan."
+                }
+              </p>
+            )}
+          </div>
+        )}
 
         {newApiKey ? (
           <div className="space-y-4">
@@ -143,7 +175,7 @@ export const CreateApiKeyForm = ({ projectId, onSuccess }: CreateApiKeyFormProps
           </div>
         ) : (
           <form onSubmit={handleSubmit(onSubmit)}>
-            <FieldGroup>
+            <FieldGroup className={isAtLimit ? "opacity-50 pointer-events-none" : ""}>
               <div className="flex flex-col gap-4">
                 <Field>
                   <FieldLabel htmlFor="name">API Key Name *</FieldLabel>
@@ -243,7 +275,7 @@ export const CreateApiKeyForm = ({ projectId, onSuccess }: CreateApiKeyFormProps
                   <Button type="button" variant="outline" onClick={handleClose}>
                     Cancel
                   </Button>
-                  <Button type="submit" disabled={createApiKeyMutation.isPending}>
+                  <Button type="submit" disabled={createApiKeyMutation.isPending || isAtLimit}>
                     {createApiKeyMutation.isPending ? <Spinner /> : "Create"}
                   </Button>
                 </div>

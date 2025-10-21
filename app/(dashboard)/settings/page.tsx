@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { PageHeader } from "@/components/page-header"
 
 export const metadata: Metadata = {
   title: "Settings",
@@ -7,9 +8,10 @@ export const metadata: Metadata = {
 
 const SettingsPage = () => {
   return (
-    <div>
-      <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
-    </div>
+    <PageHeader 
+      title="Settings"
+      description="Manage your account and project settings"
+    />
   );
 }
 
