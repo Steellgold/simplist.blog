@@ -3,6 +3,7 @@
 import { assertR2ObjectIsImage, getR2PublicUrl } from "@/lib/actions/images"
 import { getCurrentUser } from "@/lib/auth-helper"
 import { prisma } from "@/lib/db"
+import { checkArticleQuota, checkFeatureAccess } from "@/lib/subscription/quota-check"
 import { generateSlug } from "@/lib/utils"
 import { revalidatePath } from "next/cache"
 import { forbidden, redirect } from "next/navigation"
@@ -12,7 +13,7 @@ import { forbidden, redirect } from "next/navigation"
 const calculateStats = (content: string) => {
   const words = content.trim() ? content.trim().split(/\s+/).length : 0;
   const characters = content.length;
-  const lines = content.split('\n').length;
+  const lines = content.split("\n").length;
   const readTimeMinutes = Math.ceil(words / 200); // Average reading speed: 200 words/min
 
   return {
@@ -42,6 +43,12 @@ export const createArticle = async (formData: {
   });
 
   if (!project) redirect("/create-project");
+
+  // Check article quota
+  const quotaCheck = await checkArticleQuota(user.id, project.id);
+  if (!quotaCheck.allowed) {
+    throw new Error(quotaCheck.reason);
+  }
 
   // Use transaction to ensure atomicity
   const article = await prisma.$transaction(async (tx) => {
@@ -361,6 +368,12 @@ export const bulkDeleteArticles = async (articleIds: string[]) => {
 
   if (!user) {
     redirect("/auth/login")
+  }
+
+  // Check if user has access to bulk operations
+  const hasBulkAccess = await checkFeatureAccess(user.id, "bulkOperations");
+  if (!hasBulkAccess) {
+    throw new Error("Bulk operations are only available on Pro plan. Upgrade to delete multiple articles at once.");
   }
 
   if (!articleIds || articleIds.length === 0) {

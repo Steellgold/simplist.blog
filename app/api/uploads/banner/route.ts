@@ -1,6 +1,7 @@
 import { buildBannerKey, createR2Client, getPublicUrlForKey } from "@/lib/actions/images"
 import { getCurrentUser } from "@/lib/auth-helper"
 import { prisma } from "@/lib/db"
+import { checkStorageQuota, updateStorageUsage } from "@/lib/subscription/quota-check"
 import { PutObjectCommand } from "@aws-sdk/client-s3"
 import { NextResponse } from "next/server"
 
@@ -28,16 +29,22 @@ export const POST = async (req: Request) => {
 
     // Validate file type
     if (!ALLOWED_MIME_TYPES.includes(file.type)) {
-      return NextResponse.json({ 
-        error: `Invalid file type. Allowed: ${ALLOWED_MIME_TYPES.join(", ")}` 
+      return NextResponse.json({
+        error: `Invalid file type. Allowed: ${ALLOWED_MIME_TYPES.join(", ")}`
       }, { status: 400 })
     }
 
     // Validate file size
     if (file.size > MAX_FILE_SIZE) {
-      return NextResponse.json({ 
-        error: `File too large. Maximum size: ${MAX_FILE_SIZE / 1024 / 1024}MB` 
+      return NextResponse.json({
+        error: `File too large. Maximum size: ${MAX_FILE_SIZE / 1024 / 1024}MB`
       }, { status: 400 })
+    }
+
+    // Check storage quota
+    const quotaCheck = await checkStorageQuota(user.id, file.size);
+    if (!quotaCheck.allowed) {
+      return NextResponse.json({ error: quotaCheck.reason }, { status: 403 })
     }
 
     const article = await prisma.article.findFirst({
@@ -73,6 +80,9 @@ export const POST = async (req: Request) => {
         ContentType: finalMimeType,
       })
     )
+
+    // Update user's storage usage
+    await updateStorageUsage(user.id, file.size);
 
     const publicUrl = await getPublicUrlForKey(key)
 

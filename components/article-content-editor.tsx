@@ -53,7 +53,7 @@ export const ArticleContentEditor = ({ content, onContentChange, textareaId = "c
   const contentStats = useMemo(() => ({
     characters: content.length,
     words: content.trim() ? content.trim().split(/\s+/).length : 0,
-    lines: content.split('\n').length,
+    lines: content.split("\n").length,
   }), [content]);
 
   return (
@@ -110,9 +110,9 @@ export const ArticleContentEditor = ({ content, onContentChange, textareaId = "c
             <InputGroupAddon align="block-end" className="w-full">
               <div className="flex items-center justify-between w-full text-xs">
                 <div className="flex items-center gap-4">
-                  <span className="text-muted-foreground">{contentStats.words} {contentStats.words === 1 ? 'word' : 'words'}</span>
-                  <span className="text-muted-foreground">{contentStats.characters} {contentStats.characters === 1 ? 'character' : 'characters'}</span>
-                  <span className="text-muted-foreground">{contentStats.lines} {contentStats.lines === 1 ? 'line' : 'lines'}</span>
+                  <span className="text-muted-foreground">{contentStats.words} {contentStats.words === 1 ? "word" : "words"}</span>
+                  <span className="text-muted-foreground">{contentStats.characters} {contentStats.characters === 1 ? "character" : "characters"}</span>
+                  <span className="text-muted-foreground">{contentStats.lines} {contentStats.lines === 1 ? "line" : "lines"}</span>
                 </div>
                 <span className="text-muted-foreground/60">~{Math.ceil(contentStats.words / 200)} min read</span>
               </div>
