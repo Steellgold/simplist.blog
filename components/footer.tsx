@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ThemeSwitcher } from "./ui/switch-theme";
 
 const Footer = () => {
   return (
@@ -6,10 +7,12 @@ const Footer = () => {
       <div className="container max-w-6xl mx-auto">
         <div className="grid md:grid-cols-4 gap-8">
           <div>
-            <div className="font-bold text-lg mb-4">Simplist</div>
-            <p className="text-sm text-muted-foreground">
+            <div className="font-bold text-lg mb-2">Simplist</div>
+            <p className="text-sm text-muted-foreground mb-2">
               Simple, fast content management API for modern developers.
             </p>
+
+            <ThemeSwitcher className="w-fit" />
           </div>
 
           <div>
@@ -34,14 +37,14 @@ const Footer = () => {
             <div className="font-semibold mb-4">Developers</div>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li><Link href="/docs/api" className="hover:text-foreground transition-colors">API Reference</Link></li>
-              <li><Link href="/docs/sdk" className="hover:text-foreground transition-colors">SDK</Link></li>
+              <li><Link href="https://www.npmjs.com/package/@simplist.blog/sdk" className="hover:text-foreground transition-colors">SDK</Link></li>
               <li><Link href="/docs/examples" className="hover:text-foreground transition-colors">Examples</Link></li>
             </ul>
           </div>
         </div>
 
         <div className="mt-8 pt-8 border-t text-center text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} Gaëtan HUSZOVITS (Simplist). All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Simplist. All rights reserved.</p>
         </div>
       </div>
     </footer>

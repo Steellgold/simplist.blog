@@ -6,6 +6,7 @@ import "./globals.css";
 import { FC } from "react";
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import { QueryProvider } from "@/lib/query-client";
+import { ObserverProvider } from "@/components/observer-provider";
 
 const nunito = Nunito({
   variable: "--font-nunito",
@@ -82,7 +83,9 @@ const RootLayout: FC<{ children: React.ReactNode }> = ({ children }) => {
               defaultTheme="dark"
               disableTransitionOnChange
             >
-              {children}
+              <ObserverProvider>
+                {children}
+              </ObserverProvider>
             </ThemeProvider>
           </NuqsAdapter>
 
