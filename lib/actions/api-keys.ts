@@ -1,11 +1,11 @@
 "use server"
 
-import { revalidatePath } from "next/cache"
-import { redirect } from "next/navigation"
 import { getCurrentUser } from "@/lib/auth-helper"
-import { prisma, apiKeyCache } from "@/lib/db"
+import { apiKeyCache, prisma } from "@/lib/db"
 import { checkApiKeyQuota, checkFeatureAccess } from "@/lib/subscription/quota-check"
 import { createApiKeySchema } from "@/lib/validations/api-key"
+import { revalidatePath } from "next/cache"
+import { redirect } from "next/navigation"
 
 // Generate a random API key
 const generateApiKey = (type: "secret" | "public" = "secret"): string => {
@@ -90,7 +90,7 @@ export const createApiKey = async (projectId: string, input: { name: string; typ
 
   // Check if custom expiration is allowed (Pro feature)
   if (validatedData.expiresInDays && validatedData.expiresInDays > 0) {
-    const hasCustomExpiration = await checkFeatureAccess(user.id, "customExpiration");
+    const hasCustomExpiration = await checkFeatureAccess(user.id, "bulkOperations");
     if (!hasCustomExpiration) {
       throw new Error("Custom API key expiration is only available on Pro plan.");
     }
