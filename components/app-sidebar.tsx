@@ -1,6 +1,7 @@
 "use client"
 
 import { LogOut } from "lucide-react"
+import Image from "next/image"
 import Link from "next/link"
 
 import { ProjectSwitcher } from "@/components/project-switcher"
@@ -149,14 +150,16 @@ export const AppSidebar = ({
                     {item.disabled ? (
                       <div className="flex items-center gap-2 w-full [&>svg]:size-4">
                         {cloneElement(item.icon as React.ReactElement, {
-                          // @ts-ignore
+                          // @ts-expect-error - animate prop is added dynamically
                           animate: itemHovered === item.href
                         })}
                         <span className="flex-1">{item.title}</span>
                         {item.badge && (
-                          <img
+                          <Image
                             src={item.badge}
                             alt="Pro"
+                            width={16}
+                            height={16}
                             className="h-4 w-4"
                           />
                         )}
@@ -164,7 +167,7 @@ export const AppSidebar = ({
                     ) : (
                       <Link href={item.href}>
                         {cloneElement(item.icon as React.ReactElement, {
-                          // @ts-ignore
+                          // @ts-expect-error - animate prop is added dynamically
                           animate: itemHovered === item.href
                         })}
                         <span>{item.title}</span>

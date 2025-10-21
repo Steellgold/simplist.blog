@@ -1,15 +1,15 @@
 "use client";
 
-import { useState } from "react";
-import { Check, Loader2, X } from "lucide-react";
+import Footer from "@/components/footer";
+import { HomeHeader } from "@/components/home-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { createCheckoutSession } from "@/lib/stripe/actions";
-import { useRouter } from "next/navigation";
 import { getAllPlans, getPlanPrice, type SubscriptionInterval } from "@/lib/subscription/plans";
-import { HomeHeader } from "@/components/home-header";
-import Footer from "@/components/footer";
+import { Check, Loader2, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 const PricingPage = () => {
   const [isYearly, setIsYearly] = useState(true);
@@ -149,7 +149,7 @@ const PricingPage = () => {
             <div>
               <h3 className="font-semibold mb-2">What happens to my data if I downgrade?</h3>
               <p className="text-muted-foreground text-sm">
-                Your data is safe. If you exceed free plan limits, you'll just need to upgrade again to access everything.
+                Your data is safe. If you exceed free plan limits, you&apos;ll just need to upgrade again to access everything.
               </p>
             </div>
             <div>

@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { createBillingPortalSession, createCheckoutSession } from "@/lib/stripe/actions";
 import { SUBSCRIPTION_PRICING, type SubscriptionTier } from "@/lib/subscription/types";
 import { CreditCard, Crown, Sparkles } from "lucide-react";
+import Image from "next/image";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -57,15 +58,19 @@ export const BillingCard = ({ currentTier, subscriptionExpiresAt }: BillingCardP
             <CardTitle>Current Plan</CardTitle>
           </div>
           {isPro ? (
-            <img 
+            <Image 
               src="https://cdn.simplist.blog/assets/billing/badge-pro.png" 
               alt="Pro" 
+              width={20}
+              height={20}
               className="h-5 w-auto"
             />
           ) : (
-            <img 
+            <Image 
               src="https://cdn.simplist.blog/assets/billing/badge-starter.png" 
               alt="Starter" 
+              width={20}
+              height={20}
               className="h-5 w-auto"
             />
           )}

@@ -2,11 +2,9 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { type SubscriptionTier } from "@/lib/subscription/types";
 import { AlertTriangle, BarChart3 } from "lucide-react";
 
 interface UsageCardProps {
-  tier: SubscriptionTier;
   usage: {
     articles: {
       current: number;
@@ -46,7 +44,7 @@ const getProgressColor = (percentage: number): string => {
   return "bg-primary";
 };
 
-export const UsageCard = ({ tier, usage }: UsageCardProps) => {
+export const UsageCard = ({ usage }: UsageCardProps) => {
   const articlePercentage = (usage.articles.current / usage.articles.limit) * 100;
   const storagePercentage = (usage.storage.current / usage.storage.limit) * 100;
   const apiKeyPercentage = (usage.apiKeys.current / usage.apiKeys.limit) * 100;

@@ -1,6 +1,7 @@
 "use client"
 
 import { ChevronsUpDown, Loader2, Plus } from "lucide-react"
+import Image from "next/image"
 import { useState } from "react"
 
 import {
@@ -82,15 +83,19 @@ export const ProjectSwitcher = ({
                 </div>
                 <div className="flex items-center gap-2">
                   {isPro ? (
-                    <img
+                    <Image
                       src="https://cdn.simplist.blog/assets/billing/badge-pro.png"
                       alt="Pro"
+                      width={14}
+                      height={14}
                       className="h-3.5 w-auto"
                     />
                   ) : (
-                    <img
+                    <Image
                       src="https://cdn.simplist.blog/assets/billing/badge-starter.png"
                       alt="Starter"
+                      width={14}
+                      height={14}
                       className="h-3.5 w-auto"
                     />
                   )}
@@ -123,15 +128,19 @@ export const ProjectSwitcher = ({
                   <span className="font-medium">{project.name}</span>
                   <div className="flex items-center">
                     {isPro ? (
-                      <img
+                      <Image
                         src="https://cdn.simplist.blog/assets/billing/mini-pro-badge.png"
                         alt="Pro"
+                        width={20}
+                        height={20}
                         className="h-5 w-5"
                       />
                     ) : (
-                      <img
+                      <Image
                         src="https://cdn.simplist.blog/assets/billing/mini-starter-badge.png"
                         alt="Starter"
+                        width={20}
+                        height={20}
                         className="h-5 w-5"
                       />
                     )}
