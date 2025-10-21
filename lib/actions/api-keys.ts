@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { getCurrentUser } from "@/lib/auth-helper"
 import { prisma, apiKeyCache } from "@/lib/db"
+import { checkApiKeyQuota, checkFeatureAccess } from "@/lib/subscription/quota-check"
 import { createApiKeySchema } from "@/lib/validations/api-key"
 
 // Generate a random API key
@@ -78,8 +79,22 @@ export const createApiKey = async (projectId: string, input: { name: string; typ
     throw new Error("Project not found or you don't have permission")
   }
 
+  // Check API key quota
+  const quotaCheck = await checkApiKeyQuota(user.id, projectId);
+  if (!quotaCheck.allowed) {
+    throw new Error(quotaCheck.reason);
+  }
+
   // Validate input
   const validatedData = createApiKeySchema.parse(input)
+
+  // Check if custom expiration is allowed (Pro feature)
+  if (validatedData.expiresInDays && validatedData.expiresInDays > 0) {
+    const hasCustomExpiration = await checkFeatureAccess(user.id, "customExpiration");
+    if (!hasCustomExpiration) {
+      throw new Error("Custom API key expiration is only available on Pro plan.");
+    }
+  }
 
   // Generate unique API key
   const apiKey = generateApiKey(validatedData.type)

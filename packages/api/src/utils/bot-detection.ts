@@ -5,61 +5,61 @@
 // Known bot user agents (partial matches)
 const BOT_USER_AGENTS = [
   // Search engine bots
-  'googlebot',
-  'bingbot',
-  'slurp', // Yahoo
-  'duckduckbot',
-  'baiduspider',
-  'yandexbot',
-  'facebookexternalhit',
-  'twitterbot',
-  'linkedinbot',
-  'whatsapp',
-  'telegrambot',
+  "googlebot",
+  "bingbot",
+  "slurp", // Yahoo
+  "duckduckbot",
+  "baiduspider",
+  "yandexbot",
+  "facebookexternalhit",
+  "twitterbot",
+  "linkedinbot",
+  "whatsapp",
+  "telegrambot",
   
   // SEO tools
-  'ahrefsbot',
-  'semrushbot',
-  'mj12bot',
-  'dotbot',
-  'screaming frog',
-  'seobilitybot',
+  "ahrefsbot",
+  "semrushbot",
+  "mj12bot",
+  "dotbot",
+  "screaming frog",
+  "seobilitybot",
   
   // Monitoring/uptime bots
-  'pingdom',
-  'uptimerobot',
-  'monitor',
-  'nagios',
-  'zabbix',
+  "pingdom",
+  "uptimerobot",
+  "monitor",
+  "nagios",
+  "zabbix",
   
   // Generic bot indicators
-  'bot',
-  'crawler',
-  'spider',
-  'scraper',
-  'fetch',
-  'curl',
-  'wget',
-  'python-requests',
-  'go-http-client',
-  'axios',
-  'http',
-  'node',
+  "bot",
+  "crawler",
+  "spider",
+  "scraper",
+  "fetch",
+  "curl",
+  "wget",
+  "python-requests",
+  "go-http-client",
+  "axios",
+  "http",
+  "node",
   
   // Headless browsers often used by bots
-  'headlesschrome',
-  'phantomjs',
-  'selenium',
-  'puppeteer',
-  'playwright'
+  "headlesschrome",
+  "phantomjs",
+  "selenium",
+  "puppeteer",
+  "playwright"
 ]
 
 // Known bot IP ranges or identifiers
 const BOT_IDENTIFIERS = [
   // Empty or missing user agents are often bots
-  '',
-  'unknown',
-  '-',
+  "",
+  "unknown",
+  "-",
   
   // Very short user agents (likely automated)
   /^.{1,10}$/,
@@ -73,7 +73,7 @@ const BOT_IDENTIFIERS = [
  * Detect if a user agent belongs to a bot
  */
 export const isBot = (userAgent: string): boolean => {
-  if (!userAgent || typeof userAgent !== 'string') {
+  if (!userAgent || typeof userAgent !== "string") {
     return true // No user agent = likely bot
   }
 
@@ -88,7 +88,7 @@ export const isBot = (userAgent: string): boolean => {
   
   // Check against bot identifier patterns
   for (const identifier of BOT_IDENTIFIERS) {
-    if (typeof identifier === 'string') {
+    if (typeof identifier === "string") {
       if (ua === identifier) {
         return true
       }
@@ -151,8 +151,8 @@ export const isLikelyBot = (userAgent: string, additionalChecks?: {
  * Get bot information for logging/debugging
  */
 export const getBotInfo = (userAgent: string): { isBot: boolean; reason?: string } => {
-  if (!userAgent || typeof userAgent !== 'string') {
-    return { isBot: true, reason: 'Missing or invalid user agent' }
+  if (!userAgent || typeof userAgent !== "string") {
+    return { isBot: true, reason: "Missing or invalid user agent" }
   }
 
   const ua = userAgent.toLowerCase().trim()
@@ -166,7 +166,7 @@ export const getBotInfo = (userAgent: string): { isBot: boolean; reason?: string
   
   // Check against bot identifier patterns
   for (const identifier of BOT_IDENTIFIERS) {
-    if (typeof identifier === 'string') {
+    if (typeof identifier === "string") {
       if (ua === identifier) {
         return { isBot: true, reason: `Matches bot identifier: ${identifier}` }
       }

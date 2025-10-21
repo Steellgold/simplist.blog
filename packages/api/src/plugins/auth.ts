@@ -99,13 +99,75 @@ export default fp(async function (fastify) {
         }
       }
 
-      // Update last used timestamp (fire and forget)
+      // Update last used timestamp and increment API call counter (fire and forget)
       prisma.apiKey.update({
         where: { id: apiKey.id },
         data: { lastUsedAt: new Date() }
       }).catch(() => {
         // Ignore errors for last used timestamp
       })
+
+      // Increment user's API call counter (fire and forget)
+      prisma.user.update({
+        where: { id: apiKey.project.userId },
+        data: {
+          monthlyApiCalls: { increment: 1 }
+        }
+      }).catch(() => {
+        // Ignore errors for API call counter
+      })
+
+      // Check API quota (this is checked but not blocking, for tracking purposes)
+      const now = new Date()
+      const user = await prisma.user.findUnique({
+        where: { id: apiKey.project.userId },
+        select: {
+          subscription: true,
+          subscriptionExpiresAt: true,
+          monthlyApiCalls: true,
+          apiCallsResetAt: true
+        }
+      })
+
+      if (user) {
+        // Determine subscription tier
+        const tier = user.subscription === 'pro' &&
+                     user.subscriptionExpiresAt &&
+                     user.subscriptionExpiresAt > now
+          ? 'pro'
+          : 'free'
+
+        // Check if we need to reset the counter
+        const daysSinceReset = Math.floor(
+          (now.getTime() - user.apiCallsResetAt.getTime()) / (1000 * 60 * 60 * 24)
+        )
+
+        let currentCalls = user.monthlyApiCalls
+        if (daysSinceReset >= 30) {
+          // Reset counter
+          await prisma.user.update({
+            where: { id: apiKey.project.userId },
+            data: {
+              monthlyApiCalls: 1, // Already counting this call
+              apiCallsResetAt: now
+            }
+          }).catch(() => {})
+          currentCalls = 1
+        }
+
+        // Check quota limits
+        const maxCalls = tier === 'pro' ? 500_000 : 10_000
+        if (currentCalls > maxCalls) {
+          return reply.code(429).send({
+            error: 'Rate Limit Exceeded',
+            message: `Monthly API call limit exceeded. Your ${tier} plan allows ${maxCalls.toLocaleString()} calls per month. Please upgrade or wait for next billing cycle.`,
+            statusCode: 429,
+            limit: maxCalls,
+            current: currentCalls,
+            resetDate: new Date(user.apiCallsResetAt.getTime() + 30 * 24 * 60 * 60 * 1000)
+          })
+        }
+      }
 
       // Attach API key info to request
       request.apiKey = apiKey
