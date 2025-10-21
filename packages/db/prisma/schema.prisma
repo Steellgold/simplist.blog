@@ -11,16 +11,26 @@ datasource db {
 }
 
 model User {
-  id            String    @id
-  name          String
-  email         String
-  emailVerified Boolean   @default(false)
-  image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @default(now()) @updatedAt
-  sessions      Session[]
-  accounts      Account[]
-  projects      Project[]
+  id                    String    @id
+  name                  String
+  email                 String
+  emailVerified         Boolean   @default(false)
+  image                 String?
+  // Subscription fields
+  subscription          String    @default("free") // "free" | "pro"
+  subscriptionExpiresAt DateTime?
+  stripeCustomerId      String?
+  stripeSubscriptionId  String?
+  // API usage tracking
+  monthlyApiCalls       Int       @default(0) // Reset each month
+  apiCallsResetAt       DateTime  @default(now()) // Date of last reset
+  // Storage tracking
+  totalStorageUsed      Int       @default(0) // In bytes
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @default(now()) @updatedAt
+  sessions              Session[]
+  accounts              Account[]
+  projects              Project[]
 
   @@unique([email])
   @@map("user")
