@@ -1,6 +1,6 @@
 "use client"
 
-import { ChevronsUpDown, Plus } from "lucide-react"
+import { ChevronsUpDown, Loader2, Plus } from "lucide-react"
 import { useState } from "react"
 
 import {
@@ -24,18 +24,27 @@ interface Project {
   slug: string
 }
 
+interface User {
+  subscription?: string
+  subscriptionExpiresAt?: Date | null
+}
+
 interface ProjectSwitcherProps {
   projects: Project[]
   activeProjectId?: string
+  user?: User
   onProjectChange?: (projectId: string) => void
   onCreateProject?: () => void
+  isCreatingProject?: boolean
 }
 
 export const ProjectSwitcher = ({
   projects,
   activeProjectId,
+  user,
   onProjectChange,
   onCreateProject,
+  isCreatingProject = false,
 }: ProjectSwitcherProps) => {
   const { isMobile } = useSidebar()
   const [activeProject, setActiveProject] = useState<Project | undefined>(
@@ -47,6 +56,10 @@ export const ProjectSwitcher = ({
     onProjectChange?.(project.id)
   }
 
+  const isPro = user?.subscription === "pro" &&
+    user?.subscriptionExpiresAt &&
+    new Date(user.subscriptionExpiresAt) > new Date()
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -54,7 +67,7 @@ export const ProjectSwitcher = ({
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground cursor-pointer"
             >
               <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                 <span className="text-sm font-semibold">
@@ -62,12 +75,26 @@ export const ProjectSwitcher = ({
                 </span>
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">
-                  {activeProject?.name || "Select project"}
-                </span>
-                <span className="truncate text-xs text-muted-foreground">
-                  {activeProject?.slug || "No project selected"}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="truncate font-semibold">
+                    {activeProject?.name || "Select project"}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  {isPro ? (
+                    <img
+                      src="https://cdn.simplist.blog/assets/billing/badge-pro.png"
+                      alt="Pro"
+                      className="h-3.5 w-auto"
+                    />
+                  ) : (
+                    <img
+                      src="https://cdn.simplist.blog/assets/billing/badge-starter.png"
+                      alt="Starter"
+                      className="h-3.5 w-auto"
+                    />
+                  )}
+                </div>
               </div>
               <ChevronsUpDown className="ml-auto" />
             </SidebarMenuButton>
@@ -92,11 +119,23 @@ export const ProjectSwitcher = ({
                     {project.name.substring(0, 2).toUpperCase()}
                   </span>
                 </div>
-                <div className="flex flex-col">
+                <div className="flex flex-row items-center gap-2 justify-between w-full">
                   <span className="font-medium">{project.name}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {project.slug}
-                  </span>
+                  <div className="flex items-center">
+                    {isPro ? (
+                      <img
+                        src="https://cdn.simplist.blog/assets/billing/mini-pro-badge.png"
+                        alt="Pro"
+                        className="h-5 w-5"
+                      />
+                    ) : (
+                      <img
+                        src="https://cdn.simplist.blog/assets/billing/mini-starter-badge.png"
+                        alt="Starter"
+                        className="h-5 w-5"
+                      />
+                    )}
+                  </div>
                 </div>
               </DropdownMenuItem>
             ))}
@@ -104,12 +143,17 @@ export const ProjectSwitcher = ({
             <DropdownMenuItem
               onClick={onCreateProject}
               className="gap-2 p-2"
+              disabled={isCreatingProject || projects.length >= 2}
             >
               <div className="flex size-6 items-center justify-center rounded-md border bg-background">
-                <Plus className="size-4" />
+                {isCreatingProject ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <Plus className="size-4" />
+                )}
               </div>
               <div className="font-medium text-muted-foreground">
-                Create project
+                {isCreatingProject ? "Creating..." : projects.length >= 2 ? "Limit reached (2/2)" : "Create project"}
               </div>
             </DropdownMenuItem>
           </DropdownMenuContent>

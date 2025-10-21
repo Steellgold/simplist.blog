@@ -20,14 +20,14 @@ const CreateProjectPage = async () => {
 
   const projects = await getUserProjects()
 
-  // If user already has a project, redirect to dashboard
-  if (projects.length > 0) {
+  // Check if user has reached the project limit
+  if (projects.length >= 2) {
     redirect("/dashboard")
   }
 
   return (
     <SidebarProvider>
-      <AppSidebarWrapper user={user} project={null} />
+      <AppSidebarWrapper user={user} projects={projects} />
       <div className="flex-1">
         {/* Backdrop blur */}
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40" />

@@ -1,7 +1,9 @@
 "use client"
 
+import { useActiveProject } from "@/hooks/use-active-project"
 import { authClient } from "@/lib/auth-client"
 import { useRouter } from "next/navigation"
+import { useState } from "react"
 import { AppSidebar } from "./app-sidebar"
 
 interface User {
@@ -9,6 +11,8 @@ interface User {
   name: string
   email: string
   image?: string | null
+  subscription?: string
+  subscriptionExpiresAt?: Date | null
 }
 
 interface Project {
@@ -19,11 +23,18 @@ interface Project {
 
 interface AppSidebarWrapperProps {
   user: User
-  project: Project | null
+  projects: Project[]
+  currentProject?: Project | null
 }
 
-export const AppSidebarWrapper = ({ user, project }: AppSidebarWrapperProps) => {
+export const AppSidebarWrapper = ({ user, projects, currentProject }: AppSidebarWrapperProps) => {
   const router = useRouter()
+  const [isCreatingProject, setIsCreatingProject] = useState(false)
+  
+  const { activeProject, setActiveProject, createProjectUrl } = useActiveProject({
+    projects,
+    currentProject
+  })
 
   const handleLogout = async () => {
     await authClient.signOut({
@@ -35,11 +46,27 @@ export const AppSidebarWrapper = ({ user, project }: AppSidebarWrapperProps) => 
     })
   }
 
+  const handleProjectChange = (projectId: string) => {
+    const project = projects.find(p => p.id === projectId)
+    if (project) {
+      setActiveProject(project)
+    }
+  }
+
+  const handleCreateProject = () => {
+    setIsCreatingProject(true)
+    router.push(createProjectUrl())
+  }
+
   return (
     <AppSidebar
       user={user}
-      project={project}
+      projects={projects}
+      activeProject={activeProject}
+      onProjectChange={handleProjectChange}
+      onCreateProject={handleCreateProject}
       onLogout={handleLogout}
+      isCreatingProject={isCreatingProject}
     />
   )
 }

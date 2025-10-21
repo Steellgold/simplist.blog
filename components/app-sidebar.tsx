@@ -1,17 +1,9 @@
 "use client"
 
-import {
-  BarChart3,
-  CreditCard,
-  FileText,
-  Key,
-  LayoutDashboard,
-  LogOut,
-  PencilRuler,
-  Settings,
-} from "lucide-react"
+import { LogOut } from "lucide-react"
 import Link from "next/link"
 
+import { ProjectSwitcher } from "@/components/project-switcher"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   DropdownMenu,
@@ -31,9 +23,14 @@ import {
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
+  SidebarMenuItem
 } from "@/components/ui/sidebar"
+import { cloneElement, useState } from "react"
+import { ChartLine } from "./animate-ui/icons/chart-line"
+import { LayersIcon } from "./animate-ui/icons/layers"
+import { LayoutDashboardIcon } from "./animate-ui/icons/layout-dashboard"
+import { SettingsIcon } from "./animate-ui/icons/settings"
+import { UnplugIcon } from "./animate-ui/icons/unplug"
 
 interface User {
   id: string
@@ -52,49 +49,59 @@ interface Project {
 
 interface AppSidebarProps {
   user: User
-  project: Project | null
+  projects: Project[]
+  activeProject: Project | null
+  onProjectChange?: (projectId: string) => void
+  onCreateProject?: () => void
   onLogout?: () => void
+  isCreatingProject?: boolean
 }
 
-const getNavigationItems = (isPro: boolean) => [
+const getNavigationItems = (isPro: boolean, projectSlug: string) => [
   {
     title: "Dashboard",
-    icon: LayoutDashboard,
-    href: "/dashboard",
+    icon: <LayoutDashboardIcon />,
+    href: `/${projectSlug}`,
   },
   {
     title: "Articles",
-    icon: FileText,
-    href: "/articles",
+    icon: <LayersIcon />,
+    href: `/${projectSlug}/articles`,
   },
   {
     title: "Analytics",
-    icon: BarChart3,
-    href: "/analytics",
+    icon: <ChartLine />,
+    href: `/${projectSlug}/analytics`,
+    disabled: !isPro,
+    badge: !isPro ? "https://cdn.simplist.blog/assets/billing/mini-pro-badge.png" : undefined,
   },
   {
     title: "API Keys",
-    icon: Key,
-    href: "/api-keys",
+    icon: <UnplugIcon />,
+    href: `/${projectSlug}/api-keys`,
   },
   {
     title: "Settings",
-    icon: Settings,
-    href: "/settings",
+    icon: <SettingsIcon />,
+    href: `/${projectSlug}/settings`,
   },
   {
     title: isPro ? "Billing" : "Pricing",
-    icon: CreditCard,
+    icon: <UnplugIcon />,
     href: isPro ? "/settings/billing" : "/pricing",
   },
 ]
 
 export const AppSidebar = ({
   user,
-  project,
+  projects,
+  activeProject,
+  onProjectChange,
+  onCreateProject,
   onLogout,
+  isCreatingProject = false,
 }: AppSidebarProps) => {
-  const { isMobile } = useSidebar();
+  const [itemHovered, setItemHovered] = useState<string | null>(null)
 
   const getUserInitials = () => {
     if (!user.name) return "?"
@@ -110,43 +117,19 @@ export const AppSidebar = ({
     user.subscriptionExpiresAt &&
     new Date(user.subscriptionExpiresAt) > new Date();
 
-  const navigationItems = getNavigationItems(isPro ?? false);
+  const navigationItems = getNavigationItems(isPro ?? false, activeProject?.slug || "");
 
   return (
     <Sidebar variant="floating" collapsible="icon">
       <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" className="cursor-default hover:bg-transparent">
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                <PencilRuler className="size-4" />
-              </div>
-
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <div className="flex items-center gap-2">
-                  <span className="truncate font-semibold">
-                    {project ? project.name : "Creating Project..."}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  {isPro ? (
-                    <img
-                      src="https://cdn.simplist.blog/assets/billing/badge-pro.png"
-                      alt="Pro"
-                      className="h-3.5 w-auto"
-                    />
-                  ) : (
-                    <img
-                      src="https://cdn.simplist.blog/assets/billing/badge-starter.png"
-                      alt="Starter"
-                      className="h-3.5 w-auto"
-                    />
-                  )}
-                </div>
-              </div>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <ProjectSwitcher
+          projects={projects}
+          activeProjectId={activeProject?.id}
+          user={user}
+          onProjectChange={onProjectChange}
+          onCreateProject={onCreateProject}
+          isCreatingProject={isCreatingProject}
+        />
       </SidebarHeader>
 
       <SidebarContent>
@@ -156,11 +139,37 @@ export const AppSidebar = ({
             <SidebarMenu>
               {navigationItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton asChild>
-                    <Link href={item.href}>
-                      <item.icon className="size-4" />
-                      <span>{item.title}</span>
-                    </Link>
+                  <SidebarMenuButton 
+                    asChild={!item.disabled}
+                    disabled={item.disabled}
+                    className={item.disabled ? "opacity-50 cursor-not-allowed" : ""}
+                    onMouseEnter={() => setItemHovered(item.href)}
+                    onMouseLeave={() => setItemHovered(null)}
+                  >
+                    {item.disabled ? (
+                      <div className="flex items-center gap-2 w-full [&>svg]:size-4">
+                        {cloneElement(item.icon as React.ReactElement, {
+                          // @ts-ignore
+                          animate: itemHovered === item.href
+                        })}
+                        <span className="flex-1">{item.title}</span>
+                        {item.badge && (
+                          <img
+                            src={item.badge}
+                            alt="Pro"
+                            className="h-4 w-4"
+                          />
+                        )}
+                      </div>
+                    ) : (
+                      <Link href={item.href}>
+                        {cloneElement(item.icon as React.ReactElement, {
+                          // @ts-ignore
+                          animate: itemHovered === item.href
+                        })}
+                        <span>{item.title}</span>
+                      </Link>
+                    )}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}

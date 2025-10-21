@@ -20,6 +20,7 @@ import { Spinner } from "./ui/spinner"
 export const CreateProjectForm = ({ className, ...props }: React.ComponentProps<"div">) => {
   const router = useRouter()
   const [error, setError] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const form = useForm<CreateProjectInput>({
     resolver: zodResolver(createProjectSchema),
@@ -30,7 +31,7 @@ export const CreateProjectForm = ({ className, ...props }: React.ComponentProps<
     },
   })
 
-  const { register, control, handleSubmit, formState: { errors, isSubmitting } } = form
+  const { register, control, handleSubmit, formState: { errors } } = form
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -39,6 +40,7 @@ export const CreateProjectForm = ({ className, ...props }: React.ComponentProps<
 
   const onSubmit = async (data: CreateProjectInput) => {
     setError("")
+    setIsSubmitting(true)
     const slug = generateSlug(data.name)
 
     toast.promise(
@@ -49,14 +51,16 @@ export const CreateProjectForm = ({ className, ...props }: React.ComponentProps<
         allowedOrigins: data.allowedOrigins || []
       }), {
         loading: "Creating project...",
-        success: () => {
-          router.push("/dashboard")
+        success: (project) => {
+          router.push(`/${project.slug}`)
           router.refresh()
+          setIsSubmitting(false)
           return "Project created"
         },
         error: (err: unknown) => {
           const message = err instanceof Error ? err.message : "Failed to create project"
           setError(message)
+          setIsSubmitting(false)
           return message
         },
       }
@@ -106,6 +110,7 @@ export const CreateProjectForm = ({ className, ...props }: React.ComponentProps<
                     <p className="text-destructive text-sm mt-1">{errors.description.message}</p>
                   )}
                 </Field>
+
 
                 <Field>
                   <FieldLabel>Allowed Origins (Optional)</FieldLabel>

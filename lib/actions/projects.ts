@@ -2,9 +2,9 @@
 
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
-import { createProjectSchema, CreateProjectActionInput } from "../validations/project"
 import { getCurrentUser } from "../auth-helper"
 import { prisma } from "../db"
+import { CreateProjectActionInput, createProjectSchema } from "../validations/project"
 
 export const getUserProjects = async () => {
   const user = await getCurrentUser()
@@ -32,6 +32,17 @@ export const createProject = async (input: CreateProjectActionInput) => {
     redirect("/auth/login")
   }
 
+  // Check if user has reached the project limit (2 projects max)
+  const existingProjects = await prisma.project.count({
+    where: {
+      userId: user.id,
+    },
+  })
+
+  if (existingProjects >= 2) {
+    throw new Error("You have reached the maximum limit of 2 projects. Please delete an existing project to create a new one.")
+  }
+
   // Validate input with Zod
   const validatedData = createProjectSchema.parse({
     name: input.name,
@@ -41,17 +52,6 @@ export const createProject = async (input: CreateProjectActionInput) => {
 
   // Extract string values from the validated data
   const allowedOriginStrings = validatedData.allowedOrigins.map(origin => origin.value)
-
-  // Check if user already has a project (single project mode)
-  const existingProjects = await prisma.project.findMany({
-    where: {
-      userId: user.id,
-    },
-  })
-
-  if (existingProjects.length > 0) {
-    throw new Error("You already have a project. Only one project per user is allowed.")
-  }
 
   // Check if slug already exists for this user and make it unique if needed
   let finalSlug = input.slug

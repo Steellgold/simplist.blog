@@ -1,13 +1,13 @@
 "use client"
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useProject } from "@/hooks/use-project-context"
 import {
   createApiKey as createApiKeyAction,
   deleteApiKey as deleteApiKeyAction,
   getProjectApiKeys,
 } from "@/lib/actions/api-keys"
-import { getUserProjects } from "@/lib/actions/projects"
 import type { ApiKey } from "@prisma/client"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 
 export type ApiKeySelect = Pick<
   ApiKey,
@@ -21,19 +21,19 @@ export const apiKeysKeys = {
 }
 
 export const useApiKeys = () => {
+  const { currentProject } = useProject()
+  
   return useQuery({
-    queryKey: apiKeysKeys.lists(),
+    queryKey: apiKeysKeys.list(currentProject?.id || ""),
     queryFn: async (): Promise<{ apiKeys: ApiKeySelect[]; projectId: string | null }> => {
-      const projects = await getUserProjects()
-      const project = projects[0]
-
-      if (!project) {
+      if (!currentProject) {
         return { apiKeys: [], projectId: null }
       }
 
-      const apiKeys = await getProjectApiKeys(project.id)
-      return { apiKeys, projectId: project.id }
+      const apiKeys = await getProjectApiKeys(currentProject.id)
+      return { apiKeys, projectId: currentProject.id }
     },
+    enabled: !!currentProject,
     staleTime: 5 * 60 * 1000, // 5 minutes
   })
 }
