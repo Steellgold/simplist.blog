@@ -2,21 +2,13 @@
 
 import { Button } from "@/components/ui/button";
 import { UserDropdown } from "@/components/user-dropdown";
+import { authClient } from "@/lib/auth-client";
 import Image from "next/image";
 import Link from "next/link";
 
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  image?: string | null;
-}
+export const HomeHeader = () => {
+  const { data, isPending } = authClient.useSession();
 
-interface HomeHeaderProps {
-  user: User | null;
-}
-
-export const HomeHeader = ({ user }: HomeHeaderProps) => {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4">
@@ -42,8 +34,8 @@ export const HomeHeader = ({ user }: HomeHeaderProps) => {
               </Link>
             </nav>
 
-            {user ? (
-              <UserDropdown user={user} />
+            {!isPending && data ? (
+              <UserDropdown user={data.user} />
             ) : (
               <div className="flex items-center gap-2">
                 <Button variant="ghost" asChild>

@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { Observer } from "tailwindcss-intersect";
 import { useEffect } from "react";
+import { Observer } from "tailwindcss-intersect";
 
 export const ObserverProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
