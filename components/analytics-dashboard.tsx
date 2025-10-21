@@ -1,4 +1,4 @@
-'use client'
+"use client"
 
 import { Button } from '@/components/ui/button'
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -127,19 +127,19 @@ const DEVICE_COLORS = [
 ]
 
 export const AnalyticsDashboard = ({ analyticsData }: AnalyticsDashboardProps) => {
-  const [selectedPeriod, setSelectedPeriod] = useQueryState('days', parseAsInteger.withDefault(7))
-  const [selectedLocationTab, setSelectedLocationTab] = useQueryState('location', parseAsInteger.withDefault(0))
-  const [selectedChartTab, setSelectedChartTab] = useQueryState('chart', parseAsInteger.withDefault(0))
+  const [selectedPeriod, setSelectedPeriod] = useQueryState("days", parseAsInteger.withDefault(7))
+  const [selectedLocationTab, setSelectedLocationTab] = useQueryState("location", parseAsInteger.withDefault(0))
+  const [selectedChartTab, setSelectedChartTab] = useQueryState("chart", parseAsInteger.withDefault(0))
   const isMobile = useIsMobile()
 
   // Get analytics data for selected period
-  const analytics = analyticsData[selectedPeriod.toString()] || analyticsData['7']
+  const analytics = analyticsData[selectedPeriod.toString()] || analyticsData["7"]
 
   // Chart data for views over time
   const chartData = analytics.viewsOverTime?.map(stat => {
     // stat.date is already in ISO format (YYYY-MM-DD)
-    const dateObj = new Date(stat.date + 'T00:00:00') // Add time to ensure correct timezone handling
-    const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    const dateObj = new Date(stat.date + "T00:00:00") // Add time to ensure correct timezone handling
+    const formattedDate = dateObj.toLocaleDateString("en-US", { month: "short", day: "numeric" })
     // Keep avgTimeOnPage in seconds for better visibility
     const engagementSeconds = Math.round(stat.avgTimeOnPage || 0)
     return {
@@ -278,10 +278,10 @@ export const AnalyticsDashboard = ({ analyticsData }: AnalyticsDashboardProps) =
       <Card>
         <CardHeader>
           <CardTitle>
-            {selectedChartTab === 0 && 'Traffic Overview'}
-            {selectedChartTab === 1 && 'Views Traffic'}
-            {selectedChartTab === 2 && 'Visitors Traffic'}
-            {selectedChartTab === 3 && 'Engagement Traffic'}
+            {selectedChartTab === 0 && "Traffic Overview"}
+            {selectedChartTab === 1 && "Views Traffic"}
+            {selectedChartTab === 2 && "Visitors Traffic"}
+            {selectedChartTab === 3 && "Engagement Traffic"}
           </CardTitle>
           
           <CardDescription>
@@ -295,7 +295,7 @@ export const AnalyticsDashboard = ({ analyticsData }: AnalyticsDashboardProps) =
                 size="sm"
                 onClick={() => setSelectedPeriod(7)}
               >
-                {isMobile ? '7d' : '7 days'}
+                {isMobile ? "7d" : "7 days"}
               </Button>
 
               <Button
@@ -303,7 +303,7 @@ export const AnalyticsDashboard = ({ analyticsData }: AnalyticsDashboardProps) =
                 size="sm"
                 onClick={() => setSelectedPeriod(30)}
               >
-                {isMobile ? '30d' : '30 days'}
+                {isMobile ? "30d" : "30 days"}
               </Button>
 
               <Button
@@ -311,7 +311,7 @@ export const AnalyticsDashboard = ({ analyticsData }: AnalyticsDashboardProps) =
                 size="sm"
                 onClick={() => setSelectedPeriod(90)}
               >
-                {isMobile ? '90d' : '90 days'}
+                {isMobile ? "90d" : "90 days"}
               </Button>
 
               {/* Chart type dropdown after period buttons for all screen sizes */}
@@ -501,8 +501,8 @@ export const AnalyticsDashboard = ({ analyticsData }: AnalyticsDashboardProps) =
                       <ChartTooltip 
                         content={<ChartTooltipContent 
                           formatter={(value, name) => {
-                            if (name === 'engagement') {
-                              return [`${value}s `, 'Engagement']
+                            if (name === "engagement") {
+                              return [`${value}s `, "Engagement"]
                             }
                             return [value, name]
                           }}
@@ -570,7 +570,7 @@ export const AnalyticsDashboard = ({ analyticsData }: AnalyticsDashboardProps) =
               <div className="space-y-2">
                 {referrerData.length > 0 ? (
                   referrerData.map((referrer) => {
-                    const isDirect = referrer.referrer === 'Direct'
+                    const isDirect = referrer.referrer === "Direct"
                     const ReferrerIcon = isDirect ? MousePointerClick : Link2
 
                     return (

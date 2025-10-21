@@ -1,7 +1,8 @@
-'use server'
+"use server"
 
 import { getCurrentUser } from '@/lib/auth-helper'
 import { analyticsCacheUtils, apiKeyCache, prisma } from '@/lib/db'
+import { checkAnalyticsAccess } from '@/lib/subscription/quota-check'
 import { Prisma } from '@prisma/client'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
@@ -209,9 +210,9 @@ export const getBatchArticleViewsOverTime = async (
       .filter(row => row.articleId === articleId)
       .forEach(row => {
         // PostgreSQL DATE returns a string in ISO format
-        const dateStr = typeof row.date === 'string'
-          ? row.date.split('T')[0]
-          : String(row.date).split('T')[0]
+        const dateStr = typeof row.date === "string"
+          ? row.date.split("T")[0]
+          : String(row.date).split("T")[0]
 
         dataMap.set(dateStr, {
           views: Number(row.views),
@@ -224,7 +225,7 @@ export const getBatchArticleViewsOverTime = async (
     const viewsOverTime = dateArray.map(date => {
       const data = dataMap.get(date) || { views: 0, uniqueVisitors: 0, avgTimeOnPage: 0 }
       return {
-        date: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        date: new Date(date).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
         views: data.views,
         uniqueVisitors: data.uniqueVisitors,
         avgTimeOnPage: data.avgTimeOnPage
@@ -413,7 +414,7 @@ export const getProjectAnalytics = async (projectId: string, days: number = 30, 
     prisma.pageView.findMany({
       where: baseWhere,
       include: { article: { select: { title: true } } },
-      orderBy: { timestamp: 'desc' },
+      orderBy: { timestamp: "desc" },
       take: 20
     })
   ])
@@ -430,8 +431,8 @@ export const getProjectAnalytics = async (projectId: string, days: number = 30, 
     const article = articles.find(a => a.id === ta.articleId)
     return {
       id: ta.articleId,
-      title: article?.title || 'Unknown',
-      slug: article?.slug || '',
+      title: article?.title || "Unknown",
+      slug: article?.slug || "",
       views: ta._count.id,
       avgTimeOnPage: Math.round(ta._avg.timeOnPage || 0),
       avgScrollDepth: Math.round(ta._avg.scrollDepth || 0)
@@ -445,29 +446,29 @@ export const getProjectAnalytics = async (projectId: string, days: number = 30, 
   }))
 
   const topCities = topCitiesData.map(tc => ({
-    city: tc.city || 'Unknown',
-    country: tc.country || 'Unknown',
+    city: tc.city || "Unknown",
+    country: tc.country || "Unknown",
     countryCode: tc.countryCode || '',
     views: tc._count.id,
     percentage: Math.round((tc._count.id / totalViews) * 100)
   }))
 
   const topRegions = topRegionsData.map(tr => ({
-    region: tr.region || 'Unknown',
-    country: tr.country || 'Unknown',
+    region: tr.region || "Unknown",
+    country: tr.country || "Unknown",
     countryCode: tr.countryCode || '',
     views: tr._count.id,
     percentage: Math.round((tr._count.id / totalViews) * 100)
   }))
 
   const deviceStats = deviceStatsData.map(ds => ({
-    device: ds.device || 'Unknown',
+    device: ds.device || "Unknown",
     views: ds._count.id,
     percentage: Math.round((ds._count.id / totalViews) * 100)
   }))
 
   const browserStats = browserStatsData.map(bs => ({
-    browser: bs.browser || 'Unknown',
+    browser: bs.browser || "Unknown",
     views: bs._count.id,
     percentage: Math.round((bs._count.id / totalViews) * 100)
   }))
@@ -475,13 +476,13 @@ export const getProjectAnalytics = async (projectId: string, days: number = 30, 
   // Combine referrers with direct traffic
   const topReferrers = [
     ...topReferrersData.map(tr => ({
-      referrer: tr.referrerDomain || 'Direct',
+      referrer: tr.referrerDomain || "Direct",
       views: tr._count.id,
       percentage: Math.round((tr._count.id / totalViews) * 100)
     })),
     // Add direct traffic if it exists
     ...(directTrafficCount > 0 ? [{
-      referrer: 'Direct',
+      referrer: "Direct",
       views: directTrafficCount,
       percentage: Math.round((directTrafficCount / totalViews) * 100)
     }] : [])
@@ -494,9 +495,9 @@ export const getProjectAnalytics = async (projectId: string, days: number = 30, 
   const viewsOverTimeMap = new Map(
     viewsOverTimeData.map(row => {
       // PostgreSQL DATE returns a string in ISO format
-      const dateStr = typeof row.date === 'string'
-        ? row.date.split('T')[0]
-        : (row.date as Date).toISOString().split('T')[0]
+      const dateStr = typeof row.date === "string"
+        ? row.date.split("T")[0]
+        : (row.date as Date).toISOString().split("T")[0]
 
       return [
         dateStr,
@@ -515,7 +516,7 @@ export const getProjectAnalytics = async (projectId: string, days: number = 30, 
     date.setDate(date.getDate() - i)
     // Force to midnight UTC to ensure consistent date strings
     date.setUTCHours(0, 0, 0, 0)
-    const dateStr = date.toISOString().split('T')[0]
+    const dateStr = date.toISOString().split("T")[0]
     const data = viewsOverTimeMap.get(dateStr) || { views: 0, uniqueVisitors: 0, avgTimeOnPage: 0 }
     
     viewsOverTime.push({
@@ -530,9 +531,9 @@ export const getProjectAnalytics = async (projectId: string, days: number = 30, 
   const recentViews = recentViewsData.map(rv => ({
     id: rv.id,
     articleTitle: rv.article.title,
-    country: rv.country || 'Unknown',
-    device: rv.device || 'Unknown',
-    browser: rv.browser || 'Unknown',
+    country: rv.country || "Unknown",
+    device: rv.device || "Unknown",
+    browser: rv.browser || "Unknown",
     timeOnPage: rv.timeOnPage || 0,
     scrollDepth: rv.scrollDepth || 0,
     timestamp: rv.timestamp.toISOString(),
@@ -578,7 +579,13 @@ export const enableAnalytics = async (projectId: string) => {
   const user = await getCurrentUser()
 
   if (!user) {
-    redirect('/auth/login')
+    redirect("/auth/login")
+  }
+
+  // Check if user has access to analytics (Pro feature)
+  const hasAccess = await checkAnalyticsAccess(user.id);
+  if (!hasAccess) {
+    throw new Error("Analytics is only available on the Pro plan. Upgrade to unlock advanced analytics features.");
   }
 
   // Verify the project belongs to the user
@@ -590,12 +597,12 @@ export const enableAnalytics = async (projectId: string) => {
   })
 
   if (!project) {
-    throw new Error('Project not found or you don\'t have permission')
+    throw new Error("Project not found or you don't have permission")
   }
 
   // Check if analytics is already enabled
   if (project.analyticsEnabled) {
-    throw new Error('Analytics is already enabled for this project')
+    throw new Error("Analytics is already enabled for this project")
   }
 
   // Enable analytics on the project
@@ -609,12 +616,12 @@ export const enableAnalytics = async (projectId: string) => {
 
   const newApiKey = await prisma.apiKey.create({
     data: {
-      name: 'Analytics Tracking Key',
+      name: "Analytics Tracking Key",
       key: publicKey,
-      type: 'public',
-      permissions: ['analytics'],
+      type: "public",
+      permissions: ["analytics"],
       projectId: projectId,
-      status: 'active',
+      status: "active",
     },
   })
 
@@ -623,7 +630,7 @@ export const enableAnalytics = async (projectId: string) => {
     // Ignore cache invalidation errors
   })
 
-  revalidatePath('/analytics')
+  revalidatePath("/analytics")
 
   return {
     success: true,

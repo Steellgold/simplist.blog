@@ -68,7 +68,7 @@ export const RecentActivityTable = ({ data }: RecentActivityTableProps) => {
                 if (view.referrerDomain) trafficInfo.push(`from ${view.referrerDomain}`)
                 if (view.utmSource) trafficInfo.push(`via ${view.utmSource}`)
                 if (view.utmMedium) trafficInfo.push(`(${view.utmMedium})`)
-                const trafficSummary = trafficInfo.length > 0 ? trafficInfo.join(' ') : 'Direct'
+                const trafficSummary = trafficInfo.length > 0 ? trafficInfo.join(" ") : "Direct"
 
                 return (
                   <TableRow key={view.id}>
@@ -126,7 +126,7 @@ export const RecentActivityTable = ({ data }: RecentActivityTableProps) => {
               )}
             </>
           ) : (
-            'No entries'
+            "No entries"
           )}
         </div>
         <ButtonGroup>
