@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Terms of Service",
@@ -156,7 +157,7 @@ const TermsOfServicePage = () => {
         <li>You delete your account</li>
       </ul>
       <p>
-        For more information, see our <a href="/legal/privacy">Privacy Policy</a>.
+        For more information, see our <Link href="/legal/privacy">Privacy Policy</Link>.
       </p>
 
       <h2>8. Service Availability</h2>
@@ -263,7 +264,7 @@ const TermsOfServicePage = () => {
 
       <h2>15. GDPR and Data Protection</h2>
       <p>
-        As a service operating in the European Union, we comply with the General Data Protection Regulation (GDPR). Your data protection rights are detailed in our <a href="/legal/privacy">Privacy Policy</a> and <a href="/legal/gdpr">GDPR Compliance Document</a>.
+        As a service operating in the European Union, we comply with the General Data Protection Regulation (GDPR). Your data protection rights are detailed in our <Link href="/legal/privacy">Privacy Policy</Link> and <Link href="/legal/gdpr">GDPR Compliance Document</Link>.
       </p>
 
       <h2>16. Contact Information</h2>

@@ -1,7 +1,7 @@
 import { getCurrentUser } from "@/lib/auth-helper";
 import { prisma } from "@/lib/db";
 import { getUserSubscription } from "@/lib/subscription/quota-check";
-import { SUBSCRIPTION_LIMITS, SUBSCRIPTION_PRICING } from "@/lib/subscription/types";
+import { SUBSCRIPTION_PRICING } from "@/lib/subscription/types";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { BillingCard } from "@/components/billing-card";

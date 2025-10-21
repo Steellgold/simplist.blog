@@ -17,10 +17,10 @@ export const ApiDemoSection = () => {
             <div className="bg-card border rounded-lg p-6 font-mono text-sm overflow-x-auto">
               <pre className="text-muted-foreground">
 {`// Using our TypeScript SDK
-`}<span className="text-blue-400">import</span>{` { SimplistClient } `}<span className="text-blue-400">from</span>{` `}<span className="text-green-400">'@simplist.blog/sdk'</span>{`
+`}<span className="text-blue-400">import</span>{` { SimplistClient } `}<span className="text-blue-400">from</span>{` `}<span className="text-green-400">&apos;@simplist.blog/sdk&apos;</span>{`
 
 `}<span className="text-blue-400">const</span>{` client = `}<span className="text-blue-400">new</span>{` `}<span className="text-yellow-400">SimplistClient</span>{`({
-  apiKey: `}<span className="text-green-400">'pk_your_key_here'</span>{`
+  apiKey: `}<span className="text-green-400">&apos;pk_your_key_here&apos;</span>{`
 })
 
 `}<span className="text-blue-400">const</span>{` articles = `}<span className="text-blue-400">await</span>{` client.`}<span className="text-yellow-400">getArticles</span>{`()`}
@@ -33,18 +33,18 @@ export const ApiDemoSection = () => {
             <div className="bg-card border rounded-lg p-6 font-mono text-sm overflow-x-auto">
               <pre className="text-muted-foreground">
 {`{
-  `}<span className="text-blue-400">"data"</span>{`: {
-    `}<span className="text-blue-400">"id"</span>{`: `}<span className="text-green-400">"clh..."</span>{`,
-    `}<span className="text-blue-400">"title"</span>{`: `}<span className="text-green-400">"My Article"</span>{`,
-    `}<span className="text-blue-400">"slug"</span>{`: `}<span className="text-green-400">"my-article"</span>{`,
-    `}<span className="text-blue-400">"excerpt"</span>{`: `}<span className="text-green-400">"A brief summary..."</span>{`,
-    `}<span className="text-blue-400">"content"</span>{`: `}<span className="text-green-400">"Full article content..."</span>{`,
-    `}<span className="text-blue-400">"coverImage"</span>{`: `}<span className="text-green-400">"https://..."</span>{`,
-    `}<span className="text-blue-400">"published"</span>{`: `}<span className="text-yellow-400">true</span>{`,
-    `}<span className="text-blue-400">"viewCount"</span>{`: `}<span className="text-yellow-400">142</span>{`,
-    `}<span className="text-blue-400">"wordCount"</span>{`: `}<span className="text-yellow-400">850</span>{`,
-    `}<span className="text-blue-400">"readTimeMinutes"</span>{`: `}<span className="text-yellow-400">4</span>{`,
-    `}<span className="text-blue-400">"publishedAt"</span>{`: `}<span className="text-green-400">"2024-01-15T10:00:00Z"</span>{`
+  `}<span className="text-blue-400">&quot;data&quot;</span>{`: {
+    `}<span className="text-blue-400">&quot;id&quot;</span>{`: `}<span className="text-green-400">&quot;clh...&quot;</span>{`,
+    `}<span className="text-blue-400">&quot;title&quot;</span>{`: `}<span className="text-green-400">&quot;My Article&quot;</span>{`,
+    `}<span className="text-blue-400">&quot;slug&quot;</span>{`: `}<span className="text-green-400">&quot;my-article&quot;</span>{`,
+    `}<span className="text-blue-400">&quot;excerpt&quot;</span>{`: `}<span className="text-green-400">&quot;A brief summary...&quot;</span>{`,
+    `}<span className="text-blue-400">&quot;content&quot;</span>{`: `}<span className="text-green-400">&quot;Full article content...&quot;</span>{`,
+    `}<span className="text-blue-400">&quot;coverImage&quot;</span>{`: `}<span className="text-green-400">&quot;https://...&quot;</span>{`,
+    `}<span className="text-blue-400">&quot;published&quot;</span>{`: `}<span className="text-yellow-400">true</span>{`,
+    `}<span className="text-blue-400">&quot;viewCount&quot;</span>{`: `}<span className="text-yellow-400">142</span>{`,
+    `}<span className="text-blue-400">&quot;wordCount&quot;</span>{`: `}<span className="text-yellow-400">850</span>{`,
+    `}<span className="text-blue-400">&quot;readTimeMinutes&quot;</span>{`: `}<span className="text-yellow-400">4</span>{`,
+    `}<span className="text-blue-400">&quot;publishedAt&quot;</span>{`: `}<span className="text-green-400">&quot;2024-01-15T10:00:00Z&quot;</span>{`
   }
 }`}
               </pre>
