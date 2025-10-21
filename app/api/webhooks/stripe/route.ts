@@ -4,6 +4,10 @@ import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
+interface InvoiceWithSubscription extends Stripe.Invoice {
+  subscription?: string | null;
+}
+
 export const POST = async (req: Request) => {
   const body = await req.text();
   const signature = (await headers()).get("stripe-signature");
@@ -119,11 +123,11 @@ export const POST = async (req: Request) => {
       }
 
       case "invoice.payment_succeeded": {
-        const invoice = event.data.object as Stripe.Invoice;
+        const invoice = event.data.object as InvoiceWithSubscription;
 
-        if ((invoice as any).subscription) {
+        if (invoice.subscription) {
           const subscription = await stripe.subscriptions.retrieve(
-            (invoice as any).subscription as string
+            invoice.subscription
           );
 
           const userId = subscription.metadata?.userId;
@@ -148,11 +152,11 @@ export const POST = async (req: Request) => {
       }
 
       case "invoice.payment_failed": {
-        const invoice = event.data.object as Stripe.Invoice;
+        const invoice = event.data.object as InvoiceWithSubscription;
 
-        if ((invoice as any).subscription) {
+        if (invoice.subscription) {
           const subscription = await stripe.subscriptions.retrieve(
-            (invoice as any).subscription as string
+            invoice.subscription
           );
 
           const userId = subscription.metadata?.userId;
