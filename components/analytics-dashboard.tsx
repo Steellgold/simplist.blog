@@ -8,6 +8,7 @@ import {
   ChartTooltip,
   ChartTooltipContent
 } from '@/components/ui/chart'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { AnalyticsDataMultiPeriod } from '@/lib/actions/analytics'
 import { getCountryCode, getCountryFlagUrl, getCountryInfo } from '@/lib/utils/countries'
@@ -276,13 +277,18 @@ export const AnalyticsDashboard = ({ analyticsData }: AnalyticsDashboardProps) =
       {/* Main Chart */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Traffic Overview</CardTitle>
-              <CardDescription>
-                Views and visitors evolution over the last {selectedPeriod} days
-              </CardDescription>
-            </div>
+          <CardTitle>
+            {selectedChartTab === 0 && 'Traffic Overview'}
+            {selectedChartTab === 1 && 'Views Traffic'}
+            {selectedChartTab === 2 && 'Visitors Traffic'}
+            {selectedChartTab === 3 && 'Engagement Traffic'}
+          </CardTitle>
+          
+          <CardDescription>
+            Traffic evolution over the last {selectedPeriod} days
+          </CardDescription>
+
+          <CardAction>
             <ButtonGroup>
               <Button
                 variant={selectedPeriod === 7 ? "default" : "outline"}
@@ -307,18 +313,25 @@ export const AnalyticsDashboard = ({ analyticsData }: AnalyticsDashboardProps) =
               >
                 {isMobile ? '90d' : '90 days'}
               </Button>
+
+              {/* Chart type dropdown after period buttons for all screen sizes */}
+              <Select value={selectedChartTab.toString()} onValueChange={(value) => setSelectedChartTab(parseInt(value))}>
+                <SelectTrigger className="!h-8">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="0">Overview</SelectItem>
+                  <SelectItem value="1">Views</SelectItem>
+                  <SelectItem value="2">Visitors</SelectItem>
+                  <SelectItem value="3">Engagement</SelectItem>
+                </SelectContent>
+              </Select>
             </ButtonGroup>
-          </div>
+          </CardAction>
         </CardHeader>
 
         <CardContent>
           <div className="space-y-4">
-            <ButtonGroup className="-mt-4">
-              <Button variant={selectedChartTab === 0 ? "default" : "outline"} size="sm" onClick={() => setSelectedChartTab(0)}>Overview</Button>
-              <Button variant={selectedChartTab === 1 ? "default" : "outline"} size="sm" onClick={() => setSelectedChartTab(1)}>Views</Button>
-              <Button variant={selectedChartTab === 2 ? "default" : "outline"} size="sm" onClick={() => setSelectedChartTab(2)}>Visitors</Button>
-              <Button variant={selectedChartTab === 3 ? "default" : "outline"} size="sm" onClick={() => setSelectedChartTab(3)}>Engagement</Button>
-            </ButtonGroup>
 
             {selectedChartTab === 0 && (
               <div className="space-y-4">
