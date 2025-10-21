@@ -77,7 +77,6 @@ const BillingPage = async () => {
         />
 
         <UsageCard
-          tier={subscription.tier}
           usage={{
             articles: {
               current: articleCount,
