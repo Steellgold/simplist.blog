@@ -2,7 +2,7 @@ import { getCurrentUser } from "@/lib/auth-helper";
 import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
 
-export const GET = async () => {
+export const GET = async (request: Request) => {
   try {
     const currentUser = await getCurrentUser();
 
@@ -10,46 +10,49 @@ export const GET = async () => {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Get user subscription data
-    const user = await prisma.user.findUnique({
-      where: { id: currentUser.id },
+    // Get project ID from query params
+    const { searchParams } = new URL(request.url);
+    const projectId = searchParams.get('projectId');
+
+    if (!projectId) {
+      return NextResponse.json({ error: "Project ID is required" }, { status: 400 });
+    }
+
+    // Get project subscription data
+    const project = await prisma.project.findFirst({
+      where: {
+        id: projectId,
+        userId: currentUser.id,
+      },
       select: {
         id: true,
-        subscription: true,
+        subscriptionTier: true,
         subscriptionExpiresAt: true,
-        projects: {
+        apiKeys: {
+          where: {
+            deletedAt: null, // Only count active API keys
+          },
           select: {
             id: true,
-            apiKeys: {
-              where: {
-                deletedAt: null, // Only count active API keys
-              },
-              select: {
-                id: true,
-              },
-            },
           },
         },
       },
     });
 
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    if (!project) {
+      return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
-    // Count total API keys across all user projects
-    const apiKeyCount = user.projects.reduce(
-      (total, project) => total + project.apiKeys.length,
-      0
-    );
+    // Count API keys for this project
+    const apiKeyCount = project.apiKeys.length;
 
     // Determine subscription tier (default to free if null)
-    const subscriptionTier = user.subscription || "free";
+    const subscriptionTier = project.subscriptionTier || "free";
 
     return NextResponse.json({
       subscription: {
         tier: subscriptionTier,
-        subscriptionExpiresAt: user.subscriptionExpiresAt,
+        subscriptionExpiresAt: project.subscriptionExpiresAt,
       },
       apiKeyCount,
     });
