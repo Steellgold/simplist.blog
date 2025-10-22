@@ -1,170 +1,144 @@
 "use client";
 
+import NumberFlow from "@number-flow/react";
 import Footer from "@/components/footer";
 import { HomeHeader } from "@/components/home-header";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 import { createCheckoutSession } from "@/lib/stripe/actions";
 import { getAllPlans, getPlanPrice, type SubscriptionInterval } from "@/lib/subscription/plans";
-import { Check, Loader2, X } from "lucide-react";
+import { ArrowRight, BadgeCheck, Loader2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Spinner } from "@/components/ui/spinner";
 
 const PricingPage = () => {
-  const [isYearly, setIsYearly] = useState(true);
-  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const [frequency, setFrequency] = useState<SubscriptionInterval>("monthly");
+  const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
   
   const plans = getAllPlans();
-  const interval: SubscriptionInterval = isYearly ? "yearly" : "monthly";
+  const interval: SubscriptionInterval = frequency;
 
   const handleUpgrade = async (planInterval: SubscriptionInterval) => {
-    setLoadingPlan(planInterval);
+    setLoading(true);
     try {
       const { url } = await createCheckoutSession(planInterval);
       window.location.href = url;
     } catch (error) {
       console.error("Error creating checkout session:", error);
-      setLoadingPlan(null);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary/20">
       <HomeHeader />
-      
       <div className="container mx-auto px-4 py-16 max-w-6xl">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4">Choose your plan</h1>
+        <div className="flex flex-col items-center text-center mb-12">
+          <h1 className="text-4xl font-bold">Simple, transparent pricing</h1>
           <p className="text-muted-foreground text-lg mb-8">
-            Start free, upgrade when you need more power
+            Start free and scale when you need more.
           </p>
-          
-          {/* Billing Toggle */}
-          <div className="flex items-center justify-center gap-4 mb-8">
-            <span className={`text-sm ${!isYearly ? 'text-foreground' : 'text-muted-foreground'}`}>
-              Monthly
-            </span>
-            <Switch
-              checked={isYearly}
-              onCheckedChange={setIsYearly}
-              className="data-[state=checked]:bg-primary"
-            />
-            <span className={`text-sm ${isYearly ? 'text-foreground' : 'text-muted-foreground'}`}>
-              Yearly
-            </span>
-            <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full dark:bg-green-900 dark:text-green-300">
-              Save 20%
-            </span>
-          </div>
+          <Tabs defaultValue={frequency} onValueChange={(v) => setFrequency(v as SubscriptionInterval)} className="flex justify-center">
+            <TabsList>
+              <TabsTrigger value="monthly">Monthly</TabsTrigger>
+              <TabsTrigger value="yearly">
+                Yearly
+                <Badge variant="secondary" className="bg-green-800 border-green-600 text-white ml-1">20% off</Badge>
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        <div className="mt-8 items-center grid w-full max-w-4xl mx-auto md:grid-cols-2 gap-4">
           {plans.map((plan) => {
             const currentPrice = getPlanPrice(plan.id, interval) || plan.prices[0];
-            const isProPlan = plan.id === "pro";
-            const buttonLoading = loadingPlan === interval && isProPlan;
-            
+            const isNumeric = typeof currentPrice.amount === "number";
+            const isFree = plan.id === "free";
+
             return (
-              <Card key={plan.id} className={`relative ${plan.popular ? 'border-primary shadow-lg' : ''}`}>
-                {plan.highlight && (
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <span className="bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-medium">
-                      {plan.highlight}
-                    </span>
-                  </div>
-                )}
-                
-                <CardHeader>
-                  <CardTitle className="text-2xl">{plan.name}</CardTitle>
-                  <CardDescription>{plan.description}</CardDescription>
-                  <div className="mt-4">
-                    <span className="text-4xl font-bold">{currentPrice.displayAmount}</span>
-                    <span className="text-muted-foreground">{currentPrice.displayInterval}</span>
-                  </div>
-                  {currentPrice.yearlyEquivalent && (
-                    <p className="text-sm text-muted-foreground">
-                      {currentPrice.yearlyEquivalent} ({currentPrice.savings})
-                    </p>
+              <div key={plan.id}>
+                <Card
+                  key={plan.id}
+                  className={cn("relative w-full text-left", plan.popular && "ring-2 ring-primary")}
+                >
+                  {plan.popular && (
+                    <Badge className="-translate-x-1/2 -translate-y-1/2 absolute top-0 left-1/2 rounded-full">
+                      {plan.highlight || "Popular"}
+                    </Badge>
                   )}
-                </CardHeader>
-                
-                <CardContent className="space-y-4">
-                  <ul className="space-y-3">
+                  <CardHeader>
+                    <CardTitle className="font-medium text-xl">{plan.name}</CardTitle>
+                    <CardDescription>
+                      <p>{plan.description}</p>
+                      {isNumeric ? (
+                        <NumberFlow
+                          className="font-medium text-foreground"
+                          format={{ style: "currency", currency: "USD", maximumFractionDigits: 0 }}
+                          suffix={` ${currentPrice.displayInterval}`}
+                          value={currentPrice.amount}
+                        />
+                      ) : (
+                        <span className="font-medium text-foreground">{currentPrice.displayAmount} {currentPrice.displayInterval}</span>
+                      )}
+                      {currentPrice.yearlyEquivalent && (
+                        <span className="block text-sm text-muted-foreground">
+                          {currentPrice.yearlyEquivalent} ({currentPrice.savings})
+                        </span>
+                      )}
+                    </CardDescription>
+                  </CardHeader>
+
+                  <CardContent className="grid gap-2">
                     {plan.features.map((feature, index) => (
-                      <li key={index} className="flex items-center gap-3">
+                      <div 
+                        className={cn(
+                          "flex gap-2 text-sm",
+                          feature.included 
+                            ? "text-muted-foreground" 
+                            : "text-muted-foreground/50"
+                        )} 
+                        key={index}
+                      >
                         {feature.included ? (
-                          <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
+                          <BadgeCheck className="h-[1lh] w-4 flex-none" />
                         ) : (
-                          <X className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                          <X className="h-[1lh] w-4 flex-none text-muted-foreground/50" />
                         )}
-                        <span className={`text-sm ${!feature.included ? 'text-muted-foreground line-through' : ''}`}>
+                        <span className={cn(
+                          feature.included ? "" : "line-through opacity-50"
+                        )}>
                           {feature.name}
                         </span>
-                      </li>
+                      </div>
                     ))}
-                  </ul>
-                  
-                  {plan.id === "free" ? (
-                    <Button 
-                      variant="outline" 
-                      className="w-full mt-6"
-                      onClick={() => router.push("/dashboard")}
-                    >
-                      Current Plan
-                    </Button>
-                  ) : (
-                    <Button 
-                      className="w-full mt-6" 
-                      onClick={() => handleUpgrade(interval)}
-                      disabled={loadingPlan !== null}
-                    >
-                      {buttonLoading ? (
-                        <>
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                          Processing...
-                        </>
-                      ) : (
-                        `Upgrade to ${plan.name}`
-                      )}
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
+                  </CardContent>
+
+                  <CardFooter>
+                    {isFree ? (
+                      <Button className="w-full" variant="secondary" onClick={() => router.push("/dashboard")}>Get started for free<ArrowRight /></Button>
+                    ) : (
+                      <Button className="w-full" onClick={() => handleUpgrade(interval)} disabled={loading}>
+                        {loading ? (
+                          <>
+                            <Spinner />
+                            Processing...
+                          </>
+                        ) : (
+                          <>Subscribe to {plan.name}<ArrowRight /></>
+                        )}
+                      </Button>
+                    )}
+                  </CardFooter>
+                </Card>
+              </div>
             );
           })}
-        </div>
-
-        {/* FAQ Section */}
-        <div className="mt-16 text-center">
-          <h2 className="text-2xl font-bold mb-8">Frequently Asked Questions</h2>
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto text-left">
-            <div>
-              <h3 className="font-semibold mb-2">Can I change plans anytime?</h3>
-              <p className="text-muted-foreground text-sm">
-                Yes, you can upgrade or downgrade your plan at any time. Changes take effect immediately.
-              </p>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-2">What happens to my data if I downgrade?</h3>
-              <p className="text-muted-foreground text-sm">
-                Your data is safe. If you exceed free plan limits, you&apos;ll just need to upgrade again to access everything.
-              </p>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-2">Do you offer refunds?</h3>
-              <p className="text-muted-foreground text-sm">
-                Yes, we offer a 30-day money-back guarantee on all paid plans.
-              </p>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-2">Is there a setup fee?</h3>
-              <p className="text-muted-foreground text-sm">
-                No setup fees, no hidden costs. Pay only for what you use.
-              </p>
-            </div>
-          </div>
         </div>
       </div>
       

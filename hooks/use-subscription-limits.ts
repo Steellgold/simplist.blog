@@ -1,10 +1,10 @@
 "use client";
 
-import { SUBSCRIPTION_LIMITS, type SubscriptionTier } from "@/lib/subscription/types";
+import { getPlanLimits, type SubscriptionPlan } from "@/lib/subscription/plans";
 import { useEffect, useState } from "react";
 
 interface UserSubscription {
-  tier: SubscriptionTier;
+  tier: SubscriptionPlan;
   subscriptionExpiresAt: Date | null;
 }
 
@@ -18,7 +18,7 @@ interface SubscriptionLimitsData {
   isLoading: boolean;
   subscription: UserSubscription | null;
   apiKeyUsage: ApiKeyUsage | null;
-  limits: typeof SUBSCRIPTION_LIMITS[SubscriptionTier] | null;
+  limits: ReturnType<typeof getPlanLimits> | null;
   refetch: () => Promise<void>;
 }
 
@@ -40,8 +40,8 @@ export const useSubscriptionLimits = (): SubscriptionLimitsData => {
       }
 
       const result = await response.json();
-      
-      const limits = SUBSCRIPTION_LIMITS[result.subscription.tier as SubscriptionTier];
+
+      const limits = getPlanLimits(result.subscription.tier as SubscriptionPlan);
       const apiKeyUsage: ApiKeyUsage = {
         currentCount: result.apiKeyCount,
         maxCount: limits.maxApiKeys,
@@ -88,7 +88,7 @@ export const useApiKeyLimits = () => {
     currentCount: apiKeyUsage?.currentCount ?? 0,
     maxCount: apiKeyUsage?.maxCount ?? 0,
     isAtLimit: apiKeyUsage ? apiKeyUsage.currentCount >= apiKeyUsage.maxCount : false,
-    tier: subscription?.tier ?? "free",
+    tier: (subscription?.tier ?? "free") as SubscriptionPlan,
     refetch,
   };
 };

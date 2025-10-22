@@ -12,8 +12,8 @@ const PrivacyPolicyPage = () => {
       <h1>Privacy Policy</h1>
 
       <p className="text-muted-foreground">
-        <strong>Effective Date:</strong> October 20, 2025<br />
-        <strong>Last Updated:</strong> October 20, 2025
+        <strong>Effective Date:</strong> October 22, 2025<br />
+        <strong>Last Updated:</strong> October 22, 2025
       </p>
 
       <h2>1. Introduction</h2>
@@ -56,6 +56,10 @@ const PrivacyPolicyPage = () => {
         <li><strong>Name</strong> (optional, can be pseudonym)</li>
         <li><strong>Profile image URL</strong> (optional, if provided via OAuth)</li>
         <li><strong>Account creation and update timestamps</strong></li>
+        <li><strong>Subscription tier</strong> (free or pro)</li>
+        <li><strong>Subscription expiration date</strong> (for Pro users)</li>
+        <li><strong>Stripe customer ID</strong> (for Pro users, used for billing)</li>
+        <li><strong>Stripe subscription ID</strong> (for active Pro subscriptions)</li>
       </ul>
 
       <h3>4.2 Authentication Data</h3>
@@ -171,12 +175,38 @@ const PrivacyPolicyPage = () => {
         <li>Automated bot traffic is detected and excluded from analytics</li>
       </ul>
 
-      <h3>4.8 Technical and Log Data</h3>
+      <h3>4.8 Billing and Payment Data</h3>
+      <p>For Pro subscribers, we collect billing information through Stripe:</p>
+      <ul>
+        <li><strong>Stripe customer ID</strong> (unique identifier for billing)</li>
+        <li><strong>Stripe subscription ID</strong> (for active subscriptions)</li>
+        <li><strong>Subscription status</strong> (active, canceled, past_due, etc.)</li>
+        <li><strong>Billing cycle information</strong> (monthly or yearly)</li>
+        <li><strong>Payment method metadata</strong> (last 4 digits of card, expiration date - stored by Stripe)</li>
+        <li><strong>Invoice and payment history</strong> (stored by Stripe, accessible via billing portal)</li>
+        <li><strong>Billing address</strong> (stored by Stripe for tax calculation)</li>
+      </ul>
+      <p className="text-amber-600 dark:text-amber-400">
+        <strong>Important:</strong> We do NOT store full credit card numbers, CVV codes, or other sensitive payment information on our servers. All payment data is securely handled by Stripe.
+      </p>
+
+      <h3>4.9 Usage and Quota Tracking</h3>
+      <p>To enforce subscription limits, we track:</p>
+      <ul>
+        <li><strong>Monthly API call count</strong> (reset monthly based on subscription date)</li>
+        <li><strong>API call reset date</strong> (when the monthly counter resets)</li>
+        <li><strong>Total storage used</strong> (in bytes, for uploaded images)</li>
+        <li><strong>Article count</strong> (to enforce Free tier limits)</li>
+        <li><strong>API key count</strong> (to enforce tier-based limits)</li>
+      </ul>
+
+      <h3>4.10 Technical and Log Data</h3>
       <p>We may collect:</p>
       <ul>
         <li><strong>Error logs</strong> (to diagnose technical issues)</li>
         <li><strong>API request logs</strong> (for rate limiting and abuse prevention)</li>
         <li><strong>Cached data</strong> (stored temporarily in Redis for performance)</li>
+        <li><strong>Subscription event logs</strong> (for billing reconciliation and support)</li>
       </ul>
 
       <h2>5. How We Use Your Data</h2>
@@ -205,9 +235,20 @@ const PrivacyPolicyPage = () => {
         <li>Monitor for suspicious activity</li>
       </ul>
 
-      <h3>5.4 To Communicate with You</h3>
+      <h3>5.4 To Process Payments and Manage Subscriptions</h3>
+      <ul>
+        <li>Process subscription payments via Stripe</li>
+        <li>Manage subscription upgrades, downgrades, and cancellations</li>
+        <li>Handle billing disputes and refund requests</li>
+        <li>Enforce subscription-based feature limits</li>
+        <li>Generate invoices and billing statements</li>
+        <li>Calculate and collect applicable taxes</li>
+      </ul>
+
+      <h3>5.5 To Communicate with You</h3>
       <ul>
         <li>Send service-related notifications (e.g., password resets, account changes)</li>
+        <li>Send billing-related notifications (e.g., payment confirmations, failed payments, subscription changes)</li>
         <li>Respond to your support requests</li>
         <li>Notify you of changes to our policies or Terms of Service</li>
       </ul>
@@ -237,6 +278,14 @@ const PrivacyPolicyPage = () => {
       <ul>
         <li>Provider: Cloudflare R2</li>
         <li>Location: <strong>Western Europe (WEUR)</strong></li>
+      </ul>
+
+      <p><strong>Payment Processing:</strong></p>
+      <ul>
+        <li>Provider: Stripe, Inc.</li>
+        <li>Primary location: <strong>United States</strong></li>
+        <li>EU operations: <strong>Ireland (Stripe Payments Europe Ltd.)</strong></li>
+        <li>Data residency: <strong>Global (with EU adequacy protections)</strong></li>
       </ul>
 
       <p><strong>API Infrastructure:</strong></p>
@@ -291,6 +340,18 @@ const PrivacyPolicyPage = () => {
             <tr>
               <td>Uploaded images</td>
               <td>Until manually deleted or account deleted</td>
+            </tr>
+            <tr>
+              <td>Billing and payment data</td>
+              <td>7 years after subscription ends (tax/legal requirements)</td>
+            </tr>
+            <tr>
+              <td>Subscription history</td>
+              <td>Until account deletion (minimum 3 years for billing disputes)</td>
+            </tr>
+            <tr>
+              <td>Usage tracking data</td>
+              <td>Until account deletion or 2 years, whichever is sooner</td>
             </tr>
             <tr>
               <td>Redis cache</td>
@@ -362,6 +423,12 @@ const PrivacyPolicyPage = () => {
               <td>Email, name, profile image</td>
               <td>Global</td>
             </tr>
+            <tr>
+              <td>Stripe</td>
+              <td>Payment processing</td>
+              <td>Billing info, payment methods, transaction history</td>
+              <td>US (primary), EU (Ireland)</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -375,12 +442,21 @@ const PrivacyPolicyPage = () => {
         We do NOT sell, rent, or trade your personal data to third parties.
       </p>
 
-      <h3>7.3 Legal Disclosures</h3>
+      <h3>7.3 Payment Processing Disclosures</h3>
+      <p>For payment processing, we share necessary data with:</p>
+      <ul>
+        <li><strong>Stripe, Inc.</strong> - Payment processor for subscription billing</li>
+        <li><strong>Financial institutions</strong> - Banks and card networks for payment authorization</li>
+        <li><strong>Tax authorities</strong> - As required for tax reporting and compliance</li>
+      </ul>
+
+      <h3>7.4 Legal Disclosures</h3>
       <p>We may disclose your data if required by:</p>
       <ul>
         <li><strong>Legal process</strong> (court orders, subpoenas)</li>
         <li><strong>Law enforcement requests</strong> (with valid legal authority)</li>
         <li><strong>Protection of rights</strong> (to enforce our Terms, prevent fraud, or protect safety)</li>
+        <li><strong>Billing disputes</strong> (sharing transaction details with payment processors as needed)</li>
       </ul>
 
       <h2>8. Your Rights Under GDPR</h2>

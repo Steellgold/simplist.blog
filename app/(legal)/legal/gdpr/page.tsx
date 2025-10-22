@@ -12,8 +12,8 @@ const GDPRCompliancePage = () => {
       <h1>GDPR Compliance & User Rights</h1>
 
       <p className="text-muted-foreground">
-        <strong>Effective Date:</strong> October 20, 2025<br />
-        <strong>Last Updated:</strong> October 20, 2025
+        <strong>Effective Date:</strong> October 22, 2025<br />
+        <strong>Last Updated:</strong> October 22, 2025
       </p>
 
       <h2>1. Introduction</h2>
@@ -149,6 +149,26 @@ const GDPRCompliancePage = () => {
               <td>Art. 6(1)(f) or Art. 6(1)(a)</td>
             </tr>
             <tr>
+              <td>Payment processing and billing</td>
+              <td>Contract performance</td>
+              <td>Art. 6(1)(b)</td>
+            </tr>
+            <tr>
+              <td>Subscription management</td>
+              <td>Contract performance</td>
+              <td>Art. 6(1)(b)</td>
+            </tr>
+            <tr>
+              <td>Usage tracking and quota enforcement</td>
+              <td>Contract performance</td>
+              <td>Art. 6(1)(b)</td>
+            </tr>
+            <tr>
+              <td>Tax reporting and compliance</td>
+              <td>Legal obligation</td>
+              <td>Art. 6(1)(c)</td>
+            </tr>
+            <tr>
               <td>Legal compliance (data breach reporting)</td>
               <td>Legal obligation</td>
               <td>Art. 6(1)(c)</td>
@@ -224,6 +244,13 @@ const GDPRCompliancePage = () => {
         <li>Your data is no longer necessary for the purposes collected</li>
         <li>You object to processing based on legitimate interests</li>
       </ul>
+      
+      <p><strong>Billing Data Exception:</strong></p>
+      <ul>
+        <li>Billing and payment data may be retained for <strong>7 years</strong> after subscription ends due to tax and legal requirements</li>
+        <li>This data will be anonymized where possible while maintaining legal compliance</li>
+        <li>You can request deletion after the legal retention period expires</li>
+      </ul>
 
       <p><strong>How to exercise:</strong></p>
       <ul>
@@ -248,7 +275,7 @@ const GDPRCompliancePage = () => {
         </ol>
 
         <p className="font-semibold mt-4 text-amber-700 dark:text-amber-400">
-          Important: Deletion is <strong>permanent and irreversible</strong>.
+          Important: Deletion is <strong>permanent and irreversible</strong>. Billing data may be retained for legal compliance (see above).
         </p>
       </div>
 
@@ -398,6 +425,20 @@ const GDPRCompliancePage = () => {
               <td>Until project/account deletion</td>
             </tr>
             <tr>
+              <td>Payment processing</td>
+              <td>Subscription billing</td>
+              <td>Stripe customer ID, subscription data, billing address</td>
+              <td>Stripe, Neon (DB)</td>
+              <td>7 years after subscription ends</td>
+            </tr>
+            <tr>
+              <td>Usage tracking</td>
+              <td>Quota enforcement</td>
+              <td>API call counts, storage usage, feature usage</td>
+              <td>Neon (DB)</td>
+              <td>Until account deletion or 2 years</td>
+            </tr>
+            <tr>
               <td>Security logs</td>
               <td>Fraud prevention</td>
               <td>IP addresses (session-level), error logs</td>
@@ -460,6 +501,13 @@ const GDPRCompliancePage = () => {
               <td>Global</td>
               <td>Privacy Shield successor (adequacy decision)</td>
             </tr>
+            <tr>
+              <td>Stripe</td>
+              <td>Payment processing</td>
+              <td>Billing info, payment methods, transaction data</td>
+              <td>US (primary), EU (Ireland)</td>
+              <td>EU adequacy decision, Standard Contractual Clauses</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -478,6 +526,7 @@ const GDPRCompliancePage = () => {
       <ul>
         <li><strong>Upstash</strong> (US primary region): Protected by <strong>Standard Contractual Clauses (SCCs)</strong> approved by the European Commission</li>
         <li><strong>Google/GitHub OAuth</strong>: Protected by adequacy decisions or SCCs</li>
+        <li><strong>Stripe</strong> (US parent company): Protected by <strong>EU adequacy decision</strong> and Standard Contractual Clauses for enhanced protection</li>
       </ul>
 
       <p><strong>EU Data Residency:</strong></p>
@@ -485,6 +534,7 @@ const GDPRCompliancePage = () => {
         <li>Primary database (Neon): <strong>EU (Frankfurt)</strong></li>
         <li>File storage (Cloudflare R2): <strong>EU (WEUR)</strong></li>
         <li>API infrastructure: <strong>EU West</strong></li>
+        <li>Payment processing (Stripe): <strong>EU operations via Ireland, with US parent company protections</strong></li>
       </ul>
 
       <h2>7. Data Breach Notification (Art. 33-34)</h2>

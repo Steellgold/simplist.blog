@@ -32,9 +32,9 @@ export interface Plan {
     analyticsEnabled: boolean;
     features: {
       analytics: boolean;
-      customDomains: boolean;
+      postVariants: boolean;
+      scheduledPublishing: boolean;
       prioritySupport: boolean;
-      dataExport: boolean;
       bulkOperations: boolean;
     };
   };
@@ -57,23 +57,20 @@ export const SUBSCRIPTION_PLANS: Record<SubscriptionPlan, Plan> = {
       { name: "5 articles", included: true },
       { name: "1 API key", included: true },
       { name: "Basic analytics", included: true },
-      { name: "10MB storage", included: true },
+      { name: "50MB storage", included: true },
       { name: "1,000 API calls/month", included: true },
-      { name: "Priority support", included: false },
-      { name: "Custom domains", included: false },
-      { name: "Export data", included: false },
     ],
     limits: {
       maxArticles: 5,
       maxApiKeys: 1,
-      maxStorageBytes: 10 * 1024 * 1024, // 10MB
+      maxStorageBytes: 50 * 1024 * 1024, // 50MB
       maxApiCallsPerMonth: 1000,
       analyticsEnabled: true,
       features: {
         analytics: true,
-        customDomains: false,
-        prioritySupport: false,
-        dataExport: false,
+        postVariants: false,
+        scheduledPublishing: false,
+        prioritySupport: true,
         bulkOperations: false,
       },
     },
@@ -86,17 +83,17 @@ export const SUBSCRIPTION_PLANS: Record<SubscriptionPlan, Plan> = {
     popular: true,
     prices: [
       {
-        amount: 25,
+        amount: 19,
         interval: "monthly",
-        displayAmount: "$25",
+        displayAmount: "$19",
         displayInterval: "/month",
       },
       {
-        amount: 20,
+        amount: 14,
         interval: "yearly",
-        displayAmount: "$20",
+        displayAmount: "$14",
         displayInterval: "/month billed yearly",
-        yearlyEquivalent: "$240/year",
+        yearlyEquivalent: "$168/year",
         savings: "Save $60",
       },
     ],
@@ -107,20 +104,20 @@ export const SUBSCRIPTION_PLANS: Record<SubscriptionPlan, Plan> = {
       { name: "1GB storage", included: true },
       { name: "100,000 API calls/month", included: true },
       { name: "Priority support", included: true },
-      { name: "Custom domains", included: true },
-      { name: "Export data", included: true },
+      { name: "Articles language variants", included: true },
+      { name: "Scheduled publishing", included: true },
     ],
     limits: {
-      maxArticles: 999999,
-      maxApiKeys: 999999,
+      maxArticles: -1,
+      maxApiKeys: -1,
       maxStorageBytes: 1024 * 1024 * 1024, // 1GB
-      maxApiCallsPerMonth: 100000,
+      maxApiCallsPerMonth: 500000,
       analyticsEnabled: true,
       features: {
         analytics: true,
-        customDomains: true,
+        postVariants: true,
+        scheduledPublishing: true,
         prioritySupport: true,
-        dataExport: true,
         bulkOperations: true,
       },
     },

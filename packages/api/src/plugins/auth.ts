@@ -156,7 +156,7 @@ export default fp(async function (fastify) {
         }
 
         // Check quota limits
-        const maxCalls = tier === 'pro' ? 500_000 : 10_000
+        const maxCalls = tier === 'pro' ? 500_000 : 1_000
         if (currentCalls > maxCalls) {
           return reply.code(429).send({
             error: 'Rate Limit Exceeded',

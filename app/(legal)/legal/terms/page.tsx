@@ -12,8 +12,8 @@ const TermsOfServicePage = () => {
       <h1>Terms of Service</h1>
 
       <p className="text-muted-foreground">
-        <strong>Effective Date:</strong> October 20, 2025<br />
-        <strong>Last Updated:</strong> October 20, 2025
+        <strong>Effective Date:</strong> October 22, 2025<br />
+        <strong>Last Updated:</strong> October 22, 2025
       </p>
 
       <h2>1. Introduction</h2>
@@ -60,14 +60,31 @@ const TermsOfServicePage = () => {
 
       <h2>4. Service Description</h2>
 
-      <h3>4.1 Core Features</h3>
-      <p>Simplist provides:</p>
+      <h3>4.1 Subscription Tiers</h3>
+      <p>Simplist operates on a freemium model with two subscription tiers:</p>
+      
+      <p><strong>Free Tier:</strong></p>
       <ul>
-        <li><strong>One project per user</strong>: Each user may create and manage one blog project</li>
-        <li><strong>Article management</strong>: Create, edit, publish, and delete articles in Markdown format</li>
-        <li><strong>API access</strong>: Generate API keys to access your content programmatically</li>
-        <li><strong>Analytics</strong>: Track article views, visitor engagement, and traffic sources</li>
-        <li><strong>Image uploads</strong>: Upload and manage cover images for articles (max 5MB, formats: JPEG, PNG, WebP, GIF)</li>
+        <li><strong>One project per user</strong>: Create and manage one blog project</li>
+        <li><strong>5 articles maximum</strong>: Create, edit, publish, and delete up to 5 articles</li>
+        <li><strong>1 API key</strong>: Generate one API key for programmatic access</li>
+        <li><strong>Basic analytics</strong>: Track article views and visitor engagement</li>
+        <li><strong>50MB storage</strong>: Upload and manage cover images (max 5MB per file, formats: JPEG, PNG, WebP, GIF)</li>
+        <li><strong>1,000 API calls per month</strong>: Rate-limited API access</li>
+      </ul>
+      
+      <p><strong>Pro Tier ($19/month or $14/month billed yearly):</strong></p>
+      <ul>
+        <li><strong>One project per user</strong>: Create and manage one blog project</li>
+        <li><strong>Unlimited articles</strong>: No limit on article creation</li>
+        <li><strong>Unlimited API keys</strong>: Generate multiple API keys with granular permissions</li>
+        <li><strong>Advanced analytics</strong>: Comprehensive visitor insights and engagement metrics</li>
+        <li><strong>1GB storage</strong>: Extended storage for images and media</li>
+        <li><strong>100,000 API calls per month</strong>: Higher rate limits for API access</li>
+        <li><strong>Priority support</strong>: Faster response times for support requests</li>
+        <li><strong>Article language variants</strong>: Create multiple language versions of articles</li>
+        <li><strong>Scheduled publishing</strong>: Schedule articles for future publication</li>
+        <li><strong>Bulk operations</strong>: Perform batch operations on articles and content</li>
       </ul>
 
       <h3>4.2 Public API</h3>
@@ -182,41 +199,167 @@ const TermsOfServicePage = () => {
 
       <h2>9. Pricing and Payment</h2>
 
-      <h3>9.1 Free Service</h3>
-      <p>
-        Simplist is currently provided <strong>free of charge</strong> to all users.
-      </p>
+      <h3>9.1 Subscription Plans</h3>
+      <p>Simplist offers the following subscription plans:</p>
+      
+      <p><strong>Free Plan:</strong></p>
+      <ul>
+        <li>No monthly fee</li>
+        <li>Limited features as described in Section 4.1</li>
+        <li>No payment information required</li>
+      </ul>
+      
+      <p><strong>Pro Plan:</strong></p>
+      <ul>
+        <li><strong>Monthly:</strong> $19 USD per month</li>
+        <li><strong>Yearly:</strong> $14 USD per month (billed annually at $168 USD)</li>
+        <li>Full access to all features as described in Section 4.1</li>
+        <li>Payment required via credit card through Stripe</li>
+      </ul>
 
-      <h3>9.2 Future Pricing</h3>
-      <p>
-        We reserve the right to introduce subscription plans or paid features in the future. Existing users will be notified at least 30 days before any paid features affect their usage.
-      </p>
+      <h3>9.2 Payment Processing</h3>
+      <p>All payments are processed securely through <strong>Stripe, Inc.</strong> We do not store your credit card information on our servers.</p>
+      
+      <p><strong>Accepted Payment Methods:</strong></p>
+      <ul>
+        <li>Credit cards (Visa, Mastercard, American Express, Discover)</li>
+        <li>Debit cards</li>
+        <li>Other payment methods supported by Stripe in your region</li>
+      </ul>
+
+      <h3>9.3 Billing and Auto-Renewal</h3>
+      <p><strong>Billing Cycles:</strong></p>
+      <ul>
+        <li><strong>Monthly subscriptions:</strong> Billed every 30 days from the subscription start date</li>
+        <li><strong>Yearly subscriptions:</strong> Billed every 365 days from the subscription start date</li>
+      </ul>
+      
+      <p><strong>Auto-Renewal:</strong></p>
+      <ul>
+        <li>Subscriptions automatically renew unless canceled before the next billing date</li>
+        <li>You will be charged the then-current subscription fee</li>
+        <li>You can cancel anytime via your account settings or the Stripe billing portal</li>
+      </ul>
+
+      <h3>9.4 Subscription Changes</h3>
+      <p><strong>Upgrades:</strong></p>
+      <ul>
+        <li>Upgrade from Free to Pro anytime</li>
+        <li>Changes take effect immediately</li>
+        <li>Prorated billing applies for mid-cycle upgrades</li>
+      </ul>
+      
+      <p><strong>Downgrades:</strong></p>
+      <ul>
+        <li>Downgrade from Pro to Free anytime</li>
+        <li>Downgrade takes effect at the end of your current billing period</li>
+        <li>Content exceeding Free tier limits will be inaccessible but not deleted</li>
+        <li>No refunds for unused portions of paid subscriptions</li>
+      </ul>
+
+      <h3>9.5 Failed Payments</h3>
+      <p>If a payment fails:</p>
+      <ul>
+        <li>We will attempt to process payment up to 3 times over 7 days</li>
+        <li>You will receive email notifications about failed payments</li>
+        <li>If payment cannot be processed, your subscription will be suspended</li>
+        <li>During suspension, your account will be limited to Free tier features</li>
+        <li>Your content and data will be preserved for 30 days</li>
+        <li>After 30 days of suspension, content exceeding Free tier limits may be deleted</li>
+      </ul>
+
+      <h3>9.6 Refunds</h3>
+      <p><strong>Refund Policy:</strong></p>
+      <ul>
+        <li><strong>No refunds</strong> for partial months or unused portions of subscriptions</li>
+        <li>Refunds may be considered on a case-by-case basis for:</li>
+        <ul>
+          <li>Technical issues preventing service use for extended periods</li>
+          <li>Billing errors or unauthorized charges</li>
+          <li>Service cancellation within 7 days of initial subscription</li>
+        </ul>
+        <li>Refund requests must be submitted to privacy@simplist.blog within 30 days</li>
+        <li>Approved refunds will be processed within 5-10 business days</li>
+      </ul>
+
+      <h3>9.7 Price Changes</h3>
+      <p>We reserve the right to modify subscription prices with:</p>
+      <ul>
+        <li><strong>30 days advance notice</strong> via email to your registered address</li>
+        <li>Price changes apply to new subscriptions and renewals after the notice period</li>
+        <li>Existing subscribers may cancel before price changes take effect</li>
+      </ul>
+
+      <h3>9.8 Taxes</h3>
+      <p>Subscription fees are exclusive of taxes. You are responsible for:</p>
+      <ul>
+        <li>Any applicable sales tax, VAT, or other taxes</li>
+        <li>Providing accurate tax information if required</li>
+        <li>Taxes will be calculated and collected by Stripe based on your billing address</li>
+      </ul>
 
       <h2>10. Termination</h2>
 
       <h3>10.1 Termination by You</h3>
+      <p><strong>Account Deletion:</strong></p>
       <p>You may terminate your account at any time via the account settings page. Upon termination:</p>
       <ul>
         <li>Your account and all associated data (projects, articles, API keys, analytics) will be permanently deleted</li>
         <li>This action is irreversible</li>
+        <li>No refunds will be provided for unused subscription time</li>
+      </ul>
+      
+      <p><strong>Subscription Cancellation:</strong></p>
+      <p>You may cancel your Pro subscription without deleting your account:</p>
+      <ul>
+        <li>Cancel anytime via account settings or Stripe billing portal</li>
+        <li>Cancellation takes effect at the end of your current billing period</li>
+        <li>Your account will automatically downgrade to Free tier</li>
+        <li>Content exceeding Free tier limits will become inaccessible but preserved for 90 days</li>
+        <li>You can resubscribe anytime to regain access to all content</li>
       </ul>
 
       <h3>10.2 Termination by Us</h3>
       <p>We may suspend or terminate your account if:</p>
       <ul>
         <li>You violate these Terms</li>
-        <li>Your account is inactive for an extended period</li>
+        <li>Your account is inactive for an extended period (12+ months)</li>
         <li>Your usage threatens the stability or security of the Service</li>
         <li>We are required to do so by law</li>
+        <li>Repeated payment failures (after 30-day grace period)</li>
+        <li>Fraudulent or unauthorized use of payment methods</li>
+      </ul>
+      
+      <p><strong>Suspension Process:</strong></p>
+      <ul>
+        <li>We will provide 7 days notice via email before termination (except for security violations)</li>
+        <li>During suspension, your account will be limited to Free tier features</li>
+        <li>You may appeal termination decisions by contacting privacy@simplist.blog</li>
       </ul>
 
       <h3>10.3 Effect of Termination</h3>
-      <p>Upon termination:</p>
+      <p><strong>Account Termination:</strong></p>
       <ul>
         <li>Your access to the Service will cease immediately</li>
         <li>All API keys will be revoked</li>
-        <li>Content may be removed from the Public API within 24 hours</li>
+        <li>Content will be removed from the Public API within 24 hours</li>
+        <li>All data will be permanently deleted within 30 days</li>
+        <li>Active subscriptions will be canceled (no refunds)</li>
+      </ul>
+      
+      <p><strong>Subscription Cancellation:</strong></p>
+      <ul>
+        <li>Pro features will be disabled at the end of the billing period</li>
+        <li>Account downgrades to Free tier with associated limitations</li>
+        <li>Content exceeding Free tier limits becomes inaccessible</li>
+        <li>API keys exceeding Free tier limits are automatically disabled</li>
+      </ul>
+      
+      <p><strong>Data Recovery:</strong></p>
+      <ul>
         <li>We are not liable for any loss of data or content</li>
+        <li>You are responsible for backing up your content before termination</li>
+        <li>Data export tools are available in account settings</li>
       </ul>
 
       <h2>11. Disclaimers</h2>
@@ -245,8 +388,23 @@ const TermsOfServicePage = () => {
       <p>TO THE MAXIMUM EXTENT PERMITTED BY LAW:</p>
       <ul>
         <li>Gaëtan HUSZOVITS and Simplist SHALL NOT BE LIABLE for any indirect, incidental, special, consequential, or punitive damages</li>
-        <li>Our total liability for any claim related to the Service shall not exceed €100 (one hundred euros)</li>
+        <li>Our total liability for any claim related to the Service shall not exceed:</li>
+        <ul>
+          <li><strong>Free users:</strong> €100 (one hundred euros)</li>
+          <li><strong>Pro users:</strong> The total amount paid by you in the 12 months preceding the claim, or €500 (five hundred euros), whichever is greater</li>
+        </ul>
         <li>We are not liable for loss of profits, data, goodwill, or other intangible losses</li>
+        <li>Payment processing issues, billing disputes, or refund delays caused by third-party payment processors (Stripe)</li>
+        <li>Service interruptions due to payment failures or subscription lapses</li>
+      </ul>
+      
+      <h3>12.1 Payment and Billing Liability</h3>
+      <p>Regarding payment and billing:</p>
+      <ul>
+        <li>We are not liable for unauthorized charges if you fail to secure your account</li>
+        <li>Billing disputes must be reported within 60 days of the charge</li>
+        <li>We will assist with legitimate billing disputes but are not liable for Stripe processing issues</li>
+        <li>Currency conversion fees and international transaction fees are your responsibility</li>
       </ul>
 
       <h2>13. Changes to Terms</h2>
