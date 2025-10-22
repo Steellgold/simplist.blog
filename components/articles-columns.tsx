@@ -2,11 +2,12 @@
 
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
-import { Copy, Edit, MoreHorizontal, Trash, TrendingUp } from "lucide-react"
+import { Copy, Edit, MoreHorizontal, Trash, TrendingUp, Clock } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
+import { useProjectContext } from "./project-context-provider"
 
 import {
   AlertDialog,
@@ -43,10 +44,12 @@ type Article = {
   viewCount: number
   createdAt: Date
   updatedAt: Date
+  scheduledPublishAt?: Date | null
 }
 
 const ArticleActionsCell = ({ article }: { article: Article }) => {
   const router = useRouter()
+  const { currentProject } = useProjectContext()
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
 
@@ -98,13 +101,13 @@ const ArticleActionsCell = ({ article }: { article: Article }) => {
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
-            <Link href={`/articles/${article.slug}/edit`}>
+            <Link href={`/${currentProject?.slug}/articles/${article.slug}/edit`}>
               <Edit />
               Edit article
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href={`/analytics?articles=${article.id}`}>
+            <Link href={`/${currentProject?.slug}/analytics?articles=${article.id}`}>
               <TrendingUp />
               Analytics
             </Link>
@@ -146,32 +149,36 @@ const ArticleActionsCell = ({ article }: { article: Article }) => {
 const statusConfig = {
   draft: { label: "Draft", variant: "secondary" as const },
   published: { label: "Published", variant: "default" as const },
+  scheduled: { label: "Scheduled", variant: "outline" as const },
   archived: { label: "Archived", variant: "outline" as const },
 }
 
-export const articlesColumns: ColumnDef<Article>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
+export const useArticlesColumns = (): ColumnDef<Article>[] => {
+  const { currentProject } = useProjectContext()
+
+  return [
+    {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
   {
     accessorKey: "coverImage",
     header: () => null,
@@ -225,8 +232,19 @@ export const articlesColumns: ColumnDef<Article>[] = [
     cell: ({ row }) => {
       const status = row.getValue("status") as keyof typeof statusConfig
       const config = statusConfig[status] || statusConfig.draft
+      const article = row.original
 
-      return <Badge variant={config.variant}>{config.label}</Badge>
+      return (
+        <div className="space-y-1">
+          <Badge variant={config.variant}>{config.label}</Badge>
+          {status === "scheduled" && article.scheduledPublishAt && (
+            <div className="flex items-center text-xs text-muted-foreground">
+              <Clock className="h-3 w-3 mr-1" />
+              {format(new Date(article.scheduledPublishAt), "MMM d, yyyy 'at' h:mm a")}
+            </div>
+          )}
+        </div>
+      )
     },
   },
   {
@@ -242,7 +260,7 @@ export const articlesColumns: ColumnDef<Article>[] = [
           asChild
           className="h-8"
         >
-          <Link href={`/analytics?articles=${article.id}`}>
+          <Link href={`/${currentProject?.slug}/analytics?articles=${article.id}`}>
             <TrendingUp className="h-3 w-3 sm:mr-1" />
             <span className="hidden sm:inline">Analytics</span>
           </Link>
@@ -267,8 +285,9 @@ export const articlesColumns: ColumnDef<Article>[] = [
       )
     },
   },
-  {
-    id: "actions",
-    cell: ({ row }) => <ArticleActionsCell article={row.original} />,
-  },
-]
+    {
+      id: "actions",
+      cell: ({ row }) => <ArticleActionsCell article={row.original} />,
+    },
+  ]
+}

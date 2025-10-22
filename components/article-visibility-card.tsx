@@ -6,8 +6,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { ReactNode } from "react";
+import { ArticleSchedulePicker } from "./article-schedule-picker";
 
-type ArticleStatus = "draft" | "published";
+type ArticleStatus = "draft" | "published" | "scheduled";
 
 type ArticleVisibilityCardProps = {
   status: ArticleStatus;
@@ -15,15 +16,27 @@ type ArticleVisibilityCardProps = {
   isSubmitting: boolean;
   submitLabel: string;
   leftAction?: ReactNode; // e.g., Delete or Cancel Link/Button
+  scheduledPublishAt?: Date | null;
+  onScheduleChange?: (date: Date | null) => void;
+  projectTimezone?: string;
 };
 
-export const ArticleVisibilityCard = ({ status, onStatusChange, isSubmitting, submitLabel, leftAction }: ArticleVisibilityCardProps) => {
+export const ArticleVisibilityCard = ({ 
+  status, 
+  onStatusChange, 
+  isSubmitting, 
+  submitLabel, 
+  leftAction,
+  scheduledPublishAt,
+  onScheduleChange,
+  projectTimezone = "UTC"
+}: ArticleVisibilityCardProps) => {
   return (
     <Card>
       <CardHeader>
         <CardTitle>Visibility</CardTitle>
         <CardDescription>
-          Do you want to publish or draft this post?
+          Do you want to publish, draft, or schedule this post?
         </CardDescription>
       </CardHeader>
 
@@ -31,15 +44,25 @@ export const ArticleVisibilityCard = ({ status, onStatusChange, isSubmitting, su
         <div className="space-y-2">
           <Label htmlFor="status">Status</Label>
           <Select value={status} onValueChange={(v) => onStatusChange(v as ArticleStatus)}>
-            <SelectTrigger id="status" className="w-full">
+            <SelectTrigger id="status" className="w-full" suppressHydrationWarning>
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent suppressHydrationWarning>
               <SelectItem value="draft">Draft</SelectItem>
               <SelectItem value="published">Published</SelectItem>
+              <SelectItem value="scheduled">Scheduled</SelectItem>
             </SelectContent>
           </Select>
         </div>
+
+        {status === "scheduled" && onScheduleChange && (
+          <ArticleSchedulePicker
+            scheduledPublishAt={scheduledPublishAt}
+            onScheduleChange={onScheduleChange}
+            projectTimezone={projectTimezone}
+            disabled={isSubmitting}
+          />
+        )}
 
         <div className="flex items-center justify-between pt-2">
           <div>{leftAction}</div>

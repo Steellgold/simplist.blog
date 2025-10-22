@@ -11,8 +11,9 @@ import { ArticleBannerUpload } from "./article-banner-upload";
 import { ArticleContentEditor } from "./article-content-editor";
 import { ArticleInfoFields } from "./article-info-fields";
 import { ArticleVisibilityCard } from "./article-visibility-card";
+import { useProjectContext } from "./project-context-provider";
 
-type ArticleStatus = "draft" | "published";
+type ArticleStatus = "draft" | "published" | "scheduled";
 
 type Article = {
   id: string;
@@ -22,6 +23,7 @@ type Article = {
   status: string;
   coverImage: string | null;
   projectId: string;
+  scheduledPublishAt?: Date | null;
 };
 
 type EditArticleFormProps = {
@@ -30,6 +32,7 @@ type EditArticleFormProps = {
 
 export const EditArticleForm = ({ article }: EditArticleFormProps) => {
   const router = useRouter();
+  const { currentProject } = useProjectContext();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isRemovingImage, setIsRemovingImage] = useState(false);
 
@@ -38,6 +41,9 @@ export const EditArticleForm = ({ article }: EditArticleFormProps) => {
   const [excerpt, setExcerpt] = useState(article.excerpt || "");
   const [content, setContent] = useState(article.content);
   const [status, setStatus] = useState<ArticleStatus>(article.status as ArticleStatus);
+  const [scheduledPublishAt, setScheduledPublishAt] = useState<Date | null>(
+    article.scheduledPublishAt ? new Date(article.scheduledPublishAt) : null
+  );
   const [imagePreview, setImagePreview] = useState<string | null>(article.coverImage);
   const [imageFile, setImageFile] = useState<File | null>(null);
 
@@ -98,6 +104,7 @@ export const EditArticleForm = ({ article }: EditArticleFormProps) => {
         excerpt,
         content,
         status,
+        scheduledPublishAt: status === "scheduled" ? scheduledPublishAt : null,
       });
 
       // Step 2: Upload new image if provided
@@ -130,7 +137,7 @@ export const EditArticleForm = ({ article }: EditArticleFormProps) => {
       toast.success("Article updated successfully!", { id: toastId });
 
       // Redirect to articles page
-      router.push("/articles");
+      router.push(`/${currentProject?.slug}/articles`);
       router.refresh();
     } catch (error) {
       console.error("Error updating article:", error);
@@ -165,9 +172,12 @@ export const EditArticleForm = ({ article }: EditArticleFormProps) => {
             onStatusChange={(v) => setStatus(v)}
             isSubmitting={isSubmitting}
             submitLabel="Update"
+            scheduledPublishAt={scheduledPublishAt}
+            onScheduleChange={setScheduledPublishAt}
+            projectTimezone="UTC"
             leftAction={(
               <Link
-                href="/articles"
+                href={`/${currentProject?.slug}/articles`}
                 className={buttonVariants({ variant: "outline", size: "sm" })}
               >
                 <X />

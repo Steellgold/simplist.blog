@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@/components/ui/input-group"
 import { toast } from "@/components/ui/sonner"
 import { Textarea } from "@/components/ui/textarea"
+import { TimezoneCombobox } from "@/components/ui/timezone-selector"
 import { createProject } from "@/lib/actions/projects"
 import { cn, generateSlug } from "@/lib/utils"
 import { CreateProjectInput, createProjectSchema } from "@/lib/validations/project"
@@ -27,11 +28,12 @@ export const CreateProjectForm = ({ className, ...props }: React.ComponentProps<
     defaultValues: {
       name: "",
       description: "",
+      timezone: "UTC",
       allowedOrigins: []
     },
   })
 
-  const { register, control, handleSubmit, formState: { errors } } = form
+  const { register, control, handleSubmit, watch, formState: { errors } } = form
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -48,6 +50,7 @@ export const CreateProjectForm = ({ className, ...props }: React.ComponentProps<
         name: data.name,
         slug,
         description: data.description,
+        timezone: data.timezone,
         allowedOrigins: data.allowedOrigins || []
       }), {
         loading: "Creating project...",
@@ -109,6 +112,20 @@ export const CreateProjectForm = ({ className, ...props }: React.ComponentProps<
                   {errors.description && (
                     <p className="text-destructive text-sm mt-1">{errors.description.message}</p>
                   )}
+                </Field>
+
+                <Field>
+                  <FieldLabel htmlFor="timezone">Timezone *</FieldLabel>
+                  <TimezoneCombobox
+                    value={watch("timezone")}
+                    onValueChange={(value) => form.setValue("timezone", value)}
+                  />
+                  {errors.timezone && (
+                    <p className="text-destructive text-sm mt-1">{errors.timezone.message}</p>
+                  )}
+                  <p className="text-muted-foreground text-sm mt-1">
+                    This timezone will be used for scheduled article publishing.
+                  </p>
                 </Field>
 
 

@@ -10,6 +10,10 @@ export const createProjectSchema = z.object({
     .max(500, "Description must be less than 500 characters")
     .optional()
     .or(z.literal("")),
+  timezone: z
+    .string()
+    .min(1, "Timezone is required")
+    .default("UTC"),
   allowedOrigins: z
     .array(
       z.object({

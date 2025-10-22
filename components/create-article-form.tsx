@@ -11,8 +11,9 @@ import { ArticleBannerUpload } from "./article-banner-upload";
 import { ArticleContentEditor } from "./article-content-editor";
 import { ArticleInfoFields } from "./article-info-fields";
 import { ArticleVisibilityCard } from "./article-visibility-card";
+import { useProjectContext } from "./project-context-provider";
 
-type ArticleStatus = "draft" | "published";
+type ArticleStatus = "draft" | "published" | "scheduled";
 
 type CreateArticleFormProps = {
   projectId: string;
@@ -20,6 +21,7 @@ type CreateArticleFormProps = {
 
 export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
   const router = useRouter();
+  const { currentProject } = useProjectContext();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Form state
@@ -27,6 +29,7 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
   const [excerpt, setExcerpt] = useState("");
   const [content, setContent] = useState("");
   const [status, setStatus] = useState<ArticleStatus>("draft");
+  const [scheduledPublishAt, setScheduledPublishAt] = useState<Date | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
 
@@ -70,6 +73,7 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
         content,
         status,
         coverImage: undefined,
+        scheduledPublishAt: status === "scheduled" ? scheduledPublishAt : undefined,
       });
 
       // Step 2: Upload image if provided
@@ -102,7 +106,7 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
       toast.success("Article created successfully!", { id: toastId });
 
       // Redirect to articles page
-      router.push("/articles");
+      router.push(`/${currentProject?.slug}/articles`);
       router.refresh();
     } catch (error) {
       console.error("Error creating article:", error);
@@ -137,9 +141,12 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
             onStatusChange={(v) => setStatus(v)}
             isSubmitting={isSubmitting}
             submitLabel="Publish"
+            scheduledPublishAt={scheduledPublishAt}
+            onScheduleChange={setScheduledPublishAt}
+            projectTimezone="UTC"
             leftAction={(
               <Link
-                href="/articles"
+                href={`/${currentProject?.slug}/articles`}
                 className={buttonVariants({ variant: "outlineDestructive", size: "sm" })}
               >
                 <Trash2 />

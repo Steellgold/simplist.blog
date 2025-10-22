@@ -1,6 +1,6 @@
 "use client"
 
-import { articlesColumns } from "@/components/articles-columns"
+import { useArticlesColumns } from "@/components/articles-columns"
 import { ArticlesDataTable } from "@/components/articles-data-table"
 import { PageHeader } from "@/components/page-header"
 import { buttonVariants } from "@/components/ui/button"
@@ -12,6 +12,7 @@ import Link from "next/link"
 const ArticlesPage = () => {
   const { currentProject } = useProject()
   const { data: articles, error } = useArticles()
+  const columns = useArticlesColumns()
 
   if (error) {
     return (
@@ -41,7 +42,7 @@ const ArticlesPage = () => {
           </Link>
         }
       >
-        <ArticlesDataTable columns={articlesColumns} data={articles || []} />
+        <ArticlesDataTable columns={columns} data={articles || []} />
       </PageHeader>
     </div>
   )

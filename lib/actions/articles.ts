@@ -28,8 +28,9 @@ export const createArticle = async (formData: {
   title: string;
   excerpt: string;
   content: string;
-  status: "draft" | "published";
+  status: "draft" | "published" | "scheduled";
   coverImage?: string;
+  scheduledPublishAt?: Date;
 }) => {
   const user = await getCurrentUser();
 
@@ -48,6 +49,16 @@ export const createArticle = async (formData: {
   const quotaCheck = await checkArticleQuota(user.id, project.id);
   if (!quotaCheck.allowed) {
     throw new Error(quotaCheck.reason);
+  }
+
+  // Validate scheduled publishing
+  if (formData.status === "scheduled") {
+    if (!formData.scheduledPublishAt) {
+      throw new Error("Scheduled publish date is required for scheduled articles");
+    }
+    if (formData.scheduledPublishAt <= new Date()) {
+      throw new Error("Scheduled publish date must be in the future");
+    }
   }
 
   // Use transaction to ensure atomicity
@@ -89,6 +100,7 @@ export const createArticle = async (formData: {
         status: formData.status,
         published: formData.status === "published",
         publishedAt: formData.status === "published" ? new Date() : null,
+        scheduledPublishAt: formData.scheduledPublishAt || null,
         projectId: project.id,
         ...stats,
       },
@@ -291,7 +303,8 @@ export const updateArticle = async (articleId: string, formData: {
   title: string
   excerpt: string
   content: string
-  status: "draft" | "published"
+  status: "draft" | "published" | "scheduled"
+  scheduledPublishAt?: Date | null
 }) => {
   const user = await getCurrentUser()
   if (!user) {
@@ -307,6 +320,16 @@ export const updateArticle = async (articleId: string, formData: {
     forbidden()
   }
 
+  // Validate scheduled publishing
+  if (formData.status === "scheduled") {
+    if (!formData.scheduledPublishAt) {
+      throw new Error("Scheduled publish date is required for scheduled articles");
+    }
+    if (formData.scheduledPublishAt <= new Date()) {
+      throw new Error("Scheduled publish date must be in the future");
+    }
+  }
+
   // Calculate content statistics
   const stats = calculateStats(formData.content)
 
@@ -320,6 +343,7 @@ export const updateArticle = async (articleId: string, formData: {
       status: formData.status,
       published: formData.status === "published",
       publishedAt: formData.status === "published" && !article.publishedAt ? new Date() : article.publishedAt,
+      scheduledPublishAt: formData.scheduledPublishAt,
       ...stats,
     },
   })
@@ -420,4 +444,37 @@ export const bulkDeleteArticles = async (articleIds: string[]) => {
   })
 
   revalidatePath("/articles")
+}
+
+export const getScheduledArticles = async () => {
+  const user = await getCurrentUser()
+  if (!user) {
+    redirect("/auth/login")
+  }
+
+  // Get user's first project (single project mode)
+  const project = await prisma.project.findFirst({
+    where: {
+      userId: user.id,
+    },
+  })
+
+  if (!project) return []
+
+  // Get articles that are scheduled and ready to publish
+  const now = new Date()
+  const scheduledArticles = await prisma.article.findMany({
+    where: {
+      projectId: project.id,
+      status: "scheduled",
+      scheduledPublishAt: {
+        lte: now,
+      },
+    },
+    include: {
+      project: true,
+    },
+  })
+
+  return scheduledArticles
 }

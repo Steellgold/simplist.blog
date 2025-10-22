@@ -47,6 +47,7 @@ export const createProject = async (input: CreateProjectActionInput) => {
   const validatedData = createProjectSchema.parse({
     name: input.name,
     description: input.description || "",
+    timezone: input.timezone || "UTC",
     allowedOrigins: input.allowedOrigins || [],
   })
 
@@ -78,6 +79,7 @@ export const createProject = async (input: CreateProjectActionInput) => {
       name: validatedData.name,
       slug: finalSlug,
       description: validatedData.description || null,
+      timezone: validatedData.timezone,
       allowedOrigins: allowedOriginStrings,
       userId: user.id,
     },

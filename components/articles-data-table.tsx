@@ -15,6 +15,7 @@ import {
 import { Trash, TrendingUp } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
+import { useProjectContext } from "./project-context-provider"
 
 import {
   AlertDialog,
@@ -51,6 +52,7 @@ export const ArticlesDataTable = <TData extends { id: string }, TValue>({
   data,
 }: DataTableProps<TData, TValue>) => {
   const router = useRouter()
+  const { currentProject } = useProjectContext()
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
@@ -115,7 +117,7 @@ export const ArticlesDataTable = <TData extends { id: string }, TValue>({
                 const ids = selectedRows.map((row) => row.original.id)
                 const params = new URLSearchParams()
                 params.set("articles", ids.join(","))
-                router.push(`/analytics?${params.toString()}`)
+                router.push(`/${currentProject?.slug}/analytics?${params.toString()}`)
               }}
               className="w-full sm:w-auto"
             >
