@@ -2,7 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
-import { Copy, Edit, MoreHorizontal, Trash, TrendingUp, Clock } from "lucide-react"
+import { Clock, Copy, Edit, MoreHorizontal, Trash, TrendingUp } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -240,7 +240,7 @@ export const useArticlesColumns = (): ColumnDef<Article>[] => {
           {status === "scheduled" && article.scheduledPublishAt && (
             <div className="flex items-center text-xs text-muted-foreground">
               <Clock className="h-3 w-3 mr-1" />
-              {format(new Date(article.scheduledPublishAt), "MMM d, yyyy 'at' h:mm a")}
+              {format(new Date(article.scheduledPublishAt), "MMM d, yyyy \"at\" h:mm a")}
             </div>
           )}
         </div>

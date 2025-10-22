@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -10,11 +9,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Label } from "@/components/ui/label";
-import { Clock, X } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { Clock, X } from "lucide-react";
+import { useState } from "react";
 
 type ArticleSchedulePickerProps = {
   scheduledPublishAt: Date | null;
@@ -41,9 +41,22 @@ export const ArticleSchedulePicker = ({
   // Generate time slots every 30 minutes
   const generateTimeSlots = () => {
     const slots = [];
+    const now = new Date();
+    const isToday = date && date.toDateString() === now.toDateString();
+    
     for (let hour = 0; hour < 24; hour++) {
       for (let minute = 0; minute < 60; minute += 30) {
         const timeString = `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`;
+        
+        // If it's today, filter out past times
+        if (isToday) {
+          const testDate = new Date(date);
+          testDate.setHours(hour, minute, 0, 0);
+          if (testDate <= now) {
+            continue; // Skip past times for today
+          }
+        }
+        
         const displayTime = format(new Date(`2000-01-01T${timeString}`), "h:mm a");
         slots.push({ value: timeString, display: displayTime });
       }
@@ -60,6 +73,14 @@ export const ArticleSchedulePicker = ({
         const [hours, minutes] = selectedTime.split(":").map(Number);
         const scheduledDate = new Date(selectedDate);
         scheduledDate.setHours(hours, minutes, 0, 0);
+        
+        // Validate that the scheduled date is in the future
+        const now = new Date();
+        if (scheduledDate <= now) {
+          // If the selected time is in the past, don't update the schedule
+          return;
+        }
+        
         onScheduleChange(scheduledDate);
       }
     }
@@ -71,6 +92,14 @@ export const ArticleSchedulePicker = ({
       const [hours, minutes] = time.split(":").map(Number);
       const scheduledDate = new Date(date);
       scheduledDate.setHours(hours, minutes, 0, 0);
+      
+      // Validate that the scheduled date is in the future
+      const now = new Date();
+      if (scheduledDate <= now) {
+        // If the selected time is in the past, don't update the schedule
+        return;
+      }
+      
       onScheduleChange(scheduledDate);
     }
   };
@@ -82,7 +111,7 @@ export const ArticleSchedulePicker = ({
   };
 
   const formatScheduledDate = (date: Date) => {
-    return format(date, "PPP 'at' p", { locale: fr });
+    return format(date, "PPP \"at\" p", { locale: fr });
   };
 
   return (

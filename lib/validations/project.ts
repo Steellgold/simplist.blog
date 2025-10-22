@@ -12,8 +12,7 @@ export const createProjectSchema = z.object({
     .or(z.literal("")),
   timezone: z
     .string()
-    .min(1, "Timezone is required")
-    .default("UTC"),
+    .min(1, "Timezone is required"),
   allowedOrigins: z
     .array(
       z.object({
@@ -57,6 +56,7 @@ export type CreateProjectInput = z.infer<typeof createProjectSchema>
 export const createProjectActionSchema = z.object({
   name: z.string(),
   slug: z.string(),
+  timezone: z.string(),
   description: z.string().optional(),
   allowedOrigins: z.array(z.object({ value: z.string() })).optional(),
 })

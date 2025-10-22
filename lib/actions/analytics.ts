@@ -600,25 +600,39 @@ export const enableAnalytics = async (projectId: string) => {
     throw new Error("Project not found or you don't have permission")
   }
 
-  // Check if analytics is already enabled
-  if (project.analyticsEnabled) {
-    throw new Error("Analytics is already enabled for this project")
-  }
-
-  // Enable analytics on the project
+  // Enable analytics on the project (idempotent - safe to call multiple times)
   await prisma.project.update({
     where: { id: projectId },
     data: { analyticsEnabled: true },
   })
 
-  // Generate a secret API key for analytics (not public, since free users don't have analytics)
-  const secretKey = generateApiKey('secret')
+  // Check if analytics API key already exists
+  const existingApiKey = await prisma.apiKey.findFirst({
+    where: {
+      projectId: projectId,
+      type: "public",
+      permissions: {
+        has: "analytics",
+      },
+      status: "active",
+    },
+  })
+
+  if (existingApiKey) {
+    return {
+      success: true,
+      apiKey: existingApiKey.key,
+    }
+  }
+
+  // Generate a new public API key for analytics
+  const publicKey = generateApiKey('public')
 
   const newApiKey = await prisma.apiKey.create({
     data: {
       name: "Analytics API Key",
-      key: secretKey,
-      type: "secret",
+      key: publicKey,
+      type: "public",
       permissions: ["read", "analytics"],
       projectId: projectId,
       status: "active",
@@ -626,7 +640,7 @@ export const enableAnalytics = async (projectId: string) => {
   })
 
   // Invalidate cache for the new API key (fire and forget)
-  apiKeyCache.invalidate(secretKey).catch(() => {
+  apiKeyCache.invalidate(publicKey).catch(() => {
     // Ignore cache invalidation errors
   })
 
@@ -635,5 +649,45 @@ export const enableAnalytics = async (projectId: string) => {
   return {
     success: true,
     apiKey: newApiKey.key,
+  }
+}
+
+export const getAnalyticsApiKey = async (projectId: string) => {
+  const user = await getCurrentUser()
+
+  if (!user) {
+    redirect("/auth/login")
+  }
+
+  // Verify the project belongs to the user
+  const project = await prisma.project.findFirst({
+    where: {
+      id: projectId,
+      userId: user.id,
+    },
+  })
+
+  if (!project) {
+    throw new Error("Project not found or you don't have permission")
+  }
+
+  // Get the analytics API key for this project
+  const apiKey = await prisma.apiKey.findFirst({
+    where: {
+      projectId: projectId,
+      type: "public",
+      permissions: {
+        has: "analytics",
+      },
+      status: "active",
+    },
+  })
+
+  if (!apiKey) {
+    throw new Error("No analytics API key found for this project")
+  }
+
+  return {
+    apiKey: apiKey.key,
   }
 }

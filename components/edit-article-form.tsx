@@ -94,6 +94,20 @@ export const EditArticleForm = ({ article }: EditArticleFormProps) => {
     e.preventDefault();
     setIsSubmitting(true);
 
+    // Client-side validation for scheduled articles
+    if (status === "scheduled") {
+      if (!scheduledPublishAt) {
+        toast.error("Please select a date and time for scheduled publication");
+        setIsSubmitting(false);
+        return;
+      }
+      if (scheduledPublishAt <= new Date()) {
+        toast.error("Scheduled publish date must be in the future");
+        setIsSubmitting(false);
+        return;
+      }
+    }
+
     const toastId = toast.loading("Updating article...");
 
     try {

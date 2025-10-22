@@ -316,7 +316,7 @@ export const AnalyticsDashboard = ({ analyticsData }: AnalyticsDashboardProps) =
 
               {/* Chart type dropdown after period buttons for all screen sizes */}
               <Select value={selectedChartTab.toString()} onValueChange={(value) => setSelectedChartTab(parseInt(value))}>
-                <SelectTrigger className="!h-8">
+                <SelectTrigger className="!h-8" suppressHydrationWarning>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -682,7 +682,9 @@ export const AnalyticsDashboard = ({ analyticsData }: AnalyticsDashboardProps) =
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {selectedLocationTab === 0 && countryData.map((country) => (
+                {selectedLocationTab === 0 && (
+                  countryData.length > 0 ? (
+                    countryData.map((country) => (
                   <div
                     key={country.country}
                     className="relative flex items-center justify-between px-3 py-2 rounded-md overflow-hidden"
@@ -707,7 +709,13 @@ export const AnalyticsDashboard = ({ analyticsData }: AnalyticsDashboardProps) =
                     </div>
                     <span className="relative text-sm text-muted-foreground ml-2 flex-shrink-0">{country.percentage}%</span>
                   </div>
-                ))}
+                    ))
+                  ) : (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <p className="text-sm">No country data available</p>
+                    </div>
+                  )
+                )}
 
                 {selectedLocationTab === 1 && (
                   cityData.length > 0 ? (

@@ -1,4 +1,5 @@
-import { AnalyticsActivation } from "@/components/analytics-activation"
+import { AnalyticsDashboard } from "@/components/analytics-dashboard"
+import { getAllProjectAnalytics } from "@/lib/actions/analytics"
 import { getCurrentUser } from "@/lib/auth-helper"
 import { prisma } from "@/lib/db"
 import { checkAnalyticsAccess } from "@/lib/subscription/quota-check"
@@ -39,11 +40,16 @@ const AnalyticsPage = async ({ params }: AnalyticsPageProps) => {
     redirect("/dashboard")
   }
 
-  return (
-    <div className="min-h-[80vh] flex items-center justify-center">
-      <AnalyticsActivation projectId={project.id} />
-    </div>
-  )
+  // Get analytics data
+  const analyticsData = await getAllProjectAnalytics(project.id)
+
+  // Check if there's any meaningful data
+  // TODO: Add a integration section guide
+  // const hasData = analyticsData["7"]?.summary?.totalViews > 0 || 
+  //                 analyticsData["30"]?.summary?.totalViews > 0 || 
+  //                 analyticsData["90"]?.summary?.totalViews > 0
+
+  return <AnalyticsDashboard analyticsData={analyticsData} />
 }
 
 export default AnalyticsPage
