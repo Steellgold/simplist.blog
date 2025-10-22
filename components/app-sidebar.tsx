@@ -31,6 +31,7 @@ import { ChartLine } from "./animate-ui/icons/chart-line"
 import { LayersIcon } from "./animate-ui/icons/layers"
 import { LayoutDashboardIcon } from "./animate-ui/icons/layout-dashboard"
 import { SettingsIcon } from "./animate-ui/icons/settings"
+import { Star } from "./animate-ui/icons/star"
 import { UnplugIcon } from "./animate-ui/icons/unplug"
 
 interface User {
@@ -88,7 +89,7 @@ const getNavigationItems = (isPro: boolean, projectSlug: string) => [
   },
   {
     title: isPro ? "Billing" : "Pricing",
-    icon: <UnplugIcon />,
+    icon: <Star />,
     href: isPro ? "/settings/billing" : "/pricing",
   },
 ]
