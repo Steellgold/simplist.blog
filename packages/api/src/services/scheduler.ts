@@ -1,18 +1,18 @@
-import * as db from '@simplist/db'
-import cron from 'node-cron'
-import type { FastifyInstance } from 'fastify'
+import * as db from "@simplist/db"
+import { CronJob } from "cron"
+import type { FastifyInstance } from "fastify"
 
 const { prisma } = db
 
 /**
  * Scheduler service that runs periodic tasks
- * Uses node-cron to check for scheduled articles every 5 minutes
+ * Uses cron to check for scheduled articles every 30 minutes
  */
 export class Scheduler {
-  private tasks: cron.ScheduledTask[] = []
-  private logger: FastifyInstance['log']
+  private tasks: CronJob[] = []
+  private logger: FastifyInstance["log"]
 
-  constructor(logger: FastifyInstance['log']) {
+  constructor(logger: FastifyInstance["log"]) {
     this.logger = logger
   }
 
@@ -20,25 +20,26 @@ export class Scheduler {
    * Start all scheduled tasks
    */
   start() {
-    this.logger.info('Starting scheduler service...')
+    this.logger.info("Starting scheduler service...")
 
-    // Check for scheduled articles every 5 minutes
-    const publishScheduledArticlesTask = cron.schedule('*/5 * * * *', async () => {
+    // Check for scheduled articles every 30 minutes
+    const publishScheduledArticlesTask = new CronJob("*/30 * * * *", async () => {
       await this.publishScheduledArticles()
     })
 
+    publishScheduledArticlesTask.start()
     this.tasks.push(publishScheduledArticlesTask)
-    this.logger.info('Scheduler service started. Checking for scheduled articles every 5 minutes.')
+    this.logger.info("Scheduler service started. Checking for scheduled articles every 30 minutes.")
   }
 
   /**
    * Stop all scheduled tasks
    */
   stop() {
-    this.logger.info('Stopping scheduler service...')
+    this.logger.info("Stopping scheduler service...")
     this.tasks.forEach(task => task.stop())
     this.tasks = []
-    this.logger.info('Scheduler service stopped.')
+    this.logger.info("Scheduler service stopped.")
   }
 
   /**
@@ -52,7 +53,7 @@ export class Scheduler {
       // Find all articles that are scheduled and ready to publish
       const scheduledArticles = await prisma.article.findMany({
         where: {
-          status: 'scheduled',
+          status: "scheduled",
           scheduledPublishAt: {
             lte: now
           }
@@ -69,7 +70,7 @@ export class Scheduler {
       })
 
       if (scheduledArticles.length === 0) {
-        this.logger.debug('[Scheduler] No scheduled articles ready for publication')
+        this.logger.debug("[Scheduler] No scheduled articles ready for publication")
         return
       }
 
@@ -90,7 +91,7 @@ export class Scheduler {
           await prisma.article.update({
             where: { id: article.id },
             data: {
-              status: 'published',
+              status: "published",
               published: true,
               publishedAt: article.scheduledPublishAt || now,
               scheduledPublishAt: null // Clear the scheduled date
@@ -101,7 +102,7 @@ export class Scheduler {
           this.logger.info(`[Scheduler] Published article: "${article.title}" (${article.id}) from project "${article.project.name}"`)
 
         } catch (error) {
-          const errorMsg = `Failed to publish article ${article.id}: ${error instanceof Error ? error.message : 'Unknown error'}`
+          const errorMsg = `Failed to publish article ${article.id}: ${error instanceof Error ? error.message : "Unknown error"}`
           results.errors.push(errorMsg)
           this.logger.error(error, `[Scheduler] Error publishing article ${article.id}`)
         }
@@ -110,11 +111,11 @@ export class Scheduler {
       this.logger.info(`[Scheduler] Completed: ${results.published}/${results.processed} articles published`)
 
       if (results.errors.length > 0) {
-        this.logger.warn(`[Scheduler] Errors occurred: ${results.errors.join(', ')}`)
+        this.logger.warn(`[Scheduler] Errors occurred: ${results.errors.join(", ")}`)
       }
 
     } catch (error) {
-      this.logger.error(error, '[Scheduler] Error in scheduled article publication task')
+      this.logger.error(error, "[Scheduler] Error in scheduled article publication task")
     }
   }
 
@@ -122,7 +123,7 @@ export class Scheduler {
    * Manually trigger scheduled article publication (for testing/debugging)
    */
   async triggerPublishScheduledArticles() {
-    this.logger.info('[Scheduler] Manual trigger for scheduled article publication')
+    this.logger.info("[Scheduler] Manual trigger for scheduled article publication")
     await this.publishScheduledArticles()
   }
 }
