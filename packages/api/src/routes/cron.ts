@@ -43,6 +43,7 @@ const cronRoutes: FastifyPluginAsync = async (fastify) => {
         },
         include: {
           project: true
+        }
       })
 
       fastify.log.info(`Found ${scheduledArticles.length} articles ready for publication`)
