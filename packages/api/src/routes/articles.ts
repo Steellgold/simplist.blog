@@ -52,7 +52,7 @@ const articlesRoutes: FastifyPluginAsync = async (fastify) => {
       // Build where clause
       const where: any = {
         projectId,
-        status: { not: 'deleted' } // Exclude soft-deleted articles
+        status: { notIn: ['deleted', 'scheduled'] } // Exclude soft-deleted and scheduled articles
       }
 
       // Filter by published status if specified
@@ -175,7 +175,7 @@ const articlesRoutes: FastifyPluginAsync = async (fastify) => {
         where: {
           slug,
           projectId,
-          status: { not: 'deleted' },
+          status: { notIn: ['deleted', 'scheduled'] },
           published: true // Only return published articles via public API
         },
         include: includeSeo ? {

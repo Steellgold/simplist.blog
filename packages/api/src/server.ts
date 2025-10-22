@@ -1,4 +1,5 @@
 import Fastify from 'fastify'
+import { Scheduler } from './services/scheduler'
 
 // Environment validation
 const envToLogger = {
@@ -19,6 +20,8 @@ const environment = process.env.NODE_ENV || 'development'
 const port = Number(process.env.PORT) || 3001
 const host = process.env.HOST || 'localhost'
 
+let scheduler: Scheduler | null = null
+
 const createServer = async () => {
   const fastify = Fastify({
     logger: envToLogger[environment as keyof typeof envToLogger] ?? true,
@@ -38,6 +41,7 @@ const createServer = async () => {
   await fastify.register(import('./routes/projects'), { prefix: '/v1' })
   await fastify.register(import('./routes/analytics'), { prefix: '/v1' })
   await fastify.register(import('./routes/seo'), { prefix: '/v1' })
+  await fastify.register(import('./routes/cron'), { prefix: '/v1' })
 
   // Health check
   fastify.get('/health', async () => {
@@ -59,18 +63,28 @@ const createServer = async () => {
 // Handle shutdown gracefully
 const gracefulShutdown = async (signal: string, fastify: any) => {
   console.log(`Received ${signal}, shutting down gracefully`)
+
+  // Stop scheduler
+  if (scheduler) {
+    scheduler.stop()
+  }
+
   await fastify.close()
   process.exit(0)
 }
 
 const main = async () => {
   const fastifyInstance = await createServer()
-  
+
   process.on('SIGTERM', () => gracefulShutdown('SIGTERM', fastifyInstance))
   process.on('SIGINT', () => gracefulShutdown('SIGINT', fastifyInstance))
-  
+
   await fastifyInstance.listen({ port, host })
   fastifyInstance.log.info(`API server listening on http://${host}:${port}`)
+
+  // Start scheduler after server is listening
+  scheduler = new Scheduler(fastifyInstance.log)
+  scheduler.start()
 }
 
 main().catch((err) => {
