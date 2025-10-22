@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { createBillingPortalSession, createCheckoutSession } from "@/lib/stripe/actions";
-import { SUBSCRIPTION_PRICING, type SubscriptionTier } from "@/lib/subscription/types";
+import { type SubscriptionTier, getPlanPrice } from "@/lib/subscription/types";
 import { CreditCard, Crown, Sparkles } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
@@ -105,7 +105,7 @@ export const BillingCard = ({ currentTier, subscriptionExpiresAt }: BillingCardP
                 <p className="font-semibold">Upgrade to Pro</p>
                 <p className="text-sm text-muted-foreground">
                   Get unlimited articles, analytics, and more for just $
-                  {SUBSCRIPTION_PRICING.pro.monthly.amount}/month
+                  {getPlanPrice("pro", "monthly")?.amount}/month
                 </p>
                 <ul className="text-sm space-y-1 text-muted-foreground">
                   <li>• Unlimited articles</li>

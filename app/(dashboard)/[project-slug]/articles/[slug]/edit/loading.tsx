@@ -69,4 +69,3 @@ const EditArticleLoading = () => {
 }
 
 export default EditArticleLoading
-

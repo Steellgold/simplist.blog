@@ -86,19 +86,17 @@ export const ProjectSwitcher = ({
                     <Image
                       src="https://cdn.simplist.blog/assets/billing/badge-pro.png"
                       alt="Pro"
-                      width={14}
-                      height={14}
+                      width={100}
+                      height={100}
                       className="h-3.5 w-auto"
-                      quality={100}
                     />
                   ) : (
                     <Image
                       src="https://cdn.simplist.blog/assets/billing/badge-starter.png"
                       alt="Starter"
-                      width={14}
-                      height={14}
+                      width={100}
+                      height={100}
                       className="h-3.5 w-auto"
-                      quality={100}
                     />
                   )}
                 </div>
@@ -133,19 +131,17 @@ export const ProjectSwitcher = ({
                       <Image
                         src="https://cdn.simplist.blog/assets/billing/mini-pro-badge.png"
                         alt="Pro"
-                        width={20}
-                        height={20}
+                        width={100}
+                        height={100}
                         className="h-5 w-5"
-                        quality={100}
                       />
                     ) : (
                       <Image
                         src="https://cdn.simplist.blog/assets/billing/mini-starter-badge.png"
                         alt="Starter"
-                        width={20}
-                        height={20}
+                        width={100}
+                        height={100}
                         className="h-5 w-5"
-                        quality={100}
                       />
                     )}
                   </div>

@@ -1,11 +1,14 @@
-import { notFound, redirect } from "next/navigation"
-import { getCurrentUser } from "@/lib/auth-helper"
-import { getArticleBySlug } from "@/lib/actions/articles"
 import { EditArticleForm } from "@/components/edit-article-form"
 import { PageHeader } from "@/components/page-header"
+import { getArticleBySlug } from "@/lib/actions/articles"
+import { getCurrentUser } from "@/lib/auth-helper"
 import type { Metadata } from "next"
+import { notFound, redirect } from "next/navigation"
 
-type PageParams = { slug: string }
+type PageParams = { 
+  "project-slug": string
+  slug: string 
+}
 
 export const generateMetadata = async (
   { params }: { params: Promise<PageParams> }
@@ -19,7 +22,7 @@ export const generateMetadata = async (
   }
 }
 
-const EditArticlePage = async ({ params }: { params: Promise<{ slug: string }> }) => {
+const EditArticlePage = async ({ params }: { params: Promise<PageParams> }) => {
   const user = await getCurrentUser()
   if (!user) redirect("/auth/login")
 
@@ -40,4 +43,3 @@ const EditArticlePage = async ({ params }: { params: Promise<{ slug: string }> }
 }
 
 export default EditArticlePage
-
