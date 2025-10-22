@@ -89,6 +89,7 @@ export const ProjectSwitcher = ({
                       width={14}
                       height={14}
                       className="h-3.5 w-auto"
+                      quality={100}
                     />
                   ) : (
                     <Image
@@ -97,6 +98,7 @@ export const ProjectSwitcher = ({
                       width={14}
                       height={14}
                       className="h-3.5 w-auto"
+                      quality={100}
                     />
                   )}
                 </div>
@@ -134,6 +136,7 @@ export const ProjectSwitcher = ({
                         width={20}
                         height={20}
                         className="h-5 w-5"
+                        quality={100}
                       />
                     ) : (
                       <Image
@@ -142,6 +145,7 @@ export const ProjectSwitcher = ({
                         width={20}
                         height={20}
                         className="h-5 w-5"
+                        quality={100}
                       />
                     )}
                   </div>

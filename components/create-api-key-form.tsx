@@ -5,7 +5,6 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
 import {
   Dialog,
   DialogContent,
@@ -26,8 +25,9 @@ import {
 import { toast } from "@/components/ui/sonner"
 import { useCreateApiKey } from "@/hooks/use-api-keys"
 import { useApiKeyLimits } from "@/hooks/use-subscription-limits"
-import { apiKeyPermissions, CreateApiKeyInput, createApiKeySchema } from "@/lib/validations/api-key"
-import { Check, Copy, Crown, Plus } from "lucide-react"
+import { CreateApiKeyInput, createApiKeySchema } from "@/lib/validations/api-key"
+import { Check, Copy, Plus } from "lucide-react"
+import Image from "next/image"
 import { Spinner } from "./ui/spinner"
 
 interface CreateApiKeyFormProps {
@@ -43,6 +43,8 @@ export const CreateApiKeyForm = ({ projectId, onSuccess }: CreateApiKeyFormProps
   const createApiKeyMutation = useCreateApiKey()
   const { isAtLimit, currentCount, maxCount, tier, isLoading: limitsLoading, refetch } = useApiKeyLimits()
 
+  const isPro = tier === "pro"
+
   const {
     register,
     handleSubmit,
@@ -55,14 +57,12 @@ export const CreateApiKeyForm = ({ projectId, onSuccess }: CreateApiKeyFormProps
     defaultValues: {
       name: "",
       type: "secret",
-      permissions: ["read"],
       expiresInDays: null,
     },
   })
 
   const expiresInDays = watch("expiresInDays")
   const keyType = watch("type")
-  const permissions = watch("permissions")
 
   const onSubmit = async (data: CreateApiKeyInput) => {
     try {
@@ -122,7 +122,7 @@ export const CreateApiKeyForm = ({ projectId, onSuccess }: CreateApiKeyFormProps
           </DialogDescription>
         </DialogHeader>
 
-        {!newApiKey && !limitsLoading && (
+        {/* {!newApiKey && !limitsLoading && (
           <div className="rounded-lg border bg-muted/50 p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -147,7 +147,7 @@ export const CreateApiKeyForm = ({ projectId, onSuccess }: CreateApiKeyFormProps
               </p>
             )}
           </div>
-        )}
+        )} */}
 
         {newApiKey ? (
           <div className="space-y-4">
@@ -196,12 +196,6 @@ export const CreateApiKeyForm = ({ projectId, onSuccess }: CreateApiKeyFormProps
                     value={keyType}
                     onValueChange={(value) => {
                       setValue("type", value as "secret" | "public")
-                      // Reset permissions when changing type
-                      if (value === "public") {
-                        setValue("permissions", ["analytics"])
-                      } else {
-                        setValue("permissions", ["read"])
-                      }
                     }}
                   >
                     <SelectTrigger>
@@ -209,42 +203,34 @@ export const CreateApiKeyForm = ({ projectId, onSuccess }: CreateApiKeyFormProps
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="secret">Secret Key (sk_) - Server-side use</SelectItem>
-                      <SelectItem value="public">Public Key (pk_) - Client-side use</SelectItem>
+                      <SelectItem value="public" disabled={!isPro}>
+                        <div className="flex items-center gap-2">
+                          <span>Public Key (pk_) - Client-side use</span>
+                          {!isPro && (
+                            <Image
+                              src="https://cdn.simplist.blog/assets/billing/mini-pro-badge.png"
+                              alt="Pro"
+                              width={16}
+                              height={16}
+                            />
+                          )}
+                        </div>
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                   {errors.type && (
                     <p className="text-destructive text-sm mt-1">{errors.type.message}</p>
                   )}
-                </Field>
-
-                <Field>
-                  <FieldLabel>Permissions *</FieldLabel>
-                  <div className="space-y-2">
-                    {apiKeyPermissions.map((permission) => (
-                      <div key={permission} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={permission}
-                          checked={permissions.includes(permission)}
-                          onCheckedChange={(checked) => {
-                            if (checked) {
-                              setValue("permissions", [...permissions, permission])
-                            } else {
-                              setValue("permissions", permissions.filter(p => p !== permission))
-                            }
-                          }}
-                        />
-                        <label
-                          htmlFor={permission}
-                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 capitalize"
-                        >
-                          {permission === "read" ? "Read Articles & Project Data" : "Analytics Tracking"}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                  {errors.permissions && (
-                    <p className="text-destructive text-sm mt-1">{errors.permissions.message}</p>
+                  {!isPro && (
+                    <p className="text-muted-foreground text-xs mt-1">
+                      Public keys are only available on the Pro plan for analytics tracking.
+                    </p>
                   )}
+                  <p className="text-muted-foreground text-xs mt-1">
+                    {keyType === "secret"
+                      ? "Secret keys (sk_) are for server-side use and can read articles & project data."
+                      : "Public keys (pk_) are for client-side analytics tracking only."}
+                  </p>
                 </Field>
 
                 <Field>

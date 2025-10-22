@@ -1,6 +1,7 @@
 "use client"
 
 import { ApiKeysList } from "@/components/api-keys-list"
+import { CreateApiKeyForm } from "@/components/create-api-key-form"
 import { PageHeader } from "@/components/page-header"
 import { useApiKeys } from "@/hooks/use-api-keys"
 import { useProject } from "@/hooks/use-project-context"
@@ -38,6 +39,7 @@ const ApiKeysPage = () => {
       <PageHeader
         title="API Keys"
         description={`Manage API keys for your ${currentProject.name} project`}
+        actions={<CreateApiKeyForm projectId={currentProject.id} />}
       >
         <ApiKeysList apiKeys={apiKeys} />
       </PageHeader>

@@ -22,7 +22,7 @@ export const SUBSCRIPTION_LIMITS: Record<SubscriptionTier, SubscriptionLimits> =
   free: {
     maxArticles: 50,
     maxStorageBytes: 500 * 1024 * 1024, // 500 MB
-    maxApiKeys: 2,
+    maxApiKeys: 1,
     maxApiCallsPerMonth: 10_000,
     analyticsEnabled: false,
     features: {

@@ -9,7 +9,6 @@ export const createApiKeySchema = z.object({
     .min(1, "API key name is required")
     .max(100, "API key name must be less than 100 characters"),
   type: z.enum(apiKeyTypes),
-  permissions: z.array(z.enum(apiKeyPermissions)).min(1, "At least one permission is required"),
   expiresInDays: z
     .number()
     .int()

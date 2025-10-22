@@ -32,21 +32,8 @@ export const AnalyticsActivation = ({ projectId }: AnalyticsActivationProps) => 
     }
   }
 
-  if (isEnabled) {
-    return apiKey ? (
-      <AnalyticsIntegrationGuide apiKey={apiKey} showSuccessCard={true} />
-    ) : (
-      <div className="w-full">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="p-6 border rounded-lg bg-card text-center">
-            <h2 className="text-2xl font-bold mb-2">Analytics Enabled!</h2>
-            <p className="text-muted-foreground">
-              Analytics has been successfully enabled for your project.
-            </p>
-          </div>
-        </div>
-      </div>
-    )
+  if (isEnabled && apiKey) {
+    return <AnalyticsIntegrationGuide apiKey={apiKey} showSuccessCard={true} />
   }
 
   return (

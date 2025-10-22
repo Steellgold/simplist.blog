@@ -60,7 +60,7 @@ export const getProjectApiKeys = async (projectId: string) => {
   return apiKeys
 }
 
-export const createApiKey = async (projectId: string, input: { name: string; type?: "secret" | "public"; permissions?: string[]; expiresInDays?: number | null }) => {
+export const createApiKey = async (projectId: string, input: { name: string; type?: "secret" | "public"; expiresInDays?: number | null }) => {
   const user = await getCurrentUser()
 
   if (!user) {
@@ -99,6 +99,11 @@ export const createApiKey = async (projectId: string, input: { name: string; typ
   // Generate unique API key
   const apiKey = generateApiKey(validatedData.type)
 
+  // Determine permissions based on key type
+  // Secret keys (sk_) get "read" permission for articles & project data
+  // Public keys (pk_) get "analytics" permission for tracking only
+  const permissions = validatedData.type === "public" ? ["analytics"] : ["read"]
+
   // Calculate expiration date if provided
   let expiresAt: Date | null = null
   if (validatedData.expiresInDays && validatedData.expiresInDays > 0) {
@@ -111,7 +116,7 @@ export const createApiKey = async (projectId: string, input: { name: string; typ
       name: validatedData.name,
       key: apiKey,
       type: validatedData.type,
-      permissions: validatedData.permissions,
+      permissions: permissions,
       projectId: projectId,
       expiresAt: expiresAt,
       status: "active",

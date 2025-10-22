@@ -611,10 +611,29 @@ export const enableAnalytics = async (projectId: string) => {
     data: { analyticsEnabled: true },
   })
 
+  // Generate a secret API key for analytics (not public, since free users don't have analytics)
+  const secretKey = generateApiKey('secret')
+
+  const newApiKey = await prisma.apiKey.create({
+    data: {
+      name: "Analytics API Key",
+      key: secretKey,
+      type: "secret",
+      permissions: ["read", "analytics"],
+      projectId: projectId,
+      status: "active",
+    },
+  })
+
+  // Invalidate cache for the new API key (fire and forget)
+  apiKeyCache.invalidate(secretKey).catch(() => {
+    // Ignore cache invalidation errors
+  })
+
   revalidatePath("/analytics")
 
   return {
     success: true,
-    apiKey: null,
+    apiKey: newApiKey.key,
   }
 }
