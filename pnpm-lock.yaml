@@ -217,9 +217,6 @@ importers:
       '@types/node':
         specifier: ^20
         version: 20.19.20
-      '@types/node-cron':
-        specifier: ^3.0.11
-        version: 3.0.11
       pino-pretty:
         specifier: ^12.0.0
         version: 12.1.0
@@ -2200,9 +2197,6 @@ packages:
 
   '@types/luxon@3.7.1':
     resolution: {integrity: sha512-H3iskjFIAn5SlJU7OuxUmTEpebK6TKB8rxZShDslBMZJ5u9S//KM1sbdAisiSrqwLQncVjnpi2OK2J51h+4lsg==}
-
-  '@types/node-cron@3.0.11':
-    resolution: {integrity: sha512-0ikrnug3/IyneSHqCBeslAhlK2aBfYek1fGo4bP4QnZPmiqSGRK+Oy7ZMisLWkesffJvQ1cqAcBnJC+8+nxIAg==}
 
   '@types/node@20.19.20':
     resolution: {integrity: sha512-2Q7WS25j4pS1cS8yw3d6buNCVJukOTeQ39bAnwR6sOJbaxvyCGebzTMypDFN82CxBLnl+lSWVdCCWbRY6y9yZQ==}
@@ -6773,8 +6767,6 @@ snapshots:
   '@types/json5@0.0.29': {}
 
   '@types/luxon@3.7.1': {}
-
-  '@types/node-cron@3.0.11': {}
 
   '@types/node@20.19.20':
     dependencies:
