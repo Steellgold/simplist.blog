@@ -88,6 +88,7 @@ model Project {
   description      String?
   allowedOrigins   String[]  @default([]) // Array of allowed origins for CORS
   analyticsEnabled Boolean   @default(false) // Whether analytics tracking is enabled
+  timezone         String    @default("UTC") // Project timezone for scheduled publishing
   userId           String
   user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   apiKeys          ApiKey[]
@@ -127,13 +128,15 @@ model Article {
   excerpt         String?
   coverImage      String?
   published       Boolean     @default(false)
-  status          String      @default("draft") // draft, published, deleted
+  status          String      @default("draft") // draft, published, deleted, scheduled
   viewCount       Int         @default(0)
   // Content statistics
   wordCount       Int         @default(0)
   characterCount  Int         @default(0)
   lineCount       Int         @default(0)
   readTimeMinutes Int         @default(0)
+  // Scheduled publishing
+  scheduledPublishAt DateTime?
   // Relations
   projectId       String
   project         Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
