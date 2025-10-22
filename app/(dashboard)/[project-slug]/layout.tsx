@@ -74,7 +74,7 @@ const ProjectLayout = async ({
         <AppSidebarWrapper user={fullUser || user} projects={projects} currentProject={currentProject} />
       </Suspense>
       <ProjectContextProvider projects={projects} currentProject={currentProject}>
-        <main className="flex-1 w-full">
+        <main className="flex-1 w-full overflow-x-hidden">
           <div className="flex h-14 items-center justify-between border-b px-4 lg:h-16">
             <SidebarTrigger />
             <ThemeSwitcher />
