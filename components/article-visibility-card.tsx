@@ -5,6 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
+import { useApiKeyLimits } from "@/hooks/use-subscription-limits";
+import Image from "next/image";
 import { ReactNode } from "react";
 import { ArticleSchedulePicker } from "./article-schedule-picker";
 
@@ -19,6 +21,7 @@ type ArticleVisibilityCardProps = {
   scheduledPublishAt?: Date | null;
   onScheduleChange?: (date: Date | null) => void;
   projectTimezone?: string;
+  projectId?: string;
 };
 
 export const ArticleVisibilityCard = ({ 
@@ -29,8 +32,12 @@ export const ArticleVisibilityCard = ({
   leftAction,
   scheduledPublishAt,
   onScheduleChange,
-  projectTimezone = "UTC"
+  projectTimezone = "UTC",
+  projectId
 }: ArticleVisibilityCardProps) => {
+  const { tier } = useApiKeyLimits(projectId);
+  const isPro = tier === "pro";
+
   return (
     <Card>
       <CardHeader>
@@ -50,14 +57,26 @@ export const ArticleVisibilityCard = ({
             <SelectContent suppressHydrationWarning>
               <SelectItem value="draft">Draft</SelectItem>
               <SelectItem value="published">Published</SelectItem>
-              <SelectItem value="scheduled">Scheduled</SelectItem>
+              <SelectItem value="scheduled" disabled={!isPro}>
+                <div className="flex items-center gap-2">
+                  <span>Scheduled</span>
+                  {!isPro && (
+                    <Image
+                      src="https://cdn.simplist.blog/assets/billing/mini-pro-badge.png"
+                      alt="Pro"
+                      width={16}
+                      height={16}
+                    />
+                  )}
+                </div>
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         {status === "scheduled" && onScheduleChange && (
           <ArticleSchedulePicker
-            scheduledPublishAt={scheduledPublishAt}
+            scheduledPublishAt={scheduledPublishAt || null}
             onScheduleChange={onScheduleChange}
             projectTimezone={projectTimezone}
             disabled={isSubmitting}

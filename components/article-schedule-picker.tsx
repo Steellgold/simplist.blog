@@ -148,8 +148,8 @@ export const ArticleSchedulePicker = ({
         <Dialog>
           <DialogTrigger asChild>
             <Button variant="outline" disabled={disabled} className="w-full">
-              <Clock className="h-4 w-4 mr-2" />
-              Choose Date & Time
+              <Clock />
+              Choose a time
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[550px]" suppressHydrationWarning>

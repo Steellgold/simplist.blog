@@ -5,29 +5,30 @@ import Image from "next/image"
 import { useState } from "react"
 
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem,
+    useSidebar,
 } from "@/components/ui/sidebar"
 
 interface Project {
   id: string
   name: string
   slug: string
+  subscriptionTier?: string
+  subscriptionExpiresAt?: Date | null
 }
 
 interface User {
-  subscription?: string
-  subscriptionExpiresAt?: Date | null
+  // User interface - subscription fields moved to project level
 }
 
 interface ProjectSwitcherProps {
@@ -57,9 +58,10 @@ export const ProjectSwitcher = ({
     onProjectChange?.(project.id)
   }
 
-  const isPro = user?.subscription === "pro" &&
-    user?.subscriptionExpiresAt &&
-    new Date(user.subscriptionExpiresAt) > new Date()
+  // Check if the active project is pro
+  const isPro = activeProject?.subscriptionTier === "pro" &&
+    activeProject?.subscriptionExpiresAt &&
+    new Date(activeProject.subscriptionExpiresAt) > new Date()
 
   return (
     <SidebarMenu>
@@ -128,23 +130,29 @@ export const ProjectSwitcher = ({
                 <div className="flex flex-row items-center gap-2 justify-between w-full">
                   <span className="font-medium">{project.name}</span>
                   <div className="flex items-center">
-                    {isPro ? (
-                      <Image
-                        src="https://cdn.simplist.blog/assets/billing/mini-pro-badge.png"
-                        alt="Pro"
-                        width={100}
-                        height={100}
-                        className="h-5 w-5"
-                      />
-                    ) : (
-                      <Image
-                        src="https://cdn.simplist.blog/assets/billing/mini-starter-badge.png"
-                        alt="Starter"
-                        width={100}
-                        height={100}
-                        className="h-5 w-5"
-                      />
-                    )}
+                    {(() => {
+                      const projectIsPro = project.subscriptionTier === "pro" &&
+                        project.subscriptionExpiresAt &&
+                        new Date(project.subscriptionExpiresAt) > new Date();
+                      
+                      return projectIsPro ? (
+                        <Image
+                          src="https://cdn.simplist.blog/assets/billing/mini-pro-badge.png"
+                          alt="Pro"
+                          width={100}
+                          height={100}
+                          className="h-5 w-5"
+                        />
+                      ) : (
+                        <Image
+                          src="https://cdn.simplist.blog/assets/billing/mini-starter-badge.png"
+                          alt="Starter"
+                          width={100}
+                          height={100}
+                          className="h-5 w-5"
+                        />
+                      );
+                    })()}
                   </div>
                 </div>
               </DropdownMenuItem>

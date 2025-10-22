@@ -49,9 +49,10 @@ export const POST = async (req: Request) => {
         // Handle successful subscription
         if (session.mode === "subscription" && session.subscription) {
           const userId = session.metadata?.userId;
+          const projectId = session.metadata?.projectId;
 
-          if (!userId) {
-            console.error("No userId in session metadata");
+          if (!userId || !projectId) {
+            console.error("No userId or projectId in session metadata");
             break;
           }
 
@@ -59,17 +60,20 @@ export const POST = async (req: Request) => {
             session.subscription as string
           );
 
-          await prisma.user.update({
-            where: { id: userId },
+          await prisma.project.update({
+            where: { 
+              id: projectId,
+              userId: userId 
+            },
             data: {
-              subscription: "pro",
+              subscriptionTier: "pro",
               subscriptionExpiresAt: getSubscriptionExpiryDate(subscription),
               stripeCustomerId: session.customer as string,
               stripeSubscriptionId: subscription.id,
             },
           });
 
-          console.log(`Subscription activated for user ${userId}`);
+          console.log(`Subscription activated for project ${projectId} (user ${userId})`);
         }
         break;
       }
@@ -77,17 +81,21 @@ export const POST = async (req: Request) => {
       case "customer.subscription.updated": {
         const subscription = event.data.object as Stripe.Subscription;
         const userId = subscription.metadata?.userId;
+        const projectId = subscription.metadata?.projectId;
 
-        if (!userId) {
-          console.error("No userId in subscription metadata");
+        if (!userId || !projectId) {
+          console.error("No userId or projectId in subscription metadata");
           break;
         }
 
         // Update subscription status and expiration
-        await prisma.user.update({
-          where: { id: userId },
+        await prisma.project.update({
+          where: { 
+            id: projectId,
+            userId: userId 
+          },
           data: {
-            subscription: subscription.status === "active" ? "pro" : "free",
+            subscriptionTier: subscription.status === "active" ? "pro" : "free",
             subscriptionExpiresAt:
               subscription.status === "active"
                 ? getSubscriptionExpiryDate(subscription)
@@ -95,30 +103,34 @@ export const POST = async (req: Request) => {
           },
         });
 
-        console.log(`Subscription updated for user ${userId}: ${subscription.status}`);
+        console.log(`Subscription updated for project ${projectId} (user ${userId}): ${subscription.status}`);
         break;
       }
 
       case "customer.subscription.deleted": {
         const subscription = event.data.object as Stripe.Subscription;
         const userId = subscription.metadata?.userId;
+        const projectId = subscription.metadata?.projectId;
 
-        if (!userId) {
-          console.error("No userId in subscription metadata");
+        if (!userId || !projectId) {
+          console.error("No userId or projectId in subscription metadata");
           break;
         }
 
         // Downgrade to free plan
-        await prisma.user.update({
-          where: { id: userId },
+        await prisma.project.update({
+          where: { 
+            id: projectId,
+            userId: userId 
+          },
           data: {
-            subscription: "free",
+            subscriptionTier: "free",
             subscriptionExpiresAt: null,
             stripeSubscriptionId: null,
           },
         });
 
-        console.log(`Subscription canceled for user ${userId}`);
+        console.log(`Subscription canceled for project ${projectId} (user ${userId})`);
         break;
       }
 
@@ -131,22 +143,26 @@ export const POST = async (req: Request) => {
           );
 
           const userId = subscription.metadata?.userId;
+          const projectId = subscription.metadata?.projectId;
 
-          if (!userId) {
-            console.error("No userId in subscription metadata");
+          if (!userId || !projectId) {
+            console.error("No userId or projectId in subscription metadata");
             break;
           }
 
           // Update subscription expiration on successful payment
-          await prisma.user.update({
-            where: { id: userId },
+          await prisma.project.update({
+            where: { 
+              id: projectId,
+              userId: userId 
+            },
             data: {
-              subscription: "pro",
+              subscriptionTier: "pro",
               subscriptionExpiresAt: getSubscriptionExpiryDate(subscription),
             },
           });
 
-          console.log(`Payment succeeded for user ${userId}`);
+          console.log(`Payment succeeded for project ${projectId} (user ${userId})`);
         }
         break;
       }
@@ -160,9 +176,10 @@ export const POST = async (req: Request) => {
           );
 
           const userId = subscription.metadata?.userId;
+          const projectId = subscription.metadata?.projectId;
 
-          if (userId) {
-            console.warn(`Payment failed for user ${userId}`);
+          if (userId && projectId) {
+            console.warn(`Payment failed for project ${projectId} (user ${userId})`);
             // Optionally send notification or handle failed payment
           }
         }

@@ -7,24 +7,24 @@ import Link from "next/link"
 import { ProjectSwitcher } from "@/components/project-switcher"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem
+    Sidebar,
+    SidebarContent,
+    SidebarFooter,
+    SidebarGroup,
+    SidebarGroupContent,
+    SidebarGroupLabel,
+    SidebarHeader,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem
 } from "@/components/ui/sidebar"
 import { cloneElement, useState } from "react"
 import { ChartLine } from "./animate-ui/icons/chart-line"
@@ -47,6 +47,8 @@ interface Project {
   id: string
   name: string
   slug: string
+  subscriptionTier?: string
+  subscriptionExpiresAt?: Date | null
 }
 
 interface AppSidebarProps {
@@ -114,10 +116,9 @@ export const AppSidebar = ({
     return user.name.substring(0, 2).toUpperCase()
   }
 
-  const isPro =
-    user.subscription === "pro" &&
-    user.subscriptionExpiresAt &&
-    new Date(user.subscriptionExpiresAt) > new Date();
+  const isPro = activeProject?.subscriptionTier === "pro" &&
+    activeProject?.subscriptionExpiresAt &&
+    new Date(activeProject.subscriptionExpiresAt) > new Date();
 
   const navigationItems = getNavigationItems(isPro ?? false, activeProject?.slug || "");
 

@@ -11,8 +11,6 @@ interface User {
   name: string
   email: string
   image?: string | null
-  subscription?: string
-  subscriptionExpiresAt?: Date | null
 }
 
 interface Project {

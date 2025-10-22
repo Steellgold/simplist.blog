@@ -189,6 +189,7 @@ export const EditArticleForm = ({ article }: EditArticleFormProps) => {
             scheduledPublishAt={scheduledPublishAt}
             onScheduleChange={setScheduledPublishAt}
             projectTimezone="UTC"
+            projectId={currentProject?.id}
             leftAction={(
               <Link
                 href={`/${currentProject?.slug}/articles`}

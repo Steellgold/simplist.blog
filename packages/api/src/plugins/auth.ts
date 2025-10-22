@@ -107,9 +107,9 @@ export default fp(async function (fastify) {
         // Ignore errors for last used timestamp
       })
 
-      // Increment user's API call counter (fire and forget)
-      prisma.user.update({
-        where: { id: apiKey.project.userId },
+      // Increment project's API call counter (fire and forget)
+      prisma.project.update({
+        where: { id: apiKey.projectId },
         data: {
           monthlyApiCalls: { increment: 1 }
         }
@@ -119,34 +119,34 @@ export default fp(async function (fastify) {
 
       // Check API quota (this is checked but not blocking, for tracking purposes)
       const now = new Date()
-      const user = await prisma.user.findUnique({
-        where: { id: apiKey.project.userId },
+      const project = await prisma.project.findUnique({
+        where: { id: apiKey.projectId },
         select: {
-          subscription: true,
+          subscriptionTier: true,
           subscriptionExpiresAt: true,
           monthlyApiCalls: true,
           apiCallsResetAt: true
         }
       })
 
-      if (user) {
+      if (project) {
         // Determine subscription tier
-        const tier = user.subscription === "pro" &&
-                     user.subscriptionExpiresAt &&
-                     user.subscriptionExpiresAt > now
+        const tier = project.subscriptionTier === "pro" &&
+                     project.subscriptionExpiresAt &&
+                     project.subscriptionExpiresAt > now
           ? "pro"
           : "free"
 
         // Check if we need to reset the counter
         const daysSinceReset = Math.floor(
-          (now.getTime() - user.apiCallsResetAt.getTime()) / (1000 * 60 * 60 * 24)
+          (now.getTime() - project.apiCallsResetAt.getTime()) / (1000 * 60 * 60 * 24)
         )
 
-        let currentCalls = user.monthlyApiCalls
+        let currentCalls = project.monthlyApiCalls
         if (daysSinceReset >= 30) {
           // Reset counter
-          await prisma.user.update({
-            where: { id: apiKey.project.userId },
+          await prisma.project.update({
+            where: { id: apiKey.projectId },
             data: {
               monthlyApiCalls: 1, // Already counting this call
               apiCallsResetAt: now
@@ -164,7 +164,7 @@ export default fp(async function (fastify) {
             statusCode: 429,
             limit: maxCalls,
             current: currentCalls,
-            resetDate: new Date(user.apiCallsResetAt.getTime() + 30 * 24 * 60 * 60 * 1000)
+            resetDate: new Date(project.apiCallsResetAt.getTime() + 30 * 24 * 60 * 60 * 1000)
           })
         }
       }

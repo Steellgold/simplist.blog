@@ -394,8 +394,18 @@ export const bulkDeleteArticles = async (articleIds: string[]) => {
     redirect("/auth/login")
   }
 
+  // Get project ID from first article
+  const firstArticle = await prisma.article.findFirst({
+    where: { id: articleIds[0] },
+    select: { projectId: true },
+  });
+
+  if (!firstArticle) {
+    throw new Error("Article not found");
+  }
+
   // Check if user has access to bulk operations
-  const hasBulkAccess = await checkFeatureAccess(user.id, "bulkOperations");
+  const hasBulkAccess = await checkFeatureAccess(user.id, firstArticle.projectId, "bulkOperations");
   if (!hasBulkAccess) {
     throw new Error("Bulk operations are only available on Pro plan. Upgrade to delete multiple articles at once.");
   }

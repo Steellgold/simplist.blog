@@ -129,7 +129,6 @@ export const CreateProjectForm = ({ className, ...props }: React.ComponentProps<
                   </p>
                 </Field>
 
-
                 <Field>
                   <FieldLabel>Allowed Origins (Optional)</FieldLabel>
                   <div className="space-y-2">

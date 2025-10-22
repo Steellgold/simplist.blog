@@ -1,32 +1,81 @@
 "use client";
 
-import NumberFlow from "@number-flow/react";
 import Footer from "@/components/footer";
 import { HomeHeader } from "@/components/home-header";
+import { ProjectSelectorModal } from "@/components/project-selector-modal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { cn } from "@/lib/utils";
 import { createCheckoutSession } from "@/lib/stripe/actions";
 import { getAllPlans, getPlanPrice, type SubscriptionInterval } from "@/lib/subscription/plans";
-import { ArrowRight, BadgeCheck, Loader2, X } from "lucide-react";
+import { cn } from "@/lib/utils";
+import NumberFlow from "@number-flow/react";
+import { ArrowRight, BadgeCheck, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { Spinner } from "@/components/ui/spinner";
+import { useEffect, useState } from "react";
+
+interface Project {
+  id: string;
+  name: string;
+  slug: string;
+}
 
 const PricingPage = () => {
   const [frequency, setFrequency] = useState<SubscriptionInterval>("monthly");
   const [loading, setLoading] = useState<boolean>(false);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [showProjectSelector, setShowProjectSelector] = useState(false);
+  const [pendingInterval, setPendingInterval] = useState<SubscriptionInterval | null>(null);
   const router = useRouter();
   
   const plans = getAllPlans();
   const interval: SubscriptionInterval = frequency;
 
+  // Fetch user projects on component mount
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const response = await fetch("/api/projects");
+        if (response.ok) {
+          const data = await response.json();
+          setProjects(data.projects || []);
+        }
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+      }
+    };
+
+    fetchProjects();
+  }, []);
+
   const handleUpgrade = async (planInterval: SubscriptionInterval) => {
+    if (projects.length === 0) {
+      router.push("/create-project");
+      return;
+    }
+
+    if (projects.length === 1) {
+      // Single project - proceed directly
+      await processCheckout(planInterval, projects[0].id);
+    } else {
+      // Multiple projects - show selector
+      setPendingInterval(planInterval);
+      setShowProjectSelector(true);
+    }
+  };
+
+  const handleProjectSelect = async (projectId: string) => {
+    if (pendingInterval) {
+      await processCheckout(pendingInterval, projectId);
+    }
+  };
+
+  const processCheckout = async (planInterval: SubscriptionInterval, projectId: string) => {
     setLoading(true);
     try {
-      const { url } = await createCheckoutSession(planInterval);
+      const { url } = await createCheckoutSession(planInterval, projectId);
       window.location.href = url;
     } catch (error) {
       console.error("Error creating checkout session:", error);
@@ -143,6 +192,15 @@ const PricingPage = () => {
       </div>
       
       <Footer />
+
+      <ProjectSelectorModal
+        open={showProjectSelector}
+        onOpenChange={setShowProjectSelector}
+        projects={projects}
+        onProjectSelect={handleProjectSelect}
+        title="Select Project to Upgrade"
+        description="Choose which project you want to upgrade to Pro"
+      />
     </div>
   );
 };

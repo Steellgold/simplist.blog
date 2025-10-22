@@ -87,7 +87,7 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
         content,
         status,
         coverImage: undefined,
-        scheduledPublishAt: status === "scheduled" ? scheduledPublishAt : undefined,
+        scheduledPublishAt: status === "scheduled" ? scheduledPublishAt || undefined : undefined,
       });
 
       // Step 2: Upload image if provided
@@ -158,6 +158,7 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
             scheduledPublishAt={scheduledPublishAt}
             onScheduleChange={setScheduledPublishAt}
             projectTimezone="UTC"
+            projectId={currentProject?.id}
             leftAction={(
               <Link
                 href={`/${currentProject?.slug}/articles`}

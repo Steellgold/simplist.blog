@@ -16,11 +16,6 @@ model User {
   email                 String
   emailVerified         Boolean   @default(false)
   image                 String?
-  // API usage tracking
-  monthlyApiCalls       Int       @default(0) // Reset each month
-  apiCallsResetAt       DateTime  @default(now()) // Date of last reset
-  // Storage tracking
-  totalStorageUsed      Int       @default(0) // In bytes
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @default(now()) @updatedAt
   sessions              Session[]
@@ -88,6 +83,11 @@ model Project {
   subscriptionExpiresAt DateTime? // When the subscription expires (for pro projects)
   stripeCustomerId      String?   // Stripe customer ID for this project
   stripeSubscriptionId  String?  // Stripe subscription ID for this project
+  // API usage tracking (moved from User)
+  monthlyApiCalls       Int       @default(0) // Reset each month
+  apiCallsResetAt       DateTime  @default(now()) // Date of last reset
+  // Storage tracking (moved from User)
+  totalStorageUsed      Int       @default(0) // In bytes
   userId                String
   user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   apiKeys               ApiKey[]

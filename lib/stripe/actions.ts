@@ -9,7 +9,8 @@ import { redirect } from "next/navigation";
  * Create a Stripe checkout session for Pro subscription
  */
 export const createCheckoutSession = async (
-  interval: "monthly" | "yearly"
+  interval: "monthly" | "yearly",
+  projectId?: string
 ): Promise<{ url: string }> => {
   const currentUser = await getCurrentUser();
 
@@ -17,14 +18,13 @@ export const createCheckoutSession = async (
     redirect("/auth/login");
   }
 
-  // Get full user data with Stripe info
+  // Get user data
   const user = await prisma.user.findUnique({
     where: { id: currentUser.id },
     select: {
       id: true,
       email: true,
       name: true,
-      stripeCustomerId: true,
     },
   });
 
@@ -32,8 +32,36 @@ export const createCheckoutSession = async (
     redirect("/auth/login");
   }
 
-  // Get or create Stripe customer
-  let stripeCustomerId = user.stripeCustomerId;
+  // Get or determine project
+  let targetProject;
+  if (projectId) {
+    targetProject = await prisma.project.findFirst({
+      where: { id: projectId, userId: user.id },
+      select: { id: true, name: true, stripeCustomerId: true },
+    });
+  } else {
+    // Get user's projects to auto-select
+    const projects = await prisma.project.findMany({
+      where: { userId: user.id },
+      select: { id: true, name: true, stripeCustomerId: true },
+    });
+    
+    if (projects.length === 0) {
+      redirect("/create-project");
+    } else if (projects.length === 1) {
+      targetProject = projects[0];
+    } else {
+      // Multiple projects - should not happen without projectId
+      throw new Error("Multiple projects found. Please specify a projectId.");
+    }
+  }
+
+  if (!targetProject) {
+    throw new Error("Project not found or access denied");
+  }
+
+  // Get or create Stripe customer (check project first, then user)
+  let stripeCustomerId = targetProject.stripeCustomerId;
 
   if (!stripeCustomerId) {
     const customer = await stripe.customers.create({
@@ -41,14 +69,15 @@ export const createCheckoutSession = async (
       name: user.name,
       metadata: {
         userId: user.id,
+        projectId: targetProject.id,
       },
     });
 
     stripeCustomerId = customer.id;
 
-    // Update user with Stripe customer ID
-    await prisma.user.update({
-      where: { id: user.id },
+    // Update project with Stripe customer ID
+    await prisma.project.update({
+      where: { id: targetProject.id },
       data: { stripeCustomerId },
     });
   }
@@ -80,10 +109,12 @@ export const createCheckoutSession = async (
     cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/settings/billing?canceled=true`,
     metadata: {
       userId: user.id,
+      projectId: targetProject.id,
     },
     subscription_data: {
       metadata: {
         userId: user.id,
+        projectId: targetProject.id,
       },
     },
   });
@@ -98,27 +129,30 @@ export const createCheckoutSession = async (
 /**
  * Create a Stripe billing portal session
  */
-export const createBillingPortalSession = async (): Promise<{ url: string }> => {
+export const createBillingPortalSession = async (projectId: string): Promise<{ url: string }> => {
   const currentUser = await getCurrentUser();
 
   if (!currentUser) {
     redirect("/auth/login");
   }
 
-  // Get full user data with Stripe info
-  const user = await prisma.user.findUnique({
-    where: { id: currentUser.id },
+  // Get project with Stripe info
+  const project = await prisma.project.findFirst({
+    where: { 
+      id: projectId, 
+      userId: currentUser.id 
+    },
     select: {
       stripeCustomerId: true,
     },
   });
 
-  if (!user?.stripeCustomerId) {
-    throw new Error("No Stripe customer found");
+  if (!project?.stripeCustomerId) {
+    throw new Error("No Stripe customer found for this project");
   }
 
   const session = await stripe.billingPortal.sessions.create({
-    customer: user.stripeCustomerId,
+    customer: project.stripeCustomerId,
     return_url: `${process.env.NEXT_PUBLIC_APP_URL}/settings/billing`,
   });
 

@@ -17,6 +17,17 @@ export const getUserProjects = async () => {
     where: {
       userId: user.id,
     },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      description: true,
+      timezone: true,
+      createdAt: true,
+      updatedAt: true,
+      subscriptionTier: true,
+      subscriptionExpiresAt: true,
+    },
     orderBy: {
       createdAt: "desc",
     },
@@ -48,6 +59,7 @@ export const createProject = async (input: CreateProjectActionInput) => {
     name: input.name,
     description: input.description || "",
     timezone: input.timezone || "UTC",
+    subscriptionTier: input.subscriptionTier || "free",
     allowedOrigins: input.allowedOrigins || [],
   })
 
@@ -80,6 +92,7 @@ export const createProject = async (input: CreateProjectActionInput) => {
       slug: finalSlug,
       description: validatedData.description || null,
       timezone: validatedData.timezone,
+      subscriptionTier: validatedData.subscriptionTier,
       allowedOrigins: allowedOriginStrings,
       userId: user.id,
     },

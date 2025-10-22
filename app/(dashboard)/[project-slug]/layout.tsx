@@ -55,7 +55,7 @@ const ProjectLayout = async ({
     }
   }
 
-  // Get full user data with subscription info
+  // Get full user data (subscription info is now at project level)
   const fullUser = await prisma.user.findUnique({
     where: { id: user.id },
     select: {
@@ -63,8 +63,6 @@ const ProjectLayout = async ({
       name: true,
       email: true,
       image: true,
-      subscription: true,
-      subscriptionExpiresAt: true,
     },
   });
 

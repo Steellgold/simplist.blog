@@ -9,13 +9,13 @@ export interface QuotaCheckResult {
 }
 
 /**
- * Get user's subscription tier and limits
+ * Get project's subscription tier and limits
  */
-export const getUserSubscription = async (userId: string) => {
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
+export const getProjectSubscription = async (projectId: string) => {
+  const project = await prisma.project.findUnique({
+    where: { id: projectId },
     select: {
-      subscription: true,
+      subscriptionTier: true,
       subscriptionExpiresAt: true,
       monthlyApiCalls: true,
       apiCallsResetAt: true,
@@ -23,15 +23,15 @@ export const getUserSubscription = async (userId: string) => {
     },
   });
 
-  if (!user) {
-    throw new Error("User not found");
+  if (!project) {
+    throw new Error("Project not found");
   }
 
   // Check if subscription is expired
   const tier: SubscriptionPlan =
-    user.subscription === "pro" &&
-    user.subscriptionExpiresAt &&
-    user.subscriptionExpiresAt > new Date()
+    project.subscriptionTier === "pro" &&
+    project.subscriptionExpiresAt &&
+    project.subscriptionExpiresAt > new Date()
       ? "pro"
       : "free";
 
@@ -39,9 +39,9 @@ export const getUserSubscription = async (userId: string) => {
     tier,
     limits: getPlanLimits(tier),
     usage: {
-      apiCalls: user.monthlyApiCalls,
-      storage: user.totalStorageUsed,
-      apiCallsResetAt: user.apiCallsResetAt,
+      apiCalls: project.monthlyApiCalls,
+      storage: project.totalStorageUsed,
+      apiCallsResetAt: project.apiCallsResetAt,
     },
   };
 };
@@ -53,7 +53,7 @@ export const checkArticleQuota = async (
   userId: string,
   projectId: string
 ): Promise<QuotaCheckResult> => {
-  const subscription = await getUserSubscription(userId);
+  const subscription = await getProjectSubscription(projectId);
 
   // Count existing articles
   const articleCount = await prisma.article.count({
@@ -82,7 +82,51 @@ export const checkStorageQuota = async (
   userId: string,
   fileSizeBytes: number
 ): Promise<QuotaCheckResult> => {
-  const subscription = await getUserSubscription(userId);
+  // For storage, we use the user's highest tier project or default to free
+  const userProjects = await prisma.project.findMany({
+    where: { userId },
+    select: { 
+      id: true,
+      subscriptionTier: true,
+      subscriptionExpiresAt: true,
+      monthlyApiCalls: true,
+      apiCallsResetAt: true,
+      totalStorageUsed: true,
+    },
+  });
+
+  if (userProjects.length === 0) {
+    throw new Error("No projects found for user");
+  }
+
+  // Find the highest tier project
+  const highestTierProject = userProjects.reduce((highest, current) => {
+    const currentIsPro = current.subscriptionTier === "pro" &&
+      current.subscriptionExpiresAt &&
+      current.subscriptionExpiresAt > new Date();
+    const highestIsPro = highest.subscriptionTier === "pro" &&
+      highest.subscriptionExpiresAt &&
+      highest.subscriptionExpiresAt > new Date();
+    
+    return currentIsPro && !highestIsPro ? current : highest;
+  });
+
+  const isPro = highestTierProject.subscriptionTier === "pro" &&
+    highestTierProject.subscriptionExpiresAt &&
+    highestTierProject.subscriptionExpiresAt > new Date();
+
+  const tier = isPro ? "pro" : "free";
+  const limits = getPlanLimits(tier);
+
+  const subscription = {
+    tier,
+    limits,
+    usage: {
+      apiCalls: highestTierProject.monthlyApiCalls,
+      storage: highestTierProject.totalStorageUsed,
+      apiCallsResetAt: highestTierProject.apiCallsResetAt,
+    },
+  };
 
   const newTotal = subscription.usage.storage + fileSizeBytes;
 
@@ -113,7 +157,7 @@ export const checkApiKeyQuota = async (
   userId: string,
   projectId: string
 ): Promise<QuotaCheckResult> => {
-  const subscription = await getUserSubscription(userId);
+  const subscription = await getProjectSubscription(projectId);
 
   // Count existing active API keys
   const apiKeyCount = await prisma.apiKey.count({
@@ -139,7 +183,52 @@ export const checkApiKeyQuota = async (
  * Check if user has exceeded monthly API call quota
  */
 export const checkApiCallQuota = async (userId: string): Promise<QuotaCheckResult> => {
-  const subscription = await getUserSubscription(userId);
+  // For API calls, we use the user's highest tier project or default to free
+  const userProjects = await prisma.project.findMany({
+    where: { userId },
+    select: { 
+      id: true,
+      subscriptionTier: true,
+      subscriptionExpiresAt: true,
+      monthlyApiCalls: true,
+      apiCallsResetAt: true,
+      totalStorageUsed: true,
+    },
+  });
+
+  if (userProjects.length === 0) {
+    throw new Error("No projects found for user");
+  }
+
+  // Find the highest tier project
+  const highestTierProject = userProjects.reduce((highest, current) => {
+    const currentIsPro = current.subscriptionTier === "pro" &&
+      current.subscriptionExpiresAt &&
+      current.subscriptionExpiresAt > new Date();
+    const highestIsPro = highest.subscriptionTier === "pro" &&
+      highest.subscriptionExpiresAt &&
+      highest.subscriptionExpiresAt > new Date();
+    
+    return currentIsPro && !highestIsPro ? current : highest;
+  });
+
+  const isPro = highestTierProject.subscriptionTier === "pro" &&
+    highestTierProject.subscriptionExpiresAt &&
+    highestTierProject.subscriptionExpiresAt > new Date();
+
+  const tier = isPro ? "pro" : "free";
+  const limits = getPlanLimits(tier);
+
+  // Use the highest tier project's usage data
+  const subscription = {
+    tier,
+    limits,
+    usage: {
+      apiCalls: highestTierProject.monthlyApiCalls,
+      storage: highestTierProject.totalStorageUsed,
+      apiCallsResetAt: highestTierProject.apiCallsResetAt,
+    },
+  };
 
   // Check if we need to reset the counter (new month)
   const now = new Date();
@@ -152,8 +241,8 @@ export const checkApiCallQuota = async (userId: string): Promise<QuotaCheckResul
 
   // Reset if more than 30 days have passed
   if (daysSinceReset >= 30) {
-    await prisma.user.update({
-      where: { id: userId },
+    await prisma.project.update({
+      where: { id: highestTierProject.id },
       data: {
         monthlyApiCalls: 0,
         apiCallsResetAt: now,
@@ -179,11 +268,36 @@ export const checkApiCallQuota = async (userId: string): Promise<QuotaCheckResul
 };
 
 /**
- * Increment user's API call counter
+ * Increment user's API call counter (updates the highest tier project)
  */
 export const incrementApiCallCounter = async (userId: string): Promise<void> => {
-  await prisma.user.update({
-    where: { id: userId },
+  // Find the highest tier project
+  const userProjects = await prisma.project.findMany({
+    where: { userId },
+    select: { 
+      id: true,
+      subscriptionTier: true,
+      subscriptionExpiresAt: true,
+    },
+  });
+
+  if (userProjects.length === 0) {
+    throw new Error("No projects found for user");
+  }
+
+  const highestTierProject = userProjects.reduce((highest, current) => {
+    const currentIsPro = current.subscriptionTier === "pro" &&
+      current.subscriptionExpiresAt &&
+      current.subscriptionExpiresAt > new Date();
+    const highestIsPro = highest.subscriptionTier === "pro" &&
+      highest.subscriptionExpiresAt &&
+      highest.subscriptionExpiresAt > new Date();
+    
+    return currentIsPro && !highestIsPro ? current : highest;
+  });
+
+  await prisma.project.update({
+    where: { id: highestTierProject.id },
     data: {
       monthlyApiCalls: {
         increment: 1,
@@ -193,14 +307,39 @@ export const incrementApiCallCounter = async (userId: string): Promise<void> => 
 };
 
 /**
- * Update user's storage usage
+ * Update user's storage usage (updates the highest tier project)
  */
 export const updateStorageUsage = async (
   userId: string,
   bytesChange: number
 ): Promise<void> => {
-  await prisma.user.update({
-    where: { id: userId },
+  // Find the highest tier project
+  const userProjects = await prisma.project.findMany({
+    where: { userId },
+    select: { 
+      id: true,
+      subscriptionTier: true,
+      subscriptionExpiresAt: true,
+    },
+  });
+
+  if (userProjects.length === 0) {
+    throw new Error("No projects found for user");
+  }
+
+  const highestTierProject = userProjects.reduce((highest, current) => {
+    const currentIsPro = current.subscriptionTier === "pro" &&
+      current.subscriptionExpiresAt &&
+      current.subscriptionExpiresAt > new Date();
+    const highestIsPro = highest.subscriptionTier === "pro" &&
+      highest.subscriptionExpiresAt &&
+      highest.subscriptionExpiresAt > new Date();
+    
+    return currentIsPro && !highestIsPro ? current : highest;
+  });
+
+  await prisma.project.update({
+    where: { id: highestTierProject.id },
     data: {
       totalStorageUsed: {
         increment: bytesChange,
@@ -214,16 +353,17 @@ export const updateStorageUsage = async (
  */
 export const checkFeatureAccess = async (
   userId: string,
+  projectId: string,
   feature: keyof ReturnType<typeof getPlanLimits>["features"]
 ): Promise<boolean> => {
-  const subscription = await getUserSubscription(userId);
+  const subscription = await getProjectSubscription(projectId);
   return subscription.limits.features[feature];
 };
 
 /**
  * Check if user has analytics enabled
  */
-export const checkAnalyticsAccess = async (userId: string): Promise<boolean> => {
-  const subscription = await getUserSubscription(userId);
+export const checkAnalyticsAccess = async (userId: string, projectId: string): Promise<boolean> => {
+  const subscription = await getProjectSubscription(projectId);
   return subscription.limits.analyticsEnabled;
 };

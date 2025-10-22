@@ -22,7 +22,7 @@ interface SubscriptionLimitsData {
   refetch: () => Promise<void>;
 }
 
-export const useSubscriptionLimits = (): SubscriptionLimitsData => {
+export const useSubscriptionLimits = (projectId?: string): SubscriptionLimitsData => {
   const [data, setData] = useState<Omit<SubscriptionLimitsData, 'refetch'>>({
     isLoading: true,
     subscription: null,
@@ -31,9 +31,14 @@ export const useSubscriptionLimits = (): SubscriptionLimitsData => {
   });
 
   const fetchSubscriptionData = async () => {
+    if (!projectId) {
+      setData(prev => ({ ...prev, isLoading: false }));
+      return;
+    }
+
     try {
       setData(prev => ({ ...prev, isLoading: true }));
-      const response = await fetch("/api/subscription/limits");
+      const response = await fetch(`/api/subscription/limits?projectId=${projectId}`);
       
       if (!response.ok) {
         throw new Error("Failed to fetch subscription data");
@@ -70,7 +75,7 @@ export const useSubscriptionLimits = (): SubscriptionLimitsData => {
 
   useEffect(() => {
     fetchSubscriptionData();
-  }, []);
+  }, [projectId]);
 
   return {
     ...data,
@@ -79,8 +84,8 @@ export const useSubscriptionLimits = (): SubscriptionLimitsData => {
 };
 
 // Hook spécialisé pour les API keys
-export const useApiKeyLimits = () => {
-  const { isLoading, apiKeyUsage, subscription, refetch } = useSubscriptionLimits();
+export const useApiKeyLimits = (projectId?: string) => {
+  const { isLoading, apiKeyUsage, subscription, refetch } = useSubscriptionLimits(projectId);
   
   return {
     isLoading,

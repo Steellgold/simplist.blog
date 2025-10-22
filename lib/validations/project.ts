@@ -58,6 +58,7 @@ export const createProjectActionSchema = z.object({
   slug: z.string(),
   timezone: z.string(),
   description: z.string().optional(),
+  subscriptionTier: z.enum(["free", "pro"]).optional(),
   allowedOrigins: z.array(z.object({ value: z.string() })).optional(),
 })
 
