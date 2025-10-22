@@ -1,24 +1,24 @@
-import * as db from '@simplist/db'
-import { FastifyPluginAsync } from 'fastify'
+import * as db from "@simplist/db"
+import { FastifyPluginAsync } from "fastify"
 import {
   cacheArticle,
   cacheArticlesList,
   getCachedArticle,
   getCachedArticlesList
-} from '../utils/article-cache'
-import { formatArticle } from '../utils/format'
-import { generateSeoMetadata } from '../utils/seo-generator'
+} from "../utils/article-cache"
+import { formatArticle } from "../utils/format"
+import { generateSeoMetadata } from "../utils/seo-generator"
 
 const { prisma } = db
 
 const articlesRoutes: FastifyPluginAsync = async (fastify) => {
   // GET /articles - List articles with pagination
-  fastify.get('/articles', async (request, reply) => {
+  fastify.get("/articles", async (request, reply) => {
     const query = request.query as any
     const page = Number(query.page) || 1
     const limit = Number(query.limit) || 20
-    const sort = query.sort || 'createdAt'
-    const order = query.order || 'desc'
+    const sort = query.sort || "createdAt"
+    const order = query.order || "desc"
     const published = query.published !== undefined ? Boolean(query.published) : true
     const search = query.search
     const status = query.status
@@ -52,7 +52,7 @@ const articlesRoutes: FastifyPluginAsync = async (fastify) => {
       // Build where clause
       const where: any = {
         projectId,
-        status: { notIn: ['deleted', 'scheduled'] } // Exclude soft-deleted and scheduled articles
+        status: { notIn: ["deleted", "scheduled"] } // Exclude soft-deleted and scheduled articles
       }
 
       // Filter by published status if specified
@@ -68,9 +68,9 @@ const articlesRoutes: FastifyPluginAsync = async (fastify) => {
       // Add search filter if provided
       if (search) {
         where.OR = [
-          { title: { contains: search, mode: 'insensitive' } },
-          { excerpt: { contains: search, mode: 'insensitive' } },
-          { content: { contains: search, mode: 'insensitive' } }
+          { title: { contains: search, mode: "insensitive" } },
+          { excerpt: { contains: search, mode: "insensitive" } },
+          { content: { contains: search, mode: "insensitive" } }
         ]
       }
 
@@ -107,7 +107,7 @@ const articlesRoutes: FastifyPluginAsync = async (fastify) => {
 
       // Cache the articles list (async, don't wait)
       cacheArticlesList(projectId, cacheParams, formattedArticles).catch(err => 
-        fastify.log.error(err, 'Failed to cache articles list')
+        fastify.log.error(err, "Failed to cache articles list")
       )
 
       return {
@@ -120,23 +120,23 @@ const articlesRoutes: FastifyPluginAsync = async (fastify) => {
         }
       }
     } catch (error) {
-      fastify.log.error(error, 'Error fetching articles')
+      fastify.log.error(error, "Error fetching articles")
       return reply.status(500 as any).send({
-        error: 'Internal Server Error',
-        message: 'Failed to fetch articles',
+        error: "Internal Server Error",
+        message: "Failed to fetch articles",
         statusCode: 500
       })
     }
   })
 
   // GET /articles/:slug - Get single article by slug
-  fastify.get('/articles/:slug', {
+  fastify.get("/articles/:slug", {
     schema: {
       querystring: {
-        type: 'object',
+        type: "object",
         properties: {
-          includeSeo: { type: 'boolean' },
-          baseUrl: { type: 'string', format: 'uri' }
+          includeSeo: { type: "boolean" },
+          baseUrl: { type: "string", format: "uri" }
         }
       }
     }
@@ -175,7 +175,7 @@ const articlesRoutes: FastifyPluginAsync = async (fastify) => {
         where: {
           slug,
           projectId,
-          status: { notIn: ['deleted', 'scheduled'] },
+          status: { notIn: ["deleted", "scheduled"] },
           published: true // Only return published articles via public API
         },
         include: includeSeo ? {
@@ -185,21 +185,21 @@ const articlesRoutes: FastifyPluginAsync = async (fastify) => {
 
       if (!article) {
         return reply.status(404 as any).send({
-          error: 'Not Found',
-          message: 'Article not found or not published',
+          error: "Not Found",
+          message: "Article not found or not published",
           statusCode: 404
         })
       }
 
       // Cache the article with full content (async, don't wait)
       cacheArticle(projectId, article).catch(err => 
-        fastify.log.error(err, 'Failed to cache article')
+        fastify.log.error(err, "Failed to cache article")
       )
 
       let responseData = formatArticle(article)
 
       // Add SEO metadata if requested
-      if (includeSeo && 'project' in article && article.project) {
+      if (includeSeo && "project" in article && article.project) {
         const seoMetadata = generateSeoMetadata(article, article.project, baseUrl)
         responseData = { ...responseData, seo: seoMetadata }
       }
@@ -208,10 +208,10 @@ const articlesRoutes: FastifyPluginAsync = async (fastify) => {
         data: responseData
       }
     } catch (error) {
-      fastify.log.error(error, 'Error fetching article')
+      fastify.log.error(error, "Error fetching article")
       return reply.status(500 as any).send({
-        error: 'Internal Server Error',
-        message: 'Failed to fetch article',
+        error: "Internal Server Error",
+        message: "Failed to fetch article",
         statusCode: 500
       })
     }

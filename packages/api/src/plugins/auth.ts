@@ -1,5 +1,5 @@
-import * as db from '@simplist/db'
-import fp from 'fastify-plugin'
+import * as db from "@simplist/db"
+import fp from "fastify-plugin"
 
 const { prisma, apiKeyCache } = db
 
@@ -8,7 +8,7 @@ const checkPermission = (apiKey: any, permission: string): boolean => {
   return apiKey.permissions.includes(permission)
 }
 
-declare module 'fastify' {
+declare module "fastify" {
   interface FastifyRequest {
     apiKey?: {
       id: string
@@ -28,13 +28,13 @@ declare module 'fastify' {
 }
 
 export default fp(async function (fastify) {
-  fastify.addHook('onRequest', async (request, reply) => {
-    const apiKeyHeader = request.headers['x-api-key'] as string
+  fastify.addHook("onRequest", async (request, reply) => {
+    const apiKeyHeader = request.headers["x-api-key"] as string
     
     if (!apiKeyHeader) {
       return reply.code(401).send({
-        error: 'Unauthorized',
-        message: 'API key is required. Include it in the X-API-Key header.',
+        error: "Unauthorized",
+        message: "API key is required. Include it in the X-API-Key header.",
         statusCode: 401
       })
     }
@@ -47,7 +47,7 @@ export default fp(async function (fastify) {
         apiKey = await apiKeyCache.get(apiKeyHeader)
       } catch (cacheError) {
         // Cache not available, continue with database lookup
-        fastify.log.warn('Redis cache not available, falling back to database only')
+        fastify.log.warn("Redis cache not available, falling back to database only")
       }
       
       if (!apiKey) {
@@ -55,7 +55,7 @@ export default fp(async function (fastify) {
         const dbApiKey = await prisma.apiKey.findFirst({
           where: {
             key: apiKeyHeader,
-            status: 'active',
+            status: "active",
             OR: [
               { expiresAt: null },
               { expiresAt: { gte: new Date() } }
@@ -75,8 +75,8 @@ export default fp(async function (fastify) {
 
         if (!dbApiKey) {
           return reply.code(401).send({
-            error: 'Unauthorized',
-            message: 'Invalid or expired API key.',
+            error: "Unauthorized",
+            message: "Invalid or expired API key.",
             statusCode: 401
           })
         }
@@ -131,11 +131,11 @@ export default fp(async function (fastify) {
 
       if (user) {
         // Determine subscription tier
-        const tier = user.subscription === 'pro' &&
+        const tier = user.subscription === "pro" &&
                      user.subscriptionExpiresAt &&
                      user.subscriptionExpiresAt > now
-          ? 'pro'
-          : 'free'
+          ? "pro"
+          : "free"
 
         // Check if we need to reset the counter
         const daysSinceReset = Math.floor(
@@ -156,10 +156,10 @@ export default fp(async function (fastify) {
         }
 
         // Check quota limits
-        const maxCalls = tier === 'pro' ? 500_000 : 1_000
+        const maxCalls = tier === "pro" ? 500_000 : 1_000
         if (currentCalls > maxCalls) {
           return reply.code(429).send({
-            error: 'Rate Limit Exceeded',
+            error: "Rate Limit Exceeded",
             message: `Monthly API call limit exceeded. Your ${tier} plan allows ${maxCalls.toLocaleString()} calls per month. Please upgrade or wait for next billing cycle.`,
             statusCode: 429,
             limit: maxCalls,
@@ -174,10 +174,10 @@ export default fp(async function (fastify) {
       request.checkPermission = (permission: string) => checkPermission(apiKey, permission)
 
     } catch (error) {
-      fastify.log.error(error, 'Error validating API key')
+      fastify.log.error(error, "Error validating API key")
       return reply.code(500).send({
-        error: 'Internal Server Error',
-        message: 'Failed to validate API key.',
+        error: "Internal Server Error",
+        message: "Failed to validate API key.",
         statusCode: 500
       })
     }

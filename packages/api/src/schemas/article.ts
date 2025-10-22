@@ -1,5 +1,5 @@
-import { z } from 'zod'
-import { createResponseSchema, paginationQuerySchema } from './common'
+import { z } from "zod"
+import { createResponseSchema, paginationQuerySchema } from "./common"
 
 // Article schema for API responses
 export const articleSchema = z.object({
@@ -16,9 +16,9 @@ export const articleSchema = z.object({
   characterCount: z.number(),
   lineCount: z.number(),
   readTimeMinutes: z.number(),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
-  publishedAt: z.string().datetime().nullable()
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
+  publishedAt: z.iso.datetime().nullable()
 })
 
 // Article list item (without full content)
@@ -28,7 +28,7 @@ export const articleListItemSchema = articleSchema.omit({ content: true })
 export const articleListQuerySchema = paginationQuerySchema.extend({
   published: z.coerce.boolean().default(true),
   search: z.string().optional(),
-  status: z.enum(['draft', 'published']).optional()
+  status: z.enum(["draft", "published"]).optional()
 })
 
 // Response schemas

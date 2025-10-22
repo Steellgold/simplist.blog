@@ -1,58 +1,58 @@
-import * as db from '@simplist/db'
-import { FastifyPluginAsync } from 'fastify'
-import { type SitemapEntry } from '../schemas/seo'
-import { generateRSSFeed, generateSeoMetadata, generateSitemap } from '../utils/seo-generator'
+import * as db from "@simplist/db"
+import { FastifyPluginAsync } from "fastify"
+import { type SitemapEntry } from "../schemas/seo"
+import { generateRSSFeed, generateSeoMetadata, generateSitemap } from "../utils/seo-generator"
 
 const { prisma } = db
 
 const seoRoutes: FastifyPluginAsync = async (fastify) => {
   // Get SEO metadata for a specific article
-  fastify.get('/seo/article/:articleSlug', {
+  fastify.get("/seo/article/:articleSlug", {
     schema: {
       params: {
-        type: 'object',
+        type: "object",
         properties: {
-          articleSlug: { type: 'string' }
+          articleSlug: { type: "string" }
         },
-        required: ['articleSlug']
+        required: ["articleSlug"]
       },
       querystring: {
-        type: 'object',
+        type: "object",
         properties: {
-          baseUrl: { type: 'string', format: 'uri' }
+          baseUrl: { type: "string", format: "uri" }
         }
       },
       response: {
         200: {
-          type: 'object',
+          type: "object",
           properties: {
-            id: { type: 'string' },
-            title: { type: 'string' },
-            slug: { type: 'string' },
-            excerpt: { type: ['string', 'null'] },
-            content: { type: 'string' },
-            coverImage: { type: ['string', 'null'] },
-            published: { type: 'boolean' },
-            viewCount: { type: 'number' },
-            wordCount: { type: 'number' },
-            characterCount: { type: 'number' },
-            lineCount: { type: 'number' },
-            readTimeMinutes: { type: 'number' },
-            createdAt: { type: 'string' },
-            updatedAt: { type: 'string' },
-            publishedAt: { type: ['string', 'null'] },
-            seo: { type: 'object' },
+            id: { type: "string" },
+            title: { type: "string" },
+            slug: { type: "string" },
+            excerpt: { type: ["string", "null"] },
+            content: { type: "string" },
+            coverImage: { type: ["string", "null"] },
+            published: { type: "boolean" },
+            viewCount: { type: "number" },
+            wordCount: { type: "number" },
+            characterCount: { type: "number" },
+            lineCount: { type: "number" },
+            readTimeMinutes: { type: "number" },
+            createdAt: { type: "string" },
+            updatedAt: { type: "string" },
+            publishedAt: { type: ["string", "null"] },
+            seo: { type: "object" },
             project: {
-              type: 'object',
+              type: "object",
               properties: {
-                name: { type: 'string' },
-                slug: { type: 'string' },
-                description: { type: ['string', 'null'] }
+                name: { type: "string" },
+                slug: { type: "string" },
+                description: { type: ["string", "null"] }
               },
-              required: ['name', 'slug']
+              required: ["name", "slug"]
             }
           },
-          required: ['id', 'title', 'slug', 'content', 'published', 'viewCount', 'wordCount', 'characterCount', 'lineCount', 'readTimeMinutes', 'createdAt', 'updatedAt', 'seo', 'project']
+          required: ["id", "title", "slug", "content", "published", "viewCount", "wordCount", "characterCount", "lineCount", "readTimeMinutes", "createdAt", "updatedAt", "seo", "project"]
         }
       }
     }
@@ -61,7 +61,7 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
     const { baseUrl } = request.query as { baseUrl?: string }
 
     if (!request.apiKey) {
-      return reply.status(401 as any).send({ error: 'API key required' })
+      return reply.status(401 as any).send({ error: "API key required" })
     }
 
     try {
@@ -71,7 +71,7 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
       })
 
       if (!project) {
-        return reply.status(404 as any).send({ error: 'Project not found' })
+        return reply.status(404 as any).send({ error: "Project not found" })
       }
 
       // Find the article
@@ -80,12 +80,12 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
           slug: articleSlug,
           projectId: project.id,
           published: true,
-          status: 'published'
+          status: "published"
         }
       })
 
       if (!article) {
-        return reply.status(404 as any).send({ error: 'Article not found' })
+        return reply.status(404 as any).send({ error: "Article not found" })
       }
 
       // Generate SEO metadata
@@ -106,28 +106,28 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
 
       return reply.send(response)
     } catch (error) {
-      fastify.log.error(error, 'Failed to get article SEO metadata')
-      return reply.status(500 as any).send({ error: 'Internal server error' })
+      fastify.log.error(error, "Failed to get article SEO metadata")
+      return reply.status(500 as any).send({ error: "Internal server error" })
     }
   })
 
   // Get sitemap for a project  
-  fastify.get('/seo/sitemap', {
+  fastify.get("/seo/sitemap", {
     schema: {
       querystring: {
-        type: 'object',
+        type: "object",
         properties: {
-          baseUrl: { type: 'string', format: 'uri' },
-          format: { type: 'string', enum: ['xml', 'json'] }
+          baseUrl: { type: "string", format: "uri" },
+          format: { type: "string", enum: ["xml", "json"] }
         },
-        required: ['baseUrl']
+        required: ["baseUrl"]
       }
     }
   }, async (request, reply) => {
-    const { baseUrl, format = 'xml' } = request.query as { baseUrl: string, format?: 'xml' | 'json' }
+    const { baseUrl, format = "xml" } = request.query as { baseUrl: string, format?: "xml" | "json" }
 
     if (!request.apiKey) {
-      return reply.status(401 as any).send({ error: 'API key required' })
+      return reply.status(401 as any).send({ error: "API key required" })
     }
 
     try {
@@ -137,7 +137,7 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
       })
 
       if (!project) {
-        return reply.status(404 as any).send({ error: 'Project not found' })
+        return reply.status(404 as any).send({ error: "Project not found" })
       }
 
       // Get published articles
@@ -145,22 +145,22 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
         where: {
           projectId: project.id,
           published: true,
-          status: 'published'
+          status: "published"
         },
         orderBy: {
-          updatedAt: 'desc'
+          updatedAt: "desc"
         }
       })
 
-      if (format === 'xml') {
+      if (format === "xml") {
         const sitemap = generateSitemap(articles, project, baseUrl)
-        reply.type('application/xml')
+        reply.type("application/xml")
         return reply.send(sitemap)
       } else {
         const entries: SitemapEntry[] = articles.map(article => ({
           url: `${baseUrl}/${project.slug}/${article.slug}`,
           lastModified: article.updatedAt.toISOString(),
-          changeFrequency: 'weekly' as const,
+          changeFrequency: "weekly" as const,
           priority: 0.8
         }))
 
@@ -168,7 +168,7 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
         entries.unshift({
           url: `${baseUrl}/${project.slug}`,
           lastModified: new Date().toISOString(),
-          changeFrequency: 'daily' as const,
+          changeFrequency: "daily" as const,
           priority: 1.0
         })
 
@@ -180,28 +180,28 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
         return reply.send(response)
       }
     } catch (error) {
-      fastify.log.error(error, 'Failed to generate sitemap')
-      return reply.status(500 as any).send({ error: 'Internal server error' })
+      fastify.log.error(error, "Failed to generate sitemap")
+      return reply.status(500 as any).send({ error: "Internal server error" })
     }
   })
 
   // Get RSS feed for a project
-  fastify.get('/seo/rss', {
+  fastify.get("/seo/rss", {
     schema: {
       querystring: {
-        type: 'object',
+        type: "object",
         properties: {
-          baseUrl: { type: 'string', format: 'uri' },
-          limit: { type: 'number', minimum: 1, maximum: 100 }
+          baseUrl: { type: "string", format: "uri" },
+          limit: { type: "number", minimum: 1, maximum: 100 }
         },
-        required: ['baseUrl']
+        required: ["baseUrl"]
       }
     }
   }, async (request, reply) => {
     const { baseUrl, limit = 20 } = request.query as { baseUrl: string, limit?: number }
 
     if (!request.apiKey) {
-      return reply.status(401 as any).send({ error: 'API key required' })
+      return reply.status(401 as any).send({ error: "API key required" })
     }
 
     try {
@@ -211,7 +211,7 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
       })
 
       if (!project) {
-        return reply.status(404 as any).send({ error: 'Project not found' })
+        return reply.status(404 as any).send({ error: "Project not found" })
       }
 
       // Get published articles
@@ -219,31 +219,31 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
         where: {
           projectId: project.id,
           published: true,
-          status: 'published'
+          status: "published"
         },
         orderBy: {
-          publishedAt: 'desc'
+          publishedAt: "desc"
         },
         take: limit
       })
 
       const rss = generateRSSFeed(articles, project, baseUrl)
       
-      reply.type('application/rss+xml')
+      reply.type("application/rss+xml")
       return reply.send(rss)
     } catch (error) {
-      fastify.log.error(error, 'Failed to generate RSS feed')
-      return reply.status(500 as any).send({ error: 'Internal server error' })
+      fastify.log.error(error, "Failed to generate RSS feed")
+      return reply.status(500 as any).send({ error: "Internal server error" })
     }
   })
 
   // Get structured data for all articles in a project
-  fastify.get('/seo/structured-data', {
+  fastify.get("/seo/structured-data", {
     schema: {
       querystring: {
-        type: 'object',
+        type: "object",
         properties: {
-          baseUrl: { type: 'string', format: 'uri' }
+          baseUrl: { type: "string", format: "uri" }
         }
       }
     }
@@ -251,7 +251,7 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
     const { baseUrl } = request.query as { baseUrl?: string }
 
     if (!request.apiKey) {
-      return reply.status(401 as any).send({ error: 'API key required' })
+      return reply.status(401 as any).send({ error: "API key required" })
     }
 
     try {
@@ -261,7 +261,7 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
       })
 
       if (!project) {
-        return reply.status(404 as any).send({ error: 'Project not found' })
+        return reply.status(404 as any).send({ error: "Project not found" })
       }
 
       // Get published articles
@@ -269,10 +269,10 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
         where: {
           projectId: project.id,
           published: true,
-          status: 'published'
+          status: "published"
         },
         orderBy: {
-          publishedAt: 'desc'
+          publishedAt: "desc"
         }
       })
 
@@ -294,18 +294,18 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
         generatedAt: new Date().toISOString()
       })
     } catch (error) {
-      fastify.log.error(error, 'Failed to get structured data')
-      return reply.status(500 as any).send({ error: 'Internal server error' })
+      fastify.log.error(error, "Failed to get structured data")
+      return reply.status(500 as any).send({ error: "Internal server error" })
     }
   })
 
   // Get robots.txt content for a project
-  fastify.get('/seo/robots', {
+  fastify.get("/seo/robots", {
     schema: {
       querystring: {
-        type: 'object',
+        type: "object",
         properties: {
-          baseUrl: { type: 'string', format: 'uri' }
+          baseUrl: { type: "string", format: "uri" }
         }
       }
     }
@@ -313,7 +313,7 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
     const { baseUrl } = request.query as { baseUrl?: string }
 
     if (!request.apiKey) {
-      return reply.status(401 as any).send({ error: 'API key required' })
+      return reply.status(401 as any).send({ error: "API key required" })
     }
 
     try {
@@ -323,7 +323,7 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
       })
 
       if (!project) {
-        return reply.status(404 as any).send({ error: 'Project not found' })
+        return reply.status(404 as any).send({ error: "Project not found" })
       }
 
       const sitemapUrl = baseUrl ? `${baseUrl}/v1/seo/sitemap?baseUrl=${encodeURIComponent(baseUrl)}` : undefined
@@ -331,17 +331,17 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
       const robotsContent = `User-agent: *
 Allow: /
 
-${sitemapUrl ? `Sitemap: ${sitemapUrl}` : ''}
+${sitemapUrl ? `Sitemap: ${sitemapUrl}` : ""}
 
 # Generated by Simplist API
 # Project: ${project.name}
 # Generated at: ${new Date().toISOString()}`
 
-      reply.type('text/plain')
+      reply.type("text/plain")
       return reply.send(robotsContent)
     } catch (error) {
-      fastify.log.error(error, 'Failed to generate robots.txt')
-      return reply.status(500 as any).send({ error: 'Internal server error' })
+      fastify.log.error(error, "Failed to generate robots.txt")
+      return reply.status(500 as any).send({ error: "Internal server error" })
     }
   })
 }

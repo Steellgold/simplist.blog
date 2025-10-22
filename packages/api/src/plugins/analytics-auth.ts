@@ -1,17 +1,17 @@
-import * as db from '@simplist/db'
-import fp from 'fastify-plugin'
+import * as db from "@simplist/db"
+import fp from "fastify-plugin"
 
 const { prisma, apiKeyCache } = db
 
 // Analytics auth plugin - accepts both public and secret keys
 export default fp(async function (fastify) {
-  fastify.addHook('onRequest', async (request, reply) => {
-    const apiKeyHeader = request.headers['x-api-key'] as string
+  fastify.addHook("onRequest", async (request, reply) => {
+    const apiKeyHeader = request.headers["x-api-key"] as string
     
     if (!apiKeyHeader) {
       return reply.code(401).send({
-        error: 'Unauthorized',
-        message: 'API key is required for analytics tracking. Include it in the X-API-Key header.',
+        error: "Unauthorized",
+        message: "API key is required for analytics tracking. Include it in the X-API-Key header.",
         statusCode: 401
       })
     }
@@ -23,7 +23,7 @@ export default fp(async function (fastify) {
       try {
         apiKey = await apiKeyCache.get(apiKeyHeader)
       } catch (cacheError) {
-        fastify.log.warn('Redis cache not available, falling back to database only')
+        fastify.log.warn("Redis cache not available, falling back to database only")
       }
       
       if (!apiKey) {
@@ -31,7 +31,7 @@ export default fp(async function (fastify) {
         const dbApiKey = await prisma.apiKey.findFirst({
           where: {
             key: apiKeyHeader,
-            status: 'active',
+            status: "active",
             OR: [
               { expiresAt: null },
               { expiresAt: { gte: new Date() } }
@@ -51,17 +51,17 @@ export default fp(async function (fastify) {
 
         if (!dbApiKey) {
           return reply.code(401).send({
-            error: 'Unauthorized',
-            message: 'Invalid or expired API key.',
+            error: "Unauthorized",
+            message: "Invalid or expired API key.",
             statusCode: 401
           })
         }
 
         // Check if key has analytics permission
-        if (!dbApiKey.permissions.includes('analytics') && !dbApiKey.permissions.includes('read')) {
+        if (!dbApiKey.permissions.includes("analytics") && !dbApiKey.permissions.includes("read")) {
           return reply.code(403).send({
-            error: 'Forbidden',
-            message: 'API key does not have analytics permissions.',
+            error: "Forbidden",
+            message: "API key does not have analytics permissions.",
             statusCode: 403
           })
         }
@@ -97,10 +97,10 @@ export default fp(async function (fastify) {
       request.checkPermission = (permission: string) => apiKey.permissions.includes(permission)
 
     } catch (error) {
-      fastify.log.error(error, 'Error validating API key for analytics')
+      fastify.log.error(error, "Error validating API key for analytics")
       return reply.code(500).send({
-        error: 'Internal Server Error',
-        message: 'Failed to validate API key.',
+        error: "Internal Server Error",
+        message: "Failed to validate API key.",
         statusCode: 500
       })
     }

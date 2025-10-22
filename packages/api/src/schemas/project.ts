@@ -1,5 +1,5 @@
-import { z } from 'zod'
-import { createResponseSchema } from './common'
+import { z } from "zod"
+import { createResponseSchema } from "./common"
 
 // Project schema for API responses
 export const projectSchema = z.object({
@@ -7,8 +7,8 @@ export const projectSchema = z.object({
   name: z.string(),
   slug: z.string(),
   description: z.string().nullable(),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime()
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime()
 })
 
 // Project stats schema

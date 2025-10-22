@@ -1,32 +1,32 @@
-import fastifyEnv from '@fastify/env'
-import fp from 'fastify-plugin'
+import fastifyEnv from "@fastify/env"
+import fp from "fastify-plugin"
 
 const schema = {
-  type: 'object',
-  required: ['DATABASE_URL'],
+  type: "object",
+  required: ["DATABASE_URL"],
   properties: {
     PORT: {
-      type: 'string',
-      default: '3001'
+      type: "string",
+      default: "3001"
     },
     HOST: {
-      type: 'string', 
-      default: 'localhost'
+      type: "string", 
+      default: "localhost"
     },
     NODE_ENV: {
-      type: 'string',
-      default: 'development'
+      type: "string",
+      default: "development"
     },
     DATABASE_URL: {
-      type: 'string'
+      type: "string"
     },
     ALLOWED_ORIGINS: {
-      type: 'string',
-      default: 'http://localhost:3000'
+      type: "string",
+      default: "http://localhost:3000"
     },
     ALLOWED_ORIGIN_SUFFIXES: {
-      type: 'string',
-      default: ''
+      type: "string",
+      default: ""
     }
   }
 }

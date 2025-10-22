@@ -1,4 +1,4 @@
-import { getRedis } from '@simplist/db'
+import { getRedis } from "@simplist/db"
 
 const redis = getRedis()
 
@@ -51,7 +51,7 @@ const getListCacheKey = (projectId: string, params: any): string => {
   const sortedParams = Object.keys(params)
     .sort()
     .map(key => `${key}:${params[key]}`)
-    .join('|')
+    .join("|")
   return `articles:list:${projectId}:${sortedParams}`
 }
 
@@ -83,7 +83,7 @@ export const cacheArticlesList = async (
       // Convert list item to full article format (without content for now)
       const fullArticle: CachedArticle = {
         ...article,
-        content: '' // Will be populated when actually requested
+        content: "" // Will be populated when actually requested
       }
       
       // Cache for 5 minutes
@@ -94,7 +94,7 @@ export const cacheArticlesList = async (
     
     console.log(`Cached ${articles.length} articles for project ${projectId}`)
   } catch (error) {
-    console.error('Failed to cache articles list:', error)
+    console.error("Failed to cache articles list:", error)
   }
 }
 
@@ -115,7 +115,7 @@ export const getCachedArticlesList = async (
     
     return null
   } catch (error) {
-    console.error('Failed to get cached articles list:', error)
+    console.error("Failed to get cached articles list:", error)
     return null
   }
 }
@@ -133,7 +133,7 @@ export const cacheArticle = async (
     
     console.log(`Cached article ${article.slug} for project ${projectId}`)
   } catch (error) {
-    console.error('Failed to cache article:', error)
+    console.error("Failed to cache article:", error)
   }
 }
 
@@ -161,7 +161,7 @@ export const getCachedArticle = async (
     
     return null
   } catch (error) {
-    console.error('Failed to get cached article:', error)
+    console.error("Failed to get cached article:", error)
     return null
   }
 }
@@ -182,7 +182,7 @@ export const invalidateProjectCache = async (projectId: string): Promise<void> =
       console.log(`Invalidated ${allKeys.length} cache entries for project ${projectId}`)
     }
   } catch (error) {
-    console.error('Failed to invalidate project cache:', error)
+    console.error("Failed to invalidate project cache:", error)
   }
 }
 
@@ -202,6 +202,6 @@ export const invalidateArticleCache = async (projectId: string, slug: string): P
     
     console.log(`Invalidated cache for article ${slug} and related lists`)
   } catch (error) {
-    console.error('Failed to invalidate article cache:', error)
+    console.error("Failed to invalidate article cache:", error)
   }
 }

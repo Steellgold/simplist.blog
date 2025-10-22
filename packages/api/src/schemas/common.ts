@@ -1,11 +1,11 @@
-import { z } from 'zod'
+import { z } from "zod"
 
 // Common pagination schema
 export const paginationQuerySchema = z.object({
   page: z.coerce.number().min(1).default(1),
   limit: z.coerce.number().min(1).max(100).default(20),
-  sort: z.enum(['createdAt', 'updatedAt', 'title']).default('createdAt'),
-  order: z.enum(['asc', 'desc']).default('desc')
+  sort: z.enum(["createdAt", "updatedAt", "title"]).default("createdAt"),
+  order: z.enum(["asc", "desc"]).default("desc")
 })
 
 // Common response wrapper

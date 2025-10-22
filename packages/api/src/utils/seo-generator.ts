@@ -1,4 +1,4 @@
-import type { SeoMetadata, ArticleSeo } from '../schemas/seo'
+import type { SeoMetadata } from "../schemas/seo"
 
 export const generateSeoMetadata = (article: any, project: any, baseUrl?: string): SeoMetadata => {
   const title = article.title
@@ -20,15 +20,15 @@ export const generateSeoMetadata = (article: any, project: any, baseUrl?: string
     ogTitle: title,
     ogDescription: description,
     ogImage,
-    ogType: 'article',
+    ogType: "article",
     twitterTitle: title,
     twitterDescription: description,
     twitterImage: ogImage,
-    twitterCard: 'summary_large_image',
+    twitterCard: "summary_large_image",
     canonicalUrl,
     structuredData,
     keywords,
-    language: 'en',
+    language: "en",
     author: project.name,
     publishedTime,
     modifiedTime,
@@ -42,11 +42,11 @@ export const generateKeywords = (title: string, content: string, maxKeywords = 1
   
   // Remove common stop words
   const stopWords = new Set([
-    'the', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by',
-    'a', 'an', 'is', 'are', 'was', 'were', 'be', 'been', 'have', 'has', 'had',
-    'do', 'does', 'did', 'will', 'would', 'could', 'should', 'may', 'might',
-    'can', 'this', 'that', 'these', 'those', 'i', 'you', 'he', 'she', 'it',
-    'we', 'they', 'me', 'him', 'her', 'us', 'them'
+    "the", "and", "or", "but", "in", "on", "at", "to", "for", "of", "with", "by",
+    "a", "an", "is", "are", "was", "were", "be", "been", "have", "has", "had",
+    "do", "does", "did", "will", "would", "could", "should", "may", "might",
+    "can", "this", "that", "these", "those", "i", "you", "he", "she", "it",
+    "we", "they", "me", "him", "her", "us", "them"
   ])
   
   // Extract words (simple regex)
@@ -70,18 +70,18 @@ export const generateKeywords = (title: string, content: string, maxKeywords = 1
 
 export const generateArticleStructuredData = (article: any, project: any, url?: string) => {
   return {
-    '@context': 'https://schema.org',
-    '@type': 'Article',
+    "@context": "https://schema.org",
+    "@type": "Article",
     headline: article.title,
     description: article.excerpt || `${article.content.substring(0, 160)}...`,
     image: article.coverImage || undefined,
     author: {
-      '@type': 'Organization',
+      "@type": "Organization",
       name: project.name,
       description: project.description || undefined
     },
     publisher: {
-      '@type': 'Organization',
+      "@type": "Organization",
       name: project.name,
       description: project.description || undefined
     },
@@ -91,11 +91,11 @@ export const generateArticleStructuredData = (article: any, project: any, url?: 
     timeRequired: `PT${article.readTimeMinutes}M`,
     url,
     mainEntityOfPage: {
-      '@type': 'WebPage',
-      '@id': url
+      "@type": "WebPage",
+      "@id": url
     },
-    articleSection: 'Blog',
-    inLanguage: 'en-US'
+    articleSection: "Blog",
+    inLanguage: "en-US"
   }
 }
 
@@ -127,7 +127,7 @@ export const generateRSSFeed = (articles: any[], project: any, baseUrl: string):
       <pubDate>${pubDate}</pubDate>
       <content:encoded><![CDATA[${article.content}]]></content:encoded>
     </item>`
-  }).join('')
+  }).join("")
 
   const rssFooter = `
   </channel>
@@ -142,7 +142,7 @@ export const generateSitemap = (articles: any[], project: any, baseUrl: string):
 
   const urls = articles.map(article => {
     const articleUrl = `${baseUrl}/${project.slug}/${article.slug}`
-    const lastMod = new Date(article.updatedAt).toISOString().split('T')[0]
+    const lastMod = new Date(article.updatedAt).toISOString().split("T")[0]
     
     return `
   <url>
@@ -151,13 +151,13 @@ export const generateSitemap = (articles: any[], project: any, baseUrl: string):
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>`
-  }).join('')
+  }).join("")
 
   // Add project index page
   const projectUrl = `
   <url>
     <loc>${baseUrl}/${project.slug}</loc>
-    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <lastmod>${new Date().toISOString().split("T")[0]}</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>`

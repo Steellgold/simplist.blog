@@ -1,12 +1,12 @@
-import * as db from '@simplist/db'
-import { FastifyPluginAsync } from 'fastify'
-import { formatProject } from '../utils/format'
+import * as db from "@simplist/db"
+import { FastifyPluginAsync } from "fastify"
+import { formatProject } from "../utils/format"
 
 const { prisma } = db
 
 const projectsRoutes: FastifyPluginAsync = async (fastify) => {
   // GET /project - Get project info and stats
-  fastify.get('/project', async (request, reply) => {
+  fastify.get("/project", async (request, reply) => {
     const projectId = request.apiKey!.projectId
 
     try {
@@ -25,8 +25,8 @@ const projectsRoutes: FastifyPluginAsync = async (fastify) => {
 
       if (!project) {
         return reply.code(404).send({
-          error: 'Not Found',
-          message: 'Project not found',
+          error: "Not Found",
+          message: "Project not found",
           statusCode: 404
         })
       }
@@ -37,7 +37,7 @@ const projectsRoutes: FastifyPluginAsync = async (fastify) => {
         prisma.article.count({
           where: {
             projectId,
-            status: { not: 'deleted' }
+            status: { not: "deleted" }
           }
         }),
         // Published articles
@@ -45,14 +45,14 @@ const projectsRoutes: FastifyPluginAsync = async (fastify) => {
           where: {
             projectId,
             published: true,
-            status: 'published'
+            status: "published"
           }
         }),
         // Total views across all articles
         prisma.article.aggregate({
           where: {
             projectId,
-            status: { not: 'deleted' }
+            status: { not: "deleted" }
           },
           _sum: {
             viewCount: true
@@ -73,10 +73,10 @@ const projectsRoutes: FastifyPluginAsync = async (fastify) => {
         data: projectInfo
       }
     } catch (error) {
-      fastify.log.error(error, 'Error fetching project info')
+      fastify.log.error(error, "Error fetching project info")
       return reply.code(500).send({
-        error: 'Internal Server Error',
-        message: 'Failed to fetch project information',
+        error: "Internal Server Error",
+        message: "Failed to fetch project information",
         statusCode: 500
       })
     }

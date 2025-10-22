@@ -1,25 +1,25 @@
-import * as db from '@simplist/db'
-import { FastifyPluginAsync } from 'fastify'
-import crypto from 'crypto'
-import { isBot, getBotInfo } from '../utils/bot-detection'
+import * as db from "@simplist/db"
+import crypto from "crypto"
+import { FastifyPluginAsync } from "fastify"
+import { getBotInfo } from "../utils/bot-detection"
 
 const { prisma, analyticsCacheUtils } = db
 
 // Helper to generate visitor ID from IP and User Agent (fallback)
 const generateVisitorId = (ip: string, userAgent: string): string => {
-  return crypto.createHash('sha256').update(`${ip}:${userAgent}`).digest('hex').substring(0, 16)
+  return crypto.createHash("sha256").update(`${ip}:${userAgent}`).digest("hex").substring(0, 16)
 }
 
 // Helper to find or create unique visitor ID with deduplication
 const getUniqueVisitorId = async (projectId: string, clientVisitorId: string | null, ip: string, userAgent: string): Promise<string> => {
   // 1. If client provided a visitorId, use it (most reliable)
-  if (clientVisitorId && clientVisitorId.startsWith('visitor_')) {
+  if (clientVisitorId && clientVisitorId.startsWith("visitor_")) {
     return clientVisitorId
   }
   
   // 2. Check if there's already a visitor with the same IP in the last 24 hours
   const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000)
-  const hashedIp = crypto.createHash('sha256').update(ip).digest('hex').substring(0, 16)
+  const hashedIp = crypto.createHash("sha256").update(ip).digest("hex").substring(0, 16)
   
   const recentVisitor = await prisma.pageView.findFirst({
     where: {
@@ -31,7 +31,7 @@ const getUniqueVisitorId = async (projectId: string, clientVisitorId: string | n
       visitorId: true
     },
     orderBy: {
-      timestamp: 'desc'
+      timestamp: "desc"
     }
   })
   
@@ -49,48 +49,48 @@ const getUniqueVisitorId = async (projectId: string, clientVisitorId: string | n
 
 // Helper to parse user agent
 const parseUserAgent = (userAgent: string) => {
-  // Simple user agent parsing - in production, consider using a library like 'ua-parser-js'
+  // Simple user agent parsing - in production, consider using a library like "ua-parser-js"
   const isMobile = /Mobile|Android|iPhone|iPad/.test(userAgent)
   const isTablet = /iPad|Tablet/.test(userAgent)
-  const device = isTablet ? 'tablet' : isMobile ? 'mobile' : 'desktop'
+  const device = isTablet ? "tablet" : isMobile ? "mobile" : "desktop"
   
-  let browser = 'Unknown'
-  let os = 'Unknown'
+  let browser = "Unknown"
+  let os = "Unknown"
   
-  if (userAgent.includes('Chrome')) browser = 'Chrome'
-  else if (userAgent.includes('Firefox')) browser = 'Firefox'
-  else if (userAgent.includes('Safari')) browser = 'Safari'
-  else if (userAgent.includes('Edge')) browser = 'Edge'
+  if (userAgent.includes("Chrome")) browser = "Chrome"
+  else if (userAgent.includes("Firefox")) browser = "Firefox"
+  else if (userAgent.includes("Safari")) browser = "Safari"
+  else if (userAgent.includes("Edge")) browser = "Edge"
   
-  if (userAgent.includes('Windows')) os = 'Windows'
-  else if (userAgent.includes('Mac')) os = 'macOS'
-  else if (userAgent.includes('Linux')) os = 'Linux'
-  else if (userAgent.includes('Android')) os = 'Android'
-  else if (userAgent.includes('iOS')) os = 'iOS'
+  if (userAgent.includes("Windows")) os = "Windows"
+  else if (userAgent.includes("Mac")) os = "macOS"
+  else if (userAgent.includes("Linux")) os = "Linux"
+  else if (userAgent.includes("Android")) os = "Android"
+  else if (userAgent.includes("iOS")) os = "iOS"
   
   return { device, browser, os }
 }
 
 const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
   // Override auth for analytics routes
-  await fastify.register(import('../plugins/analytics-auth'))
+  await fastify.register(import("../plugins/analytics-auth"))
   
   // POST /analytics/track - Track page view and events
-  fastify.post('/analytics/track', async (request, reply) => {
+  fastify.post("/analytics/track", async (request, reply) => {
     const body = request.body as any
     const projectId = request.apiKey!.projectId
-    const userAgent = request.headers['user-agent'] || ''
-    const forwardedFor = request.headers['x-forwarded-for'] as string
-    const realIp = request.headers['x-real-ip'] as string
-    const clientIp = forwardedFor?.split(',')[0] || realIp || request.ip
+    const userAgent = request.headers["user-agent"] || ""
+    const forwardedFor = request.headers["x-forwarded-for"] as string
+    const realIp = request.headers["x-real-ip"] as string
+    const clientIp = forwardedFor?.split(",")[0] || realIp || request.ip
 
     // Bot detection - reject bot traffic
     const botInfo = getBotInfo(userAgent)
     if (botInfo.isBot) {
       fastify.log.info({ userAgent, ip: clientIp }, `Bot detected and blocked: ${botInfo.reason}`)
       return reply.status(400 as any).send({
-        error: 'Bot Detected',
-        message: 'Analytics tracking is not available for automated requests',
+        error: "Bot Detected",
+        message: "Analytics tracking is not available for automated requests",
         statusCode: 400
       })
     }
@@ -99,8 +99,8 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
       // Validate required fields
       if (!body.articleSlug) {
         return reply.status(400 as any).send({
-          error: 'Bad Request',
-          message: 'articleSlug is required',
+          error: "Bad Request",
+          message: "articleSlug is required",
           statusCode: 400
         })
       }
@@ -110,15 +110,15 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
         where: {
           slug: body.articleSlug,
           projectId,
-          status: { not: 'deleted' },
+          status: { not: "deleted" },
           published: true
         }
       })
 
       if (!article) {
         return reply.status(404 as any).send({
-          error: 'Not Found',
-          message: 'Article not found or not published',
+          error: "Not Found",
+          message: "Article not found or not published",
           statusCode: 404
         })
       }
@@ -226,29 +226,29 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
       }
 
     } catch (error) {
-      fastify.log.error(error, 'Error tracking analytics')
+      fastify.log.error(error, "Error tracking analytics")
       return reply.status(500 as any).send({
-        error: 'Internal Server Error',
-        message: 'Failed to track analytics',
+        error: "Internal Server Error",
+        message: "Failed to track analytics",
         statusCode: 500
       })
     }
   })
 
   // PUT /analytics/track/:pageViewId - Update existing page view (e.g., when user leaves)
-  fastify.put('/analytics/track/:pageViewId', async (request, reply) => {
+  fastify.put("/analytics/track/:pageViewId", async (request, reply) => {
     const { pageViewId } = request.params as { pageViewId: string }
     const body = request.body as any
     const projectId = request.apiKey!.projectId
-    const userAgent = request.headers['user-agent'] || ''
+    const userAgent = request.headers["user-agent"] || ""
 
     // Bot detection - reject bot traffic
     const botInfo = getBotInfo(userAgent)
     if (botInfo.isBot) {
       fastify.log.info({ userAgent, pageViewId }, `Bot detected and blocked on update: ${botInfo.reason}`)
       return reply.status(400 as any).send({
-        error: 'Bot Detected',
-        message: 'Analytics tracking is not available for automated requests',
+        error: "Bot Detected",
+        message: "Analytics tracking is not available for automated requests",
         statusCode: 400
       })
     }
@@ -264,8 +264,8 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
 
       if (!existingPageView) {
         return reply.status(404 as any).send({
-          error: 'Not Found',
-          message: 'Page view not found',
+          error: "Not Found",
+          message: "Page view not found",
           statusCode: 404
         })
       }
@@ -287,25 +287,25 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
       return { success: true }
 
     } catch (error) {
-      fastify.log.error(error, 'Error updating analytics')
+      fastify.log.error(error, "Error updating analytics")
       return reply.status(500 as any).send({
-        error: 'Internal Server Error',
-        message: 'Failed to update analytics',
+        error: "Internal Server Error",
+        message: "Failed to update analytics",
         statusCode: 500
       })
     }
   })
 
   // GET /analytics/stats - Get analytics stats for project
-  fastify.get('/analytics/stats', async (request, reply) => {
+  fastify.get("/analytics/stats", async (request, reply) => {
     const projectId = request.apiKey!.projectId
     const query = request.query as any
     
     // Check if key has read permissions for analytics data
-    if (!request.checkPermission!('read')) {
+    if (!request.checkPermission!("read")) {
       return reply.status(403 as any).send({
-        error: 'Forbidden',
-        message: 'API key does not have read permissions.',
+        error: "Forbidden",
+        message: "API key does not have read permissions.",
         statusCode: 403
       })
     }
@@ -330,18 +330,18 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
           timestamp: { gte: startDate }
         },
         select: { visitorId: true },
-        distinct: ['visitorId']
+        distinct: ["visitorId"]
       })
 
       // Get top articles
       const topArticles = await prisma.pageView.groupBy({
-        by: ['articleId'],
+        by: ["articleId"],
         where: {
           projectId,
           timestamp: { gte: startDate }
         },
         _count: { id: true },
-        orderBy: { _count: { id: 'desc' } },
+        orderBy: { _count: { id: "desc" } },
         take: 10
       })
 
@@ -356,22 +356,22 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
         const article = articles.find(a => a.id === ta.articleId)
         return {
           articleId: ta.articleId,
-          title: article?.title || 'Unknown',
-          slug: article?.slug || '',
+          title: article?.title || "Unknown",
+          slug: article?.slug || "",
           views: ta._count.id
         }
       })
 
       // Get countries stats
       const topCountries = await prisma.pageView.groupBy({
-        by: ['country'],
+        by: ["country"],
         where: {
           projectId,
           timestamp: { gte: startDate },
           country: { not: null }
         },
         _count: { id: true },
-        orderBy: { _count: { id: 'desc' } },
+        orderBy: { _count: { id: "desc" } },
         take: 10
       })
 
@@ -390,10 +390,10 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
       }
 
     } catch (error) {
-      fastify.log.error(error, 'Error fetching analytics stats')
+      fastify.log.error(error, "Error fetching analytics stats")
       return reply.status(500 as any).send({
-        error: 'Internal Server Error',
-        message: 'Failed to fetch analytics stats',
+        error: "Internal Server Error",
+        message: "Failed to fetch analytics stats",
         statusCode: 500
       })
     }

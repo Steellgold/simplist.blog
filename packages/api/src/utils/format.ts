@@ -1,7 +1,7 @@
 // Format bytes to human readable string
 export const formatBytes = (bytes: bigint): string => {
-  const sizes = ['Bytes', 'KB', 'MB', 'GB']
-  if (bytes === BigInt(0)) return '0 Bytes'
+  const sizes = ["Bytes", "KB", "MB", "GB"]
+  if (bytes === BigInt(0)) return "0 Bytes"
   
   const i = Math.floor(Math.log(Number(bytes)) / Math.log(1024))
   const value = Number(bytes) / Math.pow(1024, i)

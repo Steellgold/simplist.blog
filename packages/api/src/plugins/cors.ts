@@ -1,12 +1,12 @@
-import cors from '@fastify/cors'
-import fp from 'fastify-plugin'
+import cors from "@fastify/cors"
+import fp from "fastify-plugin"
 
 export default fp(async function (fastify) {
-  const allowAll = String((fastify as any).config.ALLOW_ALL_ORIGINS || 'false').toLowerCase() === 'true' || (fastify as any).config.ALLOWED_ORIGINS === '*'
-  const allowedOrigins = (fastify as any).config.ALLOWED_ORIGINS.split(',').map((origin: string) => origin.trim())
-  const suffixesRaw = ((fastify as any).config.ALLOWED_ORIGIN_SUFFIXES || '') as string
+  const allowAll = String((fastify as any).config.ALLOW_ALL_ORIGINS || "false").toLowerCase() === "true" || (fastify as any).config.ALLOWED_ORIGINS === "*"
+  const allowedOrigins = (fastify as any).config.ALLOWED_ORIGINS.split(",").map((origin: string) => origin.trim())
+  const suffixesRaw = ((fastify as any).config.ALLOWED_ORIGIN_SUFFIXES || "") as string
   const allowedSuffixes = suffixesRaw
-    .split(',')
+    .split(",")
     .map((s: string) => s.trim())
     .filter((s: string) => s.length > 0)
   
@@ -18,7 +18,7 @@ export default fp(async function (fastify) {
     if (!origin) return callback(null, true)
 
     // Allow all localhost requests (useful for development and testing)
-    if (origin.startsWith('http://localhost:') || origin.startsWith('https://localhost:')) {
+    if (origin.startsWith("http://localhost:") || origin.startsWith("https://localhost:")) {
       return callback(null, true)
     }
 
@@ -40,7 +40,7 @@ export default fp(async function (fastify) {
   await fastify.register(cors, {
     origin: originFunction,
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-API-Key']
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-API-Key"]
   })
 })
