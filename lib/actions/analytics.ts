@@ -611,29 +611,10 @@ export const enableAnalytics = async (projectId: string) => {
     data: { analyticsEnabled: true },
   })
 
-  // Generate a public API key for analytics tracking
-  const publicKey = generateApiKey('public')
-
-  const newApiKey = await prisma.apiKey.create({
-    data: {
-      name: "Analytics Tracking Key",
-      key: publicKey,
-      type: "public",
-      permissions: ["analytics"],
-      projectId: projectId,
-      status: "active",
-    },
-  })
-
-  // Invalidate cache for the new API key (fire and forget)
-  apiKeyCache.invalidate(publicKey).catch(() => {
-    // Ignore cache invalidation errors
-  })
-
   revalidatePath("/analytics")
 
   return {
     success: true,
-    apiKey: newApiKey.key,
+    apiKey: null,
   }
 }
