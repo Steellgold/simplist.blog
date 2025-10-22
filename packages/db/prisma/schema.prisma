@@ -16,11 +16,6 @@ model User {
   email                 String
   emailVerified         Boolean   @default(false)
   image                 String?
-  // Subscription fields
-  subscription          String    @default("free") // "free" | "pro"
-  subscriptionExpiresAt DateTime?
-  stripeCustomerId      String?
-  stripeSubscriptionId  String?
   // API usage tracking
   monthlyApiCalls       Int       @default(0) // Reset each month
   apiCallsResetAt       DateTime  @default(now()) // Date of last reset
@@ -82,19 +77,23 @@ model Verification {
 }
 
 model Project {
-  id               String    @id @default(cuid())
-  name             String
-  slug             String
-  description      String?
-  allowedOrigins   String[]  @default([]) // Array of allowed origins for CORS
-  analyticsEnabled Boolean   @default(false) // Whether analytics tracking is enabled
-  timezone         String    @default("UTC") // Project timezone for scheduled publishing
-  userId           String
-  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  apiKeys          ApiKey[]
-  articles         Article[]
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  id                    String    @id @default(cuid())
+  name                  String
+  slug                  String
+  description           String?
+  allowedOrigins        String[]  @default([]) // Array of allowed origins for CORS
+  analyticsEnabled      Boolean   @default(false) // Whether analytics tracking is enabled
+  timezone              String    @default("UTC") // Project timezone for scheduled publishing
+  subscriptionTier      String    @default("free") // "free" | "pro" - Project-specific subscription tier
+  subscriptionExpiresAt DateTime? // When the subscription expires (for pro projects)
+  stripeCustomerId      String?   // Stripe customer ID for this project
+  stripeSubscriptionId  String?  // Stripe subscription ID for this project
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  apiKeys               ApiKey[]
+  articles              Article[]
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
 
   @@unique([slug, userId])
   @@map("project")
