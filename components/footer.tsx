@@ -19,7 +19,7 @@ const Footer = () => {
             <div className="font-semibold mb-4">Product</div>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li><Link href="#features" className="hover:text-foreground transition-colors">Features</Link></li>
-              <li><Link href="#pricing" className="hover:text-foreground transition-colors">Pricing</Link></li>
+              <li><Link href="/pricing" className="hover:text-foreground transition-colors">Pricing</Link></li>
               <li><Link href="#docs" className="hover:text-foreground transition-colors">Documentation</Link></li>
             </ul>
           </div>

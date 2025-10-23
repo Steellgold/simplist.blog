@@ -20,6 +20,7 @@ interface Project {
   id: string;
   name: string;
   slug: string;
+  subscriptionTier: string;
 }
 
 const PricingPage = () => {
@@ -56,11 +57,20 @@ const PricingPage = () => {
       return;
     }
 
-    if (projects.length === 1) {
-      // Single project - proceed directly
-      await processCheckout(planInterval, projects[0].id);
+    // Filter projects to only show free projects (those that can be upgraded)
+    const freeProjects = projects.filter(project => project.subscriptionTier === "free");
+    
+    if (freeProjects.length === 0) {
+      // All projects are already pro, redirect to dashboard
+      router.push("/dashboard");
+      return;
+    }
+
+    if (freeProjects.length === 1) {
+      // Only one free project - proceed directly
+      await processCheckout(planInterval, freeProjects[0].id);
     } else {
-      // Multiple projects - show selector
+      // Multiple free projects - show selector with only free projects
       setPendingInterval(planInterval);
       setShowProjectSelector(true);
     }
@@ -104,88 +114,89 @@ const PricingPage = () => {
           </Tabs>
         </div>
 
-        <div className="mt-8 items-center grid w-full max-w-4xl mx-auto md:grid-cols-2 gap-4">
+        <div className="mt-8 grid w-full max-w-4xl mx-auto md:grid-cols-2 gap-4">
           {plans.map((plan) => {
             const currentPrice = getPlanPrice(plan.id, interval) || plan.prices[0];
             const isNumeric = typeof currentPrice.amount === "number";
             const isFree = plan.id === "free";
 
             return (
-              <div key={plan.id}>
-                <Card
-                  key={plan.id}
-                  className={cn("relative w-full text-left", plan.popular && "ring-2 ring-primary")}
-                >
-                  {plan.popular && (
-                    <Badge className="-translate-x-1/2 -translate-y-1/2 absolute top-0 left-1/2 rounded-full">
-                      {plan.highlight || "Popular"}
-                    </Badge>
-                  )}
-                  <CardHeader>
-                    <CardTitle className="font-medium text-xl">{plan.name}</CardTitle>
-                    <CardDescription>
-                      <p>{plan.description}</p>
-                      {isNumeric ? (
-                        <NumberFlow
-                          className="font-medium text-foreground"
-                          format={{ style: "currency", currency: "USD", maximumFractionDigits: 0 }}
-                          suffix={` ${currentPrice.displayInterval}`}
-                          value={currentPrice.amount}
-                        />
-                      ) : (
-                        <span className="font-medium text-foreground">{currentPrice.displayAmount} {currentPrice.displayInterval}</span>
-                      )}
+              <Card
+                key={plan.id}
+                className={cn("relative w-full text-left flex flex-col", plan.popular && "ring-2 ring-primary")}
+              >
+                {plan.popular && (
+                  <Badge className="-translate-x-1/2 -translate-y-1/2 absolute top-0 left-1/2 rounded-full">
+                    {plan.highlight || "Popular"}
+                  </Badge>
+                )}
+
+                <CardHeader>
+                  <CardTitle className="font-medium text-xl">{plan.name}</CardTitle>
+                  <CardDescription>
+                    <p>{plan.description}</p>
+                    {isNumeric ? (
+                      <NumberFlow
+                        className="font-medium text-foreground"
+                        format={{ style: "currency", currency: "USD", maximumFractionDigits: 0 }}
+                        suffix={` ${currentPrice.displayInterval}`}
+                        value={currentPrice.amount}
+                      />
+                    ) : (
+                      <span className="font-medium text-foreground">{currentPrice.displayAmount} {currentPrice.displayInterval}</span>
+                    )}
                       {currentPrice.yearlyEquivalent && (
                         <span className="block text-sm text-muted-foreground">
                           {currentPrice.yearlyEquivalent} ({currentPrice.savings})
                         </span>
                       )}
-                    </CardDescription>
-                  </CardHeader>
+                  </CardDescription>
+                </CardHeader>
 
-                  <CardContent className="grid gap-2">
-                    {plan.features.map((feature, index) => (
-                      <div 
-                        className={cn(
-                          "flex gap-2 text-sm",
-                          feature.included 
-                            ? "text-muted-foreground" 
-                            : "text-muted-foreground/50"
-                        )} 
-                        key={index}
-                      >
-                        {feature.included ? (
-                          <BadgeCheck className="h-[1lh] w-4 flex-none" />
-                        ) : (
-                          <X className="h-[1lh] w-4 flex-none text-muted-foreground/50" />
-                        )}
-                        <span className={cn(
-                          feature.included ? "" : "line-through opacity-50"
-                        )}>
-                          {feature.name}
-                        </span>
-                      </div>
-                    ))}
-                  </CardContent>
+                <CardContent className="grid gap-2">
+                  {plan.features.map((feature, index) => (
+                    <div 
+                      className={cn(
+                        "flex gap-2 text-sm",
+                        feature.included 
+                          ? "text-muted-foreground" 
+                          : "text-muted-foreground/50"
+                      )} 
+                      key={index}
+                    >
+                      {feature.included ? (
+                        <BadgeCheck className="h-[1lh] w-4 flex-none" />
+                      ) : (
+                        <X className="h-[1lh] w-4 flex-none text-muted-foreground/50" />
+                      )}
+                      
+                      <span className={cn(feature.included ? "" : "line-through opacity-50")}>
+                        {feature.name}
+                      </span>
+                    </div>
+                  ))}
+                </CardContent>
 
-                  <CardFooter>
-                    {isFree ? (
-                      <Button className="w-full" variant="secondary" onClick={() => router.push("/dashboard")}>Get started for free<ArrowRight /></Button>
-                    ) : (
-                      <Button className="w-full" onClick={() => handleUpgrade(interval)} disabled={loading}>
-                        {loading ? (
-                          <>
-                            <Spinner />
-                            Processing...
-                          </>
-                        ) : (
-                          <>Subscribe to {plan.name}<ArrowRight /></>
-                        )}
-                      </Button>
-                    )}
-                  </CardFooter>
-                </Card>
-              </div>
+
+                <CardFooter className="mt-auto">
+                  {isFree ? (
+                    <Button className="w-full" variant="secondary" onClick={() => router.push("/dashboard")}>
+                      Get started for free<ArrowRight />
+                    </Button>
+                  ) : (
+                    <Button className="w-full" onClick={() => handleUpgrade(interval)} disabled={loading}>
+                      {loading ? (
+                        <>
+                          <Spinner />
+                          Processing...
+                        </>
+                      ) : (
+                        <>Subscribe to {plan.name}<ArrowRight /></>
+                      )}
+                    </Button>
+                  )}
+                </CardFooter>
+              </Card>
             );
           })}
         </div>
@@ -196,7 +207,7 @@ const PricingPage = () => {
       <ProjectSelectorModal
         open={showProjectSelector}
         onOpenChange={setShowProjectSelector}
-        projects={projects}
+        projects={projects.filter(project => project.subscriptionTier === "free")}
         onProjectSelect={handleProjectSelect}
         title="Select Project to Upgrade"
         description="Choose which project you want to upgrade to Pro"
