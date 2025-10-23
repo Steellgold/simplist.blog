@@ -81,6 +81,7 @@ model Project {
   name                  String
   slug                  String
   description           String?
+  icon                  String?   // R2 object key for project icon
   allowedOrigins        String[]  @default([]) // Array of allowed origins for CORS
   analyticsEnabled      Boolean   @default(false) // Whether analytics tracking is enabled
   timezone              String    @default("UTC") // Project timezone for scheduled publishing
