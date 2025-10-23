@@ -102,7 +102,7 @@ export const CreateProjectForm = ({ className, ...props }: React.ComponentProps<
                   )}
                 </Field>
 
-                <Field>
+                {/* <Field>
                   <FieldLabel htmlFor="description">Description (Optional)</FieldLabel>
                   <Textarea
                     id="description"
@@ -113,7 +113,7 @@ export const CreateProjectForm = ({ className, ...props }: React.ComponentProps<
                   {errors.description && (
                     <p className="text-destructive text-sm mt-1">{errors.description.message}</p>
                   )}
-                </Field>
+                </Field> */}
 
                 <Field>
                   <FieldLabel htmlFor="timezone">Timezone *</FieldLabel>
