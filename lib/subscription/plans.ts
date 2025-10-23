@@ -43,8 +43,8 @@ export interface Plan {
 export const SUBSCRIPTION_PLANS: Record<SubscriptionPlan, Plan> = {
   STARTER: {
     id: "STARTER",
-    name: "STARTER",
-    description: "Perfect for getting started",
+    name: "Starter",
+    description: "Perfect for small projects",
     prices: [
       {
         amount: 0,
@@ -78,7 +78,7 @@ export const SUBSCRIPTION_PLANS: Record<SubscriptionPlan, Plan> = {
   PRO: {
     id: "PRO",
     name: "Pro", 
-    description: "For serious content creators",
+    description: "For serious projects",
     highlight: "Most Popular",
     popular: true,
     prices: [
