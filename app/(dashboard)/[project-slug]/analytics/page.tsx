@@ -13,32 +13,18 @@ interface AnalyticsPageProps {
 
 const AnalyticsPage = async ({ params }: AnalyticsPageProps) => {
   const user = await getCurrentUser()
+  const { "project-slug": slug } = await params
 
-  if (!user) {
-    redirect("/auth/login")
-  }
-
-  // Check if user has access to analytics
-  const hasAccess = await checkAnalyticsAccess(user.id)
-
-  if (!hasAccess) {
-    redirect("/pricing")
-  }
-
-  const resolvedParams = await params
-  const projectSlug = resolvedParams["project-slug"]
+  if (!user) redirect("/auth/login");
 
   // Get project from slug
-  const project = await prisma.project.findFirst({
-    where: {
-      slug: projectSlug,
-      userId: user.id,
-    },
-  })
+  const project = await prisma.project.findFirst({ where: { slug, userId: user.id } })
+  if (!project) redirect("/");
 
-  if (!project) {
-    redirect("/dashboard")
-  }
+  // Check if user has access to analytics
+  const hasAccess = await checkAnalyticsAccess(user.id, project.id);
+
+  if (!hasAccess) redirect("/pricing")
 
   // Get analytics data
   const analyticsData = await getAllProjectAnalytics(project.id)
