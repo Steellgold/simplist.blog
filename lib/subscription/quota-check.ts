@@ -29,11 +29,11 @@ export const getProjectSubscription = async (projectId: string) => {
 
   // Check if subscription is expired
   const tier: SubscriptionPlan =
-    project.subscriptionTier === "pro" &&
+    project.subscriptionTier === "PRO" &&
     project.subscriptionExpiresAt &&
     project.subscriptionExpiresAt > new Date()
-      ? "pro"
-      : "free";
+      ? "PRO"
+      : "STARTER";
 
   return {
     tier,
@@ -101,21 +101,21 @@ export const checkStorageQuota = async (
 
   // Find the highest tier project
   const highestTierProject = userProjects.reduce((highest, current) => {
-    const currentIsPro = current.subscriptionTier === "pro" &&
+    const currentIsPro = current.subscriptionTier === "PRO" &&
       current.subscriptionExpiresAt &&
       current.subscriptionExpiresAt > new Date();
-    const highestIsPro = highest.subscriptionTier === "pro" &&
+    const highestIsPro = highest.subscriptionTier === "PRO" &&
       highest.subscriptionExpiresAt &&
       highest.subscriptionExpiresAt > new Date();
     
     return currentIsPro && !highestIsPro ? current : highest;
   });
 
-  const isPro = highestTierProject.subscriptionTier === "pro" &&
+  const isPro = highestTierProject.subscriptionTier === "PRO" &&
     highestTierProject.subscriptionExpiresAt &&
     highestTierProject.subscriptionExpiresAt > new Date();
 
-  const tier = isPro ? "pro" : "free";
+  const tier = isPro ? "PRO" : "STARTER";
   const limits = getPlanLimits(tier);
 
   const subscription = {
@@ -202,21 +202,21 @@ export const checkApiCallQuota = async (userId: string): Promise<QuotaCheckResul
 
   // Find the highest tier project
   const highestTierProject = userProjects.reduce((highest, current) => {
-    const currentIsPro = current.subscriptionTier === "pro" &&
+    const currentIsPro = current.subscriptionTier === "PRO" &&
       current.subscriptionExpiresAt &&
       current.subscriptionExpiresAt > new Date();
-    const highestIsPro = highest.subscriptionTier === "pro" &&
+    const highestIsPro = highest.subscriptionTier === "PRO" &&
       highest.subscriptionExpiresAt &&
       highest.subscriptionExpiresAt > new Date();
     
     return currentIsPro && !highestIsPro ? current : highest;
   });
 
-  const isPro = highestTierProject.subscriptionTier === "pro" &&
+  const isPro = highestTierProject.subscriptionTier === "PRO" &&
     highestTierProject.subscriptionExpiresAt &&
     highestTierProject.subscriptionExpiresAt > new Date();
 
-  const tier = isPro ? "pro" : "free";
+  const tier = isPro ? "PRO" : "STARTER";
   const limits = getPlanLimits(tier);
 
   // Use the highest tier project's usage data
@@ -286,10 +286,10 @@ export const incrementApiCallCounter = async (userId: string): Promise<void> => 
   }
 
   const highestTierProject = userProjects.reduce((highest, current) => {
-    const currentIsPro = current.subscriptionTier === "pro" &&
+    const currentIsPro = current.subscriptionTier === "PRO" &&
       current.subscriptionExpiresAt &&
       current.subscriptionExpiresAt > new Date();
-    const highestIsPro = highest.subscriptionTier === "pro" &&
+    const highestIsPro = highest.subscriptionTier === "PRO" &&
       highest.subscriptionExpiresAt &&
       highest.subscriptionExpiresAt > new Date();
     
@@ -328,10 +328,10 @@ export const updateStorageUsage = async (
   }
 
   const highestTierProject = userProjects.reduce((highest, current) => {
-    const currentIsPro = current.subscriptionTier === "pro" &&
+    const currentIsPro = current.subscriptionTier === "PRO" &&
       current.subscriptionExpiresAt &&
       current.subscriptionExpiresAt > new Date();
-    const highestIsPro = highest.subscriptionTier === "pro" &&
+    const highestIsPro = highest.subscriptionTier === "PRO" &&
       highest.subscriptionExpiresAt &&
       highest.subscriptionExpiresAt > new Date();
     

@@ -61,7 +61,7 @@ interface AppSidebarProps {
   isCreatingProject?: boolean
 }
 
-const getNavigationItems = (isPro: boolean, projectSlug: string) => [
+const getNavigationItems = (isPro: boolean, projectSlug: string, withUpgrade?: boolean) => [
   {
     title: "Dashboard",
     icon: <LayoutDashboardIcon />,
@@ -89,11 +89,11 @@ const getNavigationItems = (isPro: boolean, projectSlug: string) => [
     icon: <SettingsIcon />,
     href: `/${projectSlug}/settings`,
   },
-  {
-    title: isPro ? "Billing" : "Pricing",
+  ...(withUpgrade ? [{
+    title: "Upgrade",
     icon: <Star />,
-    href: isPro ? "/settings/billing" : "/pricing",
-  },
+    href: "/pricing",
+  }] : [])
 ]
 
 export const AppSidebar = ({
@@ -116,11 +116,11 @@ export const AppSidebar = ({
     return user.name.substring(0, 2).toUpperCase()
   }
 
-  const isPro = activeProject?.subscriptionTier === "pro" &&
+  const isPro = activeProject?.subscriptionTier === "PRO" &&
     activeProject?.subscriptionExpiresAt &&
     new Date(activeProject.subscriptionExpiresAt) > new Date();
 
-  const navigationItems = getNavigationItems(isPro ?? false, activeProject?.slug || "");
+  const navigationItems = getNavigationItems(isPro ?? false, activeProject?.slug || "", !isPro);
 
   return (
     <Sidebar variant="floating" collapsible="icon">
@@ -159,7 +159,7 @@ export const AppSidebar = ({
                         {item.badge && (
                           <Image
                             src={item.badge}
-                            alt="Pro"
+                            alt="PRO"
                             width={16}
                             height={16}
                             className="h-4 w-4"

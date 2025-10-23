@@ -66,7 +66,7 @@ export const POST = async (req: Request) => {
               userId: userId 
             },
             data: {
-              subscriptionTier: "pro",
+              subscriptionTier: "PRO",
               subscriptionExpiresAt: getSubscriptionExpiryDate(subscription),
               stripeCustomerId: session.customer as string,
               stripeSubscriptionId: subscription.id,
@@ -95,7 +95,7 @@ export const POST = async (req: Request) => {
             userId: userId 
           },
           data: {
-            subscriptionTier: subscription.status === "active" ? "pro" : "free",
+            subscriptionTier: subscription.status === "active" ? "PRO" : "STARTER",
             subscriptionExpiresAt:
               subscription.status === "active"
                 ? getSubscriptionExpiryDate(subscription)
@@ -124,7 +124,7 @@ export const POST = async (req: Request) => {
             userId: userId 
           },
           data: {
-            subscriptionTier: "free",
+            subscriptionTier: "STARTER",
             subscriptionExpiresAt: null,
             stripeSubscriptionId: null,
           },
@@ -157,7 +157,7 @@ export const POST = async (req: Request) => {
               userId: userId 
             },
             data: {
-              subscriptionTier: "pro",
+              subscriptionTier: "PRO",
               subscriptionExpiresAt: getSubscriptionExpiryDate(subscription),
             },
           });

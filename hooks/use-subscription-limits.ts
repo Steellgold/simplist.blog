@@ -93,7 +93,7 @@ export const useApiKeyLimits = (projectId?: string) => {
     currentCount: apiKeyUsage?.currentCount ?? 0,
     maxCount: apiKeyUsage?.maxCount ?? 0,
     isAtLimit: apiKeyUsage ? apiKeyUsage.currentCount >= apiKeyUsage.maxCount : false,
-    tier: (subscription?.tier ?? "free") as SubscriptionPlan,
+    tier: (subscription?.tier ?? "STARTER") as SubscriptionPlan,
     refetch,
   };
 };

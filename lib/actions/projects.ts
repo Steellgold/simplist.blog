@@ -59,7 +59,6 @@ export const createProject = async (input: CreateProjectActionInput) => {
     name: input.name,
     description: input.description || "",
     timezone: input.timezone || "UTC",
-    subscriptionTier: input.subscriptionTier || "free",
     allowedOrigins: input.allowedOrigins || [],
   })
 
@@ -92,7 +91,7 @@ export const createProject = async (input: CreateProjectActionInput) => {
       slug: finalSlug,
       description: validatedData.description || null,
       timezone: validatedData.timezone,
-      subscriptionTier: validatedData.subscriptionTier,
+      subscriptionTier: "STARTER",
       allowedOrigins: allowedOriginStrings,
       userId: user.id,
     },

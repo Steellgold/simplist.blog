@@ -59,7 +59,7 @@ export const ProjectSwitcher = ({
   }
 
   // Check if the active project is pro
-  const isPro = activeProject?.subscriptionTier === "pro" &&
+  const isPro = activeProject?.subscriptionTier === "PRO" &&
     activeProject?.subscriptionExpiresAt &&
     new Date(activeProject.subscriptionExpiresAt) > new Date()
 
@@ -88,7 +88,7 @@ export const ProjectSwitcher = ({
                   {isPro ? (
                     <Image
                       src="https://cdn.simplist.blog/assets/billing/badge-pro.png"
-                      alt="Pro"
+                      alt="PRO"
                       width={100}
                       height={100}
                       className="h-3.5 w-auto"
@@ -131,14 +131,14 @@ export const ProjectSwitcher = ({
                   <span className="font-medium">{project.name}</span>
                   <div className="flex items-center">
                     {(() => {
-                      const projectIsPro = project.subscriptionTier === "pro" &&
+                      const projectIsPro = project.subscriptionTier === "PRO" &&
                         project.subscriptionExpiresAt &&
                         new Date(project.subscriptionExpiresAt) > new Date();
                       
                       return projectIsPro ? (
                         <Image
                           src="https://cdn.simplist.blog/assets/billing/mini-pro-badge.png"
-                          alt="Pro"
+                          alt="PRO"
                           width={100}
                           height={100}
                           className="h-5 w-5"

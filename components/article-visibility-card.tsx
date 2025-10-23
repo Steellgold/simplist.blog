@@ -36,7 +36,7 @@ export const ArticleVisibilityCard = ({
   projectId
 }: ArticleVisibilityCardProps) => {
   const { tier } = useApiKeyLimits(projectId);
-  const isPro = tier === "pro";
+  const isPro = tier === "PRO";
 
   return (
     <Card>
@@ -63,7 +63,7 @@ export const ArticleVisibilityCard = ({
                   {!isPro && (
                     <Image
                       src="https://cdn.simplist.blog/assets/billing/mini-pro-badge.png"
-                      alt="Pro"
+                      alt="PRO"
                       width={16}
                       height={16}
                     />

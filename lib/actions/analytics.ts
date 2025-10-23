@@ -583,7 +583,7 @@ export const enableAnalytics = async (projectId: string) => {
   }
 
   // Check if user has access to analytics (Pro feature)
-  const hasAccess = await checkAnalyticsAccess(user.id);
+  const hasAccess = await checkAnalyticsAccess(user.id, projectId);
   if (!hasAccess) {
     throw new Error("Analytics is only available on the Pro plan. Upgrade to unlock advanced analytics features.");
   }

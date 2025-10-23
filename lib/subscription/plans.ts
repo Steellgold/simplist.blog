@@ -1,5 +1,5 @@
 export type SubscriptionInterval = "monthly" | "yearly";
-export type SubscriptionPlan = "free" | "pro";
+export type SubscriptionPlan = "STARTER" | "PRO";
 
 export interface PlanFeature {
   name: string;
@@ -41,9 +41,9 @@ export interface Plan {
 }
 
 export const SUBSCRIPTION_PLANS: Record<SubscriptionPlan, Plan> = {
-  free: {
-    id: "free",
-    name: "Free",
+  STARTER: {
+    id: "STARTER",
+    name: "STARTER",
     description: "Perfect for getting started",
     prices: [
       {
@@ -75,8 +75,8 @@ export const SUBSCRIPTION_PLANS: Record<SubscriptionPlan, Plan> = {
       },
     },
   },
-  pro: {
-    id: "pro",
+  PRO: {
+    id: "PRO",
     name: "Pro", 
     description: "For serious content creators",
     highlight: "Most Popular",

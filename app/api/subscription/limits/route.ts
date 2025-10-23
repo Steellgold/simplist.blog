@@ -47,7 +47,7 @@ export const GET = async (request: Request) => {
     const apiKeyCount = project.apiKeys.length;
 
     // Determine subscription tier (default to free if null)
-    const subscriptionTier = project.subscriptionTier || "free";
+    const subscriptionTier = project.subscriptionTier || "STARTER";
 
     return NextResponse.json({
       subscription: {

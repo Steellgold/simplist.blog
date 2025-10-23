@@ -58,7 +58,7 @@ const PricingPage = () => {
     }
 
     // Filter projects to only show free projects (those that can be upgraded)
-    const freeProjects = projects.filter(project => project.subscriptionTier === "free");
+    const freeProjects = projects.filter(project => project.subscriptionTier === "STARTER");
     
     if (freeProjects.length === 0) {
       // All projects are already pro, redirect to dashboard
@@ -118,7 +118,7 @@ const PricingPage = () => {
           {plans.map((plan) => {
             const currentPrice = getPlanPrice(plan.id, interval) || plan.prices[0];
             const isNumeric = typeof currentPrice.amount === "number";
-            const isFree = plan.id === "free";
+            const isFree = plan.id === "STARTER";
 
             return (
               <Card
@@ -207,7 +207,7 @@ const PricingPage = () => {
       <ProjectSelectorModal
         open={showProjectSelector}
         onOpenChange={setShowProjectSelector}
-        projects={projects.filter(project => project.subscriptionTier === "free")}
+        projects={projects.filter(project => project.subscriptionTier === "STARTER")}
         onProjectSelect={handleProjectSelect}
         title="Select Project to Upgrade"
         description="Choose which project you want to upgrade to Pro"

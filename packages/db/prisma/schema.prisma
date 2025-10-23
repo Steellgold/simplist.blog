@@ -71,6 +71,11 @@ model Verification {
   @@map("verification")
 }
 
+enum SubscriptionTier {
+  STARTER
+  PRO
+}
+
 model Project {
   id                    String    @id @default(cuid())
   name                  String
@@ -79,7 +84,7 @@ model Project {
   allowedOrigins        String[]  @default([]) // Array of allowed origins for CORS
   analyticsEnabled      Boolean   @default(false) // Whether analytics tracking is enabled
   timezone              String    @default("UTC") // Project timezone for scheduled publishing
-  subscriptionTier      String    @default("free") // "free" | "pro" - Project-specific subscription tier
+  subscriptionTier      SubscriptionTier    @default(STARTER) // "STARTER" | "PRO" - Project-specific subscription tier
   subscriptionExpiresAt DateTime? // When the subscription expires (for pro projects)
   stripeCustomerId      String?   // Stripe customer ID for this project
   stripeSubscriptionId  String?  // Stripe subscription ID for this project

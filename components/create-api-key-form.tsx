@@ -43,7 +43,7 @@ export const CreateApiKeyForm = ({ projectId, onSuccess }: CreateApiKeyFormProps
   const createApiKeyMutation = useCreateApiKey()
   const { isAtLimit, currentCount, maxCount, tier, isLoading: limitsLoading, refetch } = useApiKeyLimits()
 
-  const isPro = tier === "pro"
+  const isPro = tier === "PRO"
 
   const {
     register,
@@ -105,7 +105,7 @@ export const CreateApiKeyForm = ({ projectId, onSuccess }: CreateApiKeyFormProps
       }
     }}>
       <DialogTrigger asChild>
-        <Button disabled={isButtonDisabled} title={isAtLimit ? `You've reached your limit of ${maxCount} API keys. ${tier === "free" ? "Upgrade to Pro for more API keys." : ""}` : undefined}>
+        <Button disabled={isButtonDisabled} title={isAtLimit ? `You've reached your limit of ${maxCount} API keys. ${tier === "STARTER" ? "Upgrade to Pro for more API keys." : ""}` : undefined}>
           <Plus className="size-4" />
           Create API Key {!limitsLoading && `(${currentCount}/${maxCount})`}
         </Button>
@@ -131,7 +131,7 @@ export const CreateApiKeyForm = ({ projectId, onSuccess }: CreateApiKeyFormProps
                   {currentCount}/{maxCount} used
                 </span>
               </div>
-              {tier === "free" && isAtLimit && (
+              {tier === "STARTER" && isAtLimit && (
                 <div className="flex items-center gap-2 text-sm">
                   <Crown className="h-4 w-4 text-yellow-500" />
                   <span className="text-muted-foreground">Upgrade to Pro for more</span>
@@ -140,7 +140,7 @@ export const CreateApiKeyForm = ({ projectId, onSuccess }: CreateApiKeyFormProps
             </div>
             {isAtLimit && (
               <p className="text-sm text-muted-foreground mt-2">
-                {tier === "free" 
+                {tier === "STARTER" 
                   ? "You've reached the free plan limit. Upgrade to Pro to create up to 10 API keys."
                   : "You've reached your API key limit for the Pro plan."
                 }
@@ -209,7 +209,7 @@ export const CreateApiKeyForm = ({ projectId, onSuccess }: CreateApiKeyFormProps
                           {!isPro && (
                             <Image
                               src="https://cdn.simplist.blog/assets/billing/mini-pro-badge.png"
-                              alt="Pro"
+                              alt="PRO"
                               width={16}
                               height={16}
                             />

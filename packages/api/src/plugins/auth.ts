@@ -131,11 +131,11 @@ export default fp(async function (fastify) {
 
       if (project) {
         // Determine subscription tier
-        const tier = project.subscriptionTier === "pro" &&
+        const tier = project.subscriptionTier === "PRO" &&
                      project.subscriptionExpiresAt &&
                      project.subscriptionExpiresAt > now
-          ? "pro"
-          : "free"
+          ? "PRO"
+          : "STARTER"
 
         // Check if we need to reset the counter
         const daysSinceReset = Math.floor(
@@ -156,7 +156,7 @@ export default fp(async function (fastify) {
         }
 
         // Check quota limits
-        const maxCalls = tier === "pro" ? 500_000 : 1_000
+        const maxCalls = tier === "PRO" ? 500_000 : 1_000
         if (currentCalls > maxCalls) {
           return reply.code(429).send({
             error: "Rate Limit Exceeded",
