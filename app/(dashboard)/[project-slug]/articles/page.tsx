@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/page-header"
 import { buttonVariants } from "@/components/ui/button"
 import { useArticles } from "@/hooks/use-articles"
 import { useProject } from "@/hooks/use-project-context"
+import { useArticleLimits } from "@/hooks/use-subscription-limits"
 import { Plus } from "lucide-react"
 import Link from "next/link"
 
@@ -13,6 +14,7 @@ const ArticlesPage = () => {
   const { currentProject } = useProject()
   const { data: articles, error } = useArticles()
   const columns = useArticlesColumns()
+  const { currentCount, maxCount, isLoading: limitsLoading, isAtLimit, tier } = useArticleLimits(currentProject?.id)
 
   if (error) {
     return (
@@ -36,9 +38,13 @@ const ArticlesPage = () => {
         title="Articles"
         description={`Manage your ${currentProject.name} blog articles and track their performance.`}
         actions={
-          <Link href={`/${currentProject.slug}/articles/new`} className={buttonVariants({ variant: "default" })}>
+          <Link 
+            href={`/${currentProject.slug}/articles/new`} 
+            className={buttonVariants({ variant: "default" })}
+            title={isAtLimit ? `You've reached your limit of ${maxCount} articles. ${tier === "STARTER" ? "Upgrade to Pro for unlimited articles." : ""}` : undefined}
+          >
             <Plus />
-            New Article
+            New Article {!limitsLoading && `(${currentCount}/${maxCount === -1 ? "∞" : maxCount})`}
           </Link>
         }
       >

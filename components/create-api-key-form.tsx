@@ -41,7 +41,7 @@ export const CreateApiKeyForm = ({ projectId, onSuccess }: CreateApiKeyFormProps
   const [copied, setCopied] = useState(false)
 
   const createApiKeyMutation = useCreateApiKey()
-  const { isAtLimit, currentCount, maxCount, tier, isLoading: limitsLoading, refetch } = useApiKeyLimits()
+  const { isAtLimit, currentCount, maxCount, tier, isLoading: limitsLoading, refetch } = useApiKeyLimits(projectId)
 
   const isPro = tier === "PRO"
 

@@ -36,6 +36,14 @@ export const GET = async (request: Request) => {
             id: true,
           },
         },
+        articles: {
+          where: {
+            status: { not: "deleted" }, // Only count non-deleted articles
+          },
+          select: {
+            id: true,
+          },
+        },
       },
     });
 
@@ -43,8 +51,9 @@ export const GET = async (request: Request) => {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
-    // Count API keys for this project
+    // Count API keys and articles for this project
     const apiKeyCount = project.apiKeys.length;
+    const articleCount = project.articles.length;
 
     // Determine subscription tier (default to free if null)
     const subscriptionTier = project.subscriptionTier || "STARTER";
@@ -55,6 +64,7 @@ export const GET = async (request: Request) => {
         subscriptionExpiresAt: project.subscriptionExpiresAt,
       },
       apiKeyCount,
+      articleCount,
     });
   } catch (error) {
     console.error("Error fetching subscription limits:", error);
