@@ -1,4 +1,5 @@
 import { AnalyticsDashboard } from "@/components/analytics-dashboard"
+import { PageHeader } from "@/components/page-header"
 import { getAllProjectAnalytics } from "@/lib/actions/analytics"
 import { getCurrentUser } from "@/lib/auth-helper"
 import { prisma } from "@/lib/db"
@@ -35,7 +36,11 @@ const AnalyticsPage = async ({ params }: AnalyticsPageProps) => {
   //                 analyticsData["30"]?.summary?.totalViews > 0 || 
   //                 analyticsData["90"]?.summary?.totalViews > 0
 
-  return <AnalyticsDashboard analyticsData={analyticsData} />
+  return (
+    <PageHeader title="Analytics" description="Track visitor behavior and engagement for your articles">
+      <AnalyticsDashboard analyticsData={analyticsData} />
+    </PageHeader>
+  )
 }
 
 export default AnalyticsPage
