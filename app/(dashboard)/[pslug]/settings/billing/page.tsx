@@ -8,7 +8,7 @@ import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTi
 import { useProject } from "@/hooks/use-project-context"
 import { ArrowUpRightIcon, FolderIcon } from "lucide-react"
 
-const SettingsPage = () => {
+const BillingPage = () => {
   const { currentProject } = useProject()
 
   if (!currentProject) return <EmptyProject />
@@ -23,4 +23,4 @@ const SettingsPage = () => {
   )
 }
 
-export default SettingsPage
+export default BillingPage

@@ -7,24 +7,24 @@ import Link from "next/link"
 import { ProjectSwitcher } from "@/components/projects/switcher"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
-    Sidebar,
-    SidebarContent,
-    SidebarFooter,
-    SidebarGroup,
-    SidebarGroupContent,
-    SidebarGroupLabel,
-    SidebarHeader,
-    SidebarMenu,
-    SidebarMenuButton,
-    SidebarMenuItem
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem
 } from "@/components/ui/sidebar"
 import { cloneElement, useState } from "react"
 import { ChartLine } from "@/components/animate-ui/icons/chart-line"
@@ -92,7 +92,7 @@ const getNavigationItems = (isPro: boolean, projectSlug: string, isProjectPro?: 
   {
     title: isProjectPro ? "Billing" : "Upgrade",
     icon: <Star />,
-    href: isProjectPro ? `/${projectSlug}/billing` : `/pricing`
+    href: isProjectPro ? `/${projectSlug}/settings/billing` : `/pricing`
   }
 ]
 
