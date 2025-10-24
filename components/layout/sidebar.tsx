@@ -163,6 +163,7 @@ export const AppSidebar = ({
                     className={item.disabled ? "opacity-50 cursor-not-allowed" : ""}
                     onMouseEnter={() => setItemHovered(item.href)}
                     onMouseLeave={() => setItemHovered(null)}
+                    tooltip={item.disabled ? `${item.title} (Premium required)` : undefined}
                   >
                     {item.disabled ? (
                       <div className="flex items-center gap-2 w-full [&>svg]:size-4">
@@ -170,14 +171,14 @@ export const AppSidebar = ({
                           // @ts-expect-error - animate prop is added dynamically
                           animate: itemHovered === item.href
                         })}
-                        <span className="flex-1">{item.title}</span>
+                        <span className="flex-1 group-data-[collapsible=icon]:hidden">{item.title}</span>
                         {item.badge && (
                           <Image
                             src={item.badge}
                             alt="PRO"
                             width={16}
                             height={16}
-                            className="h-4 w-4"
+                            className="h-4 w-4 group-data-[collapsible=icon]:hidden"
                           />
                         )}
                       </div>
@@ -187,7 +188,7 @@ export const AppSidebar = ({
                           // @ts-expect-error - animate prop is added dynamically
                           animate: itemHovered === item.href
                         })}
-                        <span>{item.title}</span>
+                        <span className="group-data-[collapsible=icon]:hidden">{item.title}</span>
                       </Link>
                     )}
                   </SidebarMenuButton>

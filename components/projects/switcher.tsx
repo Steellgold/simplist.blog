@@ -126,7 +126,7 @@ export const ProjectSwitcher = ({
                   </span>
                 )}
               </div>
-              <div className="grid flex-1 text-left text-sm leading-tight">
+              <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
                 <div className="flex items-center gap-2">
                   <span className="truncate font-semibold">
                     {activeProject?.name || "Select project"}
@@ -152,7 +152,7 @@ export const ProjectSwitcher = ({
                   )}
                 </div>
               </div>
-              <ChevronsUpDown className="ml-auto" />
+              <ChevronsUpDown className="ml-auto group-data-[collapsible=icon]:hidden" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
