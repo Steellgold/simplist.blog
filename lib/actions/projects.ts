@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { getCurrentUser } from "../auth-helper"
 import { prisma } from "../db"
-import { CreateProjectActionInput, createProjectSchema } from "../validations/project"
+import { CreateProjectActionInput, createProjectSchema, UpdateProjectSettingsInput } from "../validations/project"
 
 export const getUserProjects = async () => {
   const user = await getCurrentUser()
@@ -27,6 +27,7 @@ export const getUserProjects = async () => {
       updatedAt: true,
       subscriptionTier: true,
       subscriptionExpiresAt: true,
+      allowedOrigins: true,
     },
     orderBy: {
       createdAt: "desc",
@@ -189,5 +190,58 @@ export const updateProject = async (
   revalidatePath("/")
   revalidatePath("/dashboard")
   revalidatePath("/settings")
+  return updated
+}
+
+export const updateProjectSettings = async (projectId: string, input: UpdateProjectSettingsInput) => {
+  const user = await getCurrentUser()
+  if (!user) redirect("/auth/login")
+
+  const project = await prisma.project.findFirst({
+    where: {
+      id: projectId,
+      userId: user.id,
+    },
+  })
+
+  if (!project) {
+    throw new Error("Project not found or you don't have permission")
+  }
+
+  // Use the provided slug and ensure uniqueness per user
+  let finalSlug = input.slug
+  let counter = 1
+
+  while (true) {
+    const existing = await prisma.project.findFirst({
+      where: {
+        slug: finalSlug,
+        userId: user.id,
+        NOT: { id: projectId },
+      },
+    })
+
+    if (!existing) break
+    finalSlug = `${input.slug}-${counter}`
+    counter++
+  }
+
+  // Extract string values from allowedOrigins
+  const allowedOriginStrings = input.allowedOrigins?.map(origin => origin.value).filter(value => value?.trim() !== "")
+
+  const updated = await prisma.project.update({
+    where: { id: projectId },
+    data: {
+      name: input.name,
+      slug: finalSlug,
+      description: input.description || null,
+      timezone: input.timezone,
+      allowedOrigins: allowedOriginStrings,
+    },
+  })
+
+  // Revalidate dashboard pages that show project info
+  revalidatePath("/")
+  revalidatePath(`/${project.slug}/settings`)
   return updated
 }

@@ -63,3 +63,62 @@ export const createProjectActionSchema = z.object({
 })
 
 export type CreateProjectActionInput = z.infer<typeof createProjectActionSchema>
+
+export const updateProjectSettingsSchema = z.object({
+  name: z
+    .string()
+    .min(1, "Project name is required")
+    .max(100, "Project name must be less than 100 characters"),
+  slug: z
+    .string()
+    .min(1, "Project slug is required")
+    .max(100, "Project slug must be less than 100 characters")
+    .regex(/^[a-z0-9-]+$/, "Slug can only contain lowercase letters, numbers, and hyphens"),
+  description: z
+    .string()
+    .max(500, "Description must be less than 500 characters")
+    .optional()
+    .or(z.literal("")),
+  timezone: z
+    .string()
+    .min(1, "Timezone is required"),
+  allowedOrigins: z
+    .array(
+      z.object({
+        value: z.string()
+          .min(1, "Domain is required")
+          .max(200, "Domain must be less than 200 characters")
+          .transform((val) => {
+            // Normalize the input first
+            let normalized = val.trim();
+
+            // Handle wildcard domains like *.example.com
+            if (normalized.startsWith("*.")) {
+              // If it already has https://, remove it before processing
+              if (normalized.startsWith("https://*.")) {
+                normalized = normalized.replace("https://*.", "*.");
+              }
+              return `https://${normalized.replace("*.", "subdomain.")}`;
+            }
+
+            // If it already starts with https://, don't add it again
+            if (normalized.startsWith("https://") || normalized.startsWith("http://")) {
+              return normalized.startsWith("http://") ? normalized.replace("http://", "https://") : normalized;
+            }
+
+            return `https://${normalized}`;
+          })
+          .pipe(z.url("Please enter a valid domain (supports *.domain.com)"))
+          .transform((url) => {
+            // Transform back to original format if it was a wildcard
+            if (url.includes("subdomain.")) {
+              return url.replace("https://subdomain.", "https://*.");
+            }
+            return url;
+          })
+      })
+    )
+    .optional(),
+})
+
+export type UpdateProjectSettingsInput = z.infer<typeof updateProjectSettingsSchema>

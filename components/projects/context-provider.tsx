@@ -1,11 +1,14 @@
 "use client"
 
+import { Timezone } from "@/components/ui/timezone-selector"
 import { createContext, ReactNode, useContext } from "react"
 
 interface Project {
   id: string
   name: string
   slug: string
+  timezone: Timezone
+  allowedOrigins?: string[]
 }
 
 interface ProjectContextType {

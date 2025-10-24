@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils"
 import { ReactNode } from "react"
 
 type PageLayoutProps = {
@@ -5,11 +6,15 @@ type PageLayoutProps = {
   description?: string
   children?: ReactNode
   actions?: ReactNode
+  centered?: boolean
 }
 
-export const PageLayout = ({ title, description, children, actions }: PageLayoutProps) => {
+export const PageLayout = ({ title, description, children, actions, centered = false }: PageLayoutProps) => {
   return (
-    <div className="flex flex-col gap-6 container max-w-7xl mx-auto">
+    <div className={cn("flex flex-col gap-6 container mx-auto", {
+      "max-w-7xl": !centered,
+      "max-w-3xl": centered,
+    })}>
       <div className={actions ? "flex items-center justify-between" : ""}>
         <div>
           <h1 className="text-3xl font-bold tracking-tight">{title}</h1>

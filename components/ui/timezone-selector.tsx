@@ -1,11 +1,11 @@
 "use client"
 
-import * as React from "react"
-import { Check, ChevronsUpDown } from "lucide-react"
-import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { cn } from "@/lib/utils"
+import { Check, ChevronsUpDown } from "lucide-react"
+import * as React from "react"
 
 // Liste complète des timezones IANA avec leurs offsets UTC
 const TIMEZONES = [
@@ -120,6 +120,8 @@ const TIMEZONES = [
   { value: "Pacific/Apia", label: "Pacific/Apia", offset: "UTC+13:00" },
   { value: "Pacific/Kiritimati", label: "Pacific/Kiritimati", offset: "UTC+14:00" },
 ]
+
+export type Timezone = typeof TIMEZONES[number]["value"]
 
 interface TimezoneComboboxProps {
   value?: string
