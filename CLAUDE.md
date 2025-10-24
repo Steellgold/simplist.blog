@@ -41,9 +41,16 @@ pnpm run build:packages # Build DB, API, and SDK packages
 
 **Important**: After modifying `packages/db/prisma/schema.prisma`, always run `pnpm run db:migrate` to apply changes. The Article model includes statistics fields that must be migrated.
 
-**Environment Setup**: Both main app and API require Redis environment variables:
-- `UPSTASH_REDIS_REST_URL` - Upstash Redis REST endpoint
-- `UPSTASH_REDIS_REST_TOKEN` - Upstash Redis authentication token
+**Environment Setup**:
+- Redis (required for both main app and API):
+  - `UPSTASH_REDIS_REST_URL` - Upstash Redis REST endpoint
+  - `UPSTASH_REDIS_REST_TOKEN` - Upstash Redis authentication token
+- Stripe (required for billing):
+  - `STRIPE_SECRET_KEY` - Stripe API key
+  - `STRIPE_PRICE_PRO_MONTHLY` - Stripe price ID for monthly Pro plan
+  - `STRIPE_PRICE_PRO_YEARLY` - Stripe price ID for yearly Pro plan
+  - `STRIPE_WEBHOOK_SECRET` - Stripe webhook signing secret
+  - `NEXT_PUBLIC_APP_URL` - App URL for Stripe redirects
 
 ## Architecture
 
@@ -61,6 +68,23 @@ pnpm run build:packages # Build DB, API, and SDK packages
 - Shared database package in `packages/db/` with singleton pattern for both Prisma and Redis
 - Schema includes: User, Session, Account, Verification, Project, ApiKey, Article, Asset, PageView, PageEvent
 - Connection string: `postgresql://postgres:postgres@localhost:5432/simplist?schema=public`
+
+**Key Model Updates**:
+- **Project** model includes subscription fields:
+  - `subscriptionTier` (STARTER | PRO) - Current subscription level
+  - `subscriptionExpiresAt` - Expiration timestamp for subscription
+  - `stripeCustomerId` - Stripe customer ID for billing
+  - `stripeSubscriptionId` - Active Stripe subscription ID
+  - `monthlyApiCalls` - Current month's API call count
+  - `apiCallsResetAt` - Next reset date for API calls
+  - `totalStorageUsed` - Total storage used in bytes (for image uploads)
+- **ApiKey** model includes:
+  - `permissions` array (read, analytics) for granular access control
+  - `status` field for active/revoked state
+  - `deletedAt` for soft deletion
+- **Article** model includes:
+  - `status` ("draft", "published", "deleted", "scheduled")
+  - `scheduledPublishAt` for scheduled publishing (PRO feature)
 
 ### API Architecture
 
@@ -86,6 +110,9 @@ The TypeScript SDK (`packages/sdk/`) provides:
 - `/auth/login` - Login page
 - `/auth/register` - Registration page
 - `/auth/forgot-password` - Password recovery
+- `/pricing` - Pricing page with plan comparison and upgrade flow
+- `/home` - Landing page
+- `/(legal)/*` - Legal pages (terms, privacy, GDPR)
 - `/` - Root redirects to `/dashboard` or `/auth/login`
 
 **Protected routes** (require auth, in `app/(dashboard)/` group):
@@ -94,10 +121,16 @@ The TypeScript SDK (`packages/sdk/`) provides:
 - `/articles/new` - Article creation form (responsive 2-column layout on desktop)
 - `/api-keys` - API key management
 - `/analytics` - Analytics dashboard (shows activation UI if not enabled)
-- `/settings` - Settings
+- `/[pslug]/settings` - Settings base page
+- `/[pslug]/settings/billing` - Billing management (Stripe portal integration)
 
 **Special route**:
 - `/create-project` - First-time project creation (outside dashboard group, no sidebar)
+
+**API routes**:
+- `/api/webhooks/stripe` - Stripe webhook handler for subscription lifecycle events
+- `/api/subscription/limits` - Get current subscription usage and limits
+- `/api/projects` - List user projects with subscription info
 
 **Responsive Layout Pattern**:
 - Desktop: 3-column grid (`grid-cols-1 lg:grid-cols-3`)
@@ -135,7 +168,7 @@ Project slugs are auto-generated from the project name:
 
 - `components/ui/` - shadcn/ui components with custom additions:
   - Standard components: Button, Card, Sidebar, Input, Textarea, Select, etc.
-  - **New components**: `input-group` (with addons), `button-group` (grouped buttons)
+  - **New components**: `input-group` (with addons), `button-group` (grouped buttons), `progress-button` (button with progress bar for quota display)
   - `input-group` supports block-start/block-end/inline-start/inline-end alignment for addons
 - `components/app-sidebar.tsx` - Main sidebar with project display and navigation
 - `components/app-sidebar-wrapper.tsx` - Client wrapper for sidebar with logout handler
@@ -147,6 +180,9 @@ Project slugs are auto-generated from the project name:
   - Image upload with preview
   - Status selector (Draft/Published)
 - `components/*-form.tsx` - Authentication forms (login, register)
+- `components/upgrade-project.tsx` - Upgrade prompt shown when quota limits reached
+- `components/banner-upload.tsx` - Article banner image upload with R2 integration
+- `components/project-selector-modal.tsx` - Project selection during checkout flow
 
 ### Server Actions
 
@@ -156,11 +192,11 @@ Located in `lib/actions/`:
   - `createProject()` - Create project with uniqueness check
   - `deleteProject()` - Delete project with ownership verification
 - `articles.ts` - Article CRUD operations
-  - `createArticle()` - Create article with auto-slug generation and stats calculation
+  - `createArticle()` - Create article with auto-slug generation, stats calculation, and quota check
   - `getProjectArticles()` - Fetch all articles for a project
   - `deleteArticle()` - Delete article with ownership verification
-- `api-keys.ts` - API key CRUD operations with Redis cache invalidation
-  - `createApiKey()` - Create API key with cache invalidation
+- `api-keys.ts` - API key CRUD operations with Redis cache invalidation and quota checks
+  - `createApiKey()` - Create API key with cache invalidation and quota check
   - `deleteApiKey()` - Soft delete API key with cache invalidation
   - `getProjectApiKeys()` - Fetch active API keys for a project
 - `analytics.ts` - Analytics data aggregation and caching
@@ -168,6 +204,12 @@ Located in `lib/actions/`:
   - `getAllProjectAnalytics()` - Load multi-period analytics with caching
   - `getProjectAnalytics()` - Load single period analytics
   - `getArticleViewsOverTime()` - Time-series data for article engagement
+- `images.ts` - R2 (Cloudflare R2) image handling
+  - `getR2UploadUrl()` - Generate presigned URLs for image uploads
+  - `getR2BannerUploadUrl()` - Banner-specific upload URLs
+  - `deleteR2Object()` - Delete objects from R2 and update storage quota
+  - `assertR2ObjectIsImage()` - Validate uploaded files are images
+  - `getPublicUrlForKey()` - Generate public URLs for R2 objects
 
 ### Article Management
 
@@ -208,6 +250,81 @@ Located in `lib/actions/`:
 2. Cache miss triggers database lookup and cache population
 3. Main app API key actions automatically invalidate relevant cache entries
 4. Both systems share the same Redis instance for consistency
+
+### Billing & Subscription System
+
+**Architecture Overview**:
+- **Project-level subscriptions**: Each project has its own subscription tier (STARTER or PRO)
+- **Stripe integration**: Checkout sessions, subscription management, and webhook handling
+- **Usage-based quotas**: Enforced limits on articles, API keys, storage, and monthly API calls
+- **Automatic resets**: Monthly API call counter resets automatically
+
+**Subscription Tiers** (`lib/subscription/plans.ts`):
+- **STARTER** (Free):
+  - 10 articles max
+  - 2 API keys max
+  - 100 MB storage
+  - 10,000 API calls/month
+- **PRO** ($9/month or $90/year):
+  - Unlimited articles
+  - Unlimited API keys
+  - 10 GB storage
+  - 1,000,000 API calls/month
+  - Scheduled publishing
+  - Article variants (future)
+  - Bulk operations (future)
+
+**Quota Enforcement** (`lib/subscription/quota-check.ts`):
+- `checkArticleQuota(projectId)` - Validates article creation against subscription limit
+- `checkApiKeyQuota(projectId)` - Validates API key creation against subscription limit
+- `checkStorageQuota(projectId, fileSize)` - Validates file upload against storage limit
+- `incrementMonthlyApiCalls(projectId)` - Tracks API usage, returns false if quota exceeded
+- Quotas checked automatically in server actions before create operations
+- Returns error messages with upgrade prompts when limits reached
+
+**Stripe Integration** (`lib/stripe/`):
+- `createCheckoutSession(projectId, priceId, interval)` - Initiates Stripe checkout
+- `createBillingPortalSession(projectId)` - Opens Stripe billing portal for existing customers
+- Webhook handler (`/api/webhooks/stripe`) processes:
+  - `checkout.session.completed` - Creates/updates subscription on successful payment
+  - `customer.subscription.updated` - Updates subscription tier and expiration
+  - `customer.subscription.deleted` - Downgrades to STARTER on cancellation
+  - `invoice.payment_succeeded` - Confirms renewal
+  - `invoice.payment_failed` - Handles failed payments
+
+**Usage Tracking**:
+- `monthlyApiCalls` - Incremented on each API request via public API
+- `apiCallsResetAt` - Automatically set to first day of next month
+- `totalStorageUsed` - Updated on image upload/delete operations
+- Limits checked before operations, not after
+
+**Key Components**:
+- `UpgradeProject` - Shows upgrade prompt when quota limits reached
+- `ProgressButton` - Button with progress bar for displaying quota usage
+- `UsageCard` - Displays current usage statistics for resources
+- `ProjectSelectorModal` - Modal for selecting project during checkout
+
+**Key Hooks**:
+- `useSubscriptionLimits(projectId)` - Load subscription data, usage, and limits
+- `useApiKeyLimits(projectId)` - Specialized hook for API key quota checking
+- `useArticleLimits(projectId)` - Specialized hook for article quota checking
+- Returns: `{ subscription, usage, limits, isLoading, canCreate*, used*, limit* }`
+
+**Billing Flow**:
+1. User clicks "Upgrade" on pricing page or in-app prompt
+2. `createCheckoutSession()` creates Stripe session with project metadata
+3. User completes payment on Stripe hosted page
+4. Stripe webhook fires `checkout.session.completed`
+5. Server updates Project with `subscriptionTier: PRO`, `stripeCustomerId`, `stripeSubscriptionId`, `subscriptionExpiresAt`
+6. User gains access to PRO features immediately
+7. Monthly renewals handled via `customer.subscription.updated` webhook
+
+**Important Notes**:
+- Subscription is tied to Project, not User (one user can have multiple projects with different tiers)
+- Free tier users can access billing portal to upgrade
+- PRO users can access billing portal to manage subscription, view invoices, update payment method
+- Quota checks happen synchronously in server actions to prevent race conditions
+- Storage usage updated in real-time on R2 operations
 
 ### Analytics System
 
@@ -280,6 +397,8 @@ Located in `lib/actions/`:
 8. **Monorepo architecture**: Shared packages for DB, API, and SDK
 9. **pnpm workspaces**: Package management with pnpm
 10. **Upstash Redis caching**: API key caching with automatic invalidation on create/revoke
+11. **Project-level subscriptions**: Billing and quotas managed per project, not per user
+12. **Cloudflare R2**: Object storage for images with quota tracking
 
 ## Coding Standards and Rules
 
@@ -326,12 +445,16 @@ Located in `lib/actions/`:
 - **Group imports**: external → internal → styles/assets; side-effect imports last
 
 ### Project-Specific Rules
-- **Image uploads** must use server routes (`/api/uploads/*`) rather than direct client-to-bucket calls
+- **Image uploads** use R2 presigned URLs via `lib/actions/images.ts` server actions
 - **Article editor mutations** should go through `lib/actions/**`
 - **Banner/image constraints** enforced server-side (mime/size) and client-side hints
 - **API key authentication** handled in `packages/api/src/plugins/auth.ts`
 - **Database operations** use shared `@simplist/db` package
 - **Redis caching** shared via `@simplist/db` package with `apiKeyCache` utilities
+- **Quota checks** must happen before create operations in server actions (articles, API keys, storage)
+- **Subscription checks** performed via `lib/subscription/quota-check.ts` utilities
+- **Storage usage** updated in R2 operations (upload increments, delete decrements)
+- **Monthly API calls** reset automatically on first day of month via `apiCallsResetAt` check
 
 ### Performance Guidelines
 - **Memoize heavy calculations** or lists where needed
