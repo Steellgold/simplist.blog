@@ -29,6 +29,7 @@ import { CreateApiKeyInput, createApiKeySchema } from "@/lib/validations/api-key
 import { Check, Copy, Plus } from "lucide-react"
 import Image from "next/image"
 import { Spinner } from "@/components/ui/spinner"
+import { ProgressButton } from "../ui/progress-button"
 
 interface CreateApiKeyFormProps {
   projectId: string
@@ -105,10 +106,14 @@ export const CreateApiKeyForm = ({ projectId, onSuccess }: CreateApiKeyFormProps
       }
     }}>
       <DialogTrigger asChild>
-        <Button disabled={isButtonDisabled} title={isAtLimit ? `You've reached your limit of ${maxCount} API keys. ${tier === "STARTER" ? "Upgrade to Pro for more API keys." : ""}` : undefined}>
+        {/* <Button disabled={isButtonDisabled} title={isAtLimit ? `You've reached your limit of ${maxCount} API keys. ${tier === "STARTER" ? "Upgrade to Pro for more API keys." : ""}` : undefined}>
           <Plus className="size-4" />
           Create API Key {!limitsLoading && `(${currentCount}/${maxCount})`}
-        </Button>
+        </Button> */}
+        <ProgressButton value={currentCount} min={0} max={maxCount} variant="outline">
+          <Plus className="size-4" />
+          Create API Key {!limitsLoading && `(${currentCount}/${maxCount})`}
+        </ProgressButton>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

@@ -5,6 +5,7 @@ import { ArticlesDataTable } from "@/components/articles/data-table"
 import { PageLayout } from "@/components/layout/page-layout"
 import { EmptyProject } from "@/components/projects/empty-project"
 import { buttonVariants } from "@/components/ui/button"
+import { ProgressButton } from "@/components/ui/progress-button"
 import { useArticles } from "@/hooks/use-articles"
 import { useProject } from "@/hooks/use-project-context"
 import { useArticleLimits } from "@/hooks/use-subscription-limits"
@@ -15,7 +16,7 @@ const ArticlesPage = () => {
   const { currentProject } = useProject()
   const { data: articles, error } = useArticles()
   const columns = useArticlesColumns()
-  const { currentCount, maxCount, isLoading: limitsLoading, isAtLimit, tier } = useArticleLimits(currentProject?.id)
+  const { currentCount, maxCount, isLoading: limitsLoading } = useArticleLimits(currentProject?.id)
 
   if (error) {
     return (
@@ -33,14 +34,12 @@ const ArticlesPage = () => {
         title="Articles"
         description={`Manage your ${currentProject.name} blog articles and track their performance.`}
         actions={
-          <Link 
-            href={`/${currentProject.slug}/articles/new`} 
-            className={buttonVariants({ variant: "default" })}
-            title={isAtLimit ? `You've reached your limit of ${maxCount} articles. ${tier === "STARTER" ? "Upgrade to Pro for unlimited articles." : ""}` : undefined}
-          >
-            <Plus />
-            New Article {!limitsLoading && `(${currentCount}/${maxCount === -1 ? "∞" : maxCount})`}
-          </Link>
+          <ProgressButton value={currentCount} min={0} max={maxCount} variant="outline" asChild>
+            <Link href={`/${currentProject.slug}/articles/new`} className="flex items-center gap-2">
+              <Plus />
+              New Article {!limitsLoading && `(${currentCount}/${maxCount === -1 ? "∞" : maxCount})`}
+            </Link>
+          </ProgressButton>
         }
       >
         <ArticlesDataTable columns={columns} data={articles || []} />
