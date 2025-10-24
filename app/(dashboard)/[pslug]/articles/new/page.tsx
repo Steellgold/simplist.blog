@@ -2,21 +2,12 @@
 
 import { CreateArticleForm } from "@/components/articles/create-form";
 import { PageLayout } from "@/components/layout/page-layout";
+import { EmptyProject } from "@/components/projects/empty-project";
 import { useProject } from "@/hooks/use-project-context";
 
 const NewArticlePage = () => {
   const { currentProject } = useProject();
-
-  if (!currentProject) {
-    return (
-      <div className="container max-w-7xl mx-auto">
-        <PageLayout
-          title="Create a new article"
-          description="No project selected. Please select a project first."
-        />
-      </div>
-    );
-  }
+  if (!currentProject) return <EmptyProject />
 
   return (
     <div className="container max-w-7xl mx-auto">

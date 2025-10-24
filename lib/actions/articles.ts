@@ -284,9 +284,28 @@ export const getArticleBySlug = async (slug: string) => {
   const article = await prisma.article.findFirst({
     where: {
       slug,
-      status: {
-        not: "deleted",
+      project: {
+        userId: user.id, // Ensure user owns the project
       },
+    },
+    include: {
+      project: true,
+    },
+  })
+
+  return article
+}
+
+export const getDeletedArticleBySlug = async (slug: string) => {
+  const user = await getCurrentUser()
+  if (!user) {
+    redirect("/auth/login")
+  }
+
+  const article = await prisma.article.findFirst({
+    where: {
+      slug,
+      status: "deleted",
       project: {
         userId: user.id, // Ensure user owns the project
       },
@@ -454,6 +473,42 @@ export const bulkDeleteArticles = async (articleIds: string[]) => {
   })
 
   revalidatePath("/articles")
+}
+
+export const restoreArticle = async (articleId: string) => {
+  const user = await getCurrentUser()
+  if (!user) {
+    redirect("/auth/login")
+  }
+
+  // Verify the article belongs to the user's project and is deleted
+  const article = await prisma.article.findFirst({
+    where: {
+      id: articleId,
+      status: "deleted",
+    },
+    include: {
+      project: true,
+    },
+  })
+
+  if (!article || article.project.userId !== user.id) {
+    throw new Error("Article not found or you don't have permission to restore it")
+  }
+
+  // Restore the article by updating its status and clearing deletedAt
+  const restored = await prisma.article.update({
+    where: {
+      id: articleId,
+    },
+    data: {
+      status: "draft", // Restore as draft by default
+      deletedAt: null,
+    },
+  })
+
+  revalidatePath("/articles")
+  return restored
 }
 
 export const getScheduledArticles = async () => {
