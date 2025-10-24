@@ -27,10 +27,10 @@ const ProjectLayout = async ({
   params,
 }: {
   children: React.ReactNode;
-  params: Promise<{ "project-slug": string }>;
+  params: Promise<{ "pslug": string }>;
 }) => {
   const user = await getCurrentUser();
-  const { "project-slug": projectSlug } = await params;
+  const { "pslug": projectSlug } = await params;
 
   if (!user) {
     redirect("/auth/login");

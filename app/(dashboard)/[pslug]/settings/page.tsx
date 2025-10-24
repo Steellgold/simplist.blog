@@ -1,6 +1,6 @@
 "use client"
 
-import { PageHeader } from "@/components/layout/page-header"
+import { PageLayout } from "@/components/layout/page-layout"
 import { useProject } from "@/hooks/use-project-context"
 
 const SettingsPage = () => {
@@ -9,7 +9,7 @@ const SettingsPage = () => {
   if (!currentProject) {
     return (
       <div className="container max-w-7xl mx-auto">
-        <PageHeader
+        <PageLayout
           title="Settings"
           description="No project selected"
         />
@@ -18,12 +18,12 @@ const SettingsPage = () => {
   }
 
   return (
-    <div className="container max-w-7xl mx-auto">
-      <PageHeader
+    // <div className="container max-w-7xl mx-auto">
+      <PageLayout
         title="Settings"
         description={`Manage settings for your ${currentProject.name} project`}
       />
-    </div>
+    // </div>
   )
 }
 

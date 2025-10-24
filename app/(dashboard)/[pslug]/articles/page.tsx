@@ -2,7 +2,8 @@
 
 import { useArticlesColumns } from "@/components/articles/columns"
 import { ArticlesDataTable } from "@/components/articles/data-table"
-import { PageHeader } from "@/components/layout/page-header"
+import { PageLayout } from "@/components/layout/page-layout"
+import { EmptyProject } from "@/components/projects/empty-project"
 import { buttonVariants } from "@/components/ui/button"
 import { useArticles } from "@/hooks/use-articles"
 import { useProject } from "@/hooks/use-project-context"
@@ -18,23 +19,17 @@ const ArticlesPage = () => {
 
   if (error) {
     return (
-      <div className="container max-w-7xl mx-auto">
-        <PageHeader title="Articles" description="Failed to load articles. Please try again." />
-      </div>
+      // <div className="container max-w-7xl mx-auto">
+        <PageLayout title="Articles" description="Failed to load articles. Please try again." />
+      // </div>
     )
   }
 
-  if (!currentProject) {
-    return (
-      <div className="container max-w-7xl mx-auto">
-        <PageHeader title="Articles" description="No project selected" />
-      </div>
-    )
-  }
+  if (!currentProject) return <EmptyProject />
 
   return (
-    <div className="container max-w-7xl mx-auto">
-      <PageHeader
+    // <div className="container max-w-7xl mx-auto">
+      <PageLayout
         title="Articles"
         description={`Manage your ${currentProject.name} blog articles and track their performance.`}
         actions={
@@ -49,8 +44,8 @@ const ArticlesPage = () => {
         }
       >
         <ArticlesDataTable columns={columns} data={articles || []} />
-      </PageHeader>
-    </div>
+      </PageLayout>
+    // </div>
   )
 }
 

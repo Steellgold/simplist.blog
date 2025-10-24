@@ -1,13 +1,13 @@
 import { ReactNode } from "react"
 
-type PageHeaderProps = {
+type PageLayoutProps = {
   title: string
   description?: string
   children?: ReactNode
   actions?: ReactNode
 }
 
-export const PageHeader = ({ title, description, children, actions }: PageHeaderProps) => {
+export const PageLayout = ({ title, description, children, actions }: PageLayoutProps) => {
   return (
     <div className="flex flex-col gap-6 container max-w-7xl mx-auto">
       <div className={actions ? "flex items-center justify-between" : ""}>

@@ -1,19 +1,15 @@
 "use client"
 
-import { PageHeader } from "@/components/layout/page-header"
+import { PageLayout } from "@/components/layout/page-layout"
+import { EmptyProject } from "@/components/projects/empty-project"
 import { useProject } from "@/hooks/use-project-context"
 
 const ProjectPage = () => {
   const { currentProject } = useProject()
-
-  if (!currentProject) {
-    return (
-      <PageHeader title="Dashboard" description="No project selected" />
-    )
-  }
+  if (!currentProject) return <EmptyProject />
 
   return (
-    <PageHeader
+    <PageLayout
       title="Dashboard"
       description={`Welcome to your ${currentProject.name} blog management dashboard`}
     />

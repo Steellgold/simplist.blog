@@ -1,5 +1,6 @@
 import { AnalyticsDashboard } from "@/components/analytics/dashboard"
-import { PageHeader } from "@/components/layout/page-header"
+import { PageLayout } from "@/components/layout/page-layout"
+import { EmptyProject } from "@/components/projects/empty-project"
 import { getAllProjectAnalytics } from "@/lib/actions/analytics"
 import { getCurrentUser } from "@/lib/auth-helper"
 import { prisma } from "@/lib/db"
@@ -8,19 +9,19 @@ import { redirect } from "next/navigation"
 
 interface AnalyticsPageProps {
   params: Promise<{
-    "project-slug": string
+    pslug: string
   }>
 }
 
 const AnalyticsPage = async ({ params }: AnalyticsPageProps) => {
   const user = await getCurrentUser()
-  const { "project-slug": slug } = await params
+  const { pslug: slug } = await params
 
   if (!user) redirect("/auth/login");
 
   // Get project from slug
   const project = await prisma.project.findFirst({ where: { slug, userId: user.id } })
-  if (!project) redirect("/");
+  if (!project) return <EmptyProject />
 
   // Check if user has access to analytics
   const hasAccess = await checkAnalyticsAccess(user.id, project.id);
@@ -37,9 +38,9 @@ const AnalyticsPage = async ({ params }: AnalyticsPageProps) => {
   //                 analyticsData["90"]?.summary?.totalViews > 0
 
   return (
-    <PageHeader title="Analytics" description="Track visitor behavior and engagement for your articles">
+    <PageLayout title="Analytics" description="Track visitor behavior and engagement for your articles">
       <AnalyticsDashboard analyticsData={analyticsData} />
-    </PageHeader>
+    </PageLayout>
   )
 }
 

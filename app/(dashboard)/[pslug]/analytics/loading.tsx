@@ -1,10 +1,10 @@
-import { PageHeader } from "@/components/layout/page-header"
+import { PageLayout } from "@/components/layout/page-layout"
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 
 const AnalyticsLoading = () => {
   return (
-    <PageHeader
+    <PageLayout
       title="Analytics"
       description="Track visitor behavior and engagement for your articles"
     >
@@ -196,7 +196,7 @@ const AnalyticsLoading = () => {
         </CardContent>
       </Card>
       </div>
-    </PageHeader>
+    </PageLayout>
   )
 }
 
