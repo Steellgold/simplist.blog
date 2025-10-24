@@ -4,7 +4,7 @@ import { useActiveProject } from "@/hooks/use-active-project"
 import { authClient } from "@/lib/auth-client"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { AppSidebar } from "./app-sidebar"
+import { AppSidebar } from "./sidebar"
 
 interface User {
   id: string

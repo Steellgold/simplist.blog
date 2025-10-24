@@ -1,5 +1,5 @@
-import { EditArticleForm } from "@/components/edit-article-form"
-import { PageHeader } from "@/components/page-header"
+import { EditArticleForm } from "@/components/articles/edit-form"
+import { PageHeader } from "@/components/layout/page-header"
 import { getArticleBySlug } from "@/lib/actions/articles"
 import { getCurrentUser } from "@/lib/auth-helper"
 import type { Metadata } from "next"

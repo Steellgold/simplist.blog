@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { UserDropdown } from "@/components/user-dropdown";
+import { UserDropdown } from "@/components/layout/user-dropdown";
 import { authClient } from "@/lib/auth-client";
 import Image from "next/image";
 import Link from "next/link";

@@ -34,7 +34,7 @@ import {
   YAxis
 } from "recharts"
 import { RecentActivityTable } from './recent-activity-table'
-import { ButtonGroup } from './ui/button-group'
+import { ButtonGroup } from '@/components/ui/button-group'
 
 interface AnalyticsDashboardProps {
   analyticsData: AnalyticsDataMultiPeriod

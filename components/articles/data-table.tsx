@@ -15,7 +15,7 @@ import {
 import { Trash, TrendingUp } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { useProjectContext } from "./project-context-provider"
+import { useProjectContext } from "@/components/projects/context-provider"
 
 import {
   AlertDialog,
@@ -39,8 +39,8 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { useBulkDeleteArticles } from "@/hooks/use-articles"
-import { ButtonGroup } from "./ui/button-group"
-import { Spinner } from "./ui/spinner"
+import { ButtonGroup } from "@/components/ui/button-group"
+import { Spinner } from "@/components/ui/spinner"
 
 interface DataTableProps<TData extends { id: string }, TValue> {
   columns: ColumnDef<TData, TValue>[]

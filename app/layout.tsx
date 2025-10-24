@@ -1,4 +1,4 @@
-import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeProvider } from "@/components/shared/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import type { Metadata } from "next";
 import { Nunito, Syne, Geist_Mono } from "next/font/google";
@@ -6,7 +6,7 @@ import "./globals.css";
 import { FC } from "react";
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import { QueryProvider } from "@/lib/query-client";
-import { ObserverProvider } from "@/components/observer-provider";
+import { ObserverProvider } from "@/components/shared/observer-provider";
 
 const nunito = Nunito({
   variable: "--font-nunito",

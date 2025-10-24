@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ThemeSwitcher } from "./ui/switch-theme";
+import { ThemeSwitcher } from "@/components/ui/switch-theme";
 
 const Footer = () => {
   return (

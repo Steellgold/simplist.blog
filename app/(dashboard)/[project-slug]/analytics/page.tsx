@@ -1,5 +1,5 @@
-import { AnalyticsDashboard } from "@/components/analytics-dashboard"
-import { PageHeader } from "@/components/page-header"
+import { AnalyticsDashboard } from "@/components/analytics/dashboard"
+import { PageHeader } from "@/components/layout/page-header"
 import { getAllProjectAnalytics } from "@/lib/actions/analytics"
 import { getCurrentUser } from "@/lib/auth-helper"
 import { prisma } from "@/lib/db"

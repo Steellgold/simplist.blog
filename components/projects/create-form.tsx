@@ -17,7 +17,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { useFieldArray, useForm } from "react-hook-form"
-import { Spinner } from "./ui/spinner"
+import { Spinner } from "@/components/ui/spinner"
 
 export const CreateProjectForm = ({ className, ...props }: React.ComponentProps<"div">) => {
   const router = useRouter()

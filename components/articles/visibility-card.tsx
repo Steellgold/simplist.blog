@@ -8,7 +8,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { useApiKeyLimits } from "@/hooks/use-subscription-limits";
 import Image from "next/image";
 import { ReactNode } from "react";
-import { ArticleSchedulePicker } from "./article-schedule-picker";
+import { ArticleSchedulePicker } from "./schedule-picker";
 
 type ArticleStatus = "draft" | "published" | "scheduled";
 

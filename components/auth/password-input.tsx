@@ -2,7 +2,7 @@
 
 import { Eye, EyeOff } from "lucide-react"
 import { useState } from "react"
-import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "./ui/input-group"
+import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@/components/ui/input-group"
 
 interface PasswordInputProps {
   id: string

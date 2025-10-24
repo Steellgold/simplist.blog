@@ -1,5 +1,5 @@
-import { AppSidebarWrapper } from "@/components/app-sidebar-wrapper";
-import { ProjectContextProvider } from "@/components/project-context-provider";
+import { AppSidebarWrapper } from "@/components/layout/sidebar-wrapper";
+import { ProjectContextProvider } from "@/components/projects/context-provider";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { ThemeSwitcher } from "@/components/ui/switch-theme";
 import { getUserProjects } from "@/lib/actions/projects";

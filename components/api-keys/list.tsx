@@ -11,10 +11,10 @@ import {
 import { toast } from "@/components/ui/sonner"
 import { useDeleteApiKey } from "@/hooks/use-api-keys"
 import { useState } from "react"
-import { columns, type ApiKey } from "./api-keys-columns"
-import { ApiKeysDataTable } from "./api-keys-data-table"
-import { Button } from "./ui/button"
-import { Spinner } from "./ui/spinner"
+import { columns, type ApiKey } from "./columns"
+import { ApiKeysDataTable } from "./data-table"
+import { Button } from "@/components/ui/button"
+import { Spinner } from "@/components/ui/spinner"
 
 interface ApiKeysListProps {
   apiKeys: ApiKey[]

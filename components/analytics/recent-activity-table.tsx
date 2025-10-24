@@ -12,7 +12,7 @@ import {
 import { formatDistanceToNow } from "date-fns"
 import { Eye } from "lucide-react"
 import { useState } from "react"
-import { ButtonGroup } from "./ui/button-group"
+import { ButtonGroup } from "@/components/ui/button-group"
 
 interface RecentView {
   id: string

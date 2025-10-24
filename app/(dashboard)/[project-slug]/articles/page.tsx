@@ -1,8 +1,8 @@
 "use client"
 
-import { useArticlesColumns } from "@/components/articles-columns"
-import { ArticlesDataTable } from "@/components/articles-data-table"
-import { PageHeader } from "@/components/page-header"
+import { useArticlesColumns } from "@/components/articles/columns"
+import { ArticlesDataTable } from "@/components/articles/data-table"
+import { PageHeader } from "@/components/layout/page-header"
 import { buttonVariants } from "@/components/ui/button"
 import { useArticles } from "@/hooks/use-articles"
 import { useProject } from "@/hooks/use-project-context"

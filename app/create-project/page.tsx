@@ -1,5 +1,5 @@
-import { AppSidebarWrapper } from "@/components/app-sidebar-wrapper"
-import { CreateProjectForm } from "@/components/create-project-form"
+import { AppSidebarWrapper } from "@/components/layout/sidebar-wrapper"
+import { CreateProjectForm } from "@/components/projects/create-form"
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { getUserProjects } from "@/lib/actions/projects"
 import { getCurrentUser } from "@/lib/auth-helper"

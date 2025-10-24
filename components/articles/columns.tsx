@@ -7,7 +7,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
-import { useProjectContext } from "./project-context-provider"
+import { useProjectContext } from "@/components/projects/context-provider"
 
 import {
   AlertDialog,
@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { toast } from "@/components/ui/sonner"
 import { deleteArticle } from "@/lib/actions/articles"
-import { Spinner } from "./ui/spinner"
+import { Spinner } from "@/components/ui/spinner"
 
 type Article = {
   id: string

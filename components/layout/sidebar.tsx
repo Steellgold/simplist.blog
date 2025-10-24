@@ -4,7 +4,7 @@ import { LogOut } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 
-import { ProjectSwitcher } from "@/components/project-switcher"
+import { ProjectSwitcher } from "@/components/projects/switcher"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
     DropdownMenu,
@@ -27,12 +27,12 @@ import {
     SidebarMenuItem
 } from "@/components/ui/sidebar"
 import { cloneElement, useState } from "react"
-import { ChartLine } from "./animate-ui/icons/chart-line"
-import { LayersIcon } from "./animate-ui/icons/layers"
-import { LayoutDashboardIcon } from "./animate-ui/icons/layout-dashboard"
-import { SettingsIcon } from "./animate-ui/icons/settings"
-import { Star } from "./animate-ui/icons/star"
-import { UnplugIcon } from "./animate-ui/icons/unplug"
+import { ChartLine } from "@/components/animate-ui/icons/chart-line"
+import { LayersIcon } from "@/components/animate-ui/icons/layers"
+import { LayoutDashboardIcon } from "@/components/animate-ui/icons/layout-dashboard"
+import { SettingsIcon } from "@/components/animate-ui/icons/settings"
+import { Star } from "@/components/animate-ui/icons/star"
+import { UnplugIcon } from "@/components/animate-ui/icons/unplug"
 
 interface User {
   id: string

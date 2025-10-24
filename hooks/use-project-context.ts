@@ -1,6 +1,6 @@
 "use client"
 
-import { useProjectContext } from "@/components/project-context-provider"
+import { useProjectContext } from "@/components/projects/context-provider"
 
 export const useProject = () => {
   const { currentProject, projects } = useProjectContext()

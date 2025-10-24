@@ -1,36 +1,50 @@
 "use client";
 
 import { buttonVariants } from "@/components/ui/button";
-import { createArticle, updateArticleCoverImage } from "@/lib/actions/articles";
-import { Trash2 } from "lucide-react";
+import { removeArticleCoverImage, updateArticle, updateArticleCoverImage } from "@/lib/actions/articles";
+import { X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { ArticleBannerUpload } from "./article-banner-upload";
-import { ArticleContentEditor } from "./article-content-editor";
-import { ArticleInfoFields } from "./article-info-fields";
-import { ArticleVisibilityCard } from "./article-visibility-card";
-import { useProjectContext } from "./project-context-provider";
+import { ArticleBannerUpload } from "./banner-upload";
+import { ArticleContentEditor } from "./content-editor";
+import { ArticleInfoFields } from "./info-fields";
+import { ArticleVisibilityCard } from "./visibility-card";
+import { useProjectContext } from "@/components/projects/context-provider";
 
 type ArticleStatus = "draft" | "published" | "scheduled";
 
-type CreateArticleFormProps = {
+type Article = {
+  id: string;
+  title: string;
+  excerpt: string | null;
+  content: string;
+  status: string;
+  coverImage: string | null;
   projectId: string;
+  scheduledPublishAt?: Date | null;
 };
 
-export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
+type EditArticleFormProps = {
+  article: Article;
+};
+
+export const EditArticleForm = ({ article }: EditArticleFormProps) => {
   const router = useRouter();
   const { currentProject } = useProjectContext();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isRemovingImage, setIsRemovingImage] = useState(false);
 
   // Form state
-  const [title, setTitle] = useState("");
-  const [excerpt, setExcerpt] = useState("");
-  const [content, setContent] = useState("");
-  const [status, setStatus] = useState<ArticleStatus>("draft");
-  const [scheduledPublishAt, setScheduledPublishAt] = useState<Date | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [title, setTitle] = useState(article.title);
+  const [excerpt, setExcerpt] = useState(article.excerpt || "");
+  const [content, setContent] = useState(article.content);
+  const [status, setStatus] = useState<ArticleStatus>(article.status as ArticleStatus);
+  const [scheduledPublishAt, setScheduledPublishAt] = useState<Date | null>(
+    article.scheduledPublishAt ? new Date(article.scheduledPublishAt) : null
+  );
+  const [imagePreview, setImagePreview] = useState<string | null>(article.coverImage);
   const [imageFile, setImageFile] = useState<File | null>(null);
 
   // Handle image upload
@@ -49,13 +63,31 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
   };
 
   // Remove image
-  const handleRemoveImage = () => {
+  const handleRemoveImage = async () => {
+    setIsRemovingImage(true);
+    
+    // If there's a server image, delete it
+    if (article.coverImage && !imageFile) {
+      try {
+        await removeArticleCoverImage(article.id);
+        router.refresh();
+      } catch (error) {
+        console.error("Failed to remove cover image:", error);
+        toast.error("Failed to remove image");
+        setIsRemovingImage(false);
+        return;
+      }
+    }
+    
     setImagePreview(null);
     setImageFile(null);
     // Reset file input
     const input = document.getElementById("image-upload") as HTMLInputElement;
     if (input) input.value = "";
+    
+    setIsRemovingImage(false);
   };
+
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
@@ -76,26 +108,25 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
       }
     }
 
-    const toastId = toast.loading("Creating article...");
+    const toastId = toast.loading("Updating article...");
 
     try {
-      // Step 1: Create article
-      toast.loading("Generating slug and calculating stats...", { id: toastId });
-      const article = await createArticle({
+      // Step 1: Update article
+      toast.loading("Updating article content and metadata...", { id: toastId });
+      await updateArticle(article.id, {
         title,
         excerpt,
         content,
         status,
-        coverImage: undefined,
-        scheduledPublishAt: status === "scheduled" ? scheduledPublishAt || undefined : undefined,
+        scheduledPublishAt: status === "scheduled" ? scheduledPublishAt : null,
       });
 
-      // Step 2: Upload image if provided
-      if (imageFile && article) {
-        toast.loading("Uploading cover image...", { id: toastId });
+      // Step 2: Upload new image if provided
+      if (imageFile) {
+        toast.loading("Uploading new cover image...", { id: toastId });
         const form = new FormData()
         form.append("file", imageFile)
-        form.append("projectId", projectId)
+        form.append("projectId", article.projectId)
         form.append("postId", article.id)
 
         const res = await fetch("/api/uploads/banner", {
@@ -117,14 +148,14 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
       }
 
       // Step 3: Success
-      toast.success("Article created successfully!", { id: toastId });
+      toast.success("Article updated successfully!", { id: toastId });
 
       // Redirect to articles page
       router.push(`/${currentProject?.slug}/articles`);
       router.refresh();
     } catch (error) {
-      console.error("Error creating article:", error);
-      toast.error("Failed to create article. Please try again.", { id: toastId });
+      console.error("Error updating article:", error);
+      toast.error("Failed to update article. Please try again.", { id: toastId });
       setIsSubmitting(false);
     }
   };
@@ -138,14 +169,14 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
             excerpt={excerpt}
             onTitleChange={setTitle}
             onExcerptChange={setExcerpt}
-            cardDescription="This is the main information of the post."
+            cardDescription="Edit the main information of the post."
           />
 
           <ArticleContentEditor
             content={content}
             onContentChange={setContent}
             textareaId="content"
-            placeholder="Write your new article here... tell your idea, your story, or share an interesting piece of information."
+            placeholder="Write your article here... tell your idea, your story, or share an interesting piece of information."
           />
         </div>
 
@@ -154,7 +185,7 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
             status={status}
             onStatusChange={(v) => setStatus(v)}
             isSubmitting={isSubmitting}
-            submitLabel="Publish"
+            submitLabel="Update"
             scheduledPublishAt={scheduledPublishAt}
             onScheduleChange={setScheduledPublishAt}
             projectTimezone="UTC"
@@ -162,10 +193,10 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
             leftAction={(
               <Link
                 href={`/${currentProject?.slug}/articles`}
-                className={buttonVariants({ variant: "outlineDestructive", size: "sm" })}
+                className={buttonVariants({ variant: "outline", size: "sm" })}
               >
-                <Trash2 />
-                Delete
+                <X />
+                Cancel
               </Link>
             )}
           />
@@ -174,11 +205,13 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
             imagePreview={imagePreview}
             onImageChange={handlePickedImage}
             onRemoveImage={handleRemoveImage}
-            uploadLabel="Upload Image"
-            emptyDescription="On the response API it will return the URL of the image."
+            uploadLabel="Change Image"
+            emptyDescription="Update the article cover image."
+            isRemoving={isRemovingImage}
           />
         </div>
       </div>
     </form>
   );
 }
+

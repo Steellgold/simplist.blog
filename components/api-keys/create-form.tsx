@@ -28,7 +28,7 @@ import { useApiKeyLimits } from "@/hooks/use-subscription-limits"
 import { CreateApiKeyInput, createApiKeySchema } from "@/lib/validations/api-key"
 import { Check, Copy, Plus } from "lucide-react"
 import Image from "next/image"
-import { Spinner } from "./ui/spinner"
+import { Spinner } from "@/components/ui/spinner"
 
 interface CreateApiKeyFormProps {
   projectId: string

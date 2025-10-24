@@ -1,7 +1,7 @@
 "use client"
 
-import { CreateArticleForm } from "@/components/create-article-form";
-import { PageHeader } from "@/components/page-header";
+import { CreateArticleForm } from "@/components/articles/create-form";
+import { PageHeader } from "@/components/layout/page-header";
 import { useProject } from "@/hooks/use-project-context";
 
 const NewArticlePage = () => {

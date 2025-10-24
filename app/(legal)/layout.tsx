@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
-import Footer from "@/components/footer";
+import Footer from "@/components/layout/footer";
 
 const LegalLayout = ({ children }: { children: React.ReactNode }) => {
   return (

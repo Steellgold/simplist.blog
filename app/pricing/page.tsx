@@ -1,8 +1,8 @@
 "use client";
 
-import Footer from "@/components/footer";
-import { HomeHeader } from "@/components/home-header";
-import { ProjectSelectorModal } from "@/components/project-selector-modal";
+import Footer from "@/components/layout/footer";
+import { HomeHeader } from "@/components/layout/home-header";
+import { ProjectSelectorModal } from "@/components/projects/selector-modal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";

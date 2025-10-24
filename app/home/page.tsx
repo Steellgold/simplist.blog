@@ -1,5 +1,5 @@
-import Footer from "@/components/footer";
-import { HomeHeader } from "@/components/home-header";
+import Footer from "@/components/layout/footer";
+import { HomeHeader } from "@/components/layout/home-header";
 import { ApiDemoSection } from "./_sections/api-demo-section";
 import { FeaturesSection } from "./_sections/features-section";
 import { HeroSection } from "./_sections/hero-section";
