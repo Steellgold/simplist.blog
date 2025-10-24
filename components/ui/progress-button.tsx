@@ -45,18 +45,20 @@ const ProgressButton = forwardRef<HTMLButtonElement, ProgressButtonProps>(
       return (
         <Comp
           ref={ref}
-          className={cn(buttonVariants({ variant, size }), "relative overflow-hidden pt-2.5 pb-3", className)}
+          className={cn(buttonVariants({ variant, size }), "relative overflow-hidden pt-2.5 pb-2.5", className)}
           disabled={max !== -1 && value >= max}
           {...props}
         >
           <div>
             <span className="flex items-center gap-2">{children}</span>
-            <div className="absolute bottom-0 left-0 right-0 h-1 md:h-0.5 bg-black/10 dark:bg-white/10">
-              <div
-                className={cn("h-full transition-all duration-300 ease-in-out", progressBarColor)}
-                style={{ width: `${percentage}%` }}
-              />
-            </div>
+            {max !== -1 && (
+              <div className="absolute bottom-0 left-0 right-0 h-1 md:h-0.5 bg-black/10 dark:bg-white/10">
+                <div
+                  className={cn("h-full transition-all duration-300 ease-in-out", progressBarColor)}
+                  style={{ width: `${percentage}%` }}
+                />
+              </div>
+            )}
           </div>
         </Comp>
       )
@@ -65,17 +67,19 @@ const ProgressButton = forwardRef<HTMLButtonElement, ProgressButtonProps>(
     return (
       <Comp
         ref={ref}
-        className={cn(buttonVariants({ variant, size }), "relative overflow-hidden pt-2.5 pb-3", className)}
+        className={cn(buttonVariants({ variant, size }), "relative overflow-hidden pt-2.5 pb-2.5", className)}
         disabled={max !== -1 && value >= max}
         {...props}
       >
         <span className="flex items-center gap-2">{children}</span>
-        <div className="absolute bottom-0 left-0 right-0 h-1 md:h-0.5 bg-black/10 dark:bg-white/10">
-          <div
-            className={cn("h-full transition-all duration-300 ease-in-out", progressBarColor)}
-            style={{ width: `${percentage}%` }}
-          />
-        </div>
+        {max !== -1 && (
+          <div className="absolute bottom-0 left-0 right-0 h-1 md:h-0.5 bg-black/10 dark:bg-white/10">
+            <div
+              className={cn("h-full transition-all duration-300 ease-in-out", progressBarColor)}
+              style={{ width: `${percentage}%` }}
+            />
+          </div>
+        )}
       </Comp>
     )
   },

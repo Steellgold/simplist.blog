@@ -112,7 +112,7 @@ export const CreateApiKeyForm = ({ projectId, onSuccess }: CreateApiKeyFormProps
         </Button> */}
         <ProgressButton value={currentCount} min={0} max={maxCount} variant="outline">
           <Plus className="size-4" />
-          Create API Key {!limitsLoading && `(${currentCount}/${maxCount})`}
+          Create API Key {!limitsLoading && maxCount !== -1 && `(${currentCount}/${maxCount})`}
         </ProgressButton>
       </DialogTrigger>
       <DialogContent>

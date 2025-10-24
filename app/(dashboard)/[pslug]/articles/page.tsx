@@ -37,7 +37,7 @@ const ArticlesPage = () => {
           <ProgressButton value={currentCount} min={0} max={maxCount} variant="outline" asChild>
             <Link href={`/${currentProject.slug}/articles/new`} className="flex items-center gap-2">
               <Plus />
-              New Article {!limitsLoading && `(${currentCount}/${maxCount === -1 ? "∞" : maxCount})`}
+              New Article {!limitsLoading && maxCount !== -1 && `(${currentCount}/${maxCount})`}
             </Link>
           </ProgressButton>
         }
