@@ -128,7 +128,8 @@ export const createApiKey = async (projectId: string, input: { name: string; typ
     // Ignore cache invalidation errors
   })
 
-  revalidatePath("/api-keys")
+  revalidatePath(`/${project.slug}`, "layout")
+  revalidatePath(`/${project.slug}/api-keys`, "page")
   return newApiKey
 }
 
@@ -170,5 +171,6 @@ export const deleteApiKey = async (apiKeyId: string) => {
     // Ignore cache invalidation errors
   })
 
-  revalidatePath("/api-keys")
+  revalidatePath(`/${apiKey.project.slug}`, "layout")
+  revalidatePath(`/${apiKey.project.slug}/api-keys`, "page")
 }

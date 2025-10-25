@@ -65,7 +65,7 @@ export const createArticle = async (formData: {
   const article = await prisma.$transaction(async (tx) => {
     // Generate slug from title
     const baseSlug = generateSlug(formData.title);
-    
+
     // Generate unique slug within transaction
     let slug = baseSlug;
     let counter = 1;
@@ -107,7 +107,9 @@ export const createArticle = async (formData: {
     });
   });
 
-  revalidatePath("/articles");
+  // Revalidate all relevant paths
+  revalidatePath(`/${project.slug}`, "layout");
+  revalidatePath(`/${project.slug}/articles`, "page");
   return article;
 }
 
@@ -136,7 +138,8 @@ export const updateArticleCoverImage = async (params: { articleId: string; objec
     data: { coverImage: coverImageUrl },
   })
 
-  revalidatePath("/articles")
+  revalidatePath(`/${article.project.slug}`, "layout")
+  revalidatePath(`/${article.project.slug}/articles`, "page")
   return updated
 }
 
@@ -160,7 +163,8 @@ export const removeArticleCoverImage = async (articleId: string) => {
     data: { coverImage: null },
   })
 
-  revalidatePath("/articles")
+  revalidatePath(`/${article.project.slug}`, "layout")
+  revalidatePath(`/${article.project.slug}/articles`, "page")
   return updated
 }
 
@@ -367,7 +371,8 @@ export const updateArticle = async (articleId: string, formData: {
     },
   })
 
-  revalidatePath("/articles")
+  revalidatePath(`/${article.project.slug}`, "layout")
+  revalidatePath(`/${article.project.slug}/articles`, "page")
   return updated
 }
 
@@ -403,7 +408,8 @@ export const deleteArticle = async (articleId: string) => {
     },
   })
 
-  revalidatePath("/articles")
+  revalidatePath(`/${article.project.slug}`, "layout")
+  revalidatePath(`/${article.project.slug}/articles`, "page")
 }
 
 export const bulkDeleteArticles = async (articleIds: string[]) => {
@@ -472,7 +478,10 @@ export const bulkDeleteArticles = async (articleIds: string[]) => {
     },
   })
 
-  revalidatePath("/articles")
+  // Get project slug for revalidation
+  const projectSlug = articles[0].project.slug
+  revalidatePath(`/${projectSlug}`, "layout")
+  revalidatePath(`/${projectSlug}/articles`, "page")
 }
 
 export const restoreArticle = async (articleId: string) => {
@@ -507,7 +516,8 @@ export const restoreArticle = async (articleId: string) => {
     },
   })
 
-  revalidatePath("/articles")
+  revalidatePath(`/${article.project.slug}`, "layout")
+  revalidatePath(`/${article.project.slug}/articles`, "page")
   return restored
 }
 
