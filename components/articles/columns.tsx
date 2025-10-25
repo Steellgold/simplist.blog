@@ -156,8 +156,16 @@ const statusConfig = {
 export const useArticlesColumns = (): ColumnDef<Article>[] => {
   const { currentProject } = useProjectContext()
 
-  return [
-    {
+  // Check if user has pro access for bulk operations
+  const isPro = Boolean(currentProject?.subscriptionTier === "PRO" &&
+    currentProject?.subscriptionExpiresAt &&
+    new Date(currentProject.subscriptionExpiresAt) > new Date())
+
+  const columns: ColumnDef<Article>[] = []
+
+  // Only add select column for Pro users
+  if (isPro) {
+    columns.push({
       id: "select",
       header: ({ table }) => (
         <Checkbox
@@ -178,7 +186,11 @@ export const useArticlesColumns = (): ColumnDef<Article>[] => {
       ),
       enableSorting: false,
       enableHiding: false,
-    },
+    })
+  }
+
+  return [
+    ...columns,
   {
     accessorKey: "coverImage",
     header: () => null,

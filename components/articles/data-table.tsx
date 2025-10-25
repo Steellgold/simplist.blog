@@ -12,7 +12,7 @@ import {
   SortingState,
   useReactTable,
 } from "@tanstack/react-table"
-import { Trash, TrendingUp } from "lucide-react"
+import { Trash, TrendingUp, X } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { useProjectContext } from "@/components/projects/context-provider"
@@ -27,7 +27,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/sonner"
 import {
@@ -41,6 +41,9 @@ import {
 import { ButtonGroup } from "@/components/ui/button-group"
 import { Spinner } from "@/components/ui/spinner"
 import { bulkDeleteArticles } from "@/lib/actions/articles"
+import { MiniBadge } from "../ui/mini-badge"
+import NumberFlow from "@number-flow/react"
+import Link from "next/link"
 
 interface DataTableProps<TData extends { id: string }, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -59,6 +62,11 @@ export const ArticlesDataTable = <TData extends { id: string }, TValue>({
   const [showBulkDeleteDialog, setShowBulkDeleteDialog] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
 
+  // Check if user has pro access for bulk operations
+  const isPro = Boolean(currentProject?.subscriptionTier === "PRO" &&
+    currentProject?.subscriptionExpiresAt &&
+    new Date(currentProject.subscriptionExpiresAt) > new Date())
+
   const table = useReactTable({
     data,
     columns,
@@ -69,6 +77,7 @@ export const ArticlesDataTable = <TData extends { id: string }, TValue>({
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     onRowSelectionChange: setRowSelection,
+    enableRowSelection: isPro, // Only enable row selection for Pro users
     state: {
       sorting,
       columnFilters,
@@ -95,9 +104,10 @@ export const ArticlesDataTable = <TData extends { id: string }, TValue>({
           router.refresh()
           return `Successfully deleted ${selectedCount} article(s)`
         },
-        error: () => {
+        error: (error) => {
           setIsDeleting(false)
-          return "Failed to delete articles"
+          // Show the specific error message from the server
+          return error.message || "Failed to delete articles"
         },
       }
     )
@@ -114,34 +124,29 @@ export const ArticlesDataTable = <TData extends { id: string }, TValue>({
           }
           className="w-full sm:max-w-sm"
         />
-        {selectedCount > 0 && (
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                const ids = selectedRows.map((row) => row.original.id)
-                const params = new URLSearchParams()
-                params.set("articles", ids.join(","))
-                router.push(`/${currentProject?.slug}/analytics?${params.toString()}`)
-              }}
-              className="w-full sm:w-auto"
+
+        {isPro && selectedCount > 0 && (
+          <ButtonGroup>
+            <Link
+              href={`/${currentProject?.slug}/analytics?articles=${selectedRows.map((row) => row.original.id).join(",")}`}
+              className={buttonVariants({
+                variant: "outline",
+                size: "sm",
+              })}
             >
               <TrendingUp className="h-4 w-4 sm:mr-1" />
-              <span className="hidden sm:inline">Analytics ({selectedCount})</span>
-              <span className="sm:hidden">Analytics</span>
-            </Button>
+              Analytics
+            </Link>
+
             <Button
               variant="destructive"
               size="sm"
               onClick={() => setShowBulkDeleteDialog(true)}
-              className="w-full sm:w-auto"
             >
-              <Trash className="h-4 w-4 sm:mr-1" />
-              <span className="hidden sm:inline">Delete {selectedCount} {selectedCount === 1 ? "article" : "articles"}</span>
-              <span className="sm:hidden">Delete</span>
+              <Trash />
+              Delete
             </Button>
-          </div>
+          </ButtonGroup>
         )}
       </div>
 
@@ -200,7 +205,7 @@ export const ArticlesDataTable = <TData extends { id: string }, TValue>({
 
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
         <div className="text-sm text-muted-foreground">
-          {selectedCount > 0 ? (
+          {isPro && selectedCount > 0 ? (
             <span>{selectedCount} of {table.getFilteredRowModel().rows.length} row(s) selected</span>
           ) : (
             <span>{table.getFilteredRowModel().rows.length} article(s) total</span>
