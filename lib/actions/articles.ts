@@ -429,7 +429,9 @@ export const bulkDeleteArticles = async (articleIds: string[]) => {
 
   // Check if user has access to bulk operations
   const hasBulkAccess = await checkFeatureAccess(user.id, firstArticle.projectId, "bulkOperations");
-  if (!hasBulkAccess) forbidden();
+  if (!hasBulkAccess) {
+    throw new Error("Bulk delete is a Pro feature. Upgrade to Pro to delete multiple articles at once.");
+  }
 
   if (!articleIds || articleIds.length === 0) forbidden();
 

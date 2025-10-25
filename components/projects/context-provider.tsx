@@ -9,6 +9,8 @@ interface Project {
   slug: string
   timezone: Timezone
   allowedOrigins?: string[]
+  subscriptionTier?: string
+  subscriptionExpiresAt?: Date | null
 }
 
 interface ProjectContextType {
