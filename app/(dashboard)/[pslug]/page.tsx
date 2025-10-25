@@ -8,8 +8,6 @@ import { useSubscriptionLimits } from "@/hooks/use-subscription-limits";
 import { getDashboardData, type DashboardData } from "@/lib/actions/dashboard";
 import { getPlanLimits } from "@/lib/subscription/plans";
 import { toast } from "sonner";
-import { Spinner } from "@/components/ui/spinner";
-
 import { WelcomeEmpty } from "@/components/dashboard/welcome-empty";
 import { StatsGrid } from "@/components/dashboard/stats-grid";
 import { RecentArticlesCard } from "@/components/dashboard/recent-articles-card";

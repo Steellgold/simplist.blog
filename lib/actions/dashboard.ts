@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth-helper";
+import { notFound, unauthorized } from "next/navigation";
 
 export interface DashboardData {
   project: {
@@ -42,9 +43,7 @@ export const getDashboardData = async (
 ): Promise<{ success: true; data: DashboardData } | { success: false; error: string }> => {
   try {
     const user = await getCurrentUser();
-    if (!user) {
-      return { success: false, error: "Unauthorized" };
-    }
+    if (!user) unauthorized();
 
     // Fetch project with ownership verification
     const project = await prisma.project.findFirst({
@@ -65,9 +64,7 @@ export const getDashboardData = async (
       },
     });
 
-    if (!project) {
-      return { success: false, error: "Project not found" };
-    }
+    if (!project) return notFound();
 
     // Fetch articles data
     const [totalArticles, publishedArticles, recentArticles] = await Promise.all([

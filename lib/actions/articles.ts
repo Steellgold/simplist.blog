@@ -6,7 +6,7 @@ import { prisma } from "@/lib/db"
 import { checkArticleQuota, checkFeatureAccess } from "@/lib/subscription/quota-check"
 import { generateSlug } from "@/lib/utils"
 import { revalidatePath } from "next/cache"
-import { forbidden, redirect } from "next/navigation"
+import { forbidden, notFound, redirect } from "next/navigation"
 
 
 // Calculate content statistics
@@ -425,19 +425,13 @@ export const bulkDeleteArticles = async (articleIds: string[]) => {
     select: { projectId: true },
   });
 
-  if (!firstArticle) {
-    throw new Error("Article not found");
-  }
+  if (!firstArticle) notFound();
 
   // Check if user has access to bulk operations
   const hasBulkAccess = await checkFeatureAccess(user.id, firstArticle.projectId, "bulkOperations");
-  if (!hasBulkAccess) {
-    throw new Error("Bulk operations are only available on Pro plan. Upgrade to delete multiple articles at once.");
-  }
+  if (!hasBulkAccess) forbidden();
 
-  if (!articleIds || articleIds.length === 0) {
-    throw new Error("No articles to delete")
-  }
+  if (!articleIds || articleIds.length === 0) forbidden();
 
   // Verify all articles belong to the user's projects
   const articles = await prisma.article.findMany({
@@ -501,9 +495,7 @@ export const restoreArticle = async (articleId: string) => {
     },
   })
 
-  if (!article || article.project.userId !== user.id) {
-    throw new Error("Article not found or you don't have permission to restore it")
-  }
+  if (!article || article.project.userId !== user.id) forbidden();
 
   // Restore the article by updating its status and clearing deletedAt
   const restored = await prisma.article.update({
@@ -523,9 +515,7 @@ export const restoreArticle = async (articleId: string) => {
 
 export const getScheduledArticles = async () => {
   const user = await getCurrentUser()
-  if (!user) {
-    redirect("/auth/login")
-  }
+  if (!user) redirect("/auth/login");
 
   // Get user's first project (single project mode)
   const project = await prisma.project.findFirst({
@@ -534,7 +524,7 @@ export const getScheduledArticles = async () => {
     },
   })
 
-  if (!project) return []
+  if (!project) notFound();
 
   // Get articles that are scheduled and ready to publish
   const now = new Date()

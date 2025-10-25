@@ -1,17 +1,14 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
-import { redirect } from "next/navigation"
+import { forbidden, notFound, redirect } from "next/navigation"
 import { getCurrentUser } from "../auth-helper"
 import { prisma } from "../db"
 import { CreateProjectActionInput, createProjectSchema, UpdateProjectSettingsInput } from "../validations/project"
 
 export const getUserProjects = async () => {
   const user = await getCurrentUser()
-
-  if (!user) {
-    return []
-  }
+  if (!user) redirect("/auth/login");
 
   const projects = await prisma.project.findMany({
     where: {
@@ -39,10 +36,7 @@ export const getUserProjects = async () => {
 
 export const createProject = async (input: CreateProjectActionInput) => {
   const user = await getCurrentUser()
-
-  if (!user) {
-    redirect("/auth/login")
-  }
+  if (!user) redirect("/auth/login");
 
   // Check if user has reached the project limit (2 projects max)
   const existingProjects = await prisma.project.count({
@@ -51,9 +45,7 @@ export const createProject = async (input: CreateProjectActionInput) => {
     },
   })
 
-  if (existingProjects >= 2) {
-    throw new Error("You have reached the maximum limit of 2 projects. Please delete an existing project to create a new one.")
-  }
+  if (existingProjects >= 2) forbidden();
 
   // Validate input with Zod
   const validatedData = createProjectSchema.parse({
@@ -105,9 +97,7 @@ export const createProject = async (input: CreateProjectActionInput) => {
 export const deleteProject = async (projectId: string) => {
   const user = await getCurrentUser()
 
-  if (!user) {
-    redirect("/auth/login")
-  }
+  if (!user) redirect("/auth/login");
 
   const project = await prisma.project.findFirst({
     where: {
@@ -116,9 +106,7 @@ export const deleteProject = async (projectId: string) => {
     },
   })
 
-  if (!project) {
-    throw new Error("Project not found or you don't have permission")
-  }
+  if (!project) forbidden();
 
   await prisma.project.delete({
     where: {
@@ -135,9 +123,7 @@ export const updateProject = async (
 ) => {
   const user = await getCurrentUser()
 
-  if (!user) {
-    redirect("/auth/login")
-  }
+  if (!user) redirect("/auth/login");
 
   const project = await prisma.project.findFirst({
     where: {
@@ -146,9 +132,7 @@ export const updateProject = async (
     },
   })
 
-  if (!project) {
-    throw new Error("Project not found or you don't have permission")
-  }
+  if (!project) forbidden();
 
   // Generate a slug from the new name and ensure uniqueness per user
   const baseSlug = input.name
@@ -195,7 +179,7 @@ export const updateProject = async (
 
 export const updateProjectSettings = async (projectId: string, input: UpdateProjectSettingsInput) => {
   const user = await getCurrentUser()
-  if (!user) redirect("/auth/login")
+  if (!user) redirect("/auth/login");
 
   const project = await prisma.project.findFirst({
     where: {
@@ -204,9 +188,7 @@ export const updateProjectSettings = async (projectId: string, input: UpdateProj
     },
   })
 
-  if (!project) {
-    throw new Error("Project not found or you don't have permission")
-  }
+  if (!project) forbidden();
 
   // Use the provided slug and ensure uniqueness per user
   let finalSlug = input.slug

@@ -5,7 +5,7 @@ import { apiKeyCache, prisma } from "@/lib/db"
 import { checkApiKeyQuota, checkFeatureAccess } from "@/lib/subscription/quota-check"
 import { createApiKeySchema } from "@/lib/validations/api-key"
 import { revalidatePath } from "next/cache"
-import { redirect } from "next/navigation"
+import { forbidden, notFound, redirect } from "next/navigation"
 
 // Generate a random API key
 const generateApiKey = (type: "secret" | "public" = "secret"): string => {
@@ -75,15 +75,11 @@ export const createApiKey = async (projectId: string, input: { name: string; typ
     },
   })
 
-  if (!project) {
-    throw new Error("Project not found or you don't have permission")
-  }
+  if (!project) return notFound();
 
   // Check API key quota
   const quotaCheck = await checkApiKeyQuota(user.id, projectId);
-  if (!quotaCheck.allowed) {
-    throw new Error(quotaCheck.reason);
-  }
+  if (!quotaCheck.allowed) forbidden();
 
   // Validate input
   const validatedData = createApiKeySchema.parse(input)
@@ -91,9 +87,7 @@ export const createApiKey = async (projectId: string, input: { name: string; typ
   // Check if custom expiration is allowed (Pro feature)
   if (validatedData.expiresInDays && validatedData.expiresInDays > 0) {
     const hasCustomExpiration = await checkFeatureAccess(user.id, projectId, "bulkOperations");
-    if (!hasCustomExpiration) {
-      throw new Error("Custom API key expiration is only available on Pro plan.");
-    }
+    if (!hasCustomExpiration) forbidden();
   }
 
   // Generate unique API key
@@ -151,9 +145,7 @@ export const deleteApiKey = async (apiKeyId: string) => {
     },
   })
 
-  if (!apiKey || apiKey.project.userId !== user.id) {
-    throw new Error("API key not found or you don't have permission")
-  }
+  if (!apiKey || apiKey.project.userId !== user.id) forbidden()
 
   // Soft delete: update status and set deletedAt
   await prisma.apiKey.update({
