@@ -361,6 +361,68 @@ Located in `lib/actions/`:
 - `getProjectAnalytics(projectId, days, articleIds?)` - Load single period
 - `getBatchArticleViewsOverTime(articleIds[], days)` - Optimized batch query for article charts
 
+### Data Management Pattern
+
+**No Client-Side Data Fetching Libraries**:
+- The project **does NOT use** TanStack Query (React Query), SWR, or similar client-side data fetching libraries
+- All data fetching happens in **Server Components** using direct database/API calls
+- Mutations use **Server Actions** with `revalidatePath()` for cache invalidation
+
+**Architecture**:
+1. **Server Components** (pages) fetch data and pass it as props to Client Components
+2. **Client Components** handle UI interactions and call Server Actions for mutations
+3. **Server Actions** perform mutations and use `revalidatePath()` to invalidate Next.js cache
+4. **Client-side notifications** use `toast.promise()` with `router.refresh()` for optimistic updates
+
+**Example Flow**:
+```tsx
+// Server Component: app/(dashboard)/[pslug]/articles/page.tsx
+const ArticlesPage = async ({ params }) => {
+  const articles = await getProjectArticles(project.id) // Direct DB call
+  return <ArticlesClientPage articles={articles} project={project} />
+}
+
+// Client Component: components/articles/articles-client-page.tsx
+"use client"
+const ArticlesClientPage = ({ articles, project }) => {
+  const router = useRouter()
+
+  const handleDelete = async (id: string) => {
+    toast.promise(
+      deleteArticle(id),
+      {
+        loading: "Deleting...",
+        success: () => {
+          router.refresh() // Triggers re-fetch from Server Component
+          return "Article deleted!"
+        },
+        error: "Failed to delete"
+      }
+    )
+  }
+
+  return <DataTable data={articles} onDelete={handleDelete} />
+}
+
+// Server Action: lib/actions/articles.ts
+export const deleteArticle = async (id: string) => {
+  "use server"
+
+  await prisma.article.delete({ where: { id } })
+
+  // Invalidate Next.js cache for the articles page
+  revalidatePath('/[pslug]/articles', 'page')
+  revalidatePath('/[pslug]', 'layout')
+}
+```
+
+**Key Benefits**:
+- Simpler architecture (no cache synchronization complexity)
+- Better SEO (data rendered server-side)
+- Smaller client bundle (no data fetching library)
+- Automatic cache invalidation via `revalidatePath()`
+- Type-safe data flow from server to client
+
 ### Middleware
 
 `middleware.ts` adds `x-pathname` header to request for server-side pathname access in layouts.
@@ -373,10 +435,11 @@ Located in `lib/actions/`:
 
 ### Component Patterns
 - **Server actions** imported at top of client components (no dynamic imports)
-- **Form submissions**: Use `router.push()` + `router.refresh()` after successful actions
+- **Data mutations**: Use `toast.promise()` with Server Actions, followed by `router.refresh()` to trigger re-fetch
+- **Form submissions**: Call Server Action → `router.push()` + `router.refresh()` after success
+- **Loading states**: Use local `useState` for spinner during mutations, or rely on `toast.promise()` loading state
 - **Button groups**: Use shadcn `ButtonGroup` for related actions
 - **Input groups**: Use shadcn `InputGroup` with addons for enhanced inputs
-- **Loading states**: Show `Spinner` component during async operations
 - **File references**: Use markdown link syntax `[file.ts](path/to/file.ts)` for clickable links
 
 ### Article Editor
@@ -388,17 +451,19 @@ Located in `lib/actions/`:
 ## Key Technical Decisions
 
 1. **Better Auth over NextAuth**: Using Better Auth v1.3.27 for authentication
-2. **Turbopack**: Development and build use `--turbopack` flag
-3. **Port 3000**: Dev server runs on port 3000, API on port 3001
-4. **Dark theme default**: Application defaults to dark mode
-5. **Prisma singleton**: Database client uses singleton pattern to prevent multiple instances
-6. **Route groups**: `(dashboard)` group for authenticated pages with sidebar
-7. **Content statistics**: Auto-calculated on article creation (words, chars, lines, read time)
-8. **Monorepo architecture**: Shared packages for DB, API, and SDK
-9. **pnpm workspaces**: Package management with pnpm
-10. **Upstash Redis caching**: API key caching with automatic invalidation on create/revoke
-11. **Project-level subscriptions**: Billing and quotas managed per project, not per user
-12. **Cloudflare R2**: Object storage for images with quota tracking
+2. **Server Components + Server Actions**: No client-side data fetching libraries (no TanStack Query, no SWR)
+3. **Next.js cache invalidation**: All mutations use `revalidatePath()` for automatic cache updates
+4. **Turbopack**: Development and build use `--turbopack` flag
+5. **Port 3000**: Dev server runs on port 3000, API on port 3001
+6. **Dark theme default**: Application defaults to dark mode
+7. **Prisma singleton**: Database client uses singleton pattern to prevent multiple instances
+8. **Route groups**: `(dashboard)` group for authenticated pages with sidebar
+9. **Content statistics**: Auto-calculated on article creation (words, chars, lines, read time)
+10. **Monorepo architecture**: Shared packages for DB, API, and SDK
+11. **pnpm workspaces**: Package management with pnpm
+12. **Upstash Redis caching**: API key caching with automatic invalidation on create/revoke
+13. **Project-level subscriptions**: Billing and quotas managed per project, not per user
+14. **Cloudflare R2**: Object storage for images with quota tracking
 
 ## Coding Standards and Rules
 
@@ -411,9 +476,12 @@ Located in `lib/actions/`:
 
 ### React/Next.js Rules
 - **Prefer server components** by default; add "use client" only when needed (state, effects, event handlers, browser APIs)
+- **No client-side data fetching libraries**: Do NOT use TanStack Query, SWR, or similar - use Server Components + Server Actions instead
 - **Pages and layouts** must remain default-exported symbols
 - **Keep client components pure** (no side effects at module scope)
-- **Place data fetching** in server components/route handlers when possible
+- **Place data fetching** in server components using direct database/API calls
+- **Mutations** use Server Actions with `revalidatePath()` for cache invalidation
+- **Client-side feedback** use `toast.promise()` with `router.refresh()` after mutations
 
 ### TypeScript Guidelines
 - **Strict typing** for public APIs and component props
@@ -447,6 +515,7 @@ Located in `lib/actions/`:
 ### Project-Specific Rules
 - **Image uploads** use R2 presigned URLs via `lib/actions/images.ts` server actions
 - **Article editor mutations** should go through `lib/actions/**`
+- **Cache invalidation** always use `revalidatePath()` in Server Actions after mutations
 - **Banner/image constraints** enforced server-side (mime/size) and client-side hints
 - **API key authentication** handled in `packages/api/src/plugins/auth.ts`
 - **Database operations** use shared `@simplist/db` package
@@ -455,6 +524,7 @@ Located in `lib/actions/`:
 - **Subscription checks** performed via `lib/subscription/quota-check.ts` utilities
 - **Storage usage** updated in R2 operations (upload increments, delete decrements)
 - **Monthly API calls** reset automatically on first day of month via `apiCallsResetAt` check
+- **No client-side data fetching libraries**: Never use TanStack Query, SWR, or similar - all data fetching happens in Server Components
 
 ### Performance Guidelines
 - **Memoize heavy calculations** or lists where needed
