@@ -31,15 +31,17 @@ export const createArticle = async (formData: {
   status: "draft" | "published" | "scheduled";
   coverImage?: string;
   scheduledPublishAt?: Date;
+  projectId?: string;
 }) => {
   const user = await getCurrentUser();
 
   if (!user) redirect("/auth/login");
 
-  // Get user's first project (single project mode)
+  // Get the specified project or user's first project (single project mode)
   const project = await prisma.project.findFirst({
     where: {
       userId: user.id,
+      ...(formData.projectId ? { id: formData.projectId } : {}),
     },
   });
 

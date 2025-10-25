@@ -88,6 +88,7 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
         status,
         coverImage: undefined,
         scheduledPublishAt: status === "scheduled" ? scheduledPublishAt || undefined : undefined,
+        projectId: currentProject?.id,
       });
 
       // Step 2: Upload image if provided
@@ -95,7 +96,7 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
         toast.loading("Uploading cover image...", { id: toastId });
         const form = new FormData()
         form.append("file", imageFile)
-        form.append("projectId", projectId)
+        form.append("projectId", article.projectId)
         form.append("postId", article.id)
 
         const res = await fetch("/api/uploads/banner", {

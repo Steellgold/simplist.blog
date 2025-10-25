@@ -24,6 +24,7 @@ export const getUserProjects = async () => {
       updatedAt: true,
       subscriptionTier: true,
       subscriptionExpiresAt: true,
+      stripeCustomerId: true,
       allowedOrigins: true,
     },
     orderBy: {
