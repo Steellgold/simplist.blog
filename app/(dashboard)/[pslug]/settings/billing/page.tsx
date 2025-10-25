@@ -1,21 +1,44 @@
-"use client"
+import { BillingClientPage } from "@/components/billing/billing-client-page"
+import { getCurrentUser } from "@/lib/auth-helper"
+import { prisma } from "@/lib/db"
+import { getProjectBillingHistory, getProjectSubscription } from "@/lib/stripe/actions"
+import { SubscriptionTier } from "@prisma/client"
+import { redirect } from "next/navigation"
 
-import { PageLayout } from "@/components/layout/page-layout"
-import { EmptyProject } from "@/components/projects/empty-project"
-import { useProject } from "@/hooks/use-project-context"
+const BillingPage = async ({ params }: { params: Promise<{ pslug: string }> }) => {
+  const resolvedParams = await params
+  const user = await getCurrentUser()
 
-const BillingPage = () => {
-  const { currentProject } = useProject()
+  if (!user) redirect("/auth/login")
 
-  if (!currentProject) return <EmptyProject />
+  // Get user's project
+  const project = await prisma.project.findFirst({
+    where: {
+      userId: user.id,
+      slug: resolvedParams.pslug,
+    },
+  })
+
+  if (!project) redirect("/create-project")
+
+  // Fetch billing data in parallel
+  const [billingEntries, subscriptionInfo] = await Promise.all([
+    getProjectBillingHistory(project.id), // Commented out for testing
+    // Promise.resolve(fakeBillingEntries),
+    getProjectSubscription(project.id),
+  ])
 
   return (
-    <PageLayout
-      title="Billing"
-      description={`Manage settings for your ${currentProject.name} project`}
-    >
-
-    </PageLayout>
+    <BillingClientPage
+      project={{
+        id: project.id,
+        name: project.name,
+        slug: project.slug,
+        subscriptionTier: project.subscriptionTier || SubscriptionTier.STARTER,
+      }}
+      billingEntries={billingEntries}
+      subscriptionInfo={subscriptionInfo}
+    />
   )
 }
 
