@@ -30,9 +30,21 @@ export const useActiveProject = ({ projects, currentProject }: UseActiveProjectP
   }, [projects, projectSlug, currentProject])
 
   const setActiveProject = useCallback((project: Project) => {
-    // Navigate to the project's dashboard
-    router.push(`/${project.slug}`)
-  }, [router])
+    // Get current pathname to preserve the route structure
+    const currentPath = window.location.pathname
+    const currentSlug = projectSlug
+    
+    // Replace the current project slug with the new one
+    const newPath = currentPath.replace(`/${currentSlug}`, `/${project.slug}`)
+    
+    // If we're on a specific article or sub-page, redirect to project root
+    // Otherwise, just replace the slug
+    if (newPath.includes('/articles/') || newPath.includes('/analytics/')) {
+      router.push(`/${project.slug}`)
+    } else {
+      router.push(newPath)
+    }
+  }, [router, projectSlug])
 
   const createProjectUrl = useCallback(() => {
     return "/create-project"

@@ -3,7 +3,12 @@
 import { LogOut } from "lucide-react"
 import Link from "next/link"
 
-import { MiniBadge } from "@/components/ui/mini-badge"
+import { ChartLine } from "@/components/animate-ui/icons/chart-line"
+import { LayersIcon } from "@/components/animate-ui/icons/layers"
+import { LayoutDashboardIcon } from "@/components/animate-ui/icons/layout-dashboard"
+import { SettingsIcon } from "@/components/animate-ui/icons/settings"
+import { Star } from "@/components/animate-ui/icons/star"
+import { UnplugIcon } from "@/components/animate-ui/icons/unplug"
 import { ProjectSwitcher } from "@/components/projects/switcher"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
@@ -14,6 +19,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { MiniBadge } from "@/components/ui/mini-badge"
 import {
   Sidebar,
   SidebarContent,
@@ -26,13 +32,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem
 } from "@/components/ui/sidebar"
-import { cloneElement, useState, useEffect } from "react"
-import { ChartLine } from "@/components/animate-ui/icons/chart-line"
-import { LayersIcon } from "@/components/animate-ui/icons/layers"
-import { LayoutDashboardIcon } from "@/components/animate-ui/icons/layout-dashboard"
-import { SettingsIcon } from "@/components/animate-ui/icons/settings"
-import { Star } from "@/components/animate-ui/icons/star"
-import { UnplugIcon } from "@/components/animate-ui/icons/unplug"
+import { cloneElement, useEffect, useState } from "react"
 
 interface User {
   id: string
@@ -105,9 +105,9 @@ const getNavigationItems = (isPro: boolean, projectSlug: string, isProjectPro?: 
     href: `/${projectSlug}/settings`,
   },
   {
-    title: isProjectPro ? "Billing" : "Upgrade",
+    title: "Billing",
     icon: <Star />,
-    href: isProjectPro ? `/${projectSlug}/settings/billing` : `/pricing`
+    href: `/${projectSlug}/settings/billing`
   }
 ]
 

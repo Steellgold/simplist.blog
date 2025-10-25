@@ -6,14 +6,17 @@ type PageLayoutProps = {
   description?: string
   children?: ReactNode
   actions?: ReactNode
-  centered?: boolean
+  centered?: "xs" | "sm" | "md" | "lg" | boolean
 }
 
-export const PageLayout = ({ title, description, children, actions, centered = false }: PageLayoutProps) => {
+export const PageLayout = ({ title, description, children, actions, centered }: PageLayoutProps) => {
   return (
     <div className={cn("flex flex-col gap-6 container mx-auto", {
       "max-w-7xl": !centered,
-      "max-w-3xl": centered,
+      "max-w-2xl": centered === "xs",
+      "max-w-3xl": centered === "sm" || centered === true,
+      "max-w-4xl": centered === "md",
+      "max-w-5xl": centered === "lg",
     })}>
       <div className={actions ? "flex items-center justify-between" : ""}>
         <div>
