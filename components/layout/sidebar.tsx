@@ -1,9 +1,9 @@
 "use client"
 
 import { LogOut } from "lucide-react"
-import Image from "next/image"
 import Link from "next/link"
 
+import { MiniBadge } from "@/components/ui/mini-badge"
 import { ProjectSwitcher } from "@/components/projects/switcher"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
@@ -92,7 +92,7 @@ const getNavigationItems = (isPro: boolean, projectSlug: string, isProjectPro?: 
     icon: <ChartLine />,
     href: `/${projectSlug}/analytics`,
     disabled: !isPro,
-    badge: !isPro ? "https://cdn.simplist.blog/assets/billing/mini-pro-badge.png" : undefined,
+    showProBadge: !isPro,
   },
   {
     title: "API Keys",
@@ -172,14 +172,8 @@ export const AppSidebar = ({
                           animate: itemHovered === item.href
                         })}
                         <span className="flex-1 group-data-[collapsible=icon]:hidden">{item.title}</span>
-                        {item.badge && (
-                          <Image
-                            src={item.badge}
-                            alt="PRO"
-                            width={16}
-                            height={16}
-                            className="h-4 w-4 group-data-[collapsible=icon]:hidden"
-                          />
+                        {item.showProBadge && (
+                          <MiniBadge tier="PRO" size="sm" className="group-data-[collapsible=icon]:hidden" />
                         )}
                       </div>
                     ) : (

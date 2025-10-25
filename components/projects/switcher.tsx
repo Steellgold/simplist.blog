@@ -4,6 +4,7 @@ import { ChevronsUpDown, Loader2, Plus } from "lucide-react"
 import Image from "next/image"
 import { useState, useEffect } from "react"
 import { getPublicUrlForKey } from "@/lib/actions/images"
+import { MiniBadge } from "@/components/ui/mini-badge"
 
 import {
   DropdownMenu,
@@ -133,23 +134,7 @@ export const ProjectSwitcher = ({
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  {isPro ? (
-                    <Image
-                      src="https://cdn.simplist.blog/assets/billing/badge-pro.png"
-                      alt="PRO"
-                      width={100}
-                      height={100}
-                      className="h-3.5 w-auto"
-                    />
-                  ) : (
-                    <Image
-                      src="https://cdn.simplist.blog/assets/billing/badge-starter.png"
-                      alt="Starter"
-                      width={100}
-                      height={100}
-                      className="h-3.5 w-auto"
-                    />
-                  )}
+                  <MiniBadge tier={isPro ? "LPRO" : "LSTARTER"} size="md" />
                 </div>
               </div>
               <ChevronsUpDown className="ml-auto group-data-[collapsible=icon]:hidden" />
@@ -190,24 +175,8 @@ export const ProjectSwitcher = ({
                       const projectIsPro = project.subscriptionTier === "PRO" &&
                         project.subscriptionExpiresAt &&
                         new Date(project.subscriptionExpiresAt) > new Date();
-                      
-                      return projectIsPro ? (
-                        <Image
-                          src="https://cdn.simplist.blog/assets/billing/mini-pro-badge.png"
-                          alt="PRO"
-                          width={100}
-                          height={100}
-                          className="h-5 w-5"
-                        />
-                      ) : (
-                        <Image
-                          src="https://cdn.simplist.blog/assets/billing/mini-starter-badge.png"
-                          alt="Starter"
-                          width={100}
-                          height={100}
-                          className="h-5 w-5"
-                        />
-                      );
+
+                      return <MiniBadge tier={projectIsPro ? "PRO" : "STARTER"} size="md" />;
                     })()}
                   </div>
                 </div>
