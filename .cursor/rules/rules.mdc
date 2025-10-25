@@ -18,7 +18,34 @@ These norms guide contributions and AI edits in this repo.
 - Prefer server components by default; add "use client" only when needed (state, effects, event handlers, browser APIs).
 - Pages and layouts must remain default-exported symbols.
 - Keep client components pure (no side effects at module scope).
-- Place page data fetching in server components/route handlers when possible.
+- Place page data fetching in server components when possible.
+- **No client-side data fetching libraries** (React Query, SWR, etc.) - use Server Components + Server Actions.
+
+## Data Management Pattern
+- **Server Components** fetch data directly from database/APIs using Server Actions.
+- **Server Actions** handle mutations and use `revalidatePath()` to update cached data.
+- **Client Components** receive data as props from Server Components.
+- **Mutations** use `toast.promise()` for user feedback, then `router.refresh()` to trigger re-fetch.
+- Example pattern:
+  ```tsx
+  // Server Component (page.tsx)
+  const articles = await getProjectArticles(projectId)
+  return <ArticlesClient articles={articles} />
+
+  // Client Component
+  const handleDelete = async () => {
+    toast.promise(deleteArticle(id), {
+      success: () => { router.refresh(); return "Deleted!" },
+      error: "Failed"
+    })
+  }
+
+  // Server Action (lib/actions/articles.ts)
+  export const deleteArticle = async (id: string) => {
+    await prisma.article.update(...)
+    revalidatePath('/[pslug]/articles', 'page')  // ← Cache invalidation
+  }
+  ```
 
 ## TypeScript
 - Strict typing for public APIs and component props.
@@ -34,6 +61,7 @@ These norms guide contributions and AI edits in this repo.
 - Use early returns to reduce nesting.
 - Never swallow errors silently. Log with context and return typed error responses in routes.
 - Async code: prefer `try/catch` only around operations that can throw.
+- Server Actions should throw errors with clear messages for client-side `toast.promise()` handling.
 
 ## Styling & Formatting
 - Follow existing formatting; do not reflow unrelated code.
@@ -44,8 +72,11 @@ These norms guide contributions and AI edits in this repo.
 - `app/**`: route segments, pages, layouts, and route handlers.
 - `components/**`: shared UI and feature components.
   - Do not modify `components/ui/**` with sweeping codemods unless requested.
-- `hooks/**`: reusable hooks.
-- `lib/**`: actions, auth, db, utils, validations.
+- `hooks/**`: reusable hooks (client-side only, for UI state).
+- `lib/**`: actions (Server Actions), auth, db, utils, validations.
+- `packages/db/**`: shared database schema and client (Prisma + Redis).
+- `packages/api/**`: public Fastify API for content consumption.
+- `packages/sdk/**`: TypeScript SDK for NPM distribution.
 
 ## Imports
 - Absolute imports via `@/` alias when available; otherwise relative, shortest path.
@@ -58,79 +89,24 @@ These norms guide contributions and AI edits in this repo.
 ## Performance
 - Memoize heavy calculations or lists where needed.
 - Avoid unnecessary state; derive from props when possible.
+- Use Server Components for data-heavy operations (reduces client bundle).
 
 ## Project-Specific Rules
-- Images upload flows must use server routes (`/api/uploads/*`) rather than direct client-to-bucket calls.
-- Article editor mutations should go through `lib/actions/**`.
-- Keep banner/image constraints enforced server-side (mime/size) and client-side hints.
+- **Images upload flows** use R2 presigned URLs via server routes (`/api/uploads/*`).
+- **Article editor mutations** must go through `lib/actions/articles.ts` Server Actions.
+- **Cache invalidation** always use `revalidatePath()` in Server Actions after mutations.
+- **Quota checks** must happen before create operations in Server Actions (articles, API keys, storage).
+- **Database operations** use shared `@simplist/db` package (Prisma client + Redis cache).
+- **API key authentication** handled in `packages/api/src/plugins/auth.ts` with Redis caching.
+- Banner/image constraints enforced server-side (mime/size) and client-side hints.
+
+## Monorepo Architecture
+- **Main Next.js app**: Admin interface (simplist.blog)
+- **packages/db**: Shared Prisma schema + Redis client with singleton pattern
+- **packages/api**: Fastify API for public content consumption
+- **packages/sdk**: TypeScript SDK for NPM (@simplist.blog/sdk)
+- Use `pnpm` for package management across workspace.
 
 ## Lint/Checks
 - Must pass TypeScript and ESLint. Fix new errors introduced by edits.
-
-
-# Simplist-R Codebase Rules
-
-These norms guide contributions and AI edits in this repo.
-
-## Function and Export Conventions
-- Use arrow functions for all top-level functions and React components.
-  - Components/pages/layouts: `const Component = (props) => { ... }` then `export default Component`.
-  - Hooks/util fns: `export const useX = (...) => { ... }` / `export const doX = (...) => { ... }`.
-- Next.js route handlers (app router): export arrow consts.
-  - Example: `export const POST = async (req: Request) => { ... }`.
-- Avoid relying on hoisting; declare before use.
-
-## React/Next.js
-- Prefer server components by default; add "use client" only when needed (state, effects, event handlers, browser APIs).
-- Pages and layouts must remain default-exported symbols.
-- Keep client components pure (no side effects at module scope).
-- Place page data fetching in server components/route handlers when possible.
-
-## TypeScript
-- Strict typing for public APIs and component props.
-- Keep explicit function signatures for exported items; allow local inference.
-- Do not use `any` unless unavoidable; prefer safe unions and generics.
-
-## Naming
-- Functions/components: `verbNoun` for actions, `Noun` for components.
-- No single-letter names; use descriptive identifiers.
-- Hooks start with `use` and return stable shapes.
-
-## Control Flow & Errors
-- Use early returns to reduce nesting.
-- Never swallow errors silently. Log with context and return typed error responses in routes.
-- Async code: prefer `try/catch` only around operations that can throw.
-
-## Styling & Formatting
-- Follow existing formatting; do not reflow unrelated code.
-- Keep lines readable; break long JSX props over multiple lines.
-- Minimal comments; only add non-obvious rationale or invariants.
-
-## File Structure
-- `app/**`: route segments, pages, layouts, and route handlers.
-- `components/**`: shared UI and feature components.
-  - Do not modify `components/ui/**` with sweeping codemods unless requested.
-- `hooks/**`: reusable hooks.
-- `lib/**`: actions, auth, db, utils, validations.
-
-## Imports
-- Absolute imports via `@/` alias when available; otherwise relative, shortest path.
-- Group imports: external → internal → styles/assets. Keep side-effect imports last.
-
-## Accessibility
-- Buttons/links with clear text; icons require accessible text or `aria-label`.
-- Forms: associate `Label` with controls; provide error text.
-
-## Performance
-- Memoize heavy calculations or lists where needed.
-- Avoid unnecessary state; derive from props when possible.
-
-## Project-Specific Rules
-- Images upload flows must use server routes (`/api/uploads/*`) rather than direct client-to-bucket calls.
-- Article editor mutations should go through `lib/actions/**`.
-- Keep banner/image constraints enforced server-side (mime/size) and client-side hints.
-
-## Lint/Checks
-- Must pass TypeScript and ESLint. Fix new errors introduced by edits.
-
-
+- Run `pnpm build` before committing to catch type errors.
