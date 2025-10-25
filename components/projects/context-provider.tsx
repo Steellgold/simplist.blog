@@ -1,6 +1,7 @@
 "use client"
 
 import { Timezone } from "@/components/ui/timezone-selector"
+import { SubscriptionTier } from "@prisma/client"
 import { createContext, ReactNode, useContext } from "react"
 
 interface Project {
@@ -9,8 +10,9 @@ interface Project {
   slug: string
   timezone: Timezone
   allowedOrigins?: string[]
-  subscriptionTier?: string
+  subscriptionTier?: SubscriptionTier
   subscriptionExpiresAt?: Date | null
+  stripeCustomerId?: string | null
 }
 
 interface ProjectContextType {

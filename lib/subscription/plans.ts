@@ -1,5 +1,6 @@
+import { SubscriptionTier } from "@prisma/client";
+
 export type SubscriptionInterval = "monthly" | "yearly";
-export type SubscriptionPlan = "STARTER" | "PRO";
 
 export interface PlanFeature {
   name: string;
@@ -17,7 +18,7 @@ export interface PlanPrice {
 }
 
 export interface Plan {
-  id: SubscriptionPlan;
+  id: SubscriptionTier;
   name: string;
   description: string;
   highlight?: string;
@@ -40,11 +41,11 @@ export interface Plan {
   };
 }
 
-export const SUBSCRIPTION_PLANS: Record<SubscriptionPlan, Plan> = {
+export const SUBSCRIPTION_PLANS: Record<SubscriptionTier, Plan> = {
   STARTER: {
     id: "STARTER",
     name: "Starter",
-    description: "Perfect for small projects",
+    description: "Perfect for exploring the platform.",
     prices: [
       {
         amount: 0,
@@ -78,7 +79,7 @@ export const SUBSCRIPTION_PLANS: Record<SubscriptionPlan, Plan> = {
   PRO: {
     id: "PRO",
     name: "Pro", 
-    description: "For serious projects",
+    description: "Ideal for creators looking for advanced features.",
     highlight: "Most Popular",
     popular: true,
     prices: [
@@ -127,14 +128,14 @@ export const SUBSCRIPTION_PLANS: Record<SubscriptionPlan, Plan> = {
 /**
  * Get plan by ID
  */
-export const getPlan = (planId: SubscriptionPlan): Plan => {
+export const getPlan = (planId: SubscriptionTier): Plan => {
   return SUBSCRIPTION_PLANS[planId];
 };
 
 /**
  * Get plan pricing for specific interval
  */
-export const getPlanPrice = (planId: SubscriptionPlan, interval: SubscriptionInterval): PlanPrice | undefined => {
+export const getPlanPrice = (planId: SubscriptionTier, interval: SubscriptionInterval): PlanPrice | undefined => {
   const plan = getPlan(planId);
   return plan.prices.find(price => price.interval === interval);
 };
@@ -149,7 +150,7 @@ export const getAllPlans = (): Plan[] => {
 /**
  * Check if a plan has a specific feature
  */
-export const planHasFeature = (planId: SubscriptionPlan, featureName: keyof Plan['limits']['features']): boolean => {
+export const planHasFeature = (planId: SubscriptionTier, featureName: keyof Plan['limits']['features']): boolean => {
   const plan = getPlan(planId);
   return plan.limits.features[featureName];
 };
@@ -157,6 +158,6 @@ export const planHasFeature = (planId: SubscriptionPlan, featureName: keyof Plan
 /**
  * Get plan limits
  */
-export const getPlanLimits = (planId: SubscriptionPlan) => {
+export const getPlanLimits = (planId: SubscriptionTier) => {
   return getPlan(planId).limits;
 };

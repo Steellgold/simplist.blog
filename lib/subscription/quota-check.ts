@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
-import { getPlanLimits, type SubscriptionPlan } from "./plans";
+import { SubscriptionTier } from "@prisma/client";
+import { getPlanLimits } from "./plans";
 
 export interface QuotaCheckResult {
   allowed: boolean;
@@ -28,7 +29,7 @@ export const getProjectSubscription = async (projectId: string) => {
   }
 
   // Check if subscription is expired
-  const tier: SubscriptionPlan =
+  const tier: SubscriptionTier =
     project.subscriptionTier === "PRO" &&
     project.subscriptionExpiresAt &&
     project.subscriptionExpiresAt > new Date()
@@ -63,7 +64,8 @@ export const checkArticleQuota = async (
     },
   });
 
-  if (articleCount >= subscription.limits.maxArticles) {
+  // -1 means unlimited
+  if (subscription.limits.maxArticles !== -1 && articleCount >= subscription.limits.maxArticles) {
     return {
       allowed: false,
       reason: `Article limit reached. Your ${subscription.tier} plan allows up to ${subscription.limits.maxArticles} articles.`,
@@ -167,7 +169,8 @@ export const checkApiKeyQuota = async (
     },
   });
 
-  if (apiKeyCount >= subscription.limits.maxApiKeys) {
+  // -1 means unlimited
+  if (subscription.limits.maxApiKeys !== -1 && apiKeyCount >= subscription.limits.maxApiKeys) {
     return {
       allowed: false,
       reason: `API key limit reached. Your ${subscription.tier} plan allows up to ${subscription.limits.maxApiKeys} API keys.`,

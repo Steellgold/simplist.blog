@@ -1,10 +1,11 @@
 "use client";
 
-import { getPlanLimits, type SubscriptionPlan } from "@/lib/subscription/plans";
+import { getPlanLimits } from "@/lib/subscription/plans";
+import { SubscriptionTier } from "@prisma/client";
 import { useEffect, useState } from "react";
 
 interface UserSubscription {
-  tier: SubscriptionPlan;
+  tier: SubscriptionTier;
   subscriptionExpiresAt: Date | null;
 }
 
@@ -54,11 +55,11 @@ export const useSubscriptionLimits = (projectId?: string): SubscriptionLimitsDat
 
       const result = await response.json();
 
-      const limits = getPlanLimits(result.subscription.tier as SubscriptionPlan);
+      const limits = getPlanLimits(result.subscription.tier as SubscriptionTier);
       const apiKeyUsage: ApiKeyUsage = {
         currentCount: result.apiKeyCount,
         maxCount: limits.maxApiKeys,
-        canCreateMore: result.apiKeyCount < limits.maxApiKeys,
+        canCreateMore: limits.maxApiKeys === -1 || result.apiKeyCount < limits.maxApiKeys,
       };
 
       const articleUsage: ArticleUsage = {
@@ -101,28 +102,28 @@ export const useSubscriptionLimits = (projectId?: string): SubscriptionLimitsDat
 // Hook spécialisé pour les API keys
 export const useApiKeyLimits = (projectId?: string) => {
   const { isLoading, apiKeyUsage, subscription, refetch } = useSubscriptionLimits(projectId);
-  
+
   return {
     isLoading,
     canCreateApiKey: apiKeyUsage?.canCreateMore ?? false,
     currentCount: apiKeyUsage?.currentCount ?? 0,
-    maxCount: apiKeyUsage?.maxCount == -1 ? 99999 : apiKeyUsage?.maxCount ?? 0,
-    isAtLimit: apiKeyUsage ? apiKeyUsage.currentCount >= apiKeyUsage.maxCount : false,
-    tier: (subscription?.tier ?? "STARTER") as SubscriptionPlan,
+    maxCount: apiKeyUsage?.maxCount ?? 0,
+    isAtLimit: apiKeyUsage ? (apiKeyUsage.maxCount !== -1 && apiKeyUsage.currentCount >= apiKeyUsage.maxCount) : false,
+    tier: (subscription?.tier ?? "STARTER") as SubscriptionTier,
     refetch,
   };
 };
 
 export const useArticleLimits = (projectId?: string) => {
   const { isLoading, articleUsage, subscription, refetch } = useSubscriptionLimits(projectId);
-  
+
   return {
     isLoading,
     canCreateArticle: articleUsage?.canCreateMore ?? false,
     currentCount: articleUsage?.currentCount ?? 0,
-    maxCount: articleUsage?.maxCount == -1 ? 99999 : articleUsage?.maxCount ?? 0,
-    isAtLimit: articleUsage ? articleUsage.currentCount >= articleUsage.maxCount : false,
-    tier: (subscription?.tier ?? "STARTER") as SubscriptionPlan,
+    maxCount: articleUsage?.maxCount ?? 0,
+    isAtLimit: articleUsage ? (articleUsage.maxCount !== -1 && articleUsage.currentCount >= articleUsage.maxCount) : false,
+    tier: (subscription?.tier ?? "STARTER") as SubscriptionTier,
     refetch,
   };
 };

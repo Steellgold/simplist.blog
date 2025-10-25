@@ -1,2 +1,2 @@
-export type { SubscriptionPlan as SubscriptionTier } from "@/lib/subscription/plans";
-export { getPlanLimits, getPlan, getAllPlans, getPlanPrice } from "@/lib/subscription/plans";
+export { getAllPlans, getPlan, getPlanLimits, getPlanPrice } from "@/lib/subscription/plans";
+export type { SubscriptionTier } from "@prisma/client";

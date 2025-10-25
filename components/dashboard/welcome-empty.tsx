@@ -1,11 +1,11 @@
 "use client"
 
-import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription, EmptyContent } from "@/components/ui/empty"
 import { buttonVariants } from "@/components/ui/button"
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
 import { MiniBadge } from "@/components/ui/mini-badge"
+import { SubscriptionTier } from "@prisma/client"
 import { ArrowUpRightIcon, FileText, Key, LineChart } from "lucide-react"
 import Link from "next/link"
-import { SubscriptionTier } from "@/lib/subscription/types"
 
 interface WelcomeEmptyProps {
   projectSlug: string
