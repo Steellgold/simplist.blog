@@ -23,13 +23,14 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { toast } from "@/components/ui/sonner"
-import { useCreateApiKey } from "@/hooks/use-api-keys"
 import { useApiKeyLimits } from "@/hooks/use-subscription-limits"
 import { CreateApiKeyInput, createApiKeySchema } from "@/lib/validations/api-key"
+import { createApiKey } from "@/lib/actions/api-keys"
 import { Check, Copy, Plus } from "lucide-react"
 import Image from "next/image"
 import { Spinner } from "@/components/ui/spinner"
 import { ProgressButton } from "../ui/progress-button"
+import { useRouter } from "next/navigation"
 
 interface CreateApiKeyFormProps {
   projectId: string
@@ -37,11 +38,12 @@ interface CreateApiKeyFormProps {
 }
 
 export const CreateApiKeyForm = ({ projectId, onSuccess }: CreateApiKeyFormProps) => {
+  const router = useRouter()
   const [open, setOpen] = useState(false)
   const [newApiKey, setNewApiKey] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const createApiKeyMutation = useCreateApiKey()
   const { isAtLimit, currentCount, maxCount, tier, isLoading: limitsLoading, refetch } = useApiKeyLimits(projectId)
 
   const isPro = tier === "PRO"
@@ -66,17 +68,27 @@ export const CreateApiKeyForm = ({ projectId, onSuccess }: CreateApiKeyFormProps
   const keyType = watch("type")
 
   const onSubmit = async (data: CreateApiKeyInput) => {
-    try {
-      const result = await createApiKeyMutation.mutateAsync({ projectId, ...data })
-      setNewApiKey(result.key)
-      reset()
-      toast.success("API key created successfully")
-      await refetch() // Refresh the limits data
-      onSuccess?.()
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Failed to create API key"
-      toast.error(message)
-    }
+    setIsSubmitting(true)
+
+    toast.promise(
+      createApiKey(projectId, data),
+      {
+        loading: "Creating API key...",
+        success: (result) => {
+          setNewApiKey(result.key)
+          reset()
+          setIsSubmitting(false)
+          refetch() // Refresh the limits data
+          router.refresh()
+          onSuccess?.()
+          return "API key created successfully"
+        },
+        error: (err: unknown) => {
+          setIsSubmitting(false)
+          return err instanceof Error ? err.message : "Failed to create API key"
+        },
+      }
+    )
   }
 
   const handleCopy = async () => {
@@ -266,8 +278,8 @@ export const CreateApiKeyForm = ({ projectId, onSuccess }: CreateApiKeyFormProps
                   <Button type="button" variant="outline" onClick={handleClose}>
                     Cancel
                   </Button>
-                  <Button type="submit" disabled={createApiKeyMutation.isPending || isAtLimit}>
-                    {createApiKeyMutation.isPending ? <Spinner /> : "Create"}
+                  <Button type="submit" disabled={isSubmitting || isAtLimit}>
+                    {isSubmitting ? <Spinner /> : "Create"}
                   </Button>
                 </div>
               </div>

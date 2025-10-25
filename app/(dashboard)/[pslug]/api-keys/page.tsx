@@ -1,31 +1,37 @@
-"use client"
+import { ApiKeysClientPage } from "@/components/api-keys/api-keys-client-page"
+import { getProjectApiKeys } from "@/lib/actions/api-keys"
+import { getCurrentUser } from "@/lib/auth-helper"
+import { prisma } from "@/lib/db"
+import { redirect } from "next/navigation"
 
-import { ApiKeysList } from "@/components/api-keys/list"
-import { CreateApiKeyForm } from "@/components/api-keys/create-form"
-import { PageLayout } from "@/components/layout/page-layout"
-import { useApiKeys } from "@/hooks/use-api-keys"
-import { useProject } from "@/hooks/use-project-context"
-import { EmptyProject } from "@/components/projects/empty-project"
+const ApiKeysPage = async ({ params }: { params: Promise<{ pslug: string }> }) => {
+  const resolvedParams = await params
+  const user = await getCurrentUser()
 
-const ApiKeysPage = () => {
-  const { currentProject } = useProject()
-  const { data, error } = useApiKeys()
+  if (!user) redirect("/auth/login")
 
-  if (!currentProject) return <EmptyProject />
-  if (error) return <PageLayout title="API Keys" description="Failed to load API keys. Please try again." />
+  // Get user's project
+  const project = await prisma.project.findFirst({
+    where: {
+      userId: user.id,
+      slug: resolvedParams.pslug,
+    },
+  })
 
-  const apiKeys = data?.apiKeys || []
+  if (!project) redirect("/create-project")
+
+  // Load API keys
+  const apiKeys = await getProjectApiKeys(project.id)
 
   return (
-    // <div className="container max-w-7xl mx-auto">
-      <PageLayout
-        title="API Keys"
-        description={`Manage API keys for your ${currentProject.name} project`}
-        actions={<CreateApiKeyForm projectId={currentProject.id} />}
-      >
-        <ApiKeysList apiKeys={apiKeys} />
-      </PageLayout>
-    // </div>
+    <ApiKeysClientPage
+      apiKeys={apiKeys}
+      project={{
+        id: project.id,
+        name: project.name,
+        slug: project.slug,
+      }}
+    />
   )
 }
 

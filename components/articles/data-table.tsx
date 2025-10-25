@@ -38,9 +38,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { useBulkDeleteArticles } from "@/hooks/use-articles"
 import { ButtonGroup } from "@/components/ui/button-group"
 import { Spinner } from "@/components/ui/spinner"
+import { bulkDeleteArticles } from "@/lib/actions/articles"
 
 interface DataTableProps<TData extends { id: string }, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -57,8 +57,7 @@ export const ArticlesDataTable = <TData extends { id: string }, TValue>({
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
   const [showBulkDeleteDialog, setShowBulkDeleteDialog] = useState(false)
-
-  const bulkDeleteMutation = useBulkDeleteArticles()
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const table = useReactTable({
     data,
@@ -83,16 +82,23 @@ export const ArticlesDataTable = <TData extends { id: string }, TValue>({
   const handleBulkDelete = async () => {
     const ids = selectedRows.map((row) => row.original.id)
 
+    setIsDeleting(true)
+
     toast.promise(
-      bulkDeleteMutation.mutateAsync(ids),
+      bulkDeleteArticles(ids),
       {
         loading: `Deleting ${selectedCount} article(s)...`,
         success: () => {
           setShowBulkDeleteDialog(false)
           setRowSelection({})
+          setIsDeleting(false)
+          router.refresh()
           return `Successfully deleted ${selectedCount} article(s)`
         },
-        error: "Failed to delete articles",
+        error: () => {
+          setIsDeleting(false)
+          return "Failed to delete articles"
+        },
       }
     )
   }
@@ -235,13 +241,13 @@ export const ArticlesDataTable = <TData extends { id: string }, TValue>({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={bulkDeleteMutation.isPending}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleBulkDelete}
-              disabled={bulkDeleteMutation.isPending}
+              disabled={isDeleting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {bulkDeleteMutation.isPending ? <Spinner /> : "Delete all"}
+              {isDeleting ? <Spinner /> : "Delete all"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

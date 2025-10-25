@@ -1,50 +1,45 @@
-"use client"
+import { ArticlesClientPage } from "@/components/articles/articles-client-page"
+import { getProjectArticles } from "@/lib/actions/articles"
+import { getCurrentUser } from "@/lib/auth-helper"
+import { prisma } from "@/lib/db"
+import { getPlanLimits } from "@/lib/subscription/plans"
+import { redirect } from "next/navigation"
 
-import { useArticlesColumns } from "@/components/articles/columns"
-import { ArticlesDataTable } from "@/components/articles/data-table"
-import { PageLayout } from "@/components/layout/page-layout"
-import { EmptyProject } from "@/components/projects/empty-project"
-import { buttonVariants } from "@/components/ui/button"
-import { ProgressButton } from "@/components/ui/progress-button"
-import { useArticles } from "@/hooks/use-articles"
-import { useProject } from "@/hooks/use-project-context"
-import { useArticleLimits } from "@/hooks/use-subscription-limits"
-import { Plus } from "lucide-react"
-import Link from "next/link"
+const ArticlesPage = async ({ params }: { params: Promise<{ pslug: string }> }) => {
+  const resolvedParams = await params
+  const user = await getCurrentUser()
 
-const ArticlesPage = () => {
-  const { currentProject } = useProject()
-  const { data: articles, error } = useArticles()
-  const columns = useArticlesColumns()
-  const { currentCount, maxCount, isLoading: limitsLoading } = useArticleLimits(currentProject?.id)
+  if (!user) redirect("/auth/login")
 
-  if (error) {
-    return (
-      // <div className="container max-w-7xl mx-auto">
-        <PageLayout title="Articles" description="Failed to load articles. Please try again." />
-      // </div>
-    )
-  }
+  // Get user's project
+  const project = await prisma.project.findFirst({
+    where: {
+      userId: user.id,
+      slug: resolvedParams.pslug,
+    },
+  })
 
-  if (!currentProject) return <EmptyProject />
+  if (!project) redirect("/create-project")
+
+  // Load articles
+  const articles = await getProjectArticles(project.id)
+
+  // Get article count and limits
+  const articleCount = articles.length
+  const limits = getPlanLimits(project.subscriptionTier)
+  const maxCount = limits.maxArticles
 
   return (
-    // <div className="container max-w-7xl mx-auto">
-      <PageLayout
-        title="Articles"
-        description={`Manage your ${currentProject.name} blog articles and track their performance.`}
-        actions={
-          <ProgressButton value={currentCount} min={0} max={maxCount} variant="outline" asChild>
-            <Link href={`/${currentProject.slug}/articles/new`} className="flex items-center gap-2">
-              <Plus />
-              New Article {!limitsLoading && maxCount !== -1 && `(${currentCount}/${maxCount})`}
-            </Link>
-          </ProgressButton>
-        }
-      >
-        <ArticlesDataTable columns={columns} data={articles || []} />
-      </PageLayout>
-    // </div>
+    <ArticlesClientPage
+      articles={articles}
+      project={{
+        id: project.id,
+        name: project.name,
+        slug: project.slug,
+      }}
+      articleCount={articleCount}
+      maxCount={maxCount}
+    />
   )
 }
 
