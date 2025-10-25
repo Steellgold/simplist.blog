@@ -33,12 +33,19 @@ export const ArticlesClientPage = ({
       title="Articles"
       description={`Manage your ${project.name} blog articles and track their performance.`}
       actions={
-        <ProgressButton value={articleCount} min={0} max={maxCount} variant="outline" asChild>
-          <Link href={`/${project.slug}/articles/new`} className="flex items-center gap-2">
+        maxCount === -1 ? (
+          <Link href={`/${project.slug}/articles/new`} className={buttonVariants({ variant: "outline" })}>
             <Plus />
-            New Article {maxCount !== -1 && `(${articleCount}/${maxCount})`}
+            New Article
           </Link>
-        </ProgressButton>
+        ) : (
+          <ProgressButton value={articleCount} min={0} max={maxCount} variant="outline" asChild>
+            <Link href={`/${project.slug}/articles/new`} className="flex items-center gap-2">
+              <Plus />
+              New Article ({articleCount}/{maxCount})
+            </Link>
+          </ProgressButton>
+        )
       }
     >
       <ArticlesDataTable columns={columns} data={articles} />
