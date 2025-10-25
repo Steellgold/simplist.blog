@@ -135,6 +135,9 @@ importers:
       react-hook-form:
         specifier: ^7.65.0
         version: 7.65.0(react@19.2.0)
+      react-pay-icons:
+        specifier: ^4.0.0
+        version: 4.0.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       recharts:
         specifier: 2.15.4
         version: 2.15.4(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -5179,6 +5182,13 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+
+  react-pay-icons@4.0.0:
+    resolution: {integrity: sha512-9F/5Bj7m+J2XpWV6oP8sA2xAGWEXd4f9f+QGByd+cu8b+LxkhoSsBEjcsGHpBpGo+VfL2eT7aORevrbysbf/sA==}
+    engines: {node: '>=20.0.0'}
+    peerDependencies:
+      react: ^18.2.0 || ^19.0.0
+      react-dom: ^18.2.0 || ^19.0.0
 
   react-remove-scroll-bar@2.3.8:
     resolution: {integrity: sha512-9r+yi9+mgU33AKcj6IbT9oRCO78WriSj6t/cF8DWBZJ9aOGPOTEDvdUDz1FwKim7QXWwmHqtdHnRJfhAxEG46Q==}
@@ -11907,6 +11917,11 @@ snapshots:
   react-is@18.3.1: {}
 
   react-medium-image-zoom@5.4.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0):
+    dependencies:
+      react: 19.2.0
+      react-dom: 19.2.0(react@19.2.0)
+
+  react-pay-icons@4.0.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0):
     dependencies:
       react: 19.2.0
       react-dom: 19.2.0(react@19.2.0)
