@@ -80,6 +80,13 @@ export class HttpClient {
           throw new SimplistApiError(errorData)
         }
 
+        // Check if response should be parsed as text (for XML responses)
+        const contentType = response.headers.get('content-type') || ''
+        if (contentType.includes('xml') || contentType.includes('rss') || contentType.includes('text/plain')) {
+          const data = await response.text()
+          return data as T
+        }
+
         const data = await response.json()
         return data
       } catch (error) {

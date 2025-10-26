@@ -20,9 +20,10 @@ import { SimplistClient } from '@simplist.blog/sdk'
 // Method 1: Auto-detect API key from environment (recommended)
 const client = new SimplistClient() // Uses SIMPLIST_API_KEY env var
 
-// Method 2: Explicit API key
+// Method 2: With global path configuration (recommended)
 const client = new SimplistClient({
-  apiKey: 'sk_your_api_key_here' // Get this from your Simplist dashboard
+  apiKey: 'sk_your_api_key_here', // Get this from your Simplist dashboard
+  path: 'blog' // All SEO URLs will use /blog/article-slug
 })
 
 // Get all published articles
@@ -43,8 +44,11 @@ await client.analytics.track({
 // Get SEO metadata
 const seoData = await client.seo.getArticle('my-article-slug')
 
-// Get RSS feed
-const rss = await client.seo.getRssFeed({ baseUrl: 'https://myblog.com' })
+// Get RSS feed (uses global path automatically)
+const rss = await client.seo.getRssFeed('https://myblog.com', 50)
+
+// Get sitemap (uses global path automatically)
+const sitemap = await client.seo.getSitemap('https://myblog.com', 'xml')
 ```
 
 ## Authentication
@@ -73,6 +77,20 @@ const client = new SimplistClient({
 })
 ```
 
+### Method 3: With Global Path Configuration (Recommended)
+
+```typescript
+const client = new SimplistClient({
+  apiKey: 'sk_your_api_key_here',
+  path: 'blog' // All SEO URLs will use /blog/article-slug
+})
+
+// Now all SEO methods use the global path automatically
+const sitemap = await client.seo.getSitemap('https://myblog.com', 'xml')
+const rss = await client.seo.getRssFeed('https://myblog.com', 50)
+// URLs will be: https://myblog.com/blog/article-slug
+```
+
 ### Getting an API Key
 
 1. Go to your Simplist dashboard
@@ -91,6 +109,7 @@ const client = new SimplistClient({
 const client = new SimplistClient({
   apiKey: 'sk_xxx',           // Optional: Your API key (auto-detected from SIMPLIST_API_KEY if not provided)
   baseUrl: 'https://api.simplist.blog', // Optional: API base URL
+  path: 'blog',               // Optional: Global article path (e.g., "blog", "articles") - auto-adds trailing slash
   timeout: 10000,             // Optional: Request timeout (ms)
   retries: 3,                 // Optional: Number of retries
   retryDelay: 1000           // Optional: Delay between retries (ms)
@@ -241,26 +260,24 @@ console.log(response.data.seo.structuredData)
 #### Generate Sitemap
 
 ```typescript
-// Get XML sitemap
-const xmlSitemap = await client.seo.getSitemap({
-  baseUrl: 'https://yourblog.com',
-  format: 'xml'
-})
+// Get XML sitemap (uses global path if configured)
+const xmlSitemap = await client.seo.getSitemap('https://yourblog.com', 'xml')
+
+// Get XML sitemap with custom path (overrides global path)
+const xmlSitemap = await client.seo.getSitemap('https://yourblog.com', 'xml', 'articles')
 
 // Get JSON sitemap
-const jsonSitemap = await client.seo.getSitemap({
-  baseUrl: 'https://yourblog.com',
-  format: 'json'
-})
+const jsonSitemap = await client.seo.getSitemap('https://yourblog.com', 'json')
 ```
 
 #### Generate RSS Feed
 
 ```typescript
-const rss = await client.seo.getRssFeed({
-  baseUrl: 'https://yourblog.com',
-  limit: 20
-})
+// Generate RSS feed (uses global path if configured)
+const rss = await client.seo.getRssFeed('https://yourblog.com', 20)
+
+// Generate RSS feed with custom path (overrides global path)
+const rss = await client.seo.getRssFeed('https://yourblog.com', 20, 'blog')
 ```
 
 #### Get Structured Data
@@ -271,13 +288,6 @@ const structuredData = await client.seo.getStructuredData({
 })
 ```
 
-#### Generate robots.txt
-
-```typescript
-const robotsTxt = await client.seo.getRobots({
-  baseUrl: 'https://yourblog.com'
-})
-```
 
 ### Health Check
 
@@ -343,6 +353,38 @@ export async function getStaticProps() {
     props: { articles: articles.data },
     revalidate: 60 // Revalidate every minute
   }
+}
+```
+
+### SEO Routes with Global Path
+
+```tsx
+// app/sitemap.xml/route.ts - Uses global path configuration
+import { SimplistClient } from '@simplist.blog/sdk'
+
+const client = new SimplistClient({
+  path: 'blog' // All URLs will use /blog/article-slug
+})
+
+export async function GET() {
+  const sitemap = await client.seo.getSitemap('https://myblog.com', 'xml')
+  
+  return new Response(sitemap, {
+    headers: {
+      'Content-Type': 'application/xml',
+    },
+  })
+}
+
+// app/rss.xml/route.ts - Uses global path configuration
+export async function GET() {
+  const rss = await client.seo.getRssFeed('https://myblog.com', 50)
+  
+  return new Response(rss, {
+    headers: {
+      'Content-Type': 'application/rss+xml',
+    },
+  })
 }
 ```
 

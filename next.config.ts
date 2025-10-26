@@ -5,7 +5,6 @@ const nextConfig: NextConfig = {
   experimental: {
     authInterrupts: true
   },
-  cacheComponents: true,
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "cdn.simplist.blog" },

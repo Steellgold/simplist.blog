@@ -51,6 +51,11 @@ interface SimplistClientOptions {
   baseUrl?: string
   
   /**
+   * Article path for SEO URLs (e.g., "blog", "articles", "posts") - auto-adds trailing slash
+   */
+  path?: string
+  
+  /**
    * Request timeout in milliseconds (default: 10000)
    */
   timeout?: number
@@ -87,10 +92,17 @@ const client = new SimplistClient({
   apiKey: 'sk_your_api_key'
 })
 
+// With global article path (recommended)
+const client = new SimplistClient({
+  apiKey: 'sk_your_api_key',
+  path: 'blog' // All SEO URLs will use /blog/article-slug
+})
+
 // Custom configuration
 const client = new SimplistClient({
   apiKey: 'sk_your_api_key',
   baseUrl: 'https://api.simplist.blog',
+  path: 'articles',
   timeout: 15000,
   retries: 5,
   retryDelay: 2000
@@ -634,20 +646,26 @@ interface SeoMetadata {
 }
 ```
 
-### getSitemap(baseUrl, format?)
+### getSitemap(baseUrl, format?, path?)
 
-Generate sitemap for the project.
+Generate sitemap for the project with support for custom URL structures.
 
 ```typescript
-// Get XML sitemap
+// Get XML sitemap with default structure (articles at root)
 const sitemapXml = await client.seo.getSitemap('https://myblog.com', 'xml')
+// Generates: https://myblog.com/article-slug
+
+// Get XML sitemap with custom path (overrides global path)
+const sitemapXml = await client.seo.getSitemap('https://gaetanhus.fr', 'xml', 'articles')
+// Generates: https://gaetanhus.fr/articles/article-slug
 
 // Get JSON sitemap
 const sitemapJson = await client.seo.getSitemap('https://myblog.com', 'json')
 
-// Use in Next.js sitemap
+// Use in Next.js sitemap (uses global path if configured)
 export async function GET() {
-  const sitemapXml = await client.seo.getSitemap('https://myblog.com', 'xml')
+  const sitemapXml = await client.seo.getSitemap('https://gaetanhus.fr', 'xml')
+  // Uses global path from client configuration
   
   return new Response(sitemapXml, {
     headers: {
@@ -676,17 +694,21 @@ interface SitemapEntry {
 }
 ```
 
-### getRssFeed(baseUrl, limit?)
+### getRssFeed(baseUrl, limit?, path?)
 
-Generate RSS feed for the project.
+Generate RSS feed for the project with support for custom URL structures.
 
 ```typescript
-// Generate RSS feed
+// Generate RSS feed (uses global path if configured)
 const rssXml = await client.seo.getRssFeed('https://myblog.com', 20)
+
+// Generate RSS feed with custom path (overrides global path)
+const rssXml = await client.seo.getRssFeed('https://gaetanhus.fr', 20, 'blog')
 
 // Use in Next.js RSS route
 export async function GET() {
   const rssXml = await client.seo.getRssFeed('https://myblog.com', 50)
+  // Uses global path from client configuration
   
   return new Response(rssXml, {
     headers: {
@@ -741,25 +763,6 @@ interface StructuredDataResponse {
 }
 ```
 
-### getRobotsTxt(baseUrl?)
-
-Generate robots.txt content.
-
-```typescript
-// Generate robots.txt
-const robotsTxt = await client.seo.getRobotsTxt('https://myblog.com')
-
-// Use in Next.js robots.txt route
-export async function GET() {
-  const robotsTxt = await client.seo.getRobotsTxt('https://myblog.com')
-  
-  return new Response(robotsTxt, {
-    headers: {
-      'Content-Type': 'text/plain',
-    },
-  })
-}
-```
 
 ## Utility Functions
 

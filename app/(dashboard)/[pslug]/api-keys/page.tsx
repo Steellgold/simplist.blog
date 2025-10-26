@@ -1,17 +1,27 @@
 import { ApiKeysClientPage } from "@/components/api-keys/api-keys-client-page"
-import { getCachedProjectApiKeys } from "@/lib/cache/api-keys"
-import { getProjectWithStats } from "@/lib/cache/layout-data"
+import { getProjectApiKeys } from "@/lib/actions/api-keys"
+import { getCurrentUser } from "@/lib/auth-helper"
+import { prisma } from "@/lib/db"
 import { redirect } from "next/navigation"
 
 const ApiKeysPage = async ({ params }: { params: Promise<{ pslug: string }> }) => {
   const resolvedParams = await params
+  const user = await getCurrentUser()
 
-  // Get cached project data
-  const project = await getProjectWithStats(resolvedParams.pslug)
+  if (!user) redirect("/auth/login")
+
+  // Get user's project
+  const project = await prisma.project.findFirst({
+    where: {
+      userId: user.id,
+      slug: resolvedParams.pslug,
+    },
+  })
+
   if (!project) redirect("/create-project")
 
-  // Load API keys using cached function
-  const apiKeys = await getCachedProjectApiKeys(project.id)
+  // Load API keys
+  const apiKeys = await getProjectApiKeys(project.id)
 
   return (
     <ApiKeysClientPage

@@ -1,8 +1,8 @@
-import { HttpClient, HttpClientOptions } from './utils/http.js'
+import { AnalyticsResource } from './resources/analytics.js'
 import { ArticlesResource } from './resources/articles.js'
 import { ProjectsResource } from './resources/projects.js'
-import { AnalyticsResource } from './resources/analytics.js'
 import { SeoResource } from './resources/seo.js'
+import { HttpClient, HttpClientOptions } from './utils/http.js'
 
 export interface SimplistClientOptions {
   /**
@@ -14,6 +14,11 @@ export interface SimplistClientOptions {
    * Base URL for the API (default: https://api.simplist.blog)
    */
   baseUrl?: string
+  
+  /**
+   * Article path for SEO URLs (e.g., "blog", "articles", "posts") - auto-adds trailing slash
+   */
+  path?: string
   
   /**
    * Request timeout in milliseconds (default: 10000)
@@ -37,7 +42,8 @@ export interface SimplistClientOptions {
  * @example
  * ```typescript
  * const client = new SimplistClient({
- *   apiKey: 'sk_your_api_key_here'
+ *   apiKey: 'sk_your_api_key_here',
+ *   path: 'blog' // Global path for all SEO URLs
  * })
  * 
  * // Get articles
@@ -59,16 +65,16 @@ export interface SimplistClientOptions {
  * // Get analytics stats (requires read permission)
  * const stats = await client.analytics.getStats({ days: 7 })
  * 
- * // Generate RSS feed
- * const rssXml = await client.articles.rss({
- *   hostname: 'https://yourblog.com',
- *   title: 'My Blog',
- *   description: 'Latest posts from my blog'
- * })
+ * // Generate RSS feed (uses global path: blog/)
+ * const rssXml = await client.seo.getRssFeed('https://yourblog.com', 20)
+ * 
+ * // Generate sitemap (uses global path: blog/)
+ * const sitemap = await client.seo.getSitemap('https://yourblog.com', 'xml')
  * ```
  */
 export class SimplistClient {
   private http: HttpClient
+  private path?: string
   
   public readonly articles: ArticlesResource
   public readonly project: ProjectsResource
@@ -98,10 +104,12 @@ export class SimplistClient {
     }
 
     this.http = new HttpClient(httpOptions)
+    this.path = options.path
+    
     this.articles = new ArticlesResource(this.http)
     this.project = new ProjectsResource(this.http)
     this.analytics = new AnalyticsResource(this.http)
-    this.seo = new SeoResource(this.http)
+    this.seo = new SeoResource(this.http, this.path)
   }
 
   /**

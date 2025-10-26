@@ -74,7 +74,7 @@ export interface StructuredDataResponse {
  * SEO Resource - Provides SEO-related functionality
  */
 export class SeoResource {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private globalPath?: string) {}
 
   /**
    * Get SEO metadata for a specific article
@@ -124,17 +124,30 @@ export class SeoResource {
   }
 
   /**
-   * Generate sitemap for a project
+   * Generate sitemap for a project with support for custom URL structures
    * 
    * @param baseUrl - Base URL for generating article URLs
    * @param format - Response format ('xml' or 'json')
+   * @param path - Article path (e.g., "blog", "articles", "posts") - auto-adds trailing slash
    * @returns Sitemap in requested format
    * 
    * @example
    * ```typescript
-   * // Get XML sitemap for Next.js
+   * // Get XML sitemap with default structure (no project slug)
    * export async function GET() {
    *   const sitemapXml = await client.seo.getSitemap('https://myblog.com', 'xml')
+   *   
+   *   return new Response(sitemapXml, {
+   *     headers: {
+   *       'Content-Type': 'application/xml',
+   *     },
+   *   })
+   * }
+   * 
+   * // Get XML sitemap with custom path
+   * export async function GET() {
+   *   const sitemapXml = await client.seo.getSitemap('https://gaetanhus.fr', 'xml', 'blog')
+   *   // Generates: https://gaetanhus.fr/blog/article-slug
    *   
    *   return new Response(sitemapXml, {
    *     headers: {
@@ -150,11 +163,19 @@ export class SeoResource {
    * })
    * ```
    */
-  async getSitemap(baseUrl: string, format: 'xml' | 'json' = 'xml'): Promise<string | Sitemap> {
+  async getSitemap(baseUrl: string, format: 'xml' | 'json' = 'xml', path?: string): Promise<string | Sitemap> {
     const params = new URLSearchParams({
       baseUrl,
       format
     })
+    
+    // Use provided path or fall back to global path
+    const effectivePath = path || this.globalPath
+    if (effectivePath) {
+      // Auto-add trailing slash if not present
+      const normalizedPath = effectivePath.endsWith('/') ? effectivePath : `${effectivePath}/`
+      params.set('customPath', `${normalizedPath}{slug}`)
+    }
     
     const response = await this.http.get(`/v1/seo/sitemap?${params}`, {
       headers: format === 'xml' ? { Accept: 'application/xml' } : undefined
@@ -172,6 +193,7 @@ export class SeoResource {
    * 
    * @param baseUrl - Base URL for generating article URLs
    * @param limit - Maximum number of articles to include
+   * @param path - Article path (e.g., "blog", "articles", "posts") - auto-adds trailing slash
    * @returns RSS feed XML
    * 
    * @example
@@ -186,13 +208,33 @@ export class SeoResource {
    *     },
    *   })
    * }
+   * 
+   * // Generate RSS feed with custom path
+   * export async function GET() {
+   *   const rssXml = await client.seo.getRssFeed('https://gaetanhus.fr', 20, 'blog')
+   *   // Generates: https://gaetanhus.fr/blog/article-slug
+   *   
+   *   return new Response(rssXml, {
+   *     headers: {
+   *       'Content-Type': 'application/rss+xml',
+   *     },
+   *   })
+   * }
    * ```
    */
-  async getRssFeed(baseUrl: string, limit = 20): Promise<string> {
+  async getRssFeed(baseUrl: string, limit = 20, path?: string): Promise<string> {
     const params = new URLSearchParams({
       baseUrl,
       limit: limit.toString()
     })
+    
+    // Use provided path or fall back to global path
+    const effectivePath = path || this.globalPath
+    if (effectivePath) {
+      // Auto-add trailing slash if not present
+      const normalizedPath = effectivePath.endsWith('/') ? effectivePath : `${effectivePath}/`
+      params.set('customPath', `${normalizedPath}{slug}`)
+    }
     
     return this.http.get(`/v1/seo/rss?${params}`) as Promise<string>
   }
@@ -233,33 +275,4 @@ export class SeoResource {
     return this.http.get(url) as Promise<StructuredDataResponse>
   }
 
-  /**
-   * Generate robots.txt content
-   * 
-   * @param baseUrl - Base URL for sitemap reference
-   * @returns robots.txt content
-   * 
-   * @example
-   * ```typescript
-   * // Generate robots.txt for Next.js
-   * export async function GET() {
-   *   const robotsTxt = await client.seo.getRobotsTxt('https://myblog.com')
-   *   
-   *   return new Response(robotsTxt, {
-   *     headers: {
-   *       'Content-Type': 'text/plain',
-   *     },
-   *   })
-   * }
-   * ```
-   */
-  async getRobotsTxt(baseUrl?: string): Promise<string> {
-    const params = new URLSearchParams()
-    if (baseUrl) params.set('baseUrl', baseUrl)
-    
-    const query = params.toString()
-    const url = `/v1/seo/robots${query ? `?${query}` : ''}`
-    
-    return this.http.get(url) as Promise<string>
-  }
 }

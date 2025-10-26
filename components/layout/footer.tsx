@@ -44,7 +44,7 @@ const Footer = () => {
         </div>
 
         <div className="mt-8 pt-8 border-t text-center text-sm text-muted-foreground">
-          <p>© 2025 Simplist. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Simplist. All rights reserved.</p>
         </div>
       </div>
     </footer>

@@ -135,8 +135,9 @@ export const generateHreflangTags = (article: any, baseUrl?: string, projectSlug
   return hreflangTags
 }
 
-export const generateRSSFeed = (articles: any[], project: any, baseUrl: string, lang?: string): string => {
-  const feedUrl = `${baseUrl}/v1/seo/rss/${project.slug}${lang ? `?lang=${lang}` : ''}`
+export const generateRSSFeed = (articles: any[], project: any, baseUrl: string, lang?: string, customPath?: string): string => {
+  // The feed URL should point to the user's site RSS endpoint, not the API
+  const feedUrl = `${baseUrl}/rss.xml${lang ? `?lang=${lang}` : ''}`
   const siteUrl = baseUrl
   
   const rssHeader = `<?xml version="1.0" encoding="UTF-8"?>
@@ -153,7 +154,10 @@ export const generateRSSFeed = (articles: any[], project: any, baseUrl: string, 
   const rssItems = articles.map(article => {
     // Use variant content if lang is specified and variant exists
     const variant = lang && article.variants?.[lang] ? article.variants[lang] : article
-    const articleUrl = `${siteUrl}/${project.slug}/${article.slug}${lang ? `?lang=${lang}` : ''}`
+    
+    // Use custom path if provided, otherwise use just the article slug (no project slug)
+    const articlePath = customPath ? customPath.replace('{slug}', article.slug) : article.slug
+    const articleUrl = `${siteUrl}/${articlePath}${lang ? `?lang=${lang}` : ''}`
     const pubDate = article.publishedAt ? new Date(article.publishedAt).toUTCString() : new Date(article.createdAt).toUTCString()
     
     return `
@@ -174,12 +178,14 @@ export const generateRSSFeed = (articles: any[], project: any, baseUrl: string, 
   return rssHeader + rssItems + rssFooter
 }
 
-export const generateSitemap = (articles: any[], project: any, baseUrl: string, lang?: string): string => {
+export const generateSitemap = (articles: any[], project: any, baseUrl: string, lang?: string, customPath?: string): string => {
   const sitemapHeader = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">`
 
   const urls = articles.flatMap(article => {
-    const baseUrlPath = `${baseUrl}/${project.slug}/${article.slug}`
+    // Use custom path if provided, otherwise use just the article slug (no project slug)
+    const articlePath = customPath ? customPath.replace('{slug}', article.slug) : article.slug
+    const baseUrlPath = `${baseUrl}/${articlePath}`
     const lastMod = new Date(article.updatedAt).toISOString().split("T")[0]
     
     const urls = []
@@ -190,7 +196,7 @@ export const generateSitemap = (articles: any[], project: any, baseUrl: string, 
     <loc>${baseUrlPath}</loc>
     <lastmod>${lastMod}</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>${generateHreflangLinks(article, baseUrl, project.slug)}
+    <priority>0.8</priority>${generateHreflangLinks(article, baseUrl, project.slug, customPath)}
   </url>`)
 
     // Add variant URLs if they exist
@@ -202,7 +208,7 @@ export const generateSitemap = (articles: any[], project: any, baseUrl: string, 
     <loc>${variantUrl}</loc>
     <lastmod>${lastMod}</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>${generateHreflangLinks(article, baseUrl, project.slug)}
+    <priority>0.8</priority>${generateHreflangLinks(article, baseUrl, project.slug, customPath)}
   </url>`)
       })
     }
@@ -210,14 +216,14 @@ export const generateSitemap = (articles: any[], project: any, baseUrl: string, 
     return urls
   }).join("")
 
-  // Add project index page
-  const projectUrl = `
+  // Add project index page (only if no custom path or if custom path allows it)
+  const projectUrl = (!customPath || customPath.includes('{slug}')) ? `
   <url>
-    <loc>${baseUrl}/${project.slug}</loc>
+    <loc>${baseUrl}/${customPath ? customPath.replace(/\/[^\/]+$/, '') : project.slug}</loc>
     <lastmod>${new Date().toISOString().split("T")[0]}</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
-  </url>`
+  </url>` : ""
 
   const sitemapFooter = `
 </urlset>`
@@ -228,12 +234,13 @@ export const generateSitemap = (articles: any[], project: any, baseUrl: string, 
 /**
  * Generate hreflang links for sitemap
  */
-export const generateHreflangLinks = (article: any, baseUrl: string, projectSlug: string) => {
+export const generateHreflangLinks = (article: any, baseUrl: string, projectSlug: string, customPath?: string) => {
   if (!article.variants) {
     return ""
   }
 
-  const baseUrlPath = `${baseUrl}/${projectSlug}/${article.slug}`
+  const articlePath = customPath ? customPath.replace('{slug}', article.slug) : article.slug
+  const baseUrlPath = `${baseUrl}/${articlePath}`
   const hreflangLinks = []
 
   // Add main article
