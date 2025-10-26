@@ -619,7 +619,7 @@ export const restoreArticle = async (articleId: string) => {
   if (!article || article.project.userId !== user.id) forbidden();
 
   // Restore the article by updating its status and clearing deletedAt
-  const restored = await prisma.article.update({
+  await prisma.article.update({
     where: {
       id: articleId,
     },
@@ -631,7 +631,7 @@ export const restoreArticle = async (articleId: string) => {
 
   revalidatePath(`/${article.project.slug}`, "layout")
   revalidatePath(`/${article.project.slug}/articles`, "page")
-  return restored
+  return true
 }
 
 export const getScheduledArticles = async () => {
