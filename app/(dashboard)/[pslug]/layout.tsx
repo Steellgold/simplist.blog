@@ -45,7 +45,7 @@ const ProjectLayout = async ({
   }
 
   // Cast projects to the expected type for the context
-  const typedProjects = projects.map(project => ({
+  const typedProjects = projects.map((project: any) => ({
     ...project,
     defaultLanguage: project.defaultLanguage as LanguageCode,
   }));
