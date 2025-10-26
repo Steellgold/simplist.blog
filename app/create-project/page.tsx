@@ -1,17 +1,19 @@
 import { AppSidebarWrapper } from "@/components/layout/sidebar-wrapper"
 import { CreateProjectForm } from "@/components/projects/create-form"
 import { SidebarProvider } from "@/components/ui/sidebar"
+import { Spinner } from "@/components/ui/spinner"
 import { getUserProjects } from "@/lib/actions/projects"
 import { getCurrentUser } from "@/lib/auth-helper"
 import type { Metadata } from "next"
 import { redirect } from "next/navigation"
+import { Suspense } from "react"
 
 export const metadata: Metadata = {
   title: "Create Project",
   robots: { index: false, follow: false },
 }
 
-const CreateProjectPage = async () => {
+const CreateProjectContent = async () => {
   const user = await getCurrentUser()
 
   if (!user) {
@@ -40,6 +42,14 @@ const CreateProjectPage = async () => {
         </div>
       </div>
     </SidebarProvider>
+  )
+}
+
+const CreateProjectPage = () => {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><Spinner /></div>}>
+      <CreateProjectContent />
+    </Suspense>
   )
 }
 

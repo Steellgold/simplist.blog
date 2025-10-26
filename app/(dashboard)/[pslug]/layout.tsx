@@ -1,10 +1,9 @@
 import { AppSidebarWrapper } from "@/components/layout/sidebar-wrapper";
 import { ProjectContextProvider } from "@/components/projects/context-provider";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { Spinner } from "@/components/ui/spinner";
 import { ThemeSwitcher } from "@/components/ui/switch-theme";
-import { getUserProjects } from "@/lib/actions/projects";
-import { getCurrentUser } from "@/lib/auth-helper";
-import { prisma } from "@/lib/db";
+import { getLayoutData } from "@/lib/cache/layout-data";
 import { type LanguageCode } from "@/lib/types/languages";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
@@ -23,21 +22,17 @@ export const metadata: Metadata = {
   },
 };
 
-const ProjectLayout = async ({
+const ProjectLayoutContent = async ({
   children,
   params,
 }: {
   children: React.ReactNode;
   params: Promise<{ "pslug": string }>;
 }) => {
-  const user = await getCurrentUser();
   const { "pslug": projectSlug } = await params;
 
-  if (!user) {
-    redirect("/auth/login");
-  }
-
-  const projects = await getUserProjects();
+  // Get cached layout data (user + projects) in one optimized query
+  const { user, projects } = await getLayoutData();
 
   // Redirect to create-project if no projects
   if (projects.length === 0) {
@@ -62,21 +57,10 @@ const ProjectLayout = async ({
     }
   }
 
-  // Get full user data (subscription info is now at project level)
-  const fullUser = await prisma.user.findUnique({
-    where: { id: user.id },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      image: true,
-    },
-  });
-
   return (
-    <SidebarProvider>
+    <>
       <Suspense fallback={<div>Loading...</div>}>
-        <AppSidebarWrapper user={fullUser || user} projects={typedProjects} currentProject={currentProject} />
+        <AppSidebarWrapper user={user} projects={typedProjects} currentProject={currentProject} />
       </Suspense>
       <ProjectContextProvider projects={typedProjects} currentProject={currentProject}>
         <main className="flex-1 w-full overflow-x-hidden">
@@ -89,6 +73,24 @@ const ProjectLayout = async ({
           </div>
         </main>
       </ProjectContextProvider>
+    </>
+  );
+};
+
+const ProjectLayout = ({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ "pslug": string }>;
+}) => {
+  return (
+    <SidebarProvider>
+      <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><Spinner /></div>}>
+        <ProjectLayoutContent params={params}>
+          {children}
+        </ProjectLayoutContent>
+      </Suspense>
     </SidebarProvider>
   );
 };

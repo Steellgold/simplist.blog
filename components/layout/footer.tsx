@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ThemeSwitcher } from "@/components/ui/switch-theme";
+import { CurrentYear } from "@/components/ui/current-year";
 
 const Footer = () => {
   return (
@@ -44,7 +45,7 @@ const Footer = () => {
         </div>
 
         <div className="mt-8 pt-8 border-t text-center text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} Simplist. All rights reserved.</p>
+          <p>© <CurrentYear /> Simplist. All rights reserved.</p>
         </div>
       </div>
     </footer>
