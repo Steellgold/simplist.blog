@@ -45,13 +45,13 @@ const ProjectLayout = async ({
   }
 
   // Cast projects to the expected type for the context
-  const typedProjects = projects.map(project => ({
+  const typedProjects = projects.map((project: any) => ({
     ...project,
     defaultLanguage: project.defaultLanguage as LanguageCode,
   }));
 
   // Find the project by slug
-  const currentProject = typedProjects.find(p => p.slug === projectSlug);
+  const currentProject = typedProjects.find((p: any) => p.slug === projectSlug);
   
   // If project not found, redirect to first project or create-project
   if (!currentProject) {
