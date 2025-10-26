@@ -10,12 +10,35 @@ export type {
   ApiResponse,
   ApiError,
   Article,
+  ArticleVariant,
   ArticleListItem,
   Project,
   ProjectStats,
   ProjectInfo,
   ArticleListParams
 } from './types/api'
+
+// Language types and utilities
+export {
+  Language,
+  type LanguageCode,
+  isValidLanguageCode,
+  getAllLanguageCodes,
+  POPULAR_LANGUAGES
+} from './types/languages'
+
+// Variant helpers
+export {
+  detectUserLanguage,
+  getVariantOrDefault,
+  getBestMatchingVariant,
+  hasVariant,
+  getAllLanguages,
+  getVariantCount,
+  isMultilingual,
+  getVariantMetadata,
+  VariantSelector
+} from './utils/variant-helpers'
 
 // Analytics types
 export type {

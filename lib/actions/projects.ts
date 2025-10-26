@@ -20,6 +20,7 @@ export const getUserProjects = async () => {
       slug: true,
       description: true,
       timezone: true,
+      defaultLanguage: true,
       createdAt: true,
       updatedAt: true,
       subscriptionTier: true,
@@ -219,6 +220,7 @@ export const updateProjectSettings = async (projectId: string, input: UpdateProj
       slug: finalSlug,
       description: input.description || null,
       timezone: input.timezone,
+      defaultLanguage: input.defaultLanguage,
       allowedOrigins: allowedOriginStrings,
     },
   })

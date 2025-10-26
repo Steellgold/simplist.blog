@@ -1,3 +1,5 @@
+import { LanguageCode } from './languages'
+
 // API Response types
 export interface ApiResponse<T> {
   data: T
@@ -14,6 +16,21 @@ export interface ApiError {
   message: string
   statusCode: number
   details?: any
+}
+
+// Article variant type
+export interface ArticleVariant {
+  lang: LanguageCode
+  title: string
+  excerpt: string | null
+  content: string
+  coverImage: string | null
+  wordCount: number
+  characterCount: number
+  lineCount: number
+  readTimeMinutes: number
+  createdAt: string
+  updatedAt: string
 }
 
 // Article types
@@ -34,6 +51,7 @@ export interface Article {
   createdAt: string
   updatedAt: string
   publishedAt: string | null
+  variants?: Record<LanguageCode, ArticleVariant>
 }
 
 export interface ArticleListItem extends Omit<Article, 'content'> {}

@@ -11,12 +11,42 @@ export const formatBytes = (bytes: bigint): string => {
 
 // Format article for API response
 export const formatArticle = (article: any) => {
-  return {
+  const formatted = {
     ...article,
     createdAt: article.createdAt.toISOString(),
     updatedAt: article.updatedAt.toISOString(),
     publishedAt: article.publishedAt?.toISOString() || null
   }
+
+  // Format variants as key-value map if present
+  if (article.variants && Array.isArray(article.variants)) {
+    formatted.variants = formatVariants(article.variants)
+  }
+
+  return formatted
+}
+
+// Format article variants as key-value map
+export const formatVariants = (variants: any[]) => {
+  const formattedVariants: Record<string, any> = {}
+  
+  for (const variant of variants) {
+    formattedVariants[variant.lang] = {
+      lang: variant.lang,
+      title: variant.title,
+      excerpt: variant.excerpt,
+      content: variant.content,
+      coverImage: variant.coverImage,
+      wordCount: variant.wordCount,
+      characterCount: variant.characterCount,
+      lineCount: variant.lineCount,
+      readTimeMinutes: variant.readTimeMinutes,
+      createdAt: variant.createdAt.toISOString(),
+      updatedAt: variant.updatedAt.toISOString(),
+    }
+  }
+  
+  return formattedVariants
 }
 
 // Format project for API response

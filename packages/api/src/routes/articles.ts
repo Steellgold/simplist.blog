@@ -178,9 +178,10 @@ const articlesRoutes: FastifyPluginAsync = async (fastify) => {
           status: { notIn: ["deleted", "scheduled"] },
           published: true // Only return published articles via public API
         },
-        include: includeSeo ? {
-          project: true
-        } : undefined
+        include: {
+          variants: true,
+          ...(includeSeo ? { project: true } : {})
+        }
       })
 
       if (!article) {

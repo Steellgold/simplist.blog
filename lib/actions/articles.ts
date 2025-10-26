@@ -3,11 +3,20 @@
 import { assertR2ObjectIsImage, getR2PublicUrl } from "@/lib/actions/images"
 import { getCurrentUser } from "@/lib/auth-helper"
 import { prisma } from "@/lib/db"
-import { checkArticleQuota, checkFeatureAccess } from "@/lib/subscription/quota-check"
+import { checkArticleQuota, checkFeatureAccess, checkVariantQuota } from "@/lib/subscription/quota-check"
+import { type LanguageCode, isValidLanguageCode } from "@/lib/types/languages"
 import { generateSlug } from "@/lib/utils"
 import { revalidatePath } from "next/cache"
 import { forbidden, notFound, redirect } from "next/navigation"
 
+// Types for article variants
+export interface ArticleVariantInput {
+  lang: LanguageCode;
+  title: string;
+  excerpt: string;
+  content: string;
+  coverImage?: string;
+}
 
 // Calculate content statistics
 const calculateStats = (content: string) => {
@@ -32,6 +41,7 @@ export const createArticle = async (formData: {
   coverImage?: string;
   scheduledPublishAt?: Date;
   projectId?: string;
+  variants?: ArticleVariantInput[];
 }) => {
   const user = await getCurrentUser();
 
@@ -51,6 +61,34 @@ export const createArticle = async (formData: {
   const quotaCheck = await checkArticleQuota(user.id, project.id);
   if (!quotaCheck.allowed) {
     throw new Error(quotaCheck.reason);
+  }
+
+  // Validate and check quota for variants
+  if (formData.variants && formData.variants.length > 0) {
+    // Validate language codes
+    for (const variant of formData.variants) {
+      if (!isValidLanguageCode(variant.lang)) {
+        throw new Error(`Invalid language code: ${variant.lang}`);
+      }
+    }
+
+    // Check variant quota
+    const variantQuotaCheck = await checkVariantQuota(user.id, project.id);
+    if (!variantQuotaCheck.allowed) {
+      throw new Error(variantQuotaCheck.reason);
+    }
+
+    // Ensure we don't exceed the per-article variant limit
+    if (variantQuotaCheck.limit && variantQuotaCheck.limit !== -1 && formData.variants.length > variantQuotaCheck.limit) {
+      throw new Error(`Cannot create ${formData.variants.length} variants. Your plan allows up to ${variantQuotaCheck.limit} variants per article.`);
+    }
+
+    // Check for duplicate languages
+    const langs = formData.variants.map(v => v.lang);
+    const duplicates = langs.filter((lang, index) => langs.indexOf(lang) !== index);
+    if (duplicates.length > 0) {
+      throw new Error(`Duplicate language variants found: ${duplicates.join(', ')}`);
+    }
   }
 
   // Validate scheduled publishing
@@ -92,7 +130,7 @@ export const createArticle = async (formData: {
     const stats = calculateStats(formData.content);
 
     // Create article within transaction
-    return await tx.article.create({
+    const newArticle = await tx.article.create({
       data: {
         title: formData.title,
         slug,
@@ -107,6 +145,28 @@ export const createArticle = async (formData: {
         ...stats,
       },
     });
+
+    // Create article variants if provided
+    if (formData.variants && formData.variants.length > 0) {
+      const variantData = formData.variants.map(variant => {
+        const variantStats = calculateStats(variant.content);
+        return {
+          articleId: newArticle.id,
+          lang: variant.lang,
+          title: variant.title,
+          excerpt: variant.excerpt,
+          content: variant.content,
+          coverImage: variant.coverImage,
+          ...variantStats,
+        };
+      });
+
+      await tx.articleVariant.createMany({
+        data: variantData,
+      });
+    }
+
+    return newArticle;
   });
 
   // Revalidate all relevant paths
@@ -330,6 +390,7 @@ export const updateArticle = async (articleId: string, formData: {
   content: string
   status: "draft" | "published" | "scheduled"
   scheduledPublishAt?: Date | null
+  variants?: ArticleVariantInput[]
 }) => {
   const user = await getCurrentUser()
   if (!user) {
@@ -355,23 +416,79 @@ export const updateArticle = async (articleId: string, formData: {
     }
   }
 
-  // Calculate content statistics
-  const stats = calculateStats(formData.content)
+  // Validate and check quota for variants
+  if (formData.variants && formData.variants.length > 0) {
+    // Validate language codes
+    for (const variant of formData.variants) {
+      if (!isValidLanguageCode(variant.lang)) {
+        throw new Error(`Invalid language code: ${variant.lang}`);
+      }
+    }
 
-  // Update article
-  const updated = await prisma.article.update({
-    where: { id: articleId },
-    data: {
-      title: formData.title,
-      excerpt: formData.excerpt,
-      content: formData.content,
-      status: formData.status,
-      published: formData.status === "published",
-      publishedAt: formData.status === "published" && !article.publishedAt ? new Date() : article.publishedAt,
-      scheduledPublishAt: formData.scheduledPublishAt,
-      ...stats,
-    },
-  })
+    // Check variant quota for the existing article
+    const variantQuotaCheck = await checkVariantQuota(user.id, article.project.id, articleId);
+    if (!variantQuotaCheck.allowed) {
+      throw new Error(variantQuotaCheck.reason);
+    }
+
+    // Check for duplicate languages
+    const langs = formData.variants.map(v => v.lang);
+    const duplicates = langs.filter((lang, index) => langs.indexOf(lang) !== index);
+    if (duplicates.length > 0) {
+      throw new Error(`Duplicate language variants found: ${duplicates.join(', ')}`);
+    }
+  }
+
+  // Use transaction to ensure atomicity
+  const updated = await prisma.$transaction(async (tx) => {
+    // Calculate content statistics
+    const stats = calculateStats(formData.content);
+
+    // Update article
+    const updatedArticle = await tx.article.update({
+      where: { id: articleId },
+      data: {
+        title: formData.title,
+        excerpt: formData.excerpt,
+        content: formData.content,
+        status: formData.status,
+        published: formData.status === "published",
+        publishedAt: formData.status === "published" && !article.publishedAt ? new Date() : article.publishedAt,
+        scheduledPublishAt: formData.scheduledPublishAt,
+        ...stats,
+      },
+    });
+
+    // Handle variants if provided
+    if (formData.variants) {
+      // Delete all existing variants
+      await tx.articleVariant.deleteMany({
+        where: { articleId },
+      });
+
+      // Create new variants
+      if (formData.variants.length > 0) {
+        const variantData = formData.variants.map(variant => {
+          const variantStats = calculateStats(variant.content);
+          return {
+            articleId,
+            lang: variant.lang,
+            title: variant.title,
+            excerpt: variant.excerpt,
+            content: variant.content,
+            coverImage: variant.coverImage,
+            ...variantStats,
+          };
+        });
+
+        await tx.articleVariant.createMany({
+          data: variantData,
+        });
+      }
+    }
+
+    return updatedArticle;
+  });
 
   revalidatePath(`/${article.project.slug}`, "layout")
   revalidatePath(`/${article.project.slug}/articles`, "page")
@@ -546,4 +663,60 @@ export const getScheduledArticles = async () => {
   })
 
   return scheduledArticles
+}
+
+export const getArticleWithVariants = async (articleId: string) => {
+  const user = await getCurrentUser()
+  if (!user) {
+    redirect("/auth/login")
+  }
+
+  const article = await prisma.article.findFirst({
+    where: {
+      id: articleId,
+      status: {
+        not: "deleted",
+      },
+    },
+    include: {
+      project: true,
+      variants: {
+        orderBy: {
+          lang: "asc",
+        },
+      },
+    },
+  })
+
+  if (!article || article.project.userId !== user.id) {
+    return null
+  }
+
+  return article
+}
+
+export const getArticleBySlugWithVariants = async (slug: string) => {
+  const user = await getCurrentUser()
+  if (!user) {
+    redirect("/auth/login")
+  }
+
+  const article = await prisma.article.findFirst({
+    where: {
+      slug,
+      project: {
+        userId: user.id, // Ensure user owns the project
+      },
+    },
+    include: {
+      project: true,
+      variants: {
+        orderBy: {
+          lang: "asc",
+        },
+      },
+    },
+  })
+
+  return article
 }
