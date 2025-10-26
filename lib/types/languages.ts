@@ -85,11 +85,54 @@ export interface Language {
   nativeName: string
 }
 
+// Mapping from language codes to country codes for flag display
+const LANGUAGE_TO_COUNTRY_MAP: Record<string, string> = {
+  en: 'us',    // English -> United States
+  ja: 'jp',    // Japanese -> Japan  
+  ko: 'kr',    // Korean -> South Korea
+  zh: 'cn',    // Chinese -> China
+  hi: 'in',    // Hindi -> India
+  el: 'gr',    // Greek -> Greece
+  he: 'il',    // Hebrew -> Israel
+  uk: 'ua',    // Ukrainian -> Ukraine
+  cs: 'cz',    // Czech -> Czech Republic
+  da: 'dk',    // Danish -> Denmark
+  sq: 'al',    // Albanian -> Albania
+  kk: 'kz',    // Kazakh -> Kazakhstan
+  lo: 'la',    // Lao -> Laos
+  ur: 'pk',    // Urdu -> Pakistan
+  fa: 'ir',    // Persian -> Iran
+  ta: 'in',    // Tamil -> India (using India flag)
+  te: 'in',    // Telugu -> India
+  or: 'in',    // Odia -> India
+  ti: 'et',    // Tigrinya -> Ethiopia
+  sw: 'tz',    // Swahili -> Tanzania
+  zu: 'za',    // Zulu -> South Africa
+  xh: 'za',    // Xhosa -> South Africa
+  ka: 'ge',    // Georgian -> Georgia
+  bg: 'bg',    // Bulgarian -> Bulgaria
+  hr: 'hr',    // Croatian -> Croatia
+  sr: 'rs',    // Serbian -> Serbia
+  sl: 'si',    // Slovenian -> Slovenia
+  et: 'ee',    // Estonian -> Estonia
+  lv: 'lv',    // Latvian -> Latvia
+  lt: 'lt',    // Lithuanian -> Lithuania
+  ca: 'es',    // Catalan -> Spain
+  eu: 'es',    // Basque -> Spain
+  gl: 'es',    // Galician -> Spain
+  is: 'is',    // Icelandic -> Iceland
+  ga: 'ie',    // Irish -> Ireland
+  mt: 'mt',    // Maltese -> Malta
+  cy: 'gb',    // Welsh -> United Kingdom
+}
+
 /**
  * Get flag URL for a language code
  */
 export const getFlagUrl = (code: LanguageCode): string => {
-  return `https://cdn.simplist.blog/flags/${code}.svg`
+  // Map language code to country code if needed
+  const countryCode = LANGUAGE_TO_COUNTRY_MAP[code] || code
+  return `https://cdn.simplist.blog/flags/${countryCode}.svg`
 }
 
 /**
