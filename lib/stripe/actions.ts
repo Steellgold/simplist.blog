@@ -216,10 +216,10 @@ export const getProjectSubscription = async (projectId: string): Promise<Subscri
 
   return {
     status: subscription.status,
-    currentPeriodStart: new Date(subscription.current_period_start * 1000),
-    currentPeriodEnd: new Date(subscription.current_period_end * 1000),
-    cancelAtPeriodEnd: subscription.cancel_at_period_end,
-    canceledAt: subscription.canceled_at ? new Date(subscription.canceled_at * 1000) : null,
+    currentPeriodStart: new Date((subscription as any).current_period_start * 1000),
+    currentPeriodEnd: new Date((subscription as any).current_period_end * 1000),
+    cancelAtPeriodEnd: (subscription as any).cancel_at_period_end,
+    canceledAt: (subscription as any).canceled_at ? new Date((subscription as any).canceled_at * 1000) : null,
   };
 };
 
@@ -265,7 +265,7 @@ export const getProjectBillingHistory = async (projectId: string) => {
 
   // Get payment intent IDs that are already in invoices (EXACT FROM ARTICLE)
   const paymentIntentIdsInInvoices = invoicesList.data.flatMap((invoice) => {
-    const pi = invoice.payment_intent;
+    const pi = (invoice as any).payment_intent;
     if (!pi) return [];
     if (typeof pi === "string") return [pi];
     if (typeof pi === "object" && "id" in pi) return [pi.id];
@@ -287,7 +287,7 @@ export const getProjectBillingHistory = async (projectId: string) => {
     let paymentMethod = null;
 
     // Try to get payment method from expanded payment_intent first
-    const pi = invoice.payment_intent;
+    const pi = (invoice as any).payment_intent;
     let piId: string | null = null;
 
     if (typeof pi === "string") {

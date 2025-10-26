@@ -5,6 +5,7 @@ import { ThemeSwitcher } from "@/components/ui/switch-theme";
 import { getUserProjects } from "@/lib/actions/projects";
 import { getCurrentUser } from "@/lib/auth-helper";
 import { prisma } from "@/lib/db";
+import { type LanguageCode } from "@/lib/types/languages";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
@@ -43,13 +44,19 @@ const ProjectLayout = async ({
     redirect("/create-project");
   }
 
+  // Cast projects to the expected type for the context
+  const typedProjects = projects.map(project => ({
+    ...project,
+    defaultLanguage: project.defaultLanguage as LanguageCode,
+  }));
+
   // Find the project by slug
-  const currentProject = projects.find(p => p.slug === projectSlug);
+  const currentProject = typedProjects.find(p => p.slug === projectSlug);
   
   // If project not found, redirect to first project or create-project
   if (!currentProject) {
-    if (projects.length > 0) {
-      redirect(`/${projects[0].slug}`);
+    if (typedProjects.length > 0) {
+      redirect(`/${typedProjects[0].slug}`);
     } else {
       redirect("/create-project");
     }
@@ -69,9 +76,9 @@ const ProjectLayout = async ({
   return (
     <SidebarProvider>
       <Suspense fallback={<div>Loading...</div>}>
-        <AppSidebarWrapper user={fullUser || user} projects={projects} currentProject={currentProject} />
+        <AppSidebarWrapper user={fullUser || user} projects={typedProjects} currentProject={currentProject} />
       </Suspense>
-      <ProjectContextProvider projects={projects} currentProject={currentProject}>
+      <ProjectContextProvider projects={typedProjects} currentProject={currentProject}>
         <main className="flex-1 w-full overflow-x-hidden">
           <div className="flex h-14 items-center justify-between border-b px-4 lg:h-16">
             <SidebarTrigger />
