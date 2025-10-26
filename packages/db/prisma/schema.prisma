@@ -85,6 +85,7 @@ model Project {
   allowedOrigins        String[]  @default([]) // Array of allowed origins for CORS
   analyticsEnabled      Boolean   @default(false) // Whether analytics tracking is enabled
   timezone              String    @default("UTC") // Project timezone for scheduled publishing
+  defaultLanguage       String    @default("en") // Default language for articles (ISO 639-1 code)
   subscriptionTier      SubscriptionTier    @default(STARTER) // "STARTER" | "PRO" - Project-specific subscription tier
   subscriptionExpiresAt DateTime? // When the subscription expires (for pro projects)
   stripeCustomerId      String?   // Stripe customer ID for this project
@@ -145,6 +146,7 @@ model Article {
   // Relations
   projectId       String
   project         Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  variants        ArticleVariant[]
   pageViews       PageView[]
   pageEvents      PageEvent[]
   createdAt       DateTime    @default(now())
@@ -154,6 +156,31 @@ model Article {
 
   @@unique([slug, projectId])
   @@map("article")
+}
+
+model ArticleVariant {
+  id              String   @id @default(cuid())
+  // Language
+  lang            String   // ISO 639-1 language code (e.g., "fr", "de", "es")
+  // Content
+  title           String
+  excerpt         String?
+  content         String
+  coverImage      String?  // PRO only: custom cover image per variant
+  // Content statistics
+  wordCount       Int      @default(0)
+  characterCount  Int      @default(0)
+  lineCount       Int      @default(0)
+  readTimeMinutes Int      @default(0)
+  // Relations
+  articleId       String
+  article         Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([articleId, lang])
+  @@index([articleId])
+  @@map("article_variant")
 }
 
 model PageView {
