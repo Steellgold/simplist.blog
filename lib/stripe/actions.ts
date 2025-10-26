@@ -4,8 +4,8 @@ import { getCurrentUser } from "@/lib/auth-helper";
 import { prisma } from "@/lib/db";
 import { stripe, STRIPE_PRODUCTS } from "@/lib/stripe/client";
 import type { PaymentMethodInfo, SubscriptionInfo } from "@/lib/stripe/types";
-import type Stripe from "stripe";
 import { redirect } from "next/navigation";
+import type Stripe from "stripe";
 
 /**
  * Extract payment method information from Stripe payment method object
