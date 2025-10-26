@@ -158,6 +158,10 @@ console.log(results.data) // Array of search results
 // Get latest articles
 const latest = await client.articles.latest(5)
 console.log(latest.data) // Array of latest articles
+
+// Get popular articles (most viewed)
+const popular = await client.articles.popular(10)
+console.log(popular.data) // Array of popular articles
 ```
 
 ### Project
@@ -202,16 +206,40 @@ The SDK provides **server-side analytics tracking** which is more privacy-friend
 #### Track Page Views
 
 ```typescript
-// Track a page view
-await client.analytics.track({
+// Track a page view (initial tracking)
+const result = await client.analytics.track({
   slug: 'article-slug',
-  referrer: 'https://google.com'
+  referrer: 'https://google.com',
+  sessionId: 'session_123',
+  pageUrl: 'https://example.com/article',
+  pageTitle: 'My Article'
+})
+
+console.log(result.pageViewId) // Use this to update metrics later
+console.log(result.visitorId)
+console.log(result.sessionId)
+
+// Update page view with engagement metrics (when user leaves)
+await client.analytics.update(result.pageViewId, {
+  timeOnPage: 120,      // seconds
+  scrollDepth: 75,      // percentage
+  exitPosition: 80,     // percentage
+  bounced: false,
+  events: [
+    {
+      type: 'click',
+      element: 'cta-button',
+      timestamp: new Date().toISOString()
+    }
+  ]
 })
 
 // Get analytics data
 const stats = await client.analytics.getStats({ days: 7 })
 console.log(stats.summary.totalViews)
 console.log(stats.summary.uniqueVisitors)
+console.log(stats.topArticles)
+console.log(stats.topCountries)
 ```
 
 #### Integration Examples
@@ -317,23 +345,130 @@ try {
 }
 ```
 
+## Multilingual Support
+
+The SDK includes built-in support for multilingual articles with language variants.
+
+### Language Types
+
+```typescript
+import {
+  Language,
+  type LanguageCode,
+  isValidLanguageCode,
+  getAllLanguageCodes,
+  POPULAR_LANGUAGES
+} from '@simplist.blog/sdk'
+
+// Check if a language code is valid
+if (isValidLanguageCode('fr')) {
+  console.log('French is supported!')
+}
+
+// Get all supported language codes
+const allLanguages = getAllLanguageCodes()
+
+// Get list of popular languages
+console.log(POPULAR_LANGUAGES) // ['en', 'es', 'fr', 'de', 'pt', 'it', 'nl', 'pl', 'ru', 'ja', 'zh', 'ko', 'ar', 'hi']
+```
+
+### Variant Helpers
+
+```typescript
+import {
+  detectUserLanguage,
+  getVariantOrDefault,
+  getBestMatchingVariant,
+  hasVariant,
+  getAllLanguages,
+  getVariantCount,
+  isMultilingual,
+  getVariantMetadata
+} from '@simplist.blog/sdk'
+
+// Get article with variants
+const response = await client.articles.get('my-article')
+const article = response.data
+
+// Detect user's preferred language
+const userLang = detectUserLanguage() // 'en', 'fr', etc.
+
+// Get the best matching variant for user's language
+const variant = getBestMatchingVariant(article, userLang)
+
+// Or get variant with fallback to default
+const content = getVariantOrDefault(article, 'fr')
+
+// Check if article has a specific language variant
+if (hasVariant(article, 'es')) {
+  console.log('Spanish version available!')
+}
+
+// Get all available languages for an article
+const languages = getAllLanguages(article) // ['en', 'fr', 'es']
+
+// Check if article is multilingual
+if (isMultilingual(article)) {
+  console.log(`Article has ${getVariantCount(article)} language versions`)
+}
+
+// Get metadata about a variant
+const metadata = getVariantMetadata(article, 'fr')
+console.log(metadata.wordCount)
+console.log(metadata.readTimeMinutes)
+```
+
+### Variant Selector Component (React)
+
+```tsx
+import { VariantSelector } from '@simplist.blog/sdk'
+
+function ArticlePage({ article }) {
+  const [selectedLang, setSelectedLang] = useState('en')
+
+  return (
+    <div>
+      <VariantSelector
+        article={article}
+        currentLanguage={selectedLang}
+        onLanguageChange={setSelectedLang}
+        className="language-switcher"
+      />
+
+      <article>
+        <h1>{getVariantOrDefault(article, selectedLang).title}</h1>
+        <div>{getVariantOrDefault(article, selectedLang).content}</div>
+      </article>
+    </div>
+  )
+}
+```
+
 ## TypeScript Support
 
 The SDK is written in TypeScript and includes full type definitions:
 
 ```typescript
-import type { 
-  Article, 
-  ArticleListItem, 
+import type {
+  Article,
+  ArticleVariant,
+  ArticleListItem,
   ProjectInfo,
   PageViewData,
+  PageEvent,
   SeoMetadata,
-  AnalyticsStats 
+  AnalyticsStats,
+  Sitemap,
+  SitemapEntry,
+  StructuredDataResponse
 } from '@simplist.blog/sdk'
 
 const articles: ArticleListItem[] = response.data
 const article: Article = singleResponse.data
 const analytics: AnalyticsStats = analyticsResponse
+
+// Variant types
+const variant: ArticleVariant = article.variants?.fr
 ```
 
 ## Rate Limiting
