@@ -2,7 +2,7 @@ import { ArticleNotFound } from "@/components/articles/article-not-found"
 import { ArticleRestore } from "@/components/articles/article-restore"
 import { EditArticleForm } from "@/components/articles/edit-form"
 import { PageLayout } from "@/components/layout/page-layout"
-import { getArticleBySlug } from "@/lib/actions/articles"
+import { getArticleBySlugWithVariants } from "@/lib/actions/articles"
 import { getCurrentUser } from "@/lib/auth-helper"
 import type { Metadata } from "next"
 import { redirect } from "next/navigation"
@@ -14,7 +14,7 @@ type PageParams = Promise<{
 
 export const generateMetadata = async ({ params }: { params: PageParams }): Promise<Metadata> => {
   const { slug } = await params
-  const article = await getArticleBySlug(slug);
+  const article = await getArticleBySlugWithVariants(slug);
 
   return {
     title: article?.title ?? "Edit Article",
@@ -29,7 +29,7 @@ const EditArticlePage = async ({ params }: { params: Promise<PageParams> }) => {
   if (!user) redirect("/auth/login")
 
   // First check if the article exists and is not deleted
-  const article = await getArticleBySlug(slug)
+  const article = await getArticleBySlugWithVariants(slug)
   if (article) {
     if (article.status === "deleted") {
       return <ArticleRestore slug={pslug} articleId={article.id} />

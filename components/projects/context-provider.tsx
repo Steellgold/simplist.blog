@@ -1,6 +1,7 @@
 "use client"
 
 import { Timezone } from "@/components/ui/timezone-selector"
+import { type LanguageCode } from "@/lib/types/languages"
 import { SubscriptionTier } from "@prisma/client"
 import { createContext, ReactNode, useContext } from "react"
 
@@ -9,6 +10,7 @@ interface Project {
   name: string
   slug: string
   timezone: Timezone
+  defaultLanguage?: LanguageCode
   allowedOrigins?: string[]
   subscriptionTier?: SubscriptionTier
   subscriptionExpiresAt?: Date | null

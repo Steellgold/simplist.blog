@@ -2,7 +2,7 @@
 
 import { buttonVariants } from "@/components/ui/button"
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
-import { MiniBadge } from "@/components/ui/mini-badge"
+import { UpgradeOverlay } from "@/components/ui/upgrade-overlay"
 import { SubscriptionTier } from "@prisma/client"
 import { ArrowUpRightIcon, FileText, Key, LineChart } from "lucide-react"
 import Link from "next/link"
@@ -94,29 +94,10 @@ export const WelcomeEmpty = ({ projectSlug, subscriptionTier }: WelcomeEmptyProp
             </Empty>
 
             {isStarter && (
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-lg overflow-hidden">
-                <div className="absolute inset-0 backdrop-blur-sm bg-gradient-to-t from-yellow-500/20 via-background/80 to-background/60" />
-                <div className="relative h-full flex items-center justify-center p-6">
-                  <div className="flex flex-col items-center text-center gap-4 max-w-xs">
-                    <div className="flex flex-col gap-1">
-                      <h3 className="text-base font-semibold text-foreground">
-                        Unlock this feature
-                      </h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed">
-                        With a Pro subscription, you can unlock this feature and continue using the app.
-                      </p>
-                    </div>
-
-                    <Link
-                      href="/pricing"
-                      className={buttonVariants({ size: "sm", variant: "default" })}
-                    >
-                      Unlock with
-                      <MiniBadge tier="LPRO" size="md" />
-                    </Link>
-                  </div>
-                </div>
-              </div>
+              <UpgradeOverlay
+                title="Unlock this feature"
+                description="Track your audience engagement and optimize your content for different languages."
+              />
             )}
           </div>
         </div>

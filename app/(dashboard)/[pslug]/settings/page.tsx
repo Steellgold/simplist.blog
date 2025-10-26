@@ -7,11 +7,14 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldSeparator } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@/components/ui/input-group"
+import { CompactLanguageSelector } from "@/components/ui/language-selector"
+import { MiniBadge } from "@/components/ui/mini-badge"
 import { toast } from "@/components/ui/sonner"
 import { Spinner } from "@/components/ui/spinner"
 import { TimezoneCombobox } from "@/components/ui/timezone-selector"
 import { useProject } from "@/hooks/use-project-context"
 import { updateProjectSettings } from "@/lib/actions/projects"
+import { type LanguageCode } from "@/lib/types/languages"
 import { UpdateProjectSettingsInput, updateProjectSettingsSchema } from "@/lib/validations/project"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Plus, X } from "lucide-react"
@@ -31,13 +34,14 @@ const SettingsPage = () => {
       slug: currentProject?.slug || "",
       // description: currentProject?.description || "",
       timezone: currentProject?.timezone || "UTC",
+      defaultLanguage: currentProject?.defaultLanguage || "en",
       allowedOrigins: currentProject?.allowedOrigins?.map((origin: string) => ({
         value: origin.replace("https://", "")
       })) || []
     },
   })
 
-  const { register, control, handleSubmit, formState: { errors } } = form
+  const { register, control, handleSubmit, formState: { errors }, watch } = form
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -56,6 +60,7 @@ const SettingsPage = () => {
         slug: data.slug,
         description: data.description,
         timezone: data.timezone,
+        defaultLanguage: data.defaultLanguage,
         allowedOrigins: data.allowedOrigins || []
       }), {
         loading: "Saving settings...",
@@ -149,6 +154,30 @@ const SettingsPage = () => {
                 />
 
                 {errors.timezone && <FieldError>{errors.timezone.message}</FieldError>}
+              </Field>
+
+              <FieldSeparator />
+
+              <Field orientation="responsive">
+                <FieldContent>
+                  <div className="flex items-center gap-2">
+                    <FieldLabel htmlFor="defaultLanguage">Default Language</FieldLabel>
+                    {currentProject?.subscriptionTier === "STARTER" && (
+                      <MiniBadge tier="PRO" size="sm" />
+                    )}
+                  </div>
+                  <FieldDescription>The default language for new articles and language variant system.</FieldDescription>
+                </FieldContent>
+
+                <CompactLanguageSelector
+                  value={watch("defaultLanguage") as LanguageCode}
+                  onValueChange={(value) => {
+                    form.setValue("defaultLanguage", value, { shouldValidate: true, shouldDirty: true })
+                  }}
+                  disabled={currentProject?.subscriptionTier === "STARTER"}
+                />
+
+                {errors.defaultLanguage && <FieldError>{errors.defaultLanguage.message}</FieldError>}
               </Field>
 
               <FieldSeparator />

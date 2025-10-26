@@ -1,13 +1,12 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { MiniBadge } from "@/components/ui/mini-badge";
-import { Item, ItemContent, ItemTitle, ItemDescription, ItemMedia, ItemGroup, ItemSeparator } from "@/components/ui/item";
-import { LineChart, TrendingUp, TrendingDown, Eye, Users, ArrowUpRight } from "lucide-react";
-import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Item, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemSeparator, ItemTitle } from "@/components/ui/item";
+import { UpgradeOverlay } from "@/components/ui/upgrade-overlay";
 import { cn } from "@/lib/utils";
+import { ArrowUpRight, Eye, TrendingDown, TrendingUp, Users } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface AnalyticsPreviewCardProps {
   analyticsEnabled: boolean;
@@ -94,29 +93,10 @@ export const AnalyticsPreviewCard = ({
       </Card>
 
       {!analyticsEnabled && (
-        <div className="border absolute backdrop-blur-sm inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-lg overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-t from-yellow-500/20 via-background/80 to-background/60" />
-          <div className="relative h-full flex items-center justify-center p-6">
-            <div className="flex flex-col items-center text-center gap-4 max-w-xs">
-              <div className="flex flex-col gap-2">
-                <h3 className="text-base font-semibold text-foreground">
-                  Upgrade to Pro to unlock Analytics
-                </h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  Track page views, unique visitors, and engagement metrics for your articles.
-                </p>
-              </div>
-
-              <Link
-                href="/pricing"
-                className={buttonVariants({ size: "sm", variant: "default" })}
-              >
-                <MiniBadge tier="PRO" size="sm" />
-                Unlock with Pro
-              </Link>
-            </div>
-          </div>
-        </div>
+        <UpgradeOverlay
+          title="Unlock this feature"
+          description="Track your audience engagement and optimize your content for different languages."
+        />
       )}
     </div>
   );
