@@ -1,5 +1,10 @@
 import { z } from "zod"
 
+export const hreflangTagSchema = z.object({
+  lang: z.string(),
+  url: z.url()
+})
+
 export const seoMetadataSchema = z.object({
   metaTitle: z.string(),
   metaDescription: z.string(),
@@ -18,7 +23,8 @@ export const seoMetadataSchema = z.object({
   author: z.string().optional(),
   publishedTime: z.iso.datetime().optional(),
   modifiedTime: z.iso.datetime().optional(),
-  readingTime: z.number().optional()
+  readingTime: z.number().optional(),
+  hreflang: z.array(hreflangTagSchema).optional()
 })
 
 export const articleSeoSchema = z.object({
@@ -57,6 +63,7 @@ export const sitemapSchema = z.object({
   generatedAt: z.iso.datetime()
 })
 
+export type HreflangTag = z.infer<typeof hreflangTagSchema>
 export type SeoMetadata = z.infer<typeof seoMetadataSchema>
 export type ArticleSeo = z.infer<typeof articleSeoSchema>
 export type SitemapEntry = z.infer<typeof sitemapEntrySchema>

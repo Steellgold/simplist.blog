@@ -1,18 +1,25 @@
 import type { SeoMetadata } from "../schemas/seo"
 
-export const generateSeoMetadata = (article: any, project: any, baseUrl?: string): SeoMetadata => {
-  const title = article.title
-  const description = article.excerpt || `${article.content.substring(0, 160)}...`
-  const canonicalUrl = baseUrl ? `${baseUrl}/${project.slug}/${article.slug}` : undefined
-  const ogImage = article.coverImage || undefined
+export const generateSeoMetadata = (article: any, project: any, baseUrl?: string, lang?: string): SeoMetadata => {
+  // Use specific variant if lang is provided, otherwise use main article
+  const variant = lang && article.variants?.[lang] ? article.variants[lang] : article
+  const isVariant = variant !== article
+  
+  const title = variant.title
+  const description = variant.excerpt || `${variant.content.substring(0, 160)}...`
+  const canonicalUrl = baseUrl ? `${baseUrl}/${project.slug}/${article.slug}${isVariant ? `?lang=${lang}` : ''}` : undefined
+  const ogImage = variant.coverImage || article.coverImage || undefined
   const publishedTime = article.publishedAt ? new Date(article.publishedAt).toISOString() : undefined
-  const modifiedTime = new Date(article.updatedAt).toISOString()
+  const modifiedTime = new Date(variant.updatedAt || article.updatedAt).toISOString()
 
-  // Generate keywords from title and content (basic implementation)
-  const keywords = generateKeywords(title, article.content)
+  // Generate keywords from variant content
+  const keywords = generateKeywords(title, variant.content)
 
   // Generate structured data for articles
-  const structuredData = generateArticleStructuredData(article, project, canonicalUrl)
+  const structuredData = generateArticleStructuredData(variant, project, canonicalUrl, lang)
+
+  // Generate hreflang tags for multilingual variants
+  const hreflang = generateHreflangTags(article, baseUrl, project.slug)
 
   return {
     metaTitle: title,
@@ -28,11 +35,12 @@ export const generateSeoMetadata = (article: any, project: any, baseUrl?: string
     canonicalUrl,
     structuredData,
     keywords,
-    language: "en",
+    language: lang || "en",
     author: project.name,
     publishedTime,
     modifiedTime,
-    readingTime: article.readTimeMinutes
+    readingTime: variant.readTimeMinutes || article.readTimeMinutes,
+    hreflang
   }
 }
 
@@ -68,7 +76,7 @@ export const generateKeywords = (title: string, content: string, maxKeywords = 1
     .map(([word]) => word)
 }
 
-export const generateArticleStructuredData = (article: any, project: any, url?: string) => {
+export const generateArticleStructuredData = (article: any, project: any, url?: string, lang?: string) => {
   return {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -95,37 +103,67 @@ export const generateArticleStructuredData = (article: any, project: any, url?: 
       "@id": url
     },
     articleSection: "Blog",
-    inLanguage: "en-US"
+    inLanguage: lang ? `${lang}-${lang.toUpperCase()}` : "en-US"
   }
 }
 
-export const generateRSSFeed = (articles: any[], project: any, baseUrl: string): string => {
-  const feedUrl = `${baseUrl}/v1/seo/rss/${project.slug}`
+/**
+ * Generate hreflang tags for multilingual variants
+ */
+export const generateHreflangTags = (article: any, baseUrl?: string, projectSlug?: string) => {
+  if (!baseUrl || !projectSlug || !article.variants) {
+    return []
+  }
+
+  const hreflangTags = []
+  const baseUrlPath = `${baseUrl}/${projectSlug}/${article.slug}`
+
+  // Add main article (default language)
+  hreflangTags.push({
+    lang: "x-default",
+    url: baseUrlPath
+  })
+
+  // Add each variant
+  Object.keys(article.variants).forEach(lang => {
+    hreflangTags.push({
+      lang,
+      url: `${baseUrlPath}?lang=${lang}`
+    })
+  })
+
+  return hreflangTags
+}
+
+export const generateRSSFeed = (articles: any[], project: any, baseUrl: string, lang?: string): string => {
+  const feedUrl = `${baseUrl}/v1/seo/rss/${project.slug}${lang ? `?lang=${lang}` : ''}`
   const siteUrl = baseUrl
   
   const rssHeader = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title><![CDATA[${project.name}]]></title>
+    <title><![CDATA[${project.name}${lang ? ` (${lang.toUpperCase()})` : ''}]]></title>
     <description><![CDATA[${project.description || `Articles from ${project.name}`}]]></description>
     <link>${siteUrl}</link>
     <atom:link href="${feedUrl}" rel="self" type="application/rss+xml"/>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
-    <language>en</language>
+    <language>${lang || 'en'}</language>
     <generator>Simplist API</generator>`
 
   const rssItems = articles.map(article => {
-    const articleUrl = `${siteUrl}/${project.slug}/${article.slug}`
+    // Use variant content if lang is specified and variant exists
+    const variant = lang && article.variants?.[lang] ? article.variants[lang] : article
+    const articleUrl = `${siteUrl}/${project.slug}/${article.slug}${lang ? `?lang=${lang}` : ''}`
     const pubDate = article.publishedAt ? new Date(article.publishedAt).toUTCString() : new Date(article.createdAt).toUTCString()
     
     return `
     <item>
-      <title><![CDATA[${article.title}]]></title>
-      <description><![CDATA[${article.excerpt || `${article.content.substring(0, 300)}...`}]]></description>
+      <title><![CDATA[${variant.title}]]></title>
+      <description><![CDATA[${variant.excerpt || `${variant.content.substring(0, 300)}...`}]]></description>
       <link>${articleUrl}</link>
       <guid isPermaLink="true">${articleUrl}</guid>
       <pubDate>${pubDate}</pubDate>
-      <content:encoded><![CDATA[${article.content}]]></content:encoded>
+      <content:encoded><![CDATA[${variant.content}]]></content:encoded>
     </item>`
   }).join("")
 
@@ -136,21 +174,40 @@ export const generateRSSFeed = (articles: any[], project: any, baseUrl: string):
   return rssHeader + rssItems + rssFooter
 }
 
-export const generateSitemap = (articles: any[], project: any, baseUrl: string): string => {
+export const generateSitemap = (articles: any[], project: any, baseUrl: string, lang?: string): string => {
   const sitemapHeader = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">`
 
-  const urls = articles.map(article => {
-    const articleUrl = `${baseUrl}/${project.slug}/${article.slug}`
+  const urls = articles.flatMap(article => {
+    const baseUrlPath = `${baseUrl}/${project.slug}/${article.slug}`
     const lastMod = new Date(article.updatedAt).toISOString().split("T")[0]
     
-    return `
+    const urls = []
+    
+    // Add main article URL
+    urls.push(`
   <url>
-    <loc>${articleUrl}</loc>
+    <loc>${baseUrlPath}</loc>
     <lastmod>${lastMod}</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>`
+    <priority>0.8</priority>${generateHreflangLinks(article, baseUrl, project.slug)}
+  </url>`)
+
+    // Add variant URLs if they exist
+    if (article.variants) {
+      Object.keys(article.variants).forEach(variantLang => {
+        const variantUrl = `${baseUrlPath}?lang=${variantLang}`
+        urls.push(`
+  <url>
+    <loc>${variantUrl}</loc>
+    <lastmod>${lastMod}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>${generateHreflangLinks(article, baseUrl, project.slug)}
+  </url>`)
+      })
+    }
+    
+    return urls
   }).join("")
 
   // Add project index page
@@ -166,4 +223,26 @@ export const generateSitemap = (articles: any[], project: any, baseUrl: string):
 </urlset>`
 
   return sitemapHeader + projectUrl + urls + sitemapFooter
+}
+
+/**
+ * Generate hreflang links for sitemap
+ */
+export const generateHreflangLinks = (article: any, baseUrl: string, projectSlug: string) => {
+  if (!article.variants) {
+    return ""
+  }
+
+  const baseUrlPath = `${baseUrl}/${projectSlug}/${article.slug}`
+  const hreflangLinks = []
+
+  // Add main article
+  hreflangLinks.push(`    <xhtml:link rel="alternate" hreflang="x-default" href="${baseUrlPath}" />`)
+
+  // Add each variant
+  Object.keys(article.variants).forEach(lang => {
+    hreflangLinks.push(`    <xhtml:link rel="alternate" hreflang="${lang}" href="${baseUrlPath}?lang=${lang}" />`)
+  })
+
+  return hreflangLinks.join("\n")
 }

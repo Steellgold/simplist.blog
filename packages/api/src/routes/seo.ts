@@ -111,20 +111,27 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
     }
   })
 
-  // Get sitemap for a project  
-  fastify.get("/seo/sitemap", {
+  // Get SEO metadata for a specific article variant
+  fastify.get("/seo/article/:articleSlug/:lang", {
     schema: {
+      params: {
+        type: "object",
+        properties: {
+          articleSlug: { type: "string" },
+          lang: { type: "string" }
+        },
+        required: ["articleSlug", "lang"]
+      },
       querystring: {
         type: "object",
         properties: {
-          baseUrl: { type: "string", format: "uri" },
-          format: { type: "string", enum: ["xml", "json"] }
-        },
-        required: ["baseUrl"]
+          baseUrl: { type: "string", format: "uri" }
+        }
       }
     }
   }, async (request, reply) => {
-    const { baseUrl, format = "xml" } = request.query as { baseUrl: string, format?: "xml" | "json" }
+    const { articleSlug, lang } = request.params as { articleSlug: string, lang: string }
+    const { baseUrl } = request.query as { baseUrl?: string }
 
     if (!request.apiKey) {
       return reply.status(401 as any).send({ error: "API key required" })
@@ -140,12 +147,90 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
         return reply.status(404 as any).send({ error: "Project not found" })
       }
 
-      // Get published articles
+      // Find the article with variants
+      const article = await prisma.article.findFirst({
+        where: {
+          slug: articleSlug,
+          projectId: project.id,
+          published: true,
+          status: "published"
+        },
+        include: {
+          variants: true
+        }
+      })
+
+      if (!article) {
+        return reply.status(404 as any).send({ error: "Article not found" })
+      }
+
+      // Check if variant exists
+      if (!article.variants || !article.variants.some(v => v.lang === lang)) {
+        return reply.status(404 as any).send({ error: "Variant not found" })
+      }
+
+      // Generate SEO metadata for the specific variant
+      const seoMetadata = generateSeoMetadata(article, project, baseUrl, lang)
+
+      const response = {
+        ...article,
+        createdAt: article.createdAt.toISOString(),
+        updatedAt: article.updatedAt.toISOString(),
+        publishedAt: article.publishedAt?.toISOString() || null,
+        seo: seoMetadata,
+        project: {
+          name: project.name,
+          slug: project.slug,
+          description: project.description
+        }
+      }
+
+      return reply.send(response)
+    } catch (error) {
+      fastify.log.error(error, "Failed to get article variant SEO metadata")
+      return reply.status(500 as any).send({ error: "Internal server error" })
+    }
+  })
+
+  // Get sitemap for a project  
+  fastify.get("/seo/sitemap", {
+    schema: {
+      querystring: {
+        type: "object",
+        properties: {
+          baseUrl: { type: "string", format: "uri" },
+          format: { type: "string", enum: ["xml", "json"] },
+          lang: { type: "string" }
+        },
+        required: ["baseUrl"]
+      }
+    }
+  }, async (request, reply) => {
+    const { baseUrl, format = "xml", lang } = request.query as { baseUrl: string, format?: "xml" | "json", lang?: string }
+
+    if (!request.apiKey) {
+      return reply.status(401 as any).send({ error: "API key required" })
+    }
+
+    try {
+      // Get project from API key
+      const project = await prisma.project.findUnique({
+        where: { id: request.apiKey.projectId }
+      })
+
+      if (!project) {
+        return reply.status(404 as any).send({ error: "Project not found" })
+      }
+
+      // Get published articles with variants
       const articles = await prisma.article.findMany({
         where: {
           projectId: project.id,
           published: true,
           status: "published"
+        },
+        include: {
+          variants: true
         },
         orderBy: {
           updatedAt: "desc"
@@ -153,7 +238,7 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
       })
 
       if (format === "xml") {
-        const sitemap = generateSitemap(articles, project, baseUrl)
+        const sitemap = generateSitemap(articles, project, baseUrl, lang)
         reply.type("application/xml")
         return reply.send(sitemap)
       } else {
@@ -192,13 +277,14 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
         type: "object",
         properties: {
           baseUrl: { type: "string", format: "uri" },
-          limit: { type: "number", minimum: 1, maximum: 100 }
+          limit: { type: "number", minimum: 1, maximum: 100 },
+          lang: { type: "string" }
         },
         required: ["baseUrl"]
       }
     }
   }, async (request, reply) => {
-    const { baseUrl, limit = 20 } = request.query as { baseUrl: string, limit?: number }
+    const { baseUrl, limit = 20, lang } = request.query as { baseUrl: string, limit?: number, lang?: string }
 
     if (!request.apiKey) {
       return reply.status(401 as any).send({ error: "API key required" })
@@ -214,12 +300,15 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
         return reply.status(404 as any).send({ error: "Project not found" })
       }
 
-      // Get published articles
+      // Get published articles with variants
       const articles = await prisma.article.findMany({
         where: {
           projectId: project.id,
           published: true,
           status: "published"
+        },
+        include: {
+          variants: true
         },
         orderBy: {
           publishedAt: "desc"
@@ -227,7 +316,7 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
         take: limit
       })
 
-      const rss = generateRSSFeed(articles, project, baseUrl)
+      const rss = generateRSSFeed(articles, project, baseUrl, lang)
       
       reply.type("application/rss+xml")
       return reply.send(rss)
