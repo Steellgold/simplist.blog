@@ -1,7 +1,7 @@
 import { HttpClient } from '../utils/http.js'
 
 export interface PageViewData {
-  articleSlug: string
+  slug: string
   sessionId?: string
   pageUrl?: string
   pageTitle?: string
@@ -76,7 +76,7 @@ export class AnalyticsResource {
    * @example
    * ```typescript
    * const result = await client.analytics.track({
-   *   articleSlug: 'my-article',
+   *   slug: 'my-article',
    *   sessionId: 'session_123',
    *   pageUrl: 'https://example.com/article',
    *   timeOnPage: 120,

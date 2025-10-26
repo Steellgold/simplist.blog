@@ -30,10 +30,12 @@ const client = new SimplistClient({
 const articles = await client.articles.published()
 
 // Get a specific article
-const article = await client.articles.get('my-article-slug')
+const response = await client.articles.get('my-article-slug')
+const article = response.data
 
 // Get project information
-const project = await client.project.get()
+const response = await client.project.get()
+const project = response.data
 
 // Track page views (analytics)
 await client.analytics.track({
@@ -42,7 +44,7 @@ await client.analytics.track({
 })
 
 // Get SEO metadata
-const seoData = await client.seo.getArticle('my-article-slug')
+const seoData = await client.seo.getArticle('my-article-slug', 'https://myblog.com')
 
 // Get RSS feed (uses global path automatically)
 const rss = await client.seo.getRssFeed('https://myblog.com', 50)
@@ -147,12 +149,15 @@ console.log(response.data) // Full article with content
 ```typescript
 // Get only published articles
 const published = await client.articles.published()
+console.log(published.data) // Array of articles
 
 // Search articles
 const results = await client.articles.search('react hooks')
+console.log(results.data) // Array of search results
 
 // Get latest articles
 const latest = await client.articles.latest(5)
+console.log(latest.data) // Array of latest articles
 ```
 
 ### Project
@@ -204,9 +209,9 @@ await client.analytics.track({
 })
 
 // Get analytics data
-const analytics = await client.analytics.get('article-slug')
-console.log(analytics.data.totalViews)
-console.log(analytics.data.uniqueVisitors)
+const stats = await client.analytics.getStats({ days: 7 })
+console.log(stats.summary.totalViews)
+console.log(stats.summary.uniqueVisitors)
 ```
 
 #### Integration Examples
@@ -223,8 +228,8 @@ export default async function ArticlePage({ params }) {
     referrer: headers().get('referer') || undefined
   })
   
-  const article = await client.articles.get(params.slug)
-  return <ArticleComponent article={article} />
+  const response = await client.articles.get(params.slug)
+  return <ArticleComponent article={response.data} />
 }
 ```
 
@@ -234,7 +239,7 @@ function ArticlePage({ slug }) {
   useEffect(() => {
     const client = new SimplistClient()
     client.analytics.track({
-      slug,
+      slug: slug,
       referrer: document.referrer || undefined
     })
   }, [slug])
@@ -249,12 +254,10 @@ function ArticlePage({ slug }) {
 
 ```typescript
 // Get SEO metadata for an article
-const response = await client.seo.getArticle('article-slug', {
-  baseUrl: 'https://yourblog.com'
-})
+const article = await client.seo.getArticle('article-slug', 'https://yourblog.com')
 
-console.log(response.data.seo.metaTitle)
-console.log(response.data.seo.structuredData)
+console.log(article.seo.metaTitle)
+console.log(article.seo.structuredData)
 ```
 
 #### Generate Sitemap
@@ -283,9 +286,7 @@ const rss = await client.seo.getRssFeed('https://yourblog.com', 20, 'blog')
 #### Get Structured Data
 
 ```typescript
-const structuredData = await client.seo.getStructuredData({
-  baseUrl: 'https://yourblog.com'
-})
+const structuredData = await client.seo.getStructuredData('https://yourblog.com')
 ```
 
 
@@ -305,7 +306,8 @@ The SDK throws `SimplistApiError` for API errors:
 import { SimplistApiError } from '@simplist.blog/sdk'
 
 try {
-  const article = await client.articles.get('non-existent-slug')
+  const response = await client.articles.get('non-existent-slug')
+  const article = response.data
 } catch (error) {
   if (error instanceof SimplistApiError) {
     console.log(error.statusCode) // 404
@@ -331,7 +333,7 @@ import type {
 
 const articles: ArticleListItem[] = response.data
 const article: Article = singleResponse.data
-const analytics: AnalyticsStats = analyticsResponse.data
+const analytics: AnalyticsStats = analyticsResponse
 ```
 
 ## Rate Limiting
@@ -394,7 +396,7 @@ export async function GET() {
 // React component - API key auto-detected from environment
 import { SimplistClient } from '@simplist.blog/sdk'
 
-const client = new SimplistClient() // Uses SIMPLIST_API_KEY or REACT_APP_SIMPLIST_API_KEY
+const client = new SimplistClient() // Uses SIMPLIST_API_KEY env var
 
 function BlogWidget() {
   const [articles, setArticles] = useState([])
@@ -420,16 +422,14 @@ function BlogWidget() {
 
 ### Environment Variables
 
-For different environments, you can use:
+The SDK automatically detects the API key from the environment:
 
 ```bash
 # Server-side (Node.js, Next.js API routes)
 SIMPLIST_API_KEY=sk_your_secret_key
 
-# Client-side (React, Vue.js)  
-REACT_APP_SIMPLIST_API_KEY=pk_your_public_key
-VITE_SIMPLIST_API_KEY=pk_your_public_key
-NEXT_PUBLIC_SIMPLIST_API_KEY=pk_your_public_key
+# Client-side (Browser)
+# Set via globalThis.SIMPLIST_API_KEY or pass directly to constructor
 ```
 
 ## License
