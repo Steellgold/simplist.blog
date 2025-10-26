@@ -22,7 +22,7 @@ const BillingLoadingSkeleton = () => {
                     <Skeleton className="h-5 w-20" />
                   </FieldTitle>
                   <FieldDescription>
-                    <Skeleton className="h-4 w-64" />
+                    <span className="inline-block h-4 w-64 bg-accent animate-pulse rounded-md" />
                   </FieldDescription>
                 </FieldContent>
                 <Skeleton className="h-9 w-32" />

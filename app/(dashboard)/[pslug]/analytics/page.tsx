@@ -4,7 +4,7 @@ import { EmptyProject } from "@/components/projects/empty-project"
 import { getAllProjectAnalytics } from "@/lib/actions/analytics"
 import { getCurrentUser } from "@/lib/auth-helper"
 import { prisma } from "@/lib/db"
-import { checkAnalyticsAccess } from "@/lib/subscription/quota-check"
+import { checkAnalyticsAccess, getProjectSubscription } from "@/lib/subscription/quota-check"
 import { redirect } from "next/navigation"
 
 interface AnalyticsPageProps {
@@ -26,7 +26,11 @@ const AnalyticsPage = async ({ params }: AnalyticsPageProps) => {
   // Check if user has access to analytics
   const hasAccess = await checkAnalyticsAccess(user.id, project.id);
 
-  if (!hasAccess) redirect("/pricing")
+  // If user is not PRO, redirect to billing to upgrade
+  const subscription = await getProjectSubscription(project.id);
+  if (subscription.tier !== "PRO") {
+    redirect(`/${slug}/settings/billing`);
+  }
 
   // Get analytics data
   const analyticsData = await getAllProjectAnalytics(project.id)
