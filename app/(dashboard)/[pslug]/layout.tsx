@@ -51,7 +51,7 @@ const ProjectLayout = async ({
   }));
 
   // Find the project by slug
-  const currentProject = typedProjects.find(p => p.slug === projectSlug);
+  const currentProject = typedProjects.find((p: any) => p.slug === projectSlug);
   
   // If project not found, redirect to first project or create-project
   if (!currentProject) {
