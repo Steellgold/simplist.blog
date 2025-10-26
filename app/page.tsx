@@ -1,6 +1,7 @@
 import { getCurrentUser } from "@/lib/auth-helper";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
+import HomePage from "./home/page";
 
 const AuthCheck = async () => {
   const user = await getCurrentUser();
@@ -14,7 +15,7 @@ const AuthCheck = async () => {
 
 const RootPage = () => {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<HomePage />}>
       <AuthCheck />
     </Suspense>
   );

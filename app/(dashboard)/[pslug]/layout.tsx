@@ -59,9 +59,8 @@ const ProjectLayoutContent = async ({
 
   return (
     <>
-      <Suspense fallback={<div>Loading...</div>}>
-        <AppSidebarWrapper user={user} projects={typedProjects} currentProject={currentProject} />
-      </Suspense>
+      <AppSidebarWrapper user={user} projects={typedProjects} currentProject={currentProject} />
+
       <ProjectContextProvider projects={typedProjects} currentProject={currentProject}>
         <main className="flex-1 w-full overflow-x-hidden">
           <div className="flex h-14 items-center justify-between border-b px-4 lg:h-16">
@@ -86,7 +85,7 @@ const ProjectLayout = ({
 }) => {
   return (
     <SidebarProvider>
-      <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><Spinner /></div>}>
+      <Suspense fallback={<div className="flex items-center justify-center w-full min-h-screen"><Spinner /></div>}>
         <ProjectLayoutContent params={params}>
           {children}
         </ProjectLayoutContent>
