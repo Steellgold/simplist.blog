@@ -92,6 +92,8 @@ export const ArticleBannerUpload = ({ imagePreview, onImageChange, onRemoveImage
                 {uploadLabel}
               </Button>
             </div>
+
+            <input id="image-upload" type="file" className="hidden" accept="image/*" onChange={handleFileChange} />
           </div>
         )}
       </CardContent>

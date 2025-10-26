@@ -1,17 +1,20 @@
 "use client";
 
 import { buttonVariants } from "@/components/ui/button";
+import { toast } from "@/components/ui/sonner";
+import { useProject } from "@/hooks/use-project-context";
+import { type ArticleVariant } from "@/hooks/use-variant-operations";
 import { removeArticleCoverImage, updateArticle, updateArticleCoverImage } from "@/lib/actions/articles";
+import { type LanguageCode, getLanguageName } from "@/lib/types/languages";
 import { X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { toast } from "sonner";
+import { useEffect, useState } from "react";
 import { ArticleBannerUpload } from "./banner-upload";
 import { ArticleContentEditor } from "./content-editor";
 import { ArticleInfoFields } from "./info-fields";
+import { VariantCard } from "./variant-card";
 import { ArticleVisibilityCard } from "./visibility-card";
-import { useProjectContext } from "@/components/projects/context-provider";
 
 type ArticleStatus = "draft" | "published" | "scheduled";
 
@@ -24,6 +27,17 @@ type Article = {
   coverImage: string | null;
   projectId: string;
   scheduledPublishAt?: Date | null;
+  variants?: Array<{
+    id: string;
+    lang: string;
+    title: string;
+    excerpt: string | null;
+    content: string;
+    coverImage: string | null;
+  }>;
+  project: {
+    defaultLanguage?: string;
+  };
 };
 
 type EditArticleFormProps = {
@@ -32,9 +46,43 @@ type EditArticleFormProps = {
 
 export const EditArticleForm = ({ article }: EditArticleFormProps) => {
   const router = useRouter();
-  const { currentProject } = useProjectContext();
+  const { currentProject } = useProject();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isRemovingImage, setIsRemovingImage] = useState(false);
+
+  // Default language from project or fallback to English
+  const defaultLanguage: LanguageCode = (article.project.defaultLanguage as LanguageCode) || (currentProject?.defaultLanguage as LanguageCode) || "en";
+
+  // Initialize variants with main article data and existing variants
+  const initializeVariants = (): ArticleVariant[] => {
+    const variants: ArticleVariant[] = [];
+    
+    // Add main article as default language variant
+    variants.push({
+      lang: defaultLanguage,
+      title: article.title,
+      excerpt: article.excerpt || "",
+      content: article.content,
+      coverImage: article.coverImage || undefined,
+    });
+
+    // Add existing variants (if any)
+    if (article.variants) {
+      article.variants.forEach(variant => {
+        if (variant.lang !== defaultLanguage) {
+          variants.push({
+            lang: variant.lang as LanguageCode,
+            title: variant.title,
+            excerpt: variant.excerpt || "",
+            content: variant.content,
+            coverImage: variant.coverImage || undefined,
+          });
+        }
+      });
+    }
+
+    return variants;
+  };
 
   // Form state
   const [title, setTitle] = useState(article.title);
@@ -47,17 +95,45 @@ export const EditArticleForm = ({ article }: EditArticleFormProps) => {
   const [imagePreview, setImagePreview] = useState<string | null>(article.coverImage);
   const [imageFile, setImageFile] = useState<File | null>(null);
 
+    // Variants state
+    const [variants, setVariants] = useState<ArticleVariant[]>(initializeVariants());
+    const [activeVariant, setActiveVariant] = useState<LanguageCode>(defaultLanguage);
+
+  // Sync form fields with active variant (default or selected)
+  useEffect(() => {
+    const currentVariant = variants.find(v => v.lang === activeVariant);
+    if (currentVariant) {
+      setTitle(currentVariant.title);
+      setExcerpt(currentVariant.excerpt);
+      setContent(currentVariant.content);
+      setImagePreview(currentVariant.coverImage || null);
+    }
+  }, [activeVariant, variants]);
+
+  // Update variant when form fields change
+  const updateActiveVariant = (updates: Partial<ArticleVariant>) => {
+    setVariants(prev => prev.map(variant => 
+      variant.lang === activeVariant 
+        ? { ...variant, ...updates }
+        : variant
+    ));
+  };
+
+
   // Handle image upload
   const handlePickedImage = (file: File | null) => {
     if (!file) {
       setImageFile(null);
       setImagePreview(null);
+      updateActiveVariant({ coverImage: undefined });
       return;
     }
     setImageFile(file);
     const reader = new FileReader();
     reader.onloadend = () => {
-      setImagePreview(reader.result as string);
+      const imageUrl = reader.result as string;
+      setImagePreview(imageUrl);
+      updateActiveVariant({ coverImage: imageUrl });
     };
     reader.readAsDataURL(file);
   };
@@ -81,13 +157,13 @@ export const EditArticleForm = ({ article }: EditArticleFormProps) => {
     
     setImagePreview(null);
     setImageFile(null);
+    updateActiveVariant({ coverImage: undefined });
     // Reset file input
     const input = document.getElementById("image-upload") as HTMLInputElement;
     if (input) input.value = "";
     
     setIsRemovingImage(false);
   };
-
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
@@ -113,12 +189,31 @@ export const EditArticleForm = ({ article }: EditArticleFormProps) => {
     try {
       // Step 1: Update article
       toast.loading("Updating article content and metadata...", { id: toastId });
+      
+      // Get default language variant for main article
+      const defaultVariant = variants.find(v => v.lang === defaultLanguage);
+      if (!defaultVariant) {
+        throw new Error("Default language variant not found");
+      }
+      
+      // Prepare variants (exclude default language as it goes to main article)
+      const articleVariants = variants
+        .filter(v => v.lang !== defaultLanguage)
+        .map(v => ({
+          lang: v.lang,
+          title: v.title,
+          excerpt: v.excerpt,
+          content: v.content,
+          coverImage: v.coverImage,
+        }));
+
       await updateArticle(article.id, {
-        title,
-        excerpt,
-        content,
+        title: defaultVariant.title,
+        excerpt: defaultVariant.excerpt,
+        content: defaultVariant.content,
         status,
         scheduledPublishAt: status === "scheduled" ? scheduledPublishAt : null,
+        variants: articleVariants,
       });
 
       // Step 2: Upload new image if provided
@@ -167,16 +262,24 @@ export const EditArticleForm = ({ article }: EditArticleFormProps) => {
           <ArticleInfoFields
             title={title}
             excerpt={excerpt}
-            onTitleChange={setTitle}
-            onExcerptChange={setExcerpt}
-            cardDescription="Edit the main information of the post."
+            onTitleChange={(newTitle) => {
+              setTitle(newTitle);
+              updateActiveVariant({ title: newTitle });
+            }}
+            onExcerptChange={(newExcerpt) => {
+              setExcerpt(newExcerpt);
+              updateActiveVariant({ excerpt: newExcerpt });
+            }}
           />
 
           <ArticleContentEditor
             content={content}
-            onContentChange={setContent}
+            onContentChange={(newContent) => {
+              setContent(newContent);
+              updateActiveVariant({ content: newContent });
+            }}
             textareaId="content"
-            placeholder="Write your article here... tell your idea, your story, or share an interesting piece of information."
+            placeholder="Write your article content..."
           />
         </div>
 
@@ -205,9 +308,22 @@ export const EditArticleForm = ({ article }: EditArticleFormProps) => {
             imagePreview={imagePreview}
             onImageChange={handlePickedImage}
             onRemoveImage={handleRemoveImage}
-            uploadLabel="Change Image"
-            emptyDescription="Update the article cover image."
+            uploadLabel={activeVariant === defaultLanguage ? "Change Image" : `Change Image for ${getLanguageName(activeVariant)}`}
+            emptyDescription={
+              activeVariant === defaultLanguage 
+                ? "Update the article cover image."
+                : `Upload a specific image for ${getLanguageName(activeVariant)} variant. Each variant can have its own image.`
+            }
             isRemoving={isRemovingImage}
+          />
+
+          <VariantCard
+            defaultLanguage={defaultLanguage}
+            variants={variants}
+            onVariantsUpdate={setVariants}
+            onVariantSelect={setActiveVariant}
+            activeVariant={activeVariant}
+            disabled={isSubmitting}
           />
         </div>
       </div>

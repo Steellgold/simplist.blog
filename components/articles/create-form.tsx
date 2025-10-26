@@ -1,17 +1,20 @@
 "use client";
 
 import { buttonVariants } from "@/components/ui/button";
+import { toast } from "@/components/ui/sonner";
+import { useProject } from "@/hooks/use-project-context";
+import { type ArticleVariant } from "@/hooks/use-variant-operations";
 import { createArticle, updateArticleCoverImage } from "@/lib/actions/articles";
+import { type LanguageCode, getLanguageName } from "@/lib/types/languages";
 import { Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { toast } from "sonner";
+import { useEffect, useState } from "react";
 import { ArticleBannerUpload } from "./banner-upload";
 import { ArticleContentEditor } from "./content-editor";
 import { ArticleInfoFields } from "./info-fields";
+import { VariantCard } from "./variant-card";
 import { ArticleVisibilityCard } from "./visibility-card";
-import { useProjectContext } from "@/components/projects/context-provider";
 
 type ArticleStatus = "draft" | "published" | "scheduled";
 
@@ -21,8 +24,11 @@ type CreateArticleFormProps = {
 
 export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
   const router = useRouter();
-  const { currentProject } = useProjectContext();
+  const { currentProject } = useProject();
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Default language from project or fallback to English
+  const defaultLanguage: LanguageCode = (currentProject?.defaultLanguage as LanguageCode) || "en";
 
   // Form state
   const [title, setTitle] = useState("");
@@ -33,17 +39,47 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
 
+    // Variants state
+    const [variants, setVariants] = useState<ArticleVariant[]>([
+      { lang: defaultLanguage, title: "", excerpt: "", content: "" }
+    ]);
+    const [activeVariant, setActiveVariant] = useState<LanguageCode>(defaultLanguage);
+
+  // Sync form fields with active variant (default or selected)
+  useEffect(() => {
+    const currentVariant = variants.find(v => v.lang === activeVariant);
+    if (currentVariant) {
+      setTitle(currentVariant.title);
+      setExcerpt(currentVariant.excerpt);
+      setContent(currentVariant.content);
+      setImagePreview(currentVariant.coverImage || null);
+    }
+  }, [activeVariant, variants]);
+
+  // Update variant when form fields change
+  const updateActiveVariant = (updates: Partial<ArticleVariant>) => {
+    setVariants(prev => prev.map(variant => 
+      variant.lang === activeVariant 
+        ? { ...variant, ...updates }
+        : variant
+    ));
+  };
+
+
   // Handle image upload
   const handlePickedImage = (file: File | null) => {
     if (!file) {
       setImageFile(null);
       setImagePreview(null);
+      updateActiveVariant({ coverImage: undefined });
       return;
     }
     setImageFile(file);
     const reader = new FileReader();
     reader.onloadend = () => {
-      setImagePreview(reader.result as string);
+      const imageUrl = reader.result as string;
+      setImagePreview(imageUrl);
+      updateActiveVariant({ coverImage: imageUrl });
     };
     reader.readAsDataURL(file);
   };
@@ -52,6 +88,7 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
   const handleRemoveImage = () => {
     setImagePreview(null);
     setImageFile(null);
+    updateActiveVariant({ coverImage: undefined });
     // Reset file input
     const input = document.getElementById("image-upload") as HTMLInputElement;
     if (input) input.value = "";
@@ -81,14 +118,33 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
     try {
       // Step 1: Create article
       toast.loading("Generating slug and calculating stats...", { id: toastId });
+      
+      // Get default language variant for main article
+      const defaultVariant = variants.find(v => v.lang === defaultLanguage);
+      if (!defaultVariant) {
+        throw new Error("Default language variant not found");
+      }
+      
+      // Prepare variants (exclude default language as it goes to main article)
+      const articleVariants = variants
+        .filter(v => v.lang !== defaultLanguage)
+        .map(v => ({
+          lang: v.lang,
+          title: v.title,
+          excerpt: v.excerpt,
+          content: v.content,
+          coverImage: v.coverImage,
+        }));
+
       const article = await createArticle({
-        title,
-        excerpt,
-        content,
+        title: defaultVariant.title,
+        excerpt: defaultVariant.excerpt,
+        content: defaultVariant.content,
         status,
-        coverImage: undefined,
+        coverImage: defaultVariant.coverImage,
         scheduledPublishAt: status === "scheduled" ? scheduledPublishAt || undefined : undefined,
         projectId: currentProject?.id,
+        variants: articleVariants.length > 0 ? articleVariants : undefined,
       });
 
       // Step 2: Upload image if provided
@@ -137,16 +193,24 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
           <ArticleInfoFields
             title={title}
             excerpt={excerpt}
-            onTitleChange={setTitle}
-            onExcerptChange={setExcerpt}
-            cardDescription="This is the main information of the post."
+            onTitleChange={(newTitle) => {
+              setTitle(newTitle);
+              updateActiveVariant({ title: newTitle });
+            }}
+            onExcerptChange={(newExcerpt) => {
+              setExcerpt(newExcerpt);
+              updateActiveVariant({ excerpt: newExcerpt });
+            }}
           />
 
           <ArticleContentEditor
             content={content}
-            onContentChange={setContent}
+            onContentChange={(newContent) => {
+              setContent(newContent);
+              updateActiveVariant({ content: newContent });
+            }}
             textareaId="content"
-            placeholder="Write your new article here... tell your idea, your story, or share an interesting piece of information."
+            placeholder="Write your article content..."
           />
         </div>
 
@@ -175,8 +239,22 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
             imagePreview={imagePreview}
             onImageChange={handlePickedImage}
             onRemoveImage={handleRemoveImage}
-            uploadLabel="Upload Image"
-            emptyDescription="On the response API it will return the URL of the image."
+            uploadLabel={activeVariant === defaultLanguage ? "Upload Image" : `Upload Image for ${getLanguageName(activeVariant)}`}
+            emptyDescription={
+              activeVariant === defaultLanguage 
+                ? "On the response API it will return the URL of the image."
+                : `Upload a specific image for ${getLanguageName(activeVariant)} variant. Each variant can have its own image.`
+            }
+          />
+          
+
+          <VariantCard
+            defaultLanguage={defaultLanguage}
+            variants={variants}
+            onVariantsUpdate={setVariants}
+            onVariantSelect={setActiveVariant}
+            activeVariant={activeVariant}
+            disabled={isSubmitting}
           />
         </div>
       </div>
