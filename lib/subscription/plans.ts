@@ -30,6 +30,7 @@ export interface Plan {
     maxApiKeys: number;
     maxStorageBytes: number;
     maxApiCallsPerMonth: number;
+    maxVariantsPerArticle: number;
     analyticsEnabled: boolean;
     features: {
       analytics: boolean;
@@ -60,16 +61,18 @@ export const SUBSCRIPTION_PLANS: Record<SubscriptionTier, Plan> = {
       { name: "Basic analytics", included: true },
       { name: "50MB storage", included: true },
       { name: "1,000 API calls/month", included: true },
+      { name: "Language variants", included: false },
     ],
     limits: {
       maxArticles: 5,
       maxApiKeys: 1,
       maxStorageBytes: 50 * 1024 * 1024, // 50MB
       maxApiCallsPerMonth: 1000,
+      maxVariantsPerArticle: 0, // STARTER: No variants allowed
       analyticsEnabled: true,
       features: {
         analytics: true,
-        postVariants: false,
+        postVariants: false, // Not available on STARTER
         scheduledPublishing: false,
         prioritySupport: true,
         bulkOperations: false,
@@ -105,7 +108,8 @@ export const SUBSCRIPTION_PLANS: Record<SubscriptionTier, Plan> = {
       { name: "1GB storage", included: true },
       { name: "100,000 API calls/month", included: true },
       { name: "Priority support", included: true },
-      { name: "Articles language variants", included: true },
+      { name: "Unlimited language variants", included: true },
+      { name: "Custom cover images per variant", included: true },
       { name: "Scheduled publishing", included: true },
     ],
     limits: {
@@ -113,6 +117,7 @@ export const SUBSCRIPTION_PLANS: Record<SubscriptionTier, Plan> = {
       maxApiKeys: -1,
       maxStorageBytes: 1024 * 1024 * 1024, // 1GB
       maxApiCallsPerMonth: 500000,
+      maxVariantsPerArticle: -1, // PRO: unlimited variants per article
       analyticsEnabled: true,
       features: {
         analytics: true,

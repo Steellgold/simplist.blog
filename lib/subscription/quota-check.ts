@@ -370,3 +370,43 @@ export const checkAnalyticsAccess = async (userId: string, projectId: string): P
   const subscription = await getProjectSubscription(projectId);
   return subscription.limits.analyticsEnabled;
 };
+
+/**
+ * Check if user can add more variants to an article
+ */
+export const checkVariantQuota = async (
+  userId: string,
+  projectId: string,
+  articleId?: string
+): Promise<QuotaCheckResult> => {
+  const subscription = await getProjectSubscription(projectId);
+
+  // If article ID is provided, count existing variants for that article
+  // Otherwise, check the theoretical limit for new articles
+  let currentVariants = 0;
+  if (articleId) {
+    currentVariants = await prisma.articleVariant.count({
+      where: { articleId },
+    });
+  }
+
+  // -1 means unlimited
+  if (subscription.limits.maxVariantsPerArticle !== -1 && 
+      currentVariants >= subscription.limits.maxVariantsPerArticle) {
+    const planName = subscription.tier;
+    const maxVariants = subscription.limits.maxVariantsPerArticle;
+    
+    return {
+      allowed: false,
+      reason: `Variant limit reached. Your ${planName} plan allows up to ${maxVariants} variant${maxVariants === 1 ? '' : 's'} per article.${planName === 'STARTER' ? ' Upgrade to Pro for unlimited variants.' : ''}`,
+      current: currentVariants,
+      limit: subscription.limits.maxVariantsPerArticle,
+    };
+  }
+
+  return { 
+    allowed: true, 
+    current: currentVariants, 
+    limit: subscription.limits.maxVariantsPerArticle 
+  };
+};

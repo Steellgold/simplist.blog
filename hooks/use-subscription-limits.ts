@@ -127,3 +127,33 @@ export const useArticleLimits = (projectId?: string) => {
     refetch,
   };
 };
+
+export const useVariantLimits = (projectId?: string, currentVariantCount = 0) => {
+  const { isLoading, subscription, limits } = useSubscriptionLimits(projectId);
+
+  const tier = subscription?.tier ?? "STARTER";
+  const maxVariants = limits?.maxVariantsPerArticle ?? 0;
+  const isFreeTier = tier === "STARTER";
+  
+  // For STARTER plan, no variants allowed (except default language)
+  const canAddVariant = !isFreeTier && (maxVariants === -1 || currentVariantCount < maxVariants);
+  const isAtLimit = isFreeTier || (maxVariants !== -1 && currentVariantCount >= maxVariants);
+
+  let quotaError: string | undefined;
+  if (isAtLimit && !isFreeTier) {
+    quotaError = `Variant limit reached. Your ${tier} plan allows up to ${maxVariants} variant${maxVariants === 1 ? '' : 's'} per article.`;
+  } else if (isFreeTier) {
+    quotaError = "Language variants are available with the Pro plan. Upgrade to create article variants in different languages.";
+  }
+
+  return {
+    isLoading,
+    canAddVariant,
+    currentCount: currentVariantCount,
+    maxCount: maxVariants,
+    isAtLimit,
+    isFreeTier,
+    quotaError,
+    tier,
+  };
+};

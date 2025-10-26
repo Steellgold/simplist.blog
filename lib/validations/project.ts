@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { LANGUAGES } from "@/lib/types/languages";
 
 export const createProjectSchema = z.object({
   name: z
@@ -82,6 +83,9 @@ export const updateProjectSettingsSchema = z.object({
   timezone: z
     .string()
     .min(1, "Timezone is required"),
+  defaultLanguage: z
+    .string()
+    .refine((val) => LANGUAGES.some(lang => lang.code === val), "Please select a valid language"),
   allowedOrigins: z
     .array(
       z.object({
