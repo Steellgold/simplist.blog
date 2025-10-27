@@ -1,5 +1,9 @@
+"use client"
+
 import { buttonVariants } from "@/components/ui/button";
 import { MiniBadge } from "@/components/ui/mini-badge";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 interface UpgradeOverlayProps {
@@ -17,8 +21,14 @@ export const UpgradeOverlay = ({
   buttonText = "Unlock with Pro",
   className = "",
 }: UpgradeOverlayProps) => {
+  const isMobile = useIsMobile();
+
   return (
-    <div className={`absolute inset-0 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-lg overflow-hidden ${className}`}>
+    <div className={cn(
+      "absolute inset-0 backdrop-blur-sm transition-opacity duration-200 rounded-lg overflow-hidden",
+      isMobile ? "opacity-100" : "opacity-0 group-hover:opacity-100",
+      className
+    )}>
       <div className="absolute inset-0 bg-gradient-to-t from-yellow-500/20 via-background/80 to-background/60" />
       <div className="relative h-full flex items-center justify-center p-6">
         <div className="flex flex-col items-center text-center gap-4 max-w-xs">
