@@ -4,11 +4,12 @@ const ApiKeysLoading = () => {
   return (
     <div className="container max-w-7xl mx-auto">
       {/* Header section */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-4">
         <div className="space-y-2">
           <Skeleton className="h-9 w-32" /> {/* Title */}
           <Skeleton className="h-5 w-96" /> {/* Description */}
         </div>
+
         <Skeleton className="h-10 w-40" /> {/* Create button */}
       </div>
 
