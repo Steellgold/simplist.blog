@@ -64,15 +64,15 @@ export const createCheckoutSession = async (
   if (projectId) {
     targetProject = await prisma.project.findFirst({
       where: { id: projectId, userId: user.id },
-      select: { id: true, name: true, stripeCustomerId: true },
+      select: { id: true, name: true, slug: true, stripeCustomerId: true },
     });
   } else {
     // Get user's projects to auto-select
     const projects = await prisma.project.findMany({
       where: { userId: user.id },
-      select: { id: true, name: true, stripeCustomerId: true },
+      select: { id: true, name: true, slug: true, stripeCustomerId: true },
     });
-    
+
     if (projects.length === 0) {
       redirect("/create-project");
     } else if (projects.length === 1) {
@@ -132,8 +132,8 @@ export const createCheckoutSession = async (
         quantity: 1,
       },
     ],
-    success_url: `${process.env.NEXT_PUBLIC_APP_URL}/settings/billing?success=true`,
-    cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/settings/billing?canceled=true`,
+    success_url: `${process.env.NEXT_PUBLIC_APP_URL}/${targetProject.slug}/settings/billing?success=true`,
+    cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/${targetProject.slug}/settings/billing?canceled=true`,
     metadata: {
       userId: user.id,
       projectId: targetProject.id,
@@ -170,6 +170,7 @@ export const createBillingPortalSession = async (projectId: string): Promise<{ u
       userId: currentUser.id
     },
     select: {
+      slug: true,
       stripeCustomerId: true,
     },
   });
@@ -180,7 +181,7 @@ export const createBillingPortalSession = async (projectId: string): Promise<{ u
 
   const session = await stripe.billingPortal.sessions.create({
     customer: project.stripeCustomerId,
-    return_url: `${process.env.NEXT_PUBLIC_APP_URL}/settings/billing`,
+    return_url: `${process.env.NEXT_PUBLIC_APP_URL}/${project.slug}/settings/billing`,
   });
 
   return { url: session.url };
