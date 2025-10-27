@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache"
 import { forbidden, notFound, redirect } from "next/navigation"
 import { getCurrentUser } from "../auth-helper"
 import { prisma } from "../db"
-import { CreateProjectActionInput, createProjectSchema, UpdateProjectSettingsInput } from "../validations/project"
+import { CreateProjectActionInput, createProjectSchema, RESERVED_SLUGS, UpdateProjectSettingsInput } from "../validations/project"
 
 export const getUserProjects = async () => {
   const user = await getCurrentUser()
@@ -59,6 +59,11 @@ export const createProject = async (input: CreateProjectActionInput) => {
 
   // Extract string values from the validated data
   const allowedOriginStrings = validatedData.allowedOrigins.map(origin => origin.value)
+
+  // Check if slug is reserved
+  if (RESERVED_SLUGS.includes(input.slug as typeof RESERVED_SLUGS[number])) {
+    throw new Error("This slug is reserved and cannot be used")
+  }
 
   // Check if slug already exists for this user and make it unique if needed
   let finalSlug = input.slug
@@ -146,6 +151,11 @@ export const updateProject = async (
     .replace(/[\s_-]+/g, "-")
     .replace(/^-+|-+$/g, "")
 
+  // Check if slug is reserved
+  if (RESERVED_SLUGS.includes(baseSlug as typeof RESERVED_SLUGS[number])) {
+    throw new Error("This slug is reserved and cannot be used")
+  }
+
   let finalSlug = baseSlug
   let counter = 1
 
@@ -191,6 +201,11 @@ export const updateProjectSettings = async (projectId: string, input: UpdateProj
   })
 
   if (!project) forbidden();
+
+  // Check if slug is reserved
+  if (RESERVED_SLUGS.includes(input.slug as typeof RESERVED_SLUGS[number])) {
+    throw new Error("This slug is reserved and cannot be used")
+  }
 
   // Use the provided slug and ensure uniqueness per user
   let finalSlug = input.slug

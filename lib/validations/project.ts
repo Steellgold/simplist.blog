@@ -1,6 +1,151 @@
 import { z } from "zod";
 import { LANGUAGES } from "@/lib/types/languages";
 
+// Reserved slugs that cannot be used for project names
+export const RESERVED_SLUGS = [
+  // Next.js system routes
+  "api",
+  "_next",
+  "_vercel",
+  "public",
+  "static",
+
+  // Authentication routes
+  "auth",
+  "login",
+  "register",
+  "signup",
+  "signin",
+  "signout",
+  "logout",
+  "forgot-password",
+  "reset-password",
+  "verify-email",
+  "verify",
+
+  // Admin/Dashboard routes
+  "admin",
+  "dashboard",
+  "settings",
+  "billing",
+  "account",
+  "profile",
+
+  // Application routes
+  "home",
+  "about",
+  "contact",
+  "pricing",
+  "features",
+  "blog",
+  "docs",
+  "documentation",
+  "help",
+  "support",
+  "faq",
+
+  // Legal routes
+  "legal",
+  "privacy",
+  "terms",
+  "cookies",
+  "gdpr",
+  "terms-of-service",
+  "privacy-policy",
+  "cookie-policy",
+
+  // Status/monitoring routes
+  "health",
+  "status",
+  "metrics",
+  "monitoring",
+  "ping",
+
+  // Common subdomains/prefixes
+  "www",
+  "app",
+  "cdn",
+  "mail",
+  "email",
+  "smtp",
+  "assets",
+  "uploads",
+  "downloads",
+  "files",
+  "images",
+  "img",
+  "js",
+  "css",
+  "fonts",
+  "media",
+
+  // Webhook routes
+  "webhooks",
+  "webhook",
+  "hooks",
+
+  // App-specific routes
+  "articles",
+  "analytics",
+  "api-keys",
+  "create-project",
+  "projects",
+  "search",
+  "subscription",
+  "limits",
+
+  // Content management routes
+  "new",
+  "edit",
+
+  // API versioning and technical routes
+  "v1",
+  "version",
+  "cron",
+  "track",
+  "stats",
+  "rss",
+  "feed",
+
+  // AI/ML routes
+  "ai",
+
+  // Upload routes
+  "icon",
+  "banner",
+
+  // Error pages
+  "error",
+  "forbidden",
+  "unauthorized",
+  "not-found",
+
+  // Payment providers
+  "stripe",
+  "paypal",
+  "checkout",
+
+  // Technical/reserved words
+  "null",
+  "undefined",
+  "true",
+  "false",
+  "root",
+  "system",
+  "test",
+  "demo",
+  "example",
+  "sample",
+
+  // Other common routes
+  "sitemap",
+  "robots",
+  "favicon",
+  "manifest",
+  "service-worker",
+  "sw",
+] as const;
+
 export const createProjectSchema = z.object({
   name: z
     .string()
@@ -74,7 +219,11 @@ export const updateProjectSettingsSchema = z.object({
     .string()
     .min(1, "Project slug is required")
     .max(100, "Project slug must be less than 100 characters")
-    .regex(/^[a-z0-9-]+$/, "Slug can only contain lowercase letters, numbers, and hyphens"),
+    .regex(/^[a-z0-9-]+$/, "Slug can only contain lowercase letters, numbers, and hyphens")
+    .refine(
+      (slug) => !RESERVED_SLUGS.includes(slug as typeof RESERVED_SLUGS[number]),
+      "This slug is reserved and cannot be used"
+    ),
   description: z
     .string()
     .max(500, "Description must be less than 500 characters")
