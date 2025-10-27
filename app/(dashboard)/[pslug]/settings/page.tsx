@@ -96,6 +96,7 @@ const SettingsPage = () => {
           form="settings-form"
           size="sm"
           onClick={handleSubmit(onSubmit)}
+          disabled={isSubmitting}
         >
           {isSubmitting
             ? <><Spinner /> Save changes</>
@@ -114,7 +115,7 @@ const SettingsPage = () => {
                   <FieldDescription>The display name of your blog project.</FieldDescription>
                 </FieldContent>
 
-                <Input id="name" {...register("name")} />
+                <Input id="name" {...register("name")} disabled={isSubmitting} />
                 {errors.name && <FieldError>{errors.name.message}</FieldError>}
               </Field>
 
@@ -134,9 +135,10 @@ const SettingsPage = () => {
                     id="slug"
                     placeholder="my-project"
                     {...register("slug")}
+                    disabled={isSubmitting}
                   />
                 </InputGroup>
-                
+
                 {errors.slug && <FieldError>{errors.slug.message}</FieldError>}
               </Field>
 
@@ -151,6 +153,7 @@ const SettingsPage = () => {
                 <TimezoneCombobox
                   defaultValue={currentProject.timezone}
                   onValueChange={(value) => form.setValue("timezone", value)}
+                  // disabled={isSubmitting}
                 />
 
                 {errors.timezone && <FieldError>{errors.timezone.message}</FieldError>}
@@ -174,7 +177,7 @@ const SettingsPage = () => {
                   onValueChange={(value) => {
                     form.setValue("defaultLanguage", value, { shouldValidate: true, shouldDirty: true })
                   }}
-                  disabled={currentProject?.subscriptionTier === "STARTER"}
+                  disabled={currentProject?.subscriptionTier === "STARTER" || isSubmitting}
                 />
 
                 {errors.defaultLanguage && <FieldError>{errors.defaultLanguage.message}</FieldError>}
@@ -188,7 +191,7 @@ const SettingsPage = () => {
                   <FieldDescription>Add domains that can use your API. Leave empty to allow all origins.</FieldDescription>
                 </FieldContent>
 
-                <Button type="button" variant="outline" size="sm" onClick={() => append({ value: "" })}>
+                <Button type="button" variant="outline" size="sm" onClick={() => append({ value: "" })} disabled={isSubmitting}>
                   <Plus />
                   Add Origin
                 </Button>
@@ -203,6 +206,7 @@ const SettingsPage = () => {
                       <InputGroupInput
                         placeholder="yourdomain.com or *.yourdomain.com"
                         {...register(`allowedOrigins.${index}.value`)}
+                        disabled={isSubmitting}
                       />
 
                       <InputGroupAddon align="inline-end">
@@ -210,6 +214,7 @@ const SettingsPage = () => {
                           type="button"
                           variant="outline"
                           onClick={() => remove(index)}
+                          disabled={isSubmitting}
                         >
                           <X />
                         </InputGroupButton>

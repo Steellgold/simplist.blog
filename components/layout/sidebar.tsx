@@ -2,6 +2,7 @@
 
 import { LogOut } from "lucide-react"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 
 import { ChartLine } from "@/components/animate-ui/icons/chart-line"
 import { LayersIcon } from "@/components/animate-ui/icons/layers"
@@ -121,6 +122,7 @@ export const AppSidebar = ({
   isCreatingProject = false,
 }: AppSidebarProps) => {
   const [itemHovered, setItemHovered] = useState<string | null>(null)
+  const pathname = usePathname()
 
   const getUserInitials = () => {
     if (!user.name) return "?"
@@ -136,6 +138,15 @@ export const AppSidebar = ({
     new Date(activeProject.subscriptionExpiresAt) > new Date();
 
   const navigationItems = getNavigationItems(isPro ?? false, activeProject?.slug || "", isPro ?? false);
+
+  const isItemActive = (href: string) => {
+    // Exact match for dashboard
+    if (href === `/${activeProject?.slug}`) {
+      return pathname === href
+    }
+    // For other pages, check if pathname starts with the href
+    return pathname.startsWith(href)
+  }
 
   return (
     <Sidebar variant="floating" collapsible="icon">
@@ -155,39 +166,43 @@ export const AppSidebar = ({
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navigationItems.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton 
-                    asChild={!item.disabled}
-                    disabled={item.disabled}
-                    className={item.disabled ? "opacity-50 cursor-not-allowed" : ""}
-                    onMouseEnter={() => setItemHovered(item.href)}
-                    onMouseLeave={() => setItemHovered(null)}
-                    tooltip={item.disabled ? `${item.title} (Premium required)` : undefined}
-                  >
-                    {item.disabled ? (
-                      <div className="flex items-center gap-2 w-full [&>svg]:size-4">
-                        {cloneElement(item.icon as React.ReactElement, {
-                          // @ts-expect-error - animate prop is added dynamically
-                          animate: itemHovered === item.href
-                        })}
-                        <span className="flex-1 group-data-[collapsible=icon]:hidden">{item.title}</span>
-                        {item.showProBadge && (
-                          <MiniBadge tier="PRO" size="sm" className="group-data-[collapsible=icon]:hidden" />
-                        )}
-                      </div>
-                    ) : (
-                      <Link href={item.href}>
-                        {cloneElement(item.icon as React.ReactElement, {
-                          // @ts-expect-error - animate prop is added dynamically
-                          animate: itemHovered === item.href
-                        })}
-                        <span className="group-data-[collapsible=icon]:hidden">{item.title}</span>
-                      </Link>
-                    )}
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {navigationItems.map((item) => {
+                const isActive = isItemActive(item.href)
+                return (
+                  <SidebarMenuItem key={item.href}>
+                    <SidebarMenuButton
+                      asChild={!item.disabled}
+                      disabled={item.disabled}
+                      isActive={isActive}
+                      className={item.disabled ? "opacity-50 cursor-not-allowed" : ""}
+                      onMouseEnter={() => setItemHovered(item.href)}
+                      onMouseLeave={() => setItemHovered(null)}
+                      tooltip={item.disabled ? `${item.title} (Premium required)` : undefined}
+                    >
+                      {item.disabled ? (
+                        <div className="flex items-center gap-2 w-full [&>svg]:size-4">
+                          {cloneElement(item.icon as React.ReactElement, {
+                            // @ts-expect-error - animate prop is added dynamically
+                            animate: itemHovered === item.href
+                          })}
+                          <span className="flex-1 group-data-[collapsible=icon]:hidden">{item.title}</span>
+                          {item.showProBadge && (
+                            <MiniBadge tier="PRO" size="sm" className="group-data-[collapsible=icon]:hidden" />
+                          )}
+                        </div>
+                      ) : (
+                        <Link href={item.href}>
+                          {cloneElement(item.icon as React.ReactElement, {
+                            // @ts-expect-error - animate prop is added dynamically
+                            animate: itemHovered === item.href || isActive
+                          })}
+                          <span className="group-data-[collapsible=icon]:hidden">{item.title}</span>
+                        </Link>
+                      )}
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

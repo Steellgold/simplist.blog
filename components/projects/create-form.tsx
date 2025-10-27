@@ -1,19 +1,17 @@
 "use client"
 
-import { Button, buttonVariants } from "@/components/ui/button"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@/components/ui/input-group"
 import { toast } from "@/components/ui/sonner"
-import { Textarea } from "@/components/ui/textarea"
 import { TimezoneCombobox } from "@/components/ui/timezone-selector"
 import { createProject } from "@/lib/actions/projects"
 import { cn, generateSlug } from "@/lib/utils"
-import { CreateProjectInput, createProjectSchema } from "@/lib/validations/project"
+import { CreateProjectInput, createProjectSchema, RESERVED_SLUGS } from "@/lib/validations/project"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { ArrowLeft, Plus, X } from "lucide-react"
-import Link from "next/link"
+import { Plus, X } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { useFieldArray, useForm } from "react-hook-form"
@@ -45,6 +43,13 @@ export const CreateProjectForm = ({ className, ...props }: React.ComponentProps<
     setError("")
     setIsSubmitting(true)
     const slug = generateSlug(data.name)
+
+    // Check if slug is reserved
+    if (RESERVED_SLUGS.includes(slug as typeof RESERVED_SLUGS[number])) {
+      setError(`The name "${data.name}" generates a reserved slug. Please choose a different name.`)
+      setIsSubmitting(false)
+      return
+    }
 
     toast.promise(
       createProject({
@@ -184,13 +189,6 @@ export const CreateProjectForm = ({ className, ...props }: React.ComponentProps<
           </form>
         </CardContent>
       </Card>
-
-      <p className="text-center">
-        <Link href="/" className={buttonVariants({ variant: "outline" })}>
-          <ArrowLeft />
-          Back to Dashboard
-        </Link>
-      </p>
     </div>
   )
 }

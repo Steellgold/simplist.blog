@@ -54,7 +54,7 @@ export const ArticleVisibilityCard = ({
             <SelectTrigger id="status" className="w-full" suppressHydrationWarning>
               <SelectValue />
             </SelectTrigger>
-            <SelectContent suppressHydrationWarning>
+            <SelectContent side="bottom" align="start" suppressHydrationWarning>
               <SelectItem value="draft">Draft</SelectItem>
               <SelectItem value="published">Published</SelectItem>
               <SelectItem value="scheduled" disabled={!isPro}>

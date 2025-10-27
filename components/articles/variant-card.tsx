@@ -1,20 +1,40 @@
 "use client"
 
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { LanguageSelector } from "@/components/ui/language-selector"
+import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { toast } from "@/components/ui/sonner"
 import { UpgradeOverlay } from "@/components/ui/upgrade-overlay"
 import { useProject } from "@/hooks/use-project-context"
 import { useVariantLimits } from "@/hooks/use-subscription-limits"
 import { useVariantOperations, type ArticleVariant } from "@/hooks/use-variant-operations"
-import { getFlagUrl, getLanguageName, type LanguageCode } from "@/lib/types/languages"
-import { Edit, Plus, Trash2 } from "lucide-react"
+import { getFlagUrl, getLanguageName, type LanguageCode, getAllLanguages, getPopularLanguages } from "@/lib/types/languages"
+import { Plus, Trash2, Check } from "lucide-react"
 import { useState } from "react"
 import { UpgradeProject } from "../projects/upgrade-project"
-import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemTitle } from "../ui/item"
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldSet,
+  FieldTitle,
+} from "@/components/ui/field"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
+import { cn } from "@/lib/utils"
+import Image from "next/image"
 
 interface VariantCardProps {
   defaultLanguage: LanguageCode
@@ -25,43 +45,76 @@ interface VariantCardProps {
   activeVariant?: LanguageCode
 }
 
-export function VariantCard({
+export const VariantCard = ({
   defaultLanguage,
   variants,
   onVariantsUpdate,
   disabled = false,
   onVariantSelect,
   activeVariant,
-}: VariantCardProps) {
+}: VariantCardProps) => {
   const { currentProject } = useProject()
   const [addVariantOpen, setAddVariantOpen] = useState(false)
-  
+  const [selectedLanguage, setSelectedLanguage] = useState<LanguageCode | undefined>(undefined)
+  const [deleteAlertOpen, setDeleteAlertOpen] = useState(false)
+  const [variantToDelete, setVariantToDelete] = useState<LanguageCode | null>(null)
+
   const {
     addVariant,
     removeVariant,
-    getNonDefaultVariants,
-    getDefaultVariant,
-    variantCount,
-    hasNonDefaultVariants
+    variantCount
   } = useVariantOperations(variants, onVariantsUpdate, defaultLanguage)
-  
+
   const { canAddVariant, isFreeTier, quotaError } = useVariantLimits(currentProject?.id, variantCount)
 
-  const handleAddVariant = (lang: LanguageCode) => {
-    if (addVariant(lang)) {
-      toast.success(`Added ${getLanguageName(lang)} variant`)
+  const handleAddVariant = () => {
+    if (!selectedLanguage) {
+      toast.error("Please select a language")
+      return
+    }
+
+    if (addVariant(selectedLanguage)) {
+      toast.success(`Added ${getLanguageName(selectedLanguage)} variant`)
       setAddVariantOpen(false)
+      setSelectedLanguage(undefined)
     } else {
       toast.error("A variant for this language already exists")
     }
   }
 
-  const handleRemoveVariant = (lang: LanguageCode) => {
+  const handleDialogOpenChange = (open: boolean) => {
+    setAddVariantOpen(open)
+    if (!open) {
+      setSelectedLanguage(undefined)
+    }
+  }
+
+  const handleDeleteClick = (lang: LanguageCode) => {
+    const variant = variants.find(v => v.lang === lang)
+    const hasContent = variant && (variant.title || variant.content || variant.excerpt)
+
+    if (hasContent) {
+      setVariantToDelete(lang)
+      setDeleteAlertOpen(true)
+    } else {
+      confirmDeleteVariant(lang)
+    }
+  }
+
+  const confirmDeleteVariant = (lang: LanguageCode) => {
     if (removeVariant(lang)) {
       toast.success(`Removed ${getLanguageName(lang)} variant`)
+
+      // Auto-select default variant after deletion
+      if (onVariantSelect && activeVariant === lang) {
+        onVariantSelect(defaultLanguage)
+      }
     } else {
       toast.error("Cannot remove the default language variant")
     }
+
+    setDeleteAlertOpen(false)
+    setVariantToDelete(null)
   }
 
   const handleSelectVariant = (lang: LanguageCode) => {
@@ -70,17 +123,6 @@ export function VariantCard({
       toast.success(`Switched to ${getLanguageName(lang)} variant`)
     }
   }
-
-  const handleEditVariant = (lang: LanguageCode) => {
-    if (onVariantSelect) {
-      onVariantSelect(lang)
-      toast.success(`Now editing ${getLanguageName(lang)} variant`)
-    }
-  }
-
-
-  const defaultVariant = getDefaultVariant()
-  const nonDefaultVariants = getNonDefaultVariants()
 
   return (
     <div className="relative group">
@@ -92,7 +134,7 @@ export function VariantCard({
           </CardDescription>
 
           <CardAction>
-            <Dialog open={addVariantOpen} onOpenChange={setAddVariantOpen}>
+            <Dialog open={addVariantOpen} onOpenChange={handleDialogOpenChange}>
               <DialogTrigger asChild>
                 <Button
                   type="button"
@@ -104,7 +146,7 @@ export function VariantCard({
                   New Variant
                 </Button>
               </DialogTrigger>
-              
+
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>New Variant</DialogTitle>
@@ -123,16 +165,101 @@ export function VariantCard({
                     )}
                   </div>
                 ) : (
-                  <div className="space-y-4">
-                    <div className="text-sm text-muted-foreground">
-                      Select a language that doesn't already have a variant.
-                    </div>
-                    <LanguageSelector
-                      placeholder="Choose a language..."
-                      onValueChange={handleAddVariant}
-                      showPopular={true}
-                    />
-                  </div>
+                  <>
+                    <Command className="border rounded-lg">
+                      <CommandInput placeholder="Search languages..." />
+                      <CommandList className="h-[300px] max-h-[300px]">
+                        <CommandEmpty>No language found.</CommandEmpty>
+
+                        <CommandGroup heading="Popular Languages">
+                          {getPopularLanguages().map((language) => (
+                            <CommandItem
+                              key={`popular-${language.code}`}
+                              value={`${language.name} ${language.nativeName} ${language.code}`}
+                              onSelect={() => setSelectedLanguage(language.code)}
+                              className="cursor-pointer"
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 size-4",
+                                  selectedLanguage === language.code ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              <img
+                                src={getFlagUrl(language.code)}
+                                alt={`${language.name} flag`}
+                                className="w-5 h-4 object-cover rounded-xs mr-2"
+                              />
+                              <div className="flex items-center gap-2 flex-1">
+                                <span>{language.name}</span>
+                                <span className="text-muted-foreground text-sm">
+                                  {language.nativeName}
+                                </span>
+                              </div>
+                              <span className="text-muted-foreground text-xs font-mono">
+                                {language.code}
+                              </span>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+
+                        <CommandGroup heading="All Languages">
+                          {getAllLanguages()
+                            .filter(lang => !getPopularLanguages().some(p => p.code === lang.code))
+                            .map((language) => (
+                              <CommandItem
+                                key={language.code}
+                                value={`${language.name} ${language.nativeName} ${language.code}`}
+                                onSelect={() => setSelectedLanguage(language.code)}
+                                className="cursor-pointer"
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 size-4",
+                                    selectedLanguage === language.code ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                <img
+                                  src={getFlagUrl(language.code)}
+                                  alt={`${language.name} flag`}
+                                  className="w-5 h-4 object-cover rounded-xs mr-2"
+                                />
+                                <div className="flex items-center gap-2 flex-1">
+                                  <span>{language.name}</span>
+                                  <span className="text-muted-foreground text-sm">
+                                    {language.nativeName}
+                                  </span>
+                                </div>
+                                <span className="text-muted-foreground text-xs font-mono">
+                                  {language.code}
+                                </span>
+                              </CommandItem>
+                            ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+
+                    <DialogFooter>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDialogOpenChange(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="default"
+                        size="sm"
+                        onClick={handleAddVariant}
+                        disabled={!selectedLanguage}
+                      >
+                        <Plus />
+                        Add Variant
+                      </Button>
+                    </DialogFooter>
+                  </>
                 )}
               </DialogContent>
             </Dialog>
@@ -140,100 +267,85 @@ export function VariantCard({
         </CardHeader>
 
         <CardContent className="space-y-4">
-          {/* Default Language */}
-          {defaultVariant && (
-            <Item variant="outline">
-              <ItemMedia variant="icon">
-                <img src={getFlagUrl(defaultVariant.lang)} alt={`${getLanguageName(defaultVariant.lang)} flag`} className="w-4 h-3 object-cover" />
-              </ItemMedia>
-              <ItemContent>
-                <ItemTitle>
-                  {getLanguageName(defaultVariant.lang)}
-                  {activeVariant === defaultVariant.lang && (
-                    <Badge variant="default">Active</Badge>
-                  )}
-                </ItemTitle>
-                <ItemDescription>Default language</ItemDescription>
-              </ItemContent>
-              <ItemActions>
-                <Badge variant="secondary">Default</Badge>
-                {onVariantSelect && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleEditVariant(defaultVariant.lang)}
-                    disabled={disabled || isFreeTier}
-                    className="h-8 w-8 p-0"
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                )}
-              </ItemActions>
-            </Item>
-          )}
+          <FieldGroup>
+            <FieldSet>
+              <RadioGroup value={activeVariant} onValueChange={handleSelectVariant}>
+                {variants.map((variant) => {
+                  const isDefault = variant.lang === defaultLanguage
 
-          {/* Additional Variants */}
-          {hasNonDefaultVariants && (
-            <>
-              <CardDescription>Additional Variants</CardDescription>
-              <ItemGroup>
-                {nonDefaultVariants.map((variant) => (
-                  <Item key={variant.lang} variant="outline">
-                    <ItemMedia variant="icon">
-                      <img src={getFlagUrl(variant.lang)} alt={`${getLanguageName(variant.lang)} flag`} className="w-4 h-3 object-cover" />
-                    </ItemMedia>
-                      <ItemContent>
-                        <ItemTitle>
-                          {getLanguageName(variant.lang)}
-                          {activeVariant === variant.lang && (
-                            <Badge variant="default">Active</Badge>
-                          )}
-                        </ItemTitle>
-                        <ItemDescription>
-                          {variant.title || "Untitled variant"}
-                          {!variant.coverImage && (
-                            <span className="text-xs text-muted-foreground block mt-1">
-                              Uses default article image
-                            </span>
-                          )}
-                        </ItemDescription>
-                      </ItemContent>
-                    <ItemActions>
-                      {onVariantSelect && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleEditVariant(variant.lang)}
+                  return (
+                    <FieldLabel key={variant.lang} htmlFor={`variant-${variant.lang}`} className="cursor-pointer">
+                      <Field orientation="horizontal" className="items-start py-1">
+                        <div className="flex items-start gap-3 flex-1 pt-1">
+                          <Image
+                            src={getFlagUrl(variant.lang)}
+                            alt={`${getLanguageName(variant.lang)} flag`}
+                            width={24}
+                            height={16}
+                            className="object-cover rounded mt-0.5"
+                          />
+
+                          <FieldContent className="gap-0.5">
+                            <FieldTitle className="font-medium">{getLanguageName(variant.lang)}</FieldTitle>
+                            <FieldDescription className="text-sm">
+                              {isDefault ? "Default language" : (variant.title || "Untitled variant")}
+                            </FieldDescription>
+                          </FieldContent>
+                        </div>
+                        <RadioGroupItem
+                          value={variant.lang}
+                          id={`variant-${variant.lang}`}
                           disabled={disabled || isFreeTier}
-                          className="h-8 w-8 p-0"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                      )}
-                      <Button
-                        type="button"
-                        variant="outlineDestructive"
-                        size="sm"
-                        onClick={() => handleRemoveVariant(variant.lang)}
-                        disabled={disabled || isFreeTier}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </ItemActions>
-                  </Item>
-                ))}
-              </ItemGroup>
-            </>
-          )}
-
-          {/* Usage Info */}
-          <div className="text-xs text-muted-foreground">
-            {variantCount} variant{variantCount === 1 ? '' : 's'} total
-          </div>
+                          className="mt-1 shrink-0"
+                        />
+                      </Field>
+                    </FieldLabel>
+                  )
+                })}
+              </RadioGroup>
+            </FieldSet>
+          </FieldGroup>
         </CardContent>
+
+        {activeVariant && activeVariant !== defaultLanguage && (
+          <CardFooter className="border-t">
+            <Button
+              type="button"
+              variant="outlineDestructive"
+              size="sm"
+              onClick={() => handleDeleteClick(activeVariant)}
+              disabled={disabled || isFreeTier}
+              className="w-full"
+            >
+              <Trash2 />
+              Delete this variant
+            </Button>
+          </CardFooter>
+        )}
       </Card>
+
+      {/* Delete Confirmation Alert */}
+      <AlertDialog open={deleteAlertOpen} onOpenChange={setDeleteAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete variant?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This variant contains content. Are you sure you want to delete the{" "}
+              <strong>{variantToDelete && getLanguageName(variantToDelete)}</strong> variant?
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => variantToDelete && confirmDeleteVariant(variantToDelete)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Pro Backdrop */}
       {isFreeTier && (
@@ -242,7 +354,6 @@ export function VariantCard({
           description="Create article variants in different languages to reach a global audience."
         />
       )}
-
     </div>
   )
 }
