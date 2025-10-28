@@ -11,16 +11,22 @@ datasource db {
 }
 
 model User {
-  id                    String    @id
-  name                  String
-  email                 String
-  emailVerified         Boolean   @default(false)
-  image                 String?
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @default(now()) @updatedAt
-  sessions              Session[]
-  accounts              Account[]
-  projects              Project[]
+  id            String    @id
+  name          String
+  username      String?   @unique
+  email         String
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now()) @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+  projects      Project[]
+
+  displayUsername  String?
+  twoFactorEnabled Boolean?    @default(false)
+  twofactors       TwoFactor[]
+  passkeys         Passkey[]
 
   @@unique([email])
   @@map("user")
@@ -77,29 +83,29 @@ enum SubscriptionTier {
 }
 
 model Project {
-  id                    String    @id @default(cuid())
+  id                    String           @id @default(cuid())
   name                  String
   slug                  String
   description           String?
-  icon                  String?   // R2 object key for project icon
-  allowedOrigins        String[]  @default([]) // Array of allowed origins for CORS
-  timezone              String    @default("UTC") // Project timezone for scheduled publishing
-  defaultLanguage       String    @default("en") // Default language for articles (ISO 639-1 code)
-  subscriptionTier      SubscriptionTier    @default(STARTER) // "STARTER" | "PRO" - Project-specific subscription tier
+  icon                  String? // R2 object key for project icon
+  allowedOrigins        String[]         @default([]) // Array of allowed origins for CORS
+  timezone              String           @default("UTC") // Project timezone for scheduled publishing
+  defaultLanguage       String           @default("en") // Default language for articles (ISO 639-1 code)
+  subscriptionTier      SubscriptionTier @default(STARTER) // "STARTER" | "PRO" - Project-specific subscription tier
   subscriptionExpiresAt DateTime? // When the subscription expires (for pro projects)
-  stripeCustomerId      String?   // Stripe customer ID for this project
-  stripeSubscriptionId  String?  // Stripe subscription ID for this project
+  stripeCustomerId      String? // Stripe customer ID for this project
+  stripeSubscriptionId  String? // Stripe subscription ID for this project
   // API usage tracking (moved from User)
-  monthlyApiCalls       Int       @default(0) // Reset each month
-  apiCallsResetAt       DateTime  @default(now()) // Date of last reset
+  monthlyApiCalls       Int              @default(0) // Reset each month
+  apiCallsResetAt       DateTime         @default(now()) // Date of last reset
   // Storage tracking (moved from User)
-  totalStorageUsed      Int       @default(0) // In bytes
+  totalStorageUsed      Int              @default(0) // In bytes
   userId                String
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user                  User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   apiKeys               ApiKey[]
   articles              Article[]
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
 
   @@unique([slug, userId])
   @@map("project")
@@ -125,33 +131,33 @@ model ApiKey {
 }
 
 model Article {
-  id              String      @id @default(cuid())
+  id                 String           @id @default(cuid())
   //
-  title           String
-  slug            String
-  content         String
-  excerpt         String?
-  coverImage      String?
-  published       Boolean     @default(false)
-  status          String      @default("draft") // draft, published, deleted, scheduled
-  viewCount       Int         @default(0)
+  title              String
+  slug               String
+  content            String
+  excerpt            String?
+  coverImage         String?
+  published          Boolean          @default(false)
+  status             String           @default("draft") // draft, published, deleted, scheduled
+  viewCount          Int              @default(0)
   // Content statistics
-  wordCount       Int         @default(0)
-  characterCount  Int         @default(0)
-  lineCount       Int         @default(0)
-  readTimeMinutes Int         @default(0)
+  wordCount          Int              @default(0)
+  characterCount     Int              @default(0)
+  lineCount          Int              @default(0)
+  readTimeMinutes    Int              @default(0)
   // Scheduled publishing
   scheduledPublishAt DateTime?
   // Relations
-  projectId       String
-  project         Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  variants        ArticleVariant[]
-  pageViews       PageView[]
-  pageEvents      PageEvent[]
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
-  publishedAt     DateTime?
-  deletedAt       DateTime?
+  projectId          String
+  project            Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  variants           ArticleVariant[]
+  pageViews          PageView[]
+  pageEvents         PageEvent[]
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  publishedAt        DateTime?
+  deletedAt          DateTime?
 
   @@unique([slug, projectId])
   @@map("article")
@@ -160,12 +166,12 @@ model Article {
 model ArticleVariant {
   id              String   @id @default(cuid())
   // Language
-  lang            String   // ISO 639-1 language code (e.g., "fr", "de", "es")
+  lang            String // ISO 639-1 language code (e.g., "fr", "de", "es")
   // Content
   title           String
   excerpt         String?
   content         String
-  coverImage      String?  // PRO only: custom cover image per variant
+  coverImage      String? // PRO only: custom cover image per variant
   // Content statistics
   wordCount       Int      @default(0)
   characterCount  Int      @default(0)
@@ -260,4 +266,31 @@ model PageEvent {
   @@index([eventType])
   @@index([timestamp])
   @@map("page_event")
+}
+
+model TwoFactor {
+  id          String @id
+  secret      String
+  backupCodes String
+  userId      String
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("twoFactor")
+}
+
+model Passkey {
+  id           String    @id
+  name         String?
+  publicKey    String
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  credentialID String
+  counter      Int
+  deviceType   String
+  backedUp     Boolean
+  transports   String?
+  createdAt    DateTime?
+  aaguid       String?
+
+  @@map("passkey")
 }

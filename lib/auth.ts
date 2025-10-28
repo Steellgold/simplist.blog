@@ -1,6 +1,7 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { lastLoginMethod } from "better-auth/plugins";
+import { lastLoginMethod, twoFactor, username } from "better-auth/plugins";
+import { passkey } from "better-auth/plugins/passkey"
 import { prisma } from "./db";
 
 export const auth = betterAuth({
@@ -8,7 +9,19 @@ export const auth = betterAuth({
     provider: "postgresql",
   }),
   plugins: [
-    lastLoginMethod()
+    lastLoginMethod(),
+    username({
+      minUsernameLength: 3,
+      maxUsernameLength: 30
+    }),
+    twoFactor({
+      issuer: "Simplist",
+    }),
+    passkey({
+      rpID: process.env.NEXT_PUBLIC_APP_URL?.replace(/https?:\/\//, "") || "localhost",
+      rpName: "Simplist",
+      origin: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+    }),
   ],
   emailAndPassword: {
     enabled: true,
