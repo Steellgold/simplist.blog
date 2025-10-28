@@ -120,7 +120,7 @@ The TypeScript SDK (`packages/sdk/`) provides:
 - `/articles` - Article management (list view with data table)
 - `/articles/new` - Article creation form (responsive 2-column layout on desktop)
 - `/api-keys` - API key management
-- `/analytics` - Analytics dashboard (shows activation UI if not enabled)
+- `/analytics` - Analytics dashboard 
 - `/[pslug]/settings` - Settings base page
 - `/[pslug]/settings/billing` - Billing management (Stripe portal integration)
 
@@ -328,11 +328,10 @@ Located in `lib/actions/`:
 
 ### Analytics System
 
-**Analytics Activation Flow**:
-- Project-level feature flag: `analyticsEnabled` (default: false)
-- First visit to `/analytics` shows activation UI (`components/analytics-activation.tsx`)
-- Activation automatically generates a public API key (`pk_`) with `analytics` permission
-- After activation, displays integration guide with tracking script
+**Analytics System Overview**:
+- Analytics are available to all users (both STARTER and PRO tiers)
+- Users can generate a public API key (`pk_`) with `analytics` permission via the `enableAnalytics` action
+- Analytics dashboard displays integration guide with tracking script
 
 **Analytics Tracking Script** (`public/analytics.js`):
 - Client-side script using data attributes: `<script src="https://cdn.simplist.blog/analytics.js" data-api-key="pk_xxx"></script>`
