@@ -83,7 +83,6 @@ model Project {
   description           String?
   icon                  String?   // R2 object key for project icon
   allowedOrigins        String[]  @default([]) // Array of allowed origins for CORS
-  analyticsEnabled      Boolean   @default(false) // Whether analytics tracking is enabled
   timezone              String    @default("UTC") // Project timezone for scheduled publishing
   defaultLanguage       String    @default("en") // Default language for articles (ISO 639-1 code)
   subscriptionTier      SubscriptionTier    @default(STARTER) // "STARTER" | "PRO" - Project-specific subscription tier
