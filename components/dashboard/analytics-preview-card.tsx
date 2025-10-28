@@ -1,27 +1,47 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Item, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemSeparator, ItemTitle } from "@/components/ui/item";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Item,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemMedia,
+  ItemSeparator,
+  ItemTitle,
+} from "@/components/ui/item";
 import { UpgradeOverlay } from "@/components/ui/upgrade-overlay";
-import { cn } from "@/lib/utils";
-import { ArrowUpRight, Eye, TrendingDown, TrendingUp, Users } from "lucide-react";
+import {
+  ArrowUpRight,
+  Eye,
+  TrendingDown,
+  TrendingUp,
+  Users,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface AnalyticsPreviewCardProps {
-  analyticsEnabled: boolean;
   todayViews?: number;
   todayUniqueVisitors?: number;
   averageBounceRate?: number;
   projectSlug: string;
+  isPro: boolean;
 }
 
 export const AnalyticsPreviewCard = ({
-  analyticsEnabled,
   todayViews = 0,
   todayUniqueVisitors = 0,
   averageBounceRate = 0,
   projectSlug,
+  isPro,
 }: AnalyticsPreviewCardProps) => {
   const router = useRouter();
 
@@ -30,7 +50,9 @@ export const AnalyticsPreviewCard = ({
       <Card>
         <CardHeader>
           <CardTitle>Analytics Overview</CardTitle>
-          <CardDescription>Track your article views and unique visitors.</CardDescription>
+          <CardDescription>
+            Track your article views and unique visitors.
+          </CardDescription>
         </CardHeader>
 
         <CardContent>
@@ -42,7 +64,7 @@ export const AnalyticsPreviewCard = ({
               <ItemContent>
                 <ItemDescription>Views Today</ItemDescription>
                 <ItemTitle className="text-2xl font-bold">
-                  {analyticsEnabled ? todayViews.toLocaleString() : "---"}
+                  {todayViews.toLocaleString()}
                 </ItemTitle>
               </ItemContent>
             </Item>
@@ -56,7 +78,7 @@ export const AnalyticsPreviewCard = ({
               <ItemContent>
                 <ItemDescription>Unique Visitors</ItemDescription>
                 <ItemTitle className="text-2xl font-bold">
-                  {analyticsEnabled ? todayUniqueVisitors.toLocaleString() : "---"}
+                  {todayUniqueVisitors.toLocaleString()}
                 </ItemTitle>
               </ItemContent>
             </Item>
@@ -70,16 +92,14 @@ export const AnalyticsPreviewCard = ({
               <ItemContent>
                 <ItemDescription>Avg. Bounce Rate</ItemDescription>
                 <ItemTitle className="text-2xl font-bold">
-                  {analyticsEnabled ? `${averageBounceRate.toFixed(1)}%` : "---"}
+                  {`${averageBounceRate.toFixed(1)}%`}
                 </ItemTitle>
               </ItemContent>
             </Item>
           </ItemGroup>
         </CardContent>
 
-        <CardFooter className={cn({
-          "hidden": !analyticsEnabled
-        })}>
+        <CardFooter>
           <Button
             variant="ghost"
             size="sm"
@@ -92,7 +112,7 @@ export const AnalyticsPreviewCard = ({
         </CardFooter>
       </Card>
 
-      {!analyticsEnabled && (
+      {!isPro && (
         <UpgradeOverlay
           title="Unlock this feature"
           description="Track your audience engagement and optimize your content for different languages."

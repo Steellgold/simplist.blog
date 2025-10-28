@@ -48,12 +48,14 @@ const ProjectPage = () => {
     return (
       <WelcomeEmpty
         projectSlug={currentProject.slug}
+            isPro={isPro}
         subscriptionTier={dashboardData.project.subscriptionTier}
       />
     );
   }
 
   const planLimits = limits || getPlanLimits(dashboardData.project.subscriptionTier);
+  const isPro = dashboardData.project.subscriptionTier === "PRO";
 
   return (
     <PageLayout
@@ -64,7 +66,6 @@ const ProjectPage = () => {
         <StatsGrid
           publishedArticles={dashboardData.articles.published}
           totalViews={dashboardData.analytics.totalViews}
-          analyticsEnabled={dashboardData.project.analyticsEnabled}
           activeApiKeys={dashboardData.apiKeys.active}
           apiKeyLimit={planLimits.maxApiKeys}
           storageUsed={dashboardData.project.totalStorageUsed}
@@ -75,20 +76,22 @@ const ProjectPage = () => {
           <RecentArticlesCard
             articles={dashboardData.articles.recent}
             projectSlug={currentProject.slug}
+            isPro={isPro}
           />
 
           <AnalyticsPreviewCard
-            analyticsEnabled={dashboardData.project.analyticsEnabled}
             todayViews={dashboardData.analytics.todayViews}
             todayUniqueVisitors={dashboardData.analytics.todayUniqueVisitors}
             averageBounceRate={dashboardData.analytics.averageBounceRate}
             projectSlug={currentProject.slug}
+            isPro={isPro}
           />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <QuickActionsCard
             projectSlug={currentProject.slug}
+            isPro={isPro}
             articlesUsed={dashboardData.articles.total}
             articlesLimit={planLimits.maxArticles}
             apiKeysUsed={dashboardData.apiKeys.active}

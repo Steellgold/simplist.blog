@@ -274,8 +274,8 @@ export const AnalyticsDashboard = ({ analyticsData }: AnalyticsDashboardProps) =
         />
       </div>
 
-      {/* Main Chart */}
-      <Card>
+        {/* Main Chart */}
+        <Card>
         <CardHeader>
           <CardTitle>
             {selectedChartTab === 0 && "Traffic Overview"}

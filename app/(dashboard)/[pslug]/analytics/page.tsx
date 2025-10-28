@@ -4,8 +4,8 @@ import { EmptyProject } from "@/components/projects/empty-project"
 import { getAllProjectAnalytics } from "@/lib/actions/analytics"
 import { getCurrentUser } from "@/lib/auth-helper"
 import { prisma } from "@/lib/db"
-import { checkAnalyticsAccess, getProjectSubscription } from "@/lib/subscription/quota-check"
 import { redirect } from "next/navigation"
+import { getProjectSubscription } from "@/lib/subscription/quota-check"
 
 interface AnalyticsPageProps {
   params: Promise<{
@@ -23,23 +23,14 @@ const AnalyticsPage = async ({ params }: AnalyticsPageProps) => {
   const project = await prisma.project.findFirst({ where: { slug, userId: user.id } })
   if (!project) return <EmptyProject />
 
-  // Check if user has access to analytics
-  const hasAccess = await checkAnalyticsAccess(user.id, project.id);
-
-  // If user is not PRO, redirect to billing to upgrade
-  const subscription = await getProjectSubscription(project.id);
+  // Check subscription tier - Analytics is PRO only
+  const subscription = await getProjectSubscription(project.id)
   if (subscription.tier !== "PRO") {
-    redirect(`/${slug}/settings/billing`);
+    redirect(`/${slug}/settings/billing`)
   }
 
   // Get analytics data
   const analyticsData = await getAllProjectAnalytics(project.id)
-
-  // Check if there's any meaningful data
-  // TODO: Add a integration section guide
-  // const hasData = analyticsData["7"]?.summary?.totalViews > 0 || 
-  //                 analyticsData["30"]?.summary?.totalViews > 0 || 
-  //                 analyticsData["90"]?.summary?.totalViews > 0
 
   return (
     <PageLayout title="Analytics" description="Track visitor behavior and engagement for your articles">

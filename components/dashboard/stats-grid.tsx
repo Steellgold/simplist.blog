@@ -5,7 +5,6 @@ import { Progress } from "@/components/ui/progress";
 interface StatsGridProps {
   publishedArticles: number;
   totalViews: number;
-  analyticsEnabled: boolean;
   activeApiKeys: number;
   apiKeyLimit: number;
   storageUsed: number;
@@ -15,7 +14,6 @@ interface StatsGridProps {
 export const StatsGrid = ({
   publishedArticles,
   totalViews,
-  analyticsEnabled,
   activeApiKeys,
   apiKeyLimit,
   storageUsed,
@@ -58,10 +56,10 @@ export const StatsGrid = ({
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
-            {analyticsEnabled ? totalViews.toLocaleString() : "—"}
+            {totalViews.toLocaleString()}
           </div>
           <p className="text-xs text-muted-foreground mt-1">
-            {analyticsEnabled ? "all-time views" : "Analytics disabled"}
+            all-time views
           </p>
         </CardContent>
       </Card>

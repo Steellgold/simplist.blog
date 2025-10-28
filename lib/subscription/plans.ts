@@ -31,7 +31,6 @@ export interface Plan {
     maxStorageBytes: number;
     maxApiCallsPerMonth: number;
     maxVariantsPerArticle: number;
-    analyticsEnabled: boolean;
     features: {
       analytics: boolean;
       postVariants: boolean;
@@ -69,9 +68,8 @@ export const SUBSCRIPTION_PLANS: Record<SubscriptionTier, Plan> = {
       maxStorageBytes: 50 * 1024 * 1024, // 50MB
       maxApiCallsPerMonth: 1000,
       maxVariantsPerArticle: 0, // STARTER: No variants allowed
-      analyticsEnabled: true,
       features: {
-        analytics: true,
+        analytics: false, // Advanced analytics are PRO only (STARTER can see basic stats like total views)
         postVariants: false, // Not available on STARTER
         scheduledPublishing: false,
         prioritySupport: true,
@@ -118,9 +116,8 @@ export const SUBSCRIPTION_PLANS: Record<SubscriptionTier, Plan> = {
       maxStorageBytes: 1024 * 1024 * 1024, // 1GB
       maxApiCallsPerMonth: 500000,
       maxVariantsPerArticle: -1, // PRO: unlimited variants per article
-      analyticsEnabled: true,
       features: {
-        analytics: true,
+        analytics: true, // PRO has full access to advanced analytics
         postVariants: true,
         scheduledPublishing: true,
         prioritySupport: true,

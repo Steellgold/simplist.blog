@@ -10,7 +10,6 @@ export interface DashboardData {
     name: string;
     slug: string;
     subscriptionTier: "STARTER" | "PRO";
-    analyticsEnabled: boolean;
     monthlyApiCalls: number;
     apiCallsResetAt: Date;
     subscriptionExpiresAt: Date | null;
@@ -56,7 +55,6 @@ export const getDashboardData = async (
         name: true,
         slug: true,
         subscriptionTier: true,
-        analyticsEnabled: true,
         monthlyApiCalls: true,
         apiCallsResetAt: true,
         subscriptionExpiresAt: true,
@@ -108,62 +106,21 @@ export const getDashboardData = async (
       },
     });
 
-    // Fetch analytics data if enabled
-    let analyticsData = {
-      totalViews: 0,
-      todayViews: 0,
-      todayUniqueVisitors: 0,
-      averageBounceRate: 0,
-    };
+    // Fetch analytics data
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-    if (project.analyticsEnabled) {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      const [totalViews, todayStats, bouncedCount, totalCount] = await Promise.all([
-        // Total views count
-        prisma.pageView.count({
-          where: {
-            article: {
-              projectId,
-            },
+    const [totalViews, todayStats, bouncedCount, totalCount] = await Promise.all([
+      // Total views count
+      prisma.pageView.count({
+        where: {
+          article: {
+            projectId,
           },
-        }),
-        // Today's views and unique visitors
-        prisma.pageView.aggregate({
-          where: {
-            article: {
-              projectId,
-            },
-            createdAt: {
-              gte: today,
-            },
-          },
-          _count: {
-            id: true,
-          },
-        }),
-        // Count bounced views
-        prisma.pageView.count({
-          where: {
-            article: {
-              projectId,
-            },
-            bounced: true,
-          },
-        }),
-        // Total views for bounce rate calculation
-        prisma.pageView.count({
-          where: {
-            article: {
-              projectId,
-            },
-          },
-        }),
-      ]);
-
-      // Count unique visitors today
-      const uniqueVisitorsToday = await prisma.pageView.findMany({
+        },
+      }),
+      // Today's views and unique visitors
+      prisma.pageView.aggregate({
         where: {
           article: {
             projectId,
@@ -172,22 +129,54 @@ export const getDashboardData = async (
             gte: today,
           },
         },
-        distinct: ["visitorId"],
-        select: {
-          visitorId: true,
+        _count: {
+          id: true,
         },
-      });
+      }),
+      // Count bounced views
+      prisma.pageView.count({
+        where: {
+          article: {
+            projectId,
+          },
+          bounced: true,
+        },
+      }),
+      // Total views for bounce rate calculation
+      prisma.pageView.count({
+        where: {
+          article: {
+            projectId,
+          },
+        },
+      }),
+    ]);
 
-      // Calculate average bounce rate
-      const averageBounceRate = totalCount > 0 ? (bouncedCount / totalCount) * 100 : 0;
+    // Count unique visitors today
+    const uniqueVisitorsToday = await prisma.pageView.findMany({
+      where: {
+        article: {
+          projectId,
+        },
+        createdAt: {
+          gte: today,
+        },
+      },
+      distinct: ["visitorId"],
+      select: {
+        visitorId: true,
+      },
+    });
 
-      analyticsData = {
-        totalViews,
-        todayViews: todayStats._count.id,
-        todayUniqueVisitors: uniqueVisitorsToday.length,
-        averageBounceRate,
-      };
-    }
+    // Calculate average bounce rate
+    const averageBounceRate = totalCount > 0 ? (bouncedCount / totalCount) * 100 : 0;
+
+    const analyticsData = {
+      totalViews,
+      todayViews: todayStats._count.id,
+      todayUniqueVisitors: uniqueVisitorsToday.length,
+      averageBounceRate,
+    };
 
     return {
       success: true,
@@ -197,7 +186,6 @@ export const getDashboardData = async (
           name: project.name,
           slug: project.slug,
           subscriptionTier: project.subscriptionTier as "STARTER" | "PRO",
-          analyticsEnabled: project.analyticsEnabled,
           monthlyApiCalls: project.monthlyApiCalls,
           apiCallsResetAt: project.apiCallsResetAt,
           subscriptionExpiresAt: project.subscriptionExpiresAt,

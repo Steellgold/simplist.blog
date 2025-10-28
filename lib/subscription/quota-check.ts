@@ -363,13 +363,6 @@ export const checkFeatureAccess = async (
   return subscription.limits.features[feature];
 };
 
-/**
- * Check if user has analytics enabled
- */
-export const checkAnalyticsAccess = async (userId: string, projectId: string): Promise<boolean> => {
-  const subscription = await getProjectSubscription(projectId);
-  return subscription.limits.analyticsEnabled;
-};
 
 /**
  * Check if user can add more variants to an article

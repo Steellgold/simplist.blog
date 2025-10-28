@@ -2,7 +2,6 @@
 
 import { getCurrentUser } from '@/lib/auth-helper'
 import { analyticsCacheUtils, apiKeyCache, prisma } from '@/lib/db'
-import { checkAnalyticsAccess } from '@/lib/subscription/quota-check'
 import { Prisma } from '@prisma/client'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
@@ -582,11 +581,6 @@ export const enableAnalytics = async (projectId: string) => {
     redirect("/auth/login")
   }
 
-  // Check if user has access to analytics (Pro feature)
-  const hasAccess = await checkAnalyticsAccess(user.id, projectId);
-  if (!hasAccess) {
-    throw new Error("Analytics is only available on the Pro plan. Upgrade to unlock advanced analytics features.");
-  }
 
   // Verify the project belongs to the user
   const project = await prisma.project.findFirst({
@@ -600,11 +594,6 @@ export const enableAnalytics = async (projectId: string) => {
     throw new Error("Project not found or you don't have permission")
   }
 
-  // Enable analytics on the project (idempotent - safe to call multiple times)
-  await prisma.project.update({
-    where: { id: projectId },
-    data: { analyticsEnabled: true },
-  })
 
   // Check if analytics API key already exists
   const existingApiKey = await prisma.apiKey.findFirst({
