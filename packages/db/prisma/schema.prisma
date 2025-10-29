@@ -13,7 +13,8 @@ datasource db {
 model User {
   id            String    @id
   name          String
-  username      String?   @unique
+  firstName     String?
+  lastName      String?
   email         String
   emailVerified Boolean   @default(false)
   image         String?
@@ -23,7 +24,6 @@ model User {
   accounts      Account[]
   projects      Project[]
 
-  displayUsername  String?
   twoFactorEnabled Boolean?    @default(false)
   twofactors       TwoFactor[]
   passkeys         Passkey[]
