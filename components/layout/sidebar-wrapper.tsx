@@ -1,17 +1,10 @@
 "use client"
 
 import { useActiveProject } from "@/hooks/use-active-project"
-import { authClient } from "@/lib/auth-client"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { AppSidebar } from "./sidebar"
-
-interface User {
-  id: string
-  name: string
-  email: string
-  image?: string | null
-}
+import type { User } from "@/lib/auth-client"
 
 interface Project {
   id: string
@@ -34,16 +27,6 @@ export const AppSidebarWrapper = ({ user, projects, currentProject }: AppSidebar
     currentProject
   })
 
-  const handleLogout = async () => {
-    await authClient.signOut({
-      fetchOptions: {
-        onSuccess: () => {
-          router.push("/auth/login")
-        },
-      },
-    })
-  }
-
   const handleProjectChange = (projectId: string) => {
     const project = projects.find(p => p.id === projectId)
     if (project) {
@@ -63,7 +46,6 @@ export const AppSidebarWrapper = ({ user, projects, currentProject }: AppSidebar
       activeProject={activeProject}
       onProjectChange={handleProjectChange}
       onCreateProject={handleCreateProject}
-      onLogout={handleLogout}
       isCreatingProject={isCreatingProject}
     />
   )
