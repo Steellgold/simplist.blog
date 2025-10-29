@@ -10,19 +10,27 @@ export const auth = betterAuth({
   }),
   plugins: [
     lastLoginMethod(),
-    username({
-      minUsernameLength: 3,
-      maxUsernameLength: 30
-    }),
     twoFactor({
       issuer: "Simplist",
     }),
     passkey({
-      rpID: process.env.NEXT_PUBLIC_APP_URL?.replace(/https?:\/\//, "") || "localhost",
+      rpID: process.env.NODE_ENV === "development" ? "localhost" : "simplist.blog",
       rpName: "Simplist",
       origin: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
     }),
   ],
+  user: {
+    additionalFields: {
+      firstName: {
+        type: "string",
+        required: true
+      },
+      lastName: {
+        type: "string",
+        required: true
+      }
+    }
+  },
   emailAndPassword: {
     enabled: true,
   },
