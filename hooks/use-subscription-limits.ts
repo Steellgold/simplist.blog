@@ -4,7 +4,7 @@ import { getPlanLimits } from "@/lib/subscription/plans";
 import { SubscriptionTier } from "@prisma/client";
 import { useEffect, useState } from "react";
 
-interface UserSubscription {
+interface ProjectSubscription {
   tier: SubscriptionTier;
   subscriptionExpiresAt: Date | null;
 }
@@ -23,7 +23,7 @@ interface ArticleUsage {
 
 interface SubscriptionLimitsData {
   isLoading: boolean;
-  subscription: UserSubscription | null;
+  subscription: ProjectSubscription | null;
   apiKeyUsage: ApiKeyUsage | null;
   articleUsage: ArticleUsage | null;
   limits: ReturnType<typeof getPlanLimits> | null;
@@ -99,7 +99,7 @@ export const useSubscriptionLimits = (projectId?: string): SubscriptionLimitsDat
   };
 };
 
-// Hook spécialisé pour les API keys
+// Hook for API key limits
 export const useApiKeyLimits = (projectId?: string) => {
   const { isLoading, apiKeyUsage, subscription, refetch } = useSubscriptionLimits(projectId);
 
