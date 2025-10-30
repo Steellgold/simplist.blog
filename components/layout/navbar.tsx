@@ -5,12 +5,17 @@ import { UserDropdown } from "@/components/layout/user-dropdown";
 import { authClient } from "@/lib/auth-client";
 import Image from "next/image";
 import Link from "next/link";
+import { useScrollTop } from "@/hooks/use-scroll-top";
+import { cn } from "@/lib/utils";
 
-export const HomeHeader = () => {
+export const AppNavbar = () => {
   const { data, isPending } = authClient.useSession();
+  const hasScrolled = useScrollTop(150);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className={cn("sticky top-0 z-50 w-full backdrop-blur-sm", {
+      "bg-background/20": hasScrolled,
+    })}>
       <div className="container mx-auto px-4">
         <div className="flex h-14 items-center justify-between">
           <Link href="/" className="flex items-center">
