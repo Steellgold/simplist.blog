@@ -43,19 +43,18 @@ const ProjectPage = () => {
   if (!currentProject) return <EmptyProject />;
   if (isLoading || !dashboardData) return <DashboardLoading />;
 
+  const planLimits = limits || getPlanLimits(dashboardData.project.subscriptionTier);
+  const isPro = dashboardData.project.subscriptionTier === "PRO";
+
   // Show welcome screen if no articles
   if (dashboardData.articles.total === 0) {
     return (
       <WelcomeEmpty
         projectSlug={currentProject.slug}
-            isPro={isPro}
         subscriptionTier={dashboardData.project.subscriptionTier}
       />
     );
   }
-
-  const planLimits = limits || getPlanLimits(dashboardData.project.subscriptionTier);
-  const isPro = dashboardData.project.subscriptionTier === "PRO";
 
   return (
     <PageLayout
@@ -76,7 +75,6 @@ const ProjectPage = () => {
           <RecentArticlesCard
             articles={dashboardData.articles.recent}
             projectSlug={currentProject.slug}
-            isPro={isPro}
           />
 
           <AnalyticsPreviewCard
@@ -91,7 +89,6 @@ const ProjectPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <QuickActionsCard
             projectSlug={currentProject.slug}
-            isPro={isPro}
             articlesUsed={dashboardData.articles.total}
             articlesLimit={planLimits.maxArticles}
             apiKeysUsed={dashboardData.apiKeys.active}
