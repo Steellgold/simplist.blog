@@ -8,10 +8,16 @@ export const updateUserInformationSchema = z.object({
   lastName: z
     .string()
     .min(1, "Last name is required")
-    .max(50, "Last name must be less than 50 characters"),
+    .max(50, "Last name must be less than 50 characters")
+})
+
+export const updateUserEmailSchema = z.object({
+  email: z.email("Invalid email address")
+    .min(1, "Email is required")
 })
 
 export type UpdateUserInformationInput = z.infer<typeof updateUserInformationSchema>
+export type UpdateUserEmailInput = z.infer<typeof updateUserEmailSchema>
 
 export const deleteAccountSchema = z.object({
   password: z.string().min(1, "Password is required to delete your account"),
