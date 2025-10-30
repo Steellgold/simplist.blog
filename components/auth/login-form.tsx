@@ -16,18 +16,23 @@ import { cn } from "@/lib/utils"
 import { LoginInput, loginSchema } from "@/lib/validations/auth"
 import { OAuthProviders, OAuthProvidersProvider, useOAuthProviders } from "./oauth-providers"
 import { PasswordInput } from "./password-input"
+import { Spinner } from "@/components/ui/spinner"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { AlertCircleIcon } from "lucide-react"
 
 const LoginFormContent = ({ className, ...props }: React.ComponentProps<"div">) => {
   const router = useRouter()
   const { isAuthenticating } = useOAuthProviders()
-  const [error, setError] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
 
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
+    mode: "onSubmit",
+    reValidateMode: "onChange",
     defaultValues: {
       email: "",
       password: "",
@@ -35,25 +40,22 @@ const LoginFormContent = ({ className, ...props }: React.ComponentProps<"div">) 
   })
 
   const onSubmit = async (data: LoginInput) => {
-    setError("")
+    setIsLoading(true)
 
-    await toast.promise(
+    toast.promise(
       authClient.signIn.email({
         email: data.email,
         password: data.password,
-      }, {
-        onSuccess: () => {
-          router.push("/dashboard")
-        },
-        onError: (ctx) => {
-          setError(ctx.error.message || "Invalid email or password")
-          throw new Error(ctx.error.message)
-        }
-      }),
-      {
+      }), {
         loading: "Logging in...",
-        success: "Logged in successfully",
-        error: (err) => err?.message || "An error occurred during login",
+        success: () => {
+          router.push("/")
+          return "Logged in successfully"
+        },
+        error: (err) => {
+          setIsLoading(false)
+          return err.error.message || "Failed to login"
+        },
       }
     )
   }
@@ -78,8 +80,14 @@ const LoginFormContent = ({ className, ...props }: React.ComponentProps<"div">) 
               </FieldSeparator>
 
               <div className="flex flex-col gap-4">
-                {error && (
-                  <div className="text-destructive text-sm text-center">{error}</div>
+                {errors.root && (
+                  <Alert variant="destructive">
+                    <AlertCircleIcon />
+                    <AlertTitle>Error logging in</AlertTitle>
+                    <AlertDescription>
+                      {errors.root.message}
+                    </AlertDescription>
+                  </Alert>
                 )}
 
                 <Field>
@@ -89,6 +97,7 @@ const LoginFormContent = ({ className, ...props }: React.ComponentProps<"div">) 
                     type="email"
                     placeholder="jondoe@company.com"
                     {...register("email")}
+                    disabled={isLoading || isAuthenticating}
                   />
                   {errors.email && (
                     <p className="text-destructive text-sm mt-1">{errors.email.message}</p>
@@ -106,15 +115,17 @@ const LoginFormContent = ({ className, ...props }: React.ComponentProps<"div">) 
                   <PasswordInput
                     id="password"
                     {...register("password")}
+                    disabled={isLoading || isAuthenticating}
                   />
+
                   {errors.password && (
                     <p className="text-destructive text-sm mt-1">{errors.password.message}</p>
                   )}
                 </Field>
 
                 <Field>
-                  <Button type="submit" disabled={isSubmitting || isAuthenticating}>
-                    {isSubmitting ? "Logging in..." : "Login"}
+                  <Button type="submit" disabled={isLoading || isAuthenticating}>
+                    {isLoading || isAuthenticating ? <Spinner /> : "Login"}
                   </Button>
                   <FieldDescription className="text-center">
                     Don&apos;t have an account? <Link href="/auth/register">Sign up</Link>

@@ -16,18 +16,23 @@ import { cn } from "@/lib/utils"
 import { RegisterInput, registerSchema } from "@/lib/validations/auth"
 import { OAuthProviders, OAuthProvidersProvider, useOAuthProviders } from "./oauth-providers"
 import { PasswordInput } from "./password-input"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { AlertCircleIcon } from "lucide-react"
 
 const RegisterFormContent = ({ className, ...props }: React.ComponentProps<"div">) => {
   const router = useRouter()
   const { isAuthenticating } = useOAuthProviders()
   const [error, setError] = useState("")
-  
+  const [isLoading, setIsLoading] = useState(false)
+
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
+    mode: "onSubmit",
+    reValidateMode: "onChange",
     defaultValues: {
       firstName: "",
       lastName: "",
@@ -38,26 +43,22 @@ const RegisterFormContent = ({ className, ...props }: React.ComponentProps<"div"
   })
 
   const onSubmit = async (data: RegisterInput) => {
-    setError("")
+    setIsLoading(true)
 
-    await toast.promise(
+    toast.promise(
       authClient.signUp.email({
         name: `${data.firstName} ${data.lastName}`,
+        firstName: data.firstName,
+        lastName: data.lastName,
         email: data.email,
         password: data.password,
-      }, {
-        onSuccess: () => {
-          router.push("/dashboard")
-        },
-        onError: (ctx) => {
-          setError(ctx.error.message || "Failed to create account")
-          throw new Error(ctx.error.message)
-        }
-      }),
-      {
+      }), {
         loading: "Creating account...",
-        success: "Account created",
-        error: (err) => err?.message || "An error occurred during registration",
+        success: "Account created successfully",
+        error: (err) => {
+          setIsLoading(false)
+          return err.error.message || "Failed to create account"
+        },
       }
     )
   }
@@ -82,8 +83,14 @@ const RegisterFormContent = ({ className, ...props }: React.ComponentProps<"div"
               </FieldSeparator>
 
               <div className="flex flex-col gap-4">
-                {error && (
-                  <div className="text-destructive text-sm text-center">{error}</div>
+                {errors.root && (
+                  <Alert variant="destructive">
+                    <AlertCircleIcon />
+                    <AlertTitle>Error creating account</AlertTitle>
+                    <AlertDescription>
+                      {errors.root.message}
+                    </AlertDescription>
+                  </Alert>
                 )}
 
                 <div className="grid grid-cols-2 gap-4">
@@ -94,6 +101,7 @@ const RegisterFormContent = ({ className, ...props }: React.ComponentProps<"div"
                       type="text"
                       placeholder="John"
                       {...register("firstName")}
+                      disabled={isLoading || isAuthenticating}
                     />
                     {errors.firstName && (
                       <p className="text-destructive text-sm mt-1">{errors.firstName.message}</p>
@@ -107,6 +115,7 @@ const RegisterFormContent = ({ className, ...props }: React.ComponentProps<"div"
                       type="text"
                       placeholder="Doe"
                       {...register("lastName")}
+                      disabled={isLoading || isAuthenticating}
                     />
                     {errors.lastName && (
                       <p className="text-destructive text-sm mt-1">{errors.lastName.message}</p>
@@ -121,6 +130,7 @@ const RegisterFormContent = ({ className, ...props }: React.ComponentProps<"div"
                     type="email"
                     placeholder="jondoe@company.com"
                     {...register("email")}
+                    disabled={isLoading || isAuthenticating}
                   />
                   {errors.email && (
                     <p className="text-destructive text-sm mt-1">{errors.email.message}</p>
@@ -132,6 +142,8 @@ const RegisterFormContent = ({ className, ...props }: React.ComponentProps<"div"
                   <PasswordInput
                     id="password"
                     {...register("password")}
+                    disabled={isLoading || isAuthenticating}
+                    showGenerator
                   />
                   {errors.password && (
                     <p className="text-destructive text-sm mt-1">{errors.password.message}</p>
@@ -143,6 +155,8 @@ const RegisterFormContent = ({ className, ...props }: React.ComponentProps<"div"
                   <PasswordInput
                     id="confirmPassword"
                     {...register("confirmPassword")}
+                    disabled={isLoading || isAuthenticating}
+                    showGenerator
                   />
                   {errors.confirmPassword && (
                     <p className="text-destructive text-sm mt-1">{errors.confirmPassword.message}</p>
@@ -150,8 +164,8 @@ const RegisterFormContent = ({ className, ...props }: React.ComponentProps<"div"
                 </Field>
 
                 <Field>
-                  <Button type="submit" disabled={isSubmitting || isAuthenticating}>
-                    {isSubmitting ? "Creating account..." : "Sign up"}
+                  <Button type="submit" disabled={isLoading || isAuthenticating}>
+                    {isLoading ? "Creating account..." : "Sign up"}
                   </Button>
                   <FieldDescription className="text-center">
                     Already have an account? <Link href="/auth/login">Login</Link>
