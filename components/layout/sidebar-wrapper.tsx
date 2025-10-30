@@ -5,12 +5,7 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { AppSidebar } from "./sidebar"
 import type { User } from "@/lib/auth-client"
-
-interface Project {
-  id: string
-  name: string
-  slug: string
-}
+import { Project } from "@prisma/client"
 
 interface AppSidebarWrapperProps {
   user: User

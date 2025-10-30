@@ -1,21 +1,7 @@
 "use client"
 
-import { Timezone } from "@/components/ui/timezone-selector"
-import { type LanguageCode } from "@/lib/types/languages"
-import { SubscriptionTier } from "@prisma/client"
+import { Project } from "@prisma/client"
 import { createContext, ReactNode, useContext } from "react"
-
-interface Project {
-  id: string
-  name: string
-  slug: string
-  timezone: Timezone
-  defaultLanguage?: LanguageCode
-  allowedOrigins?: string[]
-  subscriptionTier?: SubscriptionTier
-  subscriptionExpiresAt?: Date | null
-  stripeCustomerId?: string | null
-}
 
 interface ProjectContextType {
   currentProject: Project | null

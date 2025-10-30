@@ -1,6 +1,5 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -10,16 +9,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { authClient } from "@/lib/auth-client";
+import { authClient, type User } from "@/lib/auth-client";
 import { LayoutDashboard, LogOut, Settings } from "lucide-react";
 import { useRouter } from "next/navigation";
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  image?: string | null;
-}
+import { UserIconAvatar } from "../icon-avatar";
 
 interface UserDropdownProps {
   user: User;
@@ -38,23 +31,11 @@ export const UserDropdown = ({ user }: UserDropdownProps) => {
     });
   };
 
-  const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
-  };
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline">
-          <Avatar className="h-5 w-5">
-            <AvatarImage src={user.image || undefined} alt={user.name} />
-            <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
-          </Avatar>
+          <UserIconAvatar user={user} size="xs" />
 
           {user.name}
         </Button>

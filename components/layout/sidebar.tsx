@@ -27,14 +27,7 @@ import {
 import { cloneElement, useState } from "react"
 import { AccountItemSidebar } from "./account-item-sidebar-menu"
 import type { User } from "@/lib/auth-client"
-
-interface Project {
-  id: string
-  name: string
-  slug: string
-  subscriptionTier?: string
-  subscriptionExpiresAt?: Date | null
-}
+import { Project } from "@prisma/client"
 
 interface AppSidebarProps {
   user: User
@@ -113,7 +106,6 @@ export const AppSidebar = ({
         <ProjectSwitcher
           projects={projects}
           activeProjectId={activeProject?.id}
-          user={user}
           onProjectChange={onProjectChange}
           onCreateProject={onCreateProject}
           isCreatingProject={isCreatingProject}

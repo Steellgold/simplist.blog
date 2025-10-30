@@ -2,12 +2,7 @@
 
 import { useParams } from "next/navigation"
 import { useMemo } from "react"
-
-interface Project {
-  id: string
-  name: string
-  slug: string
-}
+import { Project } from "@prisma/client"
 
 interface UseCurrentProjectProps {
   projects: Project[]

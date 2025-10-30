@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/sidebar"
 import type { User } from "@/lib/auth-client"
 import { AccountItemSidebar } from "./account-item-sidebar-menu"
+import { FC } from "react"
 
 interface AccountSidebarProps {
   user: User
@@ -40,7 +41,7 @@ const accountNavigationItems = [
   },
 ]
 
-export const AccountSidebar = ({ user }: AccountSidebarProps) => {
+export const AccountSidebar: FC<AccountSidebarProps> = ({ user }) => {
   const pathname = usePathname()
 
   const isItemActive = (href: string) => {

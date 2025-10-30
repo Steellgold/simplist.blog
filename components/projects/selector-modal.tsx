@@ -10,13 +10,8 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Project } from "@prisma/client";
 import { useState } from "react";
-
-interface Project {
-  id: string;
-  name: string;
-  slug: string;
-}
 
 interface ProjectSelectorModalProps {
   open: boolean;

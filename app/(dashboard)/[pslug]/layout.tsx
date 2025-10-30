@@ -40,9 +40,7 @@ const ProjectLayout = async ({
   const projects = await getUserProjects();
 
   // Redirect to create-project if no projects
-  if (projects.length === 0) {
-    redirect("/create-project");
-  }
+  if (projects.length === 0) redirect("/create-project");
 
   // Cast projects to the expected type for the context
   const typedProjects = projects.map((project: any) => ({
@@ -62,22 +60,9 @@ const ProjectLayout = async ({
     }
   }
 
-  // Get full user data (subscription info is now at project level)
-  const fullUser = await prisma.user.findUnique({
-    where: { id: user.id },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      image: true,
-    },
-  });
-
   return (
     <SidebarProvider>
-      <Suspense fallback={<div>Loading...</div>}>
-        <AppSidebarWrapper user={fullUser || user} projects={typedProjects} currentProject={currentProject} />
-      </Suspense>
+      <AppSidebarWrapper user={user} projects={typedProjects} currentProject={currentProject} />
       <ProjectContextProvider projects={typedProjects} currentProject={currentProject}>
         <main className="flex-1 w-full overflow-x-hidden">
           <div className="flex h-14 items-center justify-between border-b px-4 lg:h-16">
