@@ -3,7 +3,9 @@
     "allow": [
       "Bash(pnpm lint:*)",
       "Bash(pnpm build:*)",
-      "Bash(pnpm run:*)"
+      "Bash(pnpm run:*)",
+      "Bash(git commit:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []
