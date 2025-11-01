@@ -16,7 +16,7 @@ import {
   SidebarMenuItem
 } from "@/components/ui/sidebar"
 import type { User } from "@/lib/auth-client"
-import { AccountItemSidebar } from "./account-item-sidebar-menu"
+import { SidebarFooterItem } from "./sidebar-footer-item"
 import { FC } from "react"
 
 interface AccountSidebarProps {
@@ -97,7 +97,7 @@ export const AccountSidebar: FC<AccountSidebarProps> = ({ user }) => {
       </SidebarContent>
 
       <SidebarFooter>
-        <AccountItemSidebar user={user} />
+        <SidebarFooterItem user={user} isVerified={user.emailVerified} />
       </SidebarFooter>
     </Sidebar>
   )

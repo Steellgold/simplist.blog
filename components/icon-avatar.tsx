@@ -37,11 +37,15 @@ export const UserIconAvatar: FC<Props> = ({ user, size = "md", rounded = 60 }) =
 }
 
 type ProjectProps = {
-  project: Project;
+  project: Project | null;
   size?: "xs" | "sm" | "md" | "lg";
 }
 
 export const ProjectIconAvatar: FC<ProjectProps> = ({ project, size = "md" }) => {
+  if (!project) {
+    return <></>;
+  }
+
   return (
     <Avatar className={cn("rounded-lg", {
       "size-4": size === "xs",
@@ -50,11 +54,7 @@ export const ProjectIconAvatar: FC<ProjectProps> = ({ project, size = "md" }) =>
       "size-10": size === "lg"
     })}>
       <AvatarImage
-        src={
-          project.icon
-            ? project.icon
-            : `https://avatar.vercel.sh/${project.name.toLowerCase().replaceAll(" ", "")}`
-        }
+        src={project.icon ? project.icon : `https://avatar.vercel.sh/${project.name.toLowerCase().replaceAll(" ", "")}`}
         alt={project.name}
         width={32}
         height={32}

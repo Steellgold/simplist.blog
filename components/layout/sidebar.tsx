@@ -25,7 +25,7 @@ import {
   SidebarMenuItem
 } from "@/components/ui/sidebar"
 import { cloneElement, useState } from "react"
-import { AccountItemSidebar } from "./account-item-sidebar-menu"
+import { SidebarFooterItem } from "./sidebar-footer-item"
 import type { User } from "@/lib/auth-client"
 import { Project } from "@prisma/client"
 
@@ -160,7 +160,7 @@ export const AppSidebar = ({
       </SidebarContent>
 
       <SidebarFooter>
-        <AccountItemSidebar user={user} />
+        <SidebarFooterItem user={user} isVerified={user.emailVerified} />
       </SidebarFooter>
     </Sidebar>
   )

@@ -1,12 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { UserDropdown } from "@/components/layout/user-dropdown";
+import { UserDropdown } from "@/components/layout/navbar-user-dropdown";
 import { authClient } from "@/lib/auth-client";
-import Image from "next/image";
 import Link from "next/link";
 import { useScrollTop } from "@/hooks/use-scroll-top";
 import { cn } from "@/lib/utils";
+import { SimplistIcon } from "@/components/icon";
 
 export const AppNavbar = () => {
   const { data, isPending } = authClient.useSession();
@@ -18,16 +18,7 @@ export const AppNavbar = () => {
     })}>
       <div className="container mx-auto px-4">
         <div className="flex h-14 items-center justify-between">
-          <Link href="/" className="flex items-center">
-            <Image
-              src="https://cdn.simplist.blog/assets/simplist-text-icon.svg"
-              alt="Simplist"
-              width={120}
-              height={24}
-              className="h-6 w-auto dark:invert"
-              priority
-            />
-          </Link>
+          <SimplistIcon />
 
           <div className="flex items-center gap-6">
             <nav className="hidden md:flex items-center space-x-6">
