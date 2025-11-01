@@ -6,7 +6,11 @@ import { InferUser } from "better-auth"
 export const authClient = createAuthClient({
   plugins: [
     lastLoginMethodClient(),
-    twoFactorClient(),
+    twoFactorClient({
+      onTwoFactorRedirect() {
+        window.location.href = "/auth/2fa-verify"
+      }
+    }),
     passkeyClient(),
     inferAdditionalFields<typeof auth>(),
   ]

@@ -3,76 +3,55 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/sonner"
 import { authClient } from "@/lib/auth-client"
 import { cn } from "@/lib/utils"
-import { ForgotPasswordInput, forgotPasswordSchema } from "@/lib/validations/auth"
+import { ResetPasswordInput, resetPasswordSchema } from "@/lib/validations/auth"
 import { zodResolver } from "@hookform/resolvers/zod"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { AlertCircleIcon } from "lucide-react"
 import { useForm } from "react-hook-form"
+import { PasswordInput } from "./password-input"
+import { useQueryState } from "nuqs"
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert"
+import { AlertCircleIcon } from "lucide-react"
 
-export const ForgotPasswordForm = ({ className, ...props }: React.ComponentProps<"div">) => {
+export const ResetPasswordForm = ({ className, ...props }: React.ComponentProps<"div">) => {
   const [error, setError] = useState("")
-  const [success, setSuccess] = useState(false)
+  const [token] = useQueryState("token")
+  const router = useRouter()
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-    getValues,
-  } = useForm<ForgotPasswordInput>({
-    resolver: zodResolver(forgotPasswordSchema),
-    defaultValues: { email: "" },
+  } = useForm<ResetPasswordInput>({
+    resolver: zodResolver(resetPasswordSchema),
+    defaultValues: { password: "", confirmPassword: "" },
   })
 
-  const onSubmit = async (data: ForgotPasswordInput) => {
+  const onSubmit = async (data: ResetPasswordInput) => {
     setError("")
 
     toast.promise(
-      authClient.forgetPassword({
-        email: data.email,
-        redirectTo: "/auth/reset-password"
+      authClient.resetPassword({
+        newPassword: data.password,
+        token: token || undefined
       }, {
         onSuccess: () => {
-          setSuccess(true)
+          router.push("/auth/login")
         },
         onError: (ctx) => {
-          setError(ctx.error.message || "Failed to send reset link")
+          setError(ctx.error.message || "Failed to reset password")
           throw new Error(ctx.error.message)
         }
       }),
       {
-        loading: "Sending reset link...",
-        success: "Reset link sent",
+        loading: "Resetting password...",
+        success: "Password reset successfully! Redirecting to login...",
         error: (err) => err?.message || "An error occurred",
       }
-    )
-  }
-
-  if (success) {
-    return (
-      <div className={cn("flex flex-col gap-3", className)} {...props}>
-        <Card>
-          <CardHeader>
-            <CardTitle>Check your email</CardTitle>
-            <CardDescription>
-              We've sent a password reset link to {getValues("email")}
-            </CardDescription>
-          </CardHeader>
-
-          <CardContent>
-            <div className="text-center">
-              <Link href="/auth/login" className="text-sm underline-offset-4 hover:underline">
-                Back to login
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
     )
   }
 
@@ -80,9 +59,9 @@ export const ForgotPasswordForm = ({ className, ...props }: React.ComponentProps
     <div className={cn("flex flex-col gap-3", className)} {...props}>
       <Card>
         <CardHeader>
-          <CardTitle>Forgot your password?</CardTitle>
+          <CardTitle>Reset your password</CardTitle>
           <CardDescription>
-            Enter your email address and we'll send you a link to reset your password
+            Enter your new password below
           </CardDescription>
         </CardHeader>
 
@@ -93,28 +72,42 @@ export const ForgotPasswordForm = ({ className, ...props }: React.ComponentProps
                 {error && (
                   <Alert variant="destructive">
                     <AlertCircleIcon />
-                    <AlertTitle>Error sending reset link</AlertTitle>
+                    <AlertTitle>Error resetting password</AlertTitle>
                     <AlertDescription>{error}</AlertDescription>
                   </Alert>
                 )}
 
                 <Field>
-                  <FieldLabel htmlFor="email">Email</FieldLabel>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="jondoe@company.com"
-                    {...register("email")}
+                  <FieldLabel htmlFor="password">New Password</FieldLabel>
+                  <PasswordInput
+                    id="password"
+                    {...register("password")}
+                    showGenerator
+                    disabled={isSubmitting}
                   />
 
-                  {errors.email && (
-                    <FieldError>{errors.email.message}</FieldError>
+                  {errors.password && (
+                    <FieldError>{errors.password.message}</FieldError>
+                  )}
+                </Field>
+
+                <Field>
+                  <FieldLabel htmlFor="confirmPassword">Confirm Password</FieldLabel>
+                  <PasswordInput
+                    id="confirmPassword"
+                    {...register("confirmPassword")}
+                    showGenerator
+                    disabled={isSubmitting}
+                  />
+
+                  {errors.confirmPassword && (
+                    <FieldError>{errors.confirmPassword.message}</FieldError>
                   )}
                 </Field>
 
                 <Field>
                   <Button type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? "Sending..." : "Send reset link"}
+                    {isSubmitting ? "Resetting..." : "Reset password"}
                   </Button>
                   <FieldDescription className="text-center">
                     Remember your password? <Link href="/auth/login">Login</Link>

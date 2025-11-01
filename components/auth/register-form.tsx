@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Field, FieldDescription, FieldGroup, FieldLabel, FieldSeparator } from "@/components/ui/field"
+import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldSeparator } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/sonner"
 import { authClient } from "@/lib/auth-client"
@@ -24,11 +24,13 @@ const RegisterFormContent = ({ className, ...props }: React.ComponentProps<"div"
   const { isAuthenticating } = useOAuthProviders()
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [success, setSuccess] = useState(false)
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    getValues,
   } = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
     mode: "onSubmit",
@@ -54,7 +56,11 @@ const RegisterFormContent = ({ className, ...props }: React.ComponentProps<"div"
         password: data.password,
       }), {
         loading: "Creating account...",
-        success: "Account created successfully",
+        success: () => {
+          setSuccess(true)
+          setIsLoading(false)
+          return "Account created successfully"
+        },
         error: (err) => {
           setIsLoading(false)
           return err.error.message || "Failed to create account"
@@ -63,16 +69,32 @@ const RegisterFormContent = ({ className, ...props }: React.ComponentProps<"div"
     )
   }
 
+  if (success) {
+    return (
+      <div className={cn("flex flex-col gap-3", className)} {...props}>
+        <Card>
+          <CardHeader>
+            <CardTitle>Check your email</CardTitle>
+            <CardDescription>
+              We've sent a verification link to {getValues("email")}
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent>
+            <div className="text-center">
+              <Link href="/auth/login" className="text-sm underline-offset-4 hover:underline">
+                Back to login
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
   return (
     <div className={cn("flex flex-col gap-3", className)} {...props}>
       <Card>
-        <CardHeader className="text-center">
-          <CardTitle className="text-xl">Create an account</CardTitle>
-          <CardDescription>
-            Sign up with your GitHub or Google account
-          </CardDescription>
-        </CardHeader>
-
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)}>
             <FieldGroup>
@@ -83,7 +105,7 @@ const RegisterFormContent = ({ className, ...props }: React.ComponentProps<"div"
               </FieldSeparator>
 
               <div className="flex flex-col gap-4">
-                {errors.root && (
+                {errors.root && 
                   <Alert variant="destructive">
                     <AlertCircleIcon />
                     <AlertTitle>Error creating account</AlertTitle>
@@ -91,7 +113,7 @@ const RegisterFormContent = ({ className, ...props }: React.ComponentProps<"div"
                       {errors.root.message}
                     </AlertDescription>
                   </Alert>
-                )}
+                }
 
                 <div className="grid grid-cols-2 gap-4">
                   <Field>
@@ -103,9 +125,8 @@ const RegisterFormContent = ({ className, ...props }: React.ComponentProps<"div"
                       {...register("firstName")}
                       disabled={isLoading || isAuthenticating}
                     />
-                    {errors.firstName && (
-                      <p className="text-destructive text-sm mt-1">{errors.firstName.message}</p>
-                    )}
+
+                    {errors.firstName && <FieldError>{errors.firstName.message}</FieldError>}
                   </Field>
 
                   <Field>
@@ -117,9 +138,8 @@ const RegisterFormContent = ({ className, ...props }: React.ComponentProps<"div"
                       {...register("lastName")}
                       disabled={isLoading || isAuthenticating}
                     />
-                    {errors.lastName && (
-                      <p className="text-destructive text-sm mt-1">{errors.lastName.message}</p>
-                    )}
+
+                    {errors.lastName && <FieldError>{errors.lastName.message}</FieldError>}
                   </Field>
                 </div>
 
@@ -132,9 +152,8 @@ const RegisterFormContent = ({ className, ...props }: React.ComponentProps<"div"
                     {...register("email")}
                     disabled={isLoading || isAuthenticating}
                   />
-                  {errors.email && (
-                    <p className="text-destructive text-sm mt-1">{errors.email.message}</p>
-                  )}
+
+                  {errors.email && <FieldError>{errors.email.message}</FieldError>}
                 </Field>
 
                 <Field>
@@ -145,9 +164,8 @@ const RegisterFormContent = ({ className, ...props }: React.ComponentProps<"div"
                     disabled={isLoading || isAuthenticating}
                     showGenerator
                   />
-                  {errors.password && (
-                    <p className="text-destructive text-sm mt-1">{errors.password.message}</p>
-                  )}
+
+                  {errors.password && <FieldError>{errors.password.message}</FieldError>}
                 </Field>
 
                 <Field>
@@ -158,15 +176,15 @@ const RegisterFormContent = ({ className, ...props }: React.ComponentProps<"div"
                     disabled={isLoading || isAuthenticating}
                     showGenerator
                   />
-                  {errors.confirmPassword && (
-                    <p className="text-destructive text-sm mt-1">{errors.confirmPassword.message}</p>
-                  )}
+
+                  {errors.confirmPassword && <FieldError>{errors.confirmPassword.message}</FieldError>}
                 </Field>
 
                 <Field>
                   <Button type="submit" disabled={isLoading || isAuthenticating}>
                     {isLoading ? "Creating account..." : "Sign up"}
                   </Button>
+
                   <FieldDescription className="text-center">
                     Already have an account? <Link href="/auth/login">Login</Link>
                   </FieldDescription>
@@ -177,9 +195,9 @@ const RegisterFormContent = ({ className, ...props }: React.ComponentProps<"div"
         </CardContent>
       </Card>
 
-      <FieldDescription className="px-6 text-center">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
-        and <a href="#">Privacy Policy</a>.
+      <FieldDescription className="px-6 text-center mt-6!">
+        By clicking Sign up, you agree to our <Link href="/legal/terms">Terms of Service</Link>{" "}
+        and <Link href="/legal/privacy">Privacy Policy</Link>.
       </FieldDescription>
     </div>
   )

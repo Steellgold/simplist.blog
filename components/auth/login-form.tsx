@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Field, FieldDescription, FieldGroup, FieldLabel, FieldSeparator } from "@/components/ui/field"
+import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldSeparator } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/sonner"
 import { authClient } from "@/lib/auth-client"
@@ -42,34 +42,31 @@ const LoginFormContent = ({ className, ...props }: React.ComponentProps<"div">) 
   const onSubmit = async (data: LoginInput) => {
     setIsLoading(true)
 
-    toast.promise(
-      authClient.signIn.email({
+    try {
+      await authClient.signIn.email({
         email: data.email,
         password: data.password,
-      }), {
-        loading: "Logging in...",
-        success: () => {
-          router.push("/")
-          return "Logged in successfully"
+      }, {
+        onSuccess: (context) => {
+          if (!context.data.twoFactorRedirect) {
+            router.push("/")
+            toast.success("Logged in successfully")
+          }
         },
-        error: (err) => {
+        onError: (context) => {
           setIsLoading(false)
-          return err.error.message || "Failed to login"
+          toast.error(context.error.message || "Failed to login")
         },
-      }
-    )
+      })
+    } catch (err) {
+      setIsLoading(false)
+      toast.error("An unexpected error occurred")
+    }
   }
 
   return (
     <div className={cn("flex flex-col gap-3", className)} {...props}>
       <Card>
-        <CardHeader className="text-center">
-          <CardTitle className="text-xl">Welcome back</CardTitle>
-          <CardDescription>
-            Login with your GitHub or Google account
-          </CardDescription>
-        </CardHeader>
-
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)}>
             <FieldGroup>
@@ -84,9 +81,7 @@ const LoginFormContent = ({ className, ...props }: React.ComponentProps<"div">) 
                   <Alert variant="destructive">
                     <AlertCircleIcon />
                     <AlertTitle>Error logging in</AlertTitle>
-                    <AlertDescription>
-                      {errors.root.message}
-                    </AlertDescription>
+                    <AlertDescription>{errors.root.message}</AlertDescription>
                   </Alert>
                 )}
 
@@ -99,8 +94,9 @@ const LoginFormContent = ({ className, ...props }: React.ComponentProps<"div">) 
                     {...register("email")}
                     disabled={isLoading || isAuthenticating}
                   />
+
                   {errors.email && (
-                    <p className="text-destructive text-sm mt-1">{errors.email.message}</p>
+                    <FieldError>{errors.email.message}</FieldError>
                   )}
                 </Field>
 
@@ -119,7 +115,7 @@ const LoginFormContent = ({ className, ...props }: React.ComponentProps<"div">) 
                   />
 
                   {errors.password && (
-                    <p className="text-destructive text-sm mt-1">{errors.password.message}</p>
+                    <FieldError>{errors.password.message}</FieldError>
                   )}
                 </Field>
 
@@ -137,9 +133,9 @@ const LoginFormContent = ({ className, ...props }: React.ComponentProps<"div">) 
         </CardContent>
       </Card>
 
-      <FieldDescription className="px-6 text-center">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
-        and <a href="#">Privacy Policy</a>.
+      <FieldDescription className="px-6 text-center mt-6!">
+        By clicking Sign up, you agree to our <Link href="/legal/terms">Terms of Service</Link>{" "}
+        and <Link href="/legal/privacy">Privacy Policy</Link>.
       </FieldDescription>
     </div>
   )
