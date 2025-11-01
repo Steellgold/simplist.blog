@@ -15,8 +15,6 @@ type SendSimplistEmailOptions = {
 }
 
 export const sendEmail = async ({ to, subject, html }: SendSimplistEmailOptions): Promise<void> => {
-  console.log("SENDING EMAIL", to, subject, html);
-
   try {
     await ses.sendEmail({
       Source: "no-reply@simplist.blog",
