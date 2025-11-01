@@ -1,7 +1,7 @@
 "use client";
 
 import Footer from "@/components/layout/footer";
-import { HomeHeader } from "@/components/layout/home-header";
+import { AppNavbar } from "@/components/layout/navbar";
 import { ProjectSelectorModal } from "@/components/projects/selector-modal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -90,7 +90,7 @@ const PricingPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary/20">
-      <HomeHeader />
+      <AppNavbar />
       <div className="container mx-auto px-4 py-16 max-w-6xl">
         <div className="flex flex-col items-center text-center mb-12">
           <h1 className="text-4xl font-bold">Simple, transparent pricing</h1>
