@@ -81,74 +81,32 @@ export const checkArticleQuota = async (
  * Check if user can upload an image (storage quota)
  */
 export const checkStorageQuota = async (
-  userId: string,
+  projectId: string,
   fileSizeBytes: number
 ): Promise<QuotaCheckResult> => {
-  // For storage, we use the user's highest tier project or default to free
-  const userProjects = await prisma.project.findMany({
-    where: { userId },
-    select: { 
-      id: true,
-      subscriptionTier: true,
-      subscriptionExpiresAt: true,
-      monthlyApiCalls: true,
-      apiCallsResetAt: true,
-      totalStorageUsed: true,
-    },
-  });
+  const subscription = await getProjectSubscription(projectId);
 
-  if (userProjects.length === 0) {
-    throw new Error("No projects found for user");
-  }
+  const currentUsage = subscription.usage.storage;
+  const maxStorage = subscription.limits.maxStorageBytes;
 
-  // Find the highest tier project
-  const highestTierProject = userProjects.reduce((highest, current) => {
-    const currentIsPro = current.subscriptionTier === "PRO" &&
-      current.subscriptionExpiresAt &&
-      current.subscriptionExpiresAt > new Date();
-    const highestIsPro = highest.subscriptionTier === "PRO" &&
-      highest.subscriptionExpiresAt &&
-      highest.subscriptionExpiresAt > new Date();
-    
-    return currentIsPro && !highestIsPro ? current : highest;
-  });
-
-  const isPro = highestTierProject.subscriptionTier === "PRO" &&
-    highestTierProject.subscriptionExpiresAt &&
-    highestTierProject.subscriptionExpiresAt > new Date();
-
-  const tier = isPro ? "PRO" : "STARTER";
-  const limits = getPlanLimits(tier);
-
-  const subscription = {
-    tier,
-    limits,
-    usage: {
-      apiCalls: highestTierProject.monthlyApiCalls,
-      storage: highestTierProject.totalStorageUsed,
-      apiCallsResetAt: highestTierProject.apiCallsResetAt,
-    },
-  };
-
-  const newTotal = subscription.usage.storage + fileSizeBytes;
-
-  if (newTotal > subscription.limits.maxStorageBytes) {
-    const usedMB = Math.round(subscription.usage.storage / 1024 / 1024);
-    const limitMB = Math.round(subscription.limits.maxStorageBytes / 1024 / 1024);
+  // -1 means unlimited storage for the plan
+  if (maxStorage !== -1 && currentUsage + fileSizeBytes > maxStorage) {
+    const usedMB = Math.round(currentUsage / 1024 / 1024);
+    const limitMB = Math.round(maxStorage / 1024 / 1024);
     const fileMB = Math.round(fileSizeBytes / 1024 / 1024);
 
     return {
       allowed: false,
       reason: `Storage limit exceeded. You're using ${usedMB}MB of ${limitMB}MB. This file (${fileMB}MB) would exceed your limit.`,
-      current: subscription.usage.storage,
-      limit: subscription.limits.maxStorageBytes,
+      current: currentUsage,
+      limit: maxStorage,
     };
   }
 
   return {
     allowed: true,
-    current: subscription.usage.storage,
-    limit: subscription.limits.maxStorageBytes,
+    current: currentUsage,
+    limit: maxStorage,
   };
 };
 
@@ -313,36 +271,11 @@ export const incrementApiCallCounter = async (userId: string): Promise<void> => 
  * Update user's storage usage (updates the highest tier project)
  */
 export const updateStorageUsage = async (
-  userId: string,
+  projectId: string,
   bytesChange: number
 ): Promise<void> => {
-  // Find the highest tier project
-  const userProjects = await prisma.project.findMany({
-    where: { userId },
-    select: { 
-      id: true,
-      subscriptionTier: true,
-      subscriptionExpiresAt: true,
-    },
-  });
-
-  if (userProjects.length === 0) {
-    throw new Error("No projects found for user");
-  }
-
-  const highestTierProject = userProjects.reduce((highest, current) => {
-    const currentIsPro = current.subscriptionTier === "PRO" &&
-      current.subscriptionExpiresAt &&
-      current.subscriptionExpiresAt > new Date();
-    const highestIsPro = highest.subscriptionTier === "PRO" &&
-      highest.subscriptionExpiresAt &&
-      highest.subscriptionExpiresAt > new Date();
-    
-    return currentIsPro && !highestIsPro ? current : highest;
-  });
-
   await prisma.project.update({
-    where: { id: highestTierProject.id },
+    where: { id: projectId },
     data: {
       totalStorageUsed: {
         increment: bytesChange,

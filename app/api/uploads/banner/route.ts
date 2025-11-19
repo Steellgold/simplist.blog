@@ -41,12 +41,6 @@ export const POST = async (req: Request) => {
       }, { status: 400 })
     }
 
-    // Check storage quota
-    const quotaCheck = await checkStorageQuota(user.id, file.size);
-    if (!quotaCheck.allowed) {
-      return NextResponse.json({ error: quotaCheck.reason }, { status: 403 })
-    }
-
     const article = await prisma.article.findFirst({
       where: { id: postId },
       include: { project: true },
@@ -54,6 +48,11 @@ export const POST = async (req: Request) => {
 
     if (!article || article.project.id !== projectId || article.project.userId !== user.id) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    }
+
+    const quotaCheck = await checkStorageQuota(article.project.id, file.size);
+    if (!quotaCheck.allowed) {
+      return NextResponse.json({ error: quotaCheck.reason }, { status: 403 })
     }
 
     // Upload image without compression (Sharp removed to avoid Vercel issues)
@@ -82,7 +81,7 @@ export const POST = async (req: Request) => {
     )
 
     // Update user's storage usage
-    await updateStorageUsage(user.id, file.size);
+    await updateStorageUsage(article.project.id, file.size);
 
     const publicUrl = await getPublicUrlForKey(key)
 
