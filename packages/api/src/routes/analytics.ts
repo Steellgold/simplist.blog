@@ -334,7 +334,7 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
       })
 
       // Get top articles
-      const topArticles = await prisma.pageView.groupBy({
+      const topArticlesRaw = await prisma.pageView.groupBy({
         by: ["articleId"],
         where: {
           projectId,
@@ -344,6 +344,9 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
         orderBy: { _count: { id: "desc" } },
         take: 10
       })
+
+      type TopArticleResult = { articleId: string; _count: { id: number } }
+      const topArticles = topArticlesRaw as TopArticleResult[]
 
       // Get article titles
       const articleIds = topArticles.map(a => a.articleId)
@@ -363,7 +366,7 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
       })
 
       // Get countries stats
-      const topCountries = await prisma.pageView.groupBy({
+      const topCountriesRaw = await prisma.pageView.groupBy({
         by: ["country"],
         where: {
           projectId,
@@ -374,6 +377,9 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
         orderBy: { _count: { id: "desc" } },
         take: 10
       })
+
+      type TopCountryResult = { country: string; _count: { id: number } }
+      const topCountries = topCountriesRaw as TopCountryResult[]
 
       return {
         period: { days, startDate, endDate: new Date() },

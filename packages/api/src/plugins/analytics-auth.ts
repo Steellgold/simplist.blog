@@ -1,5 +1,6 @@
 import * as db from "@simplist/db"
 import fp from "fastify-plugin"
+import type { ApiKey, Project } from "@simplist/db"
 
 const { prisma, apiKeyCache } = db
 
@@ -22,10 +23,14 @@ export default fp(async function (fastify) {
       // Try to get from cache first
       try {
         apiKey = await apiKeyCache.get(apiKeyHeader)
+        // If cached key exists but doesn't have project info, refetch from DB
+        if (apiKey && !apiKey.project) {
+          apiKey = null
+        }
       } catch (cacheError) {
         fastify.log.warn("Redis cache not available, falling back to database only")
       }
-      
+
       if (!apiKey) {
         // Cache miss, fetch from database
         const dbApiKey = await prisma.apiKey.findFirst({
@@ -47,9 +52,9 @@ export default fp(async function (fastify) {
               }
             }
           }
-        })
+        }) as (ApiKey & { project: { id: string; name: string; slug: string; userId: string } }) | null
 
-        if (!dbApiKey) {
+        if (!dbApiKey || !dbApiKey.project) {
           return reply.code(401).send({
             error: "Unauthorized",
             message: "Invalid or expired API key.",
@@ -73,7 +78,12 @@ export default fp(async function (fastify) {
           type: dbApiKey.type,
           permissions: dbApiKey.permissions,
           projectId: dbApiKey.projectId,
-          project: dbApiKey.project
+          project: {
+            id: dbApiKey.project.id,
+            name: dbApiKey.project.name,
+            slug: dbApiKey.project.slug,
+            userId: dbApiKey.project.userId
+          }
         }
         
         // Cache it
