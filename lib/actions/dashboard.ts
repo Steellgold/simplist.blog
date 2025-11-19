@@ -60,6 +60,11 @@ export const getDashboardData = async (
         subscriptionExpiresAt: true,
         totalStorageUsed: true,
       },
+      cacheStrategy: {
+        ttl: 30, // Shorter TTL for dashboard data
+        swr: 120,
+        tags: [`project-${projectId}`],
+      },
     });
 
     if (!project) return notFound();
@@ -94,6 +99,11 @@ export const getDashboardData = async (
           updatedAt: "desc",
         },
         take: 5,
+        cacheStrategy: {
+          ttl: 30,
+          swr: 120,
+          tags: [`articles-${projectId}`],
+        },
       }),
     ]);
 

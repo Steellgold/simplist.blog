@@ -6,7 +6,7 @@ const RootPage = async () => {
   const user = await getCurrentUser();
 
   if (!user) {
-    redirect("/home");
+    redirect("/");
   }
 
   const projects = await getUserProjects();

@@ -20,7 +20,10 @@ const AnalyticsPage = async ({ params }: AnalyticsPageProps) => {
   if (!user) redirect("/auth/login");
 
   // Get project from slug
-  const project = await prisma.project.findFirst({ where: { slug, userId: user.id } })
+  const project = await prisma.project.findFirst({
+    where: { slug, userId: user.id },
+    cacheStrategy: { ttl: 60, swr: 300 },
+  })
   if (!project) return <EmptyProject />
 
   // Check subscription tier - Analytics is PRO only
