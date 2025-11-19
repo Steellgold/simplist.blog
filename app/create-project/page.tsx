@@ -22,7 +22,7 @@ const CreateProjectPage = async () => {
 
   // Check if user has reached the project limit
   if (projects.length >= 2) {
-    redirect("/dashboard")
+    redirect(`/${projects[0].slug}`)
   }
 
   return (

@@ -52,7 +52,7 @@ export const ProviderButton = ({ type, onAuthStart, onAuthEnd, disabled, isLastU
     try {
       await authClient.signIn.social({
         provider: type,
-        callbackURL: "/dashboard",
+        callbackURL: "/",
       })
     } catch (error) {
       console.error(`Failed to login with ${type}:`, error)

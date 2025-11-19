@@ -75,7 +75,7 @@ export const createProject = async (input: CreateProjectActionInput) => {
     data: {
       name: validatedData.name,
       slug: finalSlug,
-      description: validatedData.description || null,
+      description: validatedData.description ?? null,
       timezone: validatedData.timezone,
       subscriptionTier: "STARTER",
       allowedOrigins: allowedOriginStrings,
@@ -168,10 +168,15 @@ export const updateProject = async (
     },
   })
 
-  // Revalidate dashboard pages that show project info
+  // Revalidate pages that depend on the project slug/name
   revalidatePath("/")
-  revalidatePath("/dashboard")
-  revalidatePath("/settings")
+  revalidatePath(`/${project.slug}`, "layout")
+  revalidatePath(`/${updated.slug}`, "layout")
+  revalidatePath(`/${updated.slug}/settings`, "page")
+
+  if (project.slug !== updated.slug) {
+    revalidatePath(`/${project.slug}/settings`, "page")
+  }
   return updated
 }
 
@@ -219,7 +224,7 @@ export const updateProjectSettings = async (projectId: string, input: UpdateProj
     data: {
       name: input.name,
       slug: finalSlug,
-      description: input.description || null,
+      description: input.description ?? null,
       timezone: input.timezone,
       defaultLanguage: input.defaultLanguage,
       allowedOrigins: allowedOriginStrings,
@@ -228,6 +233,12 @@ export const updateProjectSettings = async (projectId: string, input: UpdateProj
 
   // Revalidate dashboard pages that show project info
   revalidatePath("/")
-  revalidatePath(`/${project.slug}/settings`)
+  revalidatePath(`/${project.slug}`, "layout")
+  revalidatePath(`/${updated.slug}`, "layout")
+  revalidatePath(`/${updated.slug}/settings`, "page")
+
+  if (project.slug !== updated.slug) {
+    revalidatePath(`/${project.slug}/settings`, "page")
+  }
   return updated
 }

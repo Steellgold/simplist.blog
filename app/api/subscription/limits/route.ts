@@ -28,22 +28,6 @@ export const GET = async (request: Request) => {
         id: true,
         subscriptionTier: true,
         subscriptionExpiresAt: true,
-        apiKeys: {
-          where: {
-            deletedAt: null, // Only count active API keys
-          },
-          select: {
-            id: true,
-          },
-        },
-        articles: {
-          where: {
-            status: { not: "deleted" }, // Only count non-deleted articles
-          },
-          select: {
-            id: true,
-          },
-        },
       },
     });
 
@@ -51,9 +35,20 @@ export const GET = async (request: Request) => {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
-    // Count API keys and articles for this project
-    const apiKeyCount = project.apiKeys.length;
-    const articleCount = project.articles.length;
+    const [apiKeyCount, articleCount] = await Promise.all([
+      prisma.apiKey.count({
+        where: {
+          projectId: project.id,
+          deletedAt: null,
+        },
+      }),
+      prisma.article.count({
+        where: {
+          projectId: project.id,
+          status: { not: "deleted" },
+        },
+      }),
+    ]);
 
     // Determine subscription tier (default to free if null)
     const subscriptionTier = project.subscriptionTier || "STARTER";

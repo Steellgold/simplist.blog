@@ -29,6 +29,8 @@ const defaultUrl = process.env.VERCEL_URL
   : "http://localhost:3000";
 
 const slogan = "Where simplicity meets powerful content management"
+const description =
+  "Simplist is a fast content management API that lets you publish articles in seconds and retrieve them from any app with clean, typed endpoints."
 
 export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
@@ -36,14 +38,14 @@ export const metadata: Metadata = {
     default: `Simplist - ${slogan}`,
     template: "%s - Simplist",
   },
-  description: "Simplist is a simple, fast. Post your content in the simplest way possible, and just get your content back with an API.",
+  description,
   openGraph: {
     type: "website",
     locale: "en_US",
     url: defaultUrl,
     siteName: "Simplist",
     title: `Simplist - ${slogan}`,
-    description: "Simplist is a simple, fast. Post your content in the simplest way possible, and just get your content back with an API.",
+    description,
     images: [
       {
         url: "https://cdn.simplist.blog/assets/og-image.png",
@@ -58,7 +60,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     creator: "@steellgold",
     creatorId: "1779571985149820928",
-    description: "Simplist is a simple, fast. Post your content in the simplest way possible, and just get your content back with an API.",
+    description,
     images: [
       {
         url: "https://cdn.simplist.blog/assets/og-image.png",

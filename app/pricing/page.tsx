@@ -47,7 +47,7 @@ const PricingPage = () => {
 
   const handleUpgrade = async (planInterval: SubscriptionInterval) => {
     if (projects.length === 0) {
-      router.push("/create-project");
+      router.push("/auth/register");
       return;
     }
 
@@ -55,8 +55,8 @@ const PricingPage = () => {
     const freeProjects = projects.filter(project => project.subscriptionTier === "STARTER");
     
     if (freeProjects.length === 0) {
-      // All projects are already pro, redirect to dashboard
-      router.push("/dashboard");
+      const fallbackProject = projects[0];
+      router.push(fallbackProject ? `/${fallbackProject.slug}` : "/");
       return;
     }
 
@@ -174,7 +174,7 @@ const PricingPage = () => {
 
                 <CardFooter className="mt-auto">
                   {isFree ? (
-                    <Button className="w-full" variant="secondary" onClick={() => router.push("/dashboard")}>
+                    <Button className="w-full" variant="secondary" onClick={() => router.push("/auth/register")}>
                       Get started for free<ArrowRight />
                     </Button>
                   ) : (

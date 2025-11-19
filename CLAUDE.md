@@ -113,14 +113,14 @@ The TypeScript SDK (`packages/sdk/`) provides:
 - `/pricing` - Pricing page with plan comparison and upgrade flow
 - `/home` - Landing page
 - `/(legal)/*` - Legal pages (terms, privacy, GDPR)
-- `/` - Root redirects to `/dashboard` or `/auth/login`
+- `/` - Redirects visitors to `/home`, authenticated users to their first project (or `/create-project` if none exist)
 
 **Protected routes** (require auth, in `app/(dashboard)/` group):
-- `/dashboard` - Main dashboard
-- `/articles` - Article management (list view with data table)
-- `/articles/new` - Article creation form (responsive 2-column layout on desktop)
-- `/api-keys` - API key management
-- `/analytics` - Analytics dashboard 
+- `/[pslug]` - Project dashboard
+- `/[pslug]/articles` - Article management (list view with data table)
+- `/[pslug]/articles/new` - Article creation form (responsive 2-column layout on desktop)
+- `/[pslug]/api-keys` - API key management
+- `/[pslug]/analytics` - Analytics dashboard 
 - `/[pslug]/settings` - Settings base page
 - `/[pslug]/settings/billing` - Billing management (Stripe portal integration)
 
@@ -143,7 +143,7 @@ The TypeScript SDK (`packages/sdk/`) provides:
 
 The application enforces **one project per user**:
 - `app/(dashboard)/layout.tsx` redirects to `/create-project` if no projects exist
-- `app/create-project/page.tsx` redirects to `/dashboard` if a project already exists
+- `app/create-project/page.tsx` redirects to the first project slug if a project already exists
 - Server-side validation in `lib/actions/projects.ts` prevents multiple project creation
 - Sidebar displays the single project info (name, slug) with PencilRuler icon
 

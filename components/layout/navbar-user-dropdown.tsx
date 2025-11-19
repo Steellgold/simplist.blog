@@ -49,11 +49,11 @@ export const UserDropdown = ({ user }: UserDropdownProps) => {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => router.push("/dashboard")}>
+        <DropdownMenuItem onClick={() => router.push("/")}>
           <LayoutDashboard />
           Dashboard
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => router.push("/settings")}>
+        <DropdownMenuItem onClick={() => router.push("/account/settings")}>
           <Settings />
           Settings
         </DropdownMenuItem>

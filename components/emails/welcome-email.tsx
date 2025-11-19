@@ -60,7 +60,7 @@ export const WelcomeEmail = ({ name, projectName }: WelcomeEmailProps) => {
       </div>
 
       <p style={{ textAlign: "center", margin: "32px 0" }}>
-        <a href="https://simplist.blog/dashboard" className="button">
+        <a href="https://simplist.blog/" className="button">
           Go to Dashboard
         </a>
       </p>
