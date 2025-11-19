@@ -257,11 +257,7 @@ export const getProjectArticles = async (projectId: string) => {
     orderBy: {
       createdAt: "desc",
     },
-    cacheStrategy: {
-      ttl: 60, // Cache for 60 seconds
-      swr: 300, // Serve stale data for up to 5 minutes while revalidating
-      tags: [`articles_${projectId.replace(/-/g, '_')}`], // Tag for cache invalidation (replace - with _)
-    },
+    cacheStrategy: { ttl: 60 },
   })
 
   return articles

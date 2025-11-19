@@ -17,6 +17,7 @@ export const getUserProjects = async () => {
     orderBy: {
       createdAt: "desc",
     },
+    cacheStrategy: { ttl: 60 },
   })
 
   return projects

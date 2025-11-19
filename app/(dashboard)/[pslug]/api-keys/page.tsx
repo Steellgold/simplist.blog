@@ -16,10 +16,7 @@ const ApiKeysPage = async ({ params }: { params: Promise<{ pslug: string }> }) =
       userId: user.id,
       slug: resolvedParams.pslug,
     },
-    cacheStrategy: {
-      ttl: 60,
-      swr: 300,
-    },
+    cacheStrategy: { ttl: 60 },
   })
 
   if (!project) redirect("/create-project")

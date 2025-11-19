@@ -22,7 +22,7 @@ const AnalyticsPage = async ({ params }: AnalyticsPageProps) => {
   // Get project from slug
   const project = await prisma.project.findFirst({
     where: { slug, userId: user.id },
-    cacheStrategy: { ttl: 60, swr: 300 },
+    cacheStrategy: { ttl: 60 },
   })
   if (!project) return <EmptyProject />
 
