@@ -230,22 +230,25 @@ export const removeArticleCoverImage = async (articleId: string) => {
   return updated
 }
 
-export const getProjectArticles = async (projectId: string) => {
-  const user = await getCurrentUser()
+export const getProjectArticles = async (projectId: string, userId?: string) => {
+  if (!userId) {
+    const user = await getCurrentUser()
 
-  if (!user) {
-    redirect("/auth/login")
+    if (!user) {
+      redirect("/auth/login")
+    }
+
+    userId = user.id
+
+    const project = await prisma.project.findFirst({
+      where: {
+        id: projectId,
+        userId: user.id,
+      },
+    })
+
+    if (!project) forbidden();
   }
-
-  // Verify the project belongs to the user
-  const project = await prisma.project.findFirst({
-    where: {
-      id: projectId,
-      userId: user.id,
-    },
-  })
-
-  if (!project) forbidden();
 
   const articles = await prisma.article.findMany({
     where: {
@@ -256,8 +259,7 @@ export const getProjectArticles = async (projectId: string) => {
     },
     orderBy: {
       createdAt: "desc",
-    },
-    cacheStrategy: { ttl: 60 },
+    }
   })
 
   return articles

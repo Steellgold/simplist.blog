@@ -7,11 +7,11 @@ import { redirect } from "next/navigation"
 
 const ArticlesPage = async ({ params }: { params: Promise<{ pslug: string }> }) => {
   const resolvedParams = await params
+
   const user = await getCurrentUser()
 
   if (!user) redirect("/auth/login")
 
-  // Get user's project
   const project = await prisma.project.findFirst({
     where: {
       userId: user.id,
@@ -22,8 +22,7 @@ const ArticlesPage = async ({ params }: { params: Promise<{ pslug: string }> }) 
 
   if (!project) redirect("/create-project")
 
-  // Load articles
-  const articles = await getProjectArticles(project.id)
+  const articles = await getProjectArticles(project.id, user.id)
 
   // Get article count and limits
   const articleCount = articles.length

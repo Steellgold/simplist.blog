@@ -245,7 +245,6 @@ export const EditArticleForm = ({ article }: EditArticleFormProps) => {
       // Step 3: Success
       toast.success("Article updated successfully!", { id: toastId });
 
-      // Redirect to articles page
       router.push(`/${currentProject?.slug}/articles`);
       router.refresh();
     } catch (error) {

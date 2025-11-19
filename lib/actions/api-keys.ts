@@ -54,8 +54,7 @@ export const getProjectApiKeys = async (projectId: string) => {
       expiresAt: true,
       status: true,
       createdAt: true,
-    },
-    cacheStrategy: { ttl: 60 },
+    }
   })
 
   return apiKeys

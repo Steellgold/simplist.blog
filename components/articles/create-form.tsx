@@ -176,7 +176,6 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
       // Step 3: Success
       toast.success("Article created successfully!", { id: toastId });
 
-      // Redirect to articles page
       router.push(`/${currentProject?.slug}/articles`);
       router.refresh();
     } catch (error) {
