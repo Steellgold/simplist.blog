@@ -24,7 +24,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem
 } from "@/components/ui/sidebar"
-import { cloneElement, useState } from "react"
+import { cloneElement, useState, type ReactNode } from "react"
 import { SidebarFooterItem } from "./sidebar-footer-item"
 import type { User } from "@/lib/auth-client"
 import { Project } from "@prisma/client"
@@ -39,11 +39,25 @@ interface AppSidebarProps {
   isCreatingProject?: boolean
 }
 
-const getNavigationItems = (isPro: boolean, projectSlug: string, isProjectPro?: boolean) => [
+type NavigationItem = {
+  title: string
+  icon: ReactNode
+  href: string
+  disabled?: boolean
+  showProBadge?: boolean
+  matchStrategy?: "exact" | "prefix"
+}
+
+const getNavigationItems = (
+  isPro: boolean,
+  projectSlug: string,
+  isProjectPro?: boolean
+): NavigationItem[] => [
   {
     title: "Dashboard",
     icon: <LayoutDashboardIcon />,
     href: `/${projectSlug}`,
+    matchStrategy: "exact"
   },
   {
     title: "Articles",
@@ -66,6 +80,7 @@ const getNavigationItems = (isPro: boolean, projectSlug: string, isProjectPro?: 
     title: "Settings",
     icon: <SettingsIcon />,
     href: `/${projectSlug}/settings`,
+    matchStrategy: "exact"
   },
   {
     title: "Billing",
@@ -91,13 +106,11 @@ export const AppSidebar = ({
 
   const navigationItems = getNavigationItems(isPro ?? false, activeProject?.slug || "", isPro ?? false);
 
-  const isItemActive = (href: string) => {
-    // Exact match for dashboard
-    if (href === `/${activeProject?.slug}`) {
+  const isItemActive = (href: string, matchStrategy: "exact" | "prefix" = "prefix") => {
+    if (matchStrategy === "exact") {
       return pathname === href
     }
-    // For other pages, check if pathname starts with the href
-    return pathname.startsWith(href)
+    return pathname === href || pathname.startsWith(`${href}/`)
   }
 
   return (
@@ -118,7 +131,7 @@ export const AppSidebar = ({
           <SidebarGroupContent>
             <SidebarMenu>
               {navigationItems.map((item) => {
-                const isActive = isItemActive(item.href)
+                const isActive = isItemActive(item.href, item.matchStrategy)
                 return (
                   <SidebarMenuItem key={item.href}>
                     <SidebarMenuButton
