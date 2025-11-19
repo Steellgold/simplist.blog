@@ -113,13 +113,16 @@ export const getArticleViewsOverTime = async (
       timestamp: { gte: startDate }
     },
     _count: { _all: true }
-  })
+  }) as Array<{
+    timestamp: Date
+    _count: { _all: number }
+  }>
 
   // Map to date strings with counts
   const viewsMap = new Map<string, number>()
-  viewsByDate.forEach(({ timestamp, _count }) => {
-    const dateStr = timestamp.toISOString().split('T')[0]
-    viewsMap.set(dateStr, (viewsMap.get(dateStr) || 0) + _count._all)
+  viewsByDate.forEach((item) => {
+    const dateStr = item.timestamp.toISOString().split('T')[0]
+    viewsMap.set(dateStr, (viewsMap.get(dateStr) || 0) + item._count._all)
   })
 
   // Get additional metrics for each date
@@ -131,15 +134,19 @@ export const getArticleViewsOverTime = async (
     },
     _count: { visitorId: true },
     _avg: { timeOnPage: true }
-  })
+  }) as Array<{
+    timestamp: Date
+    _count: { visitorId: number }
+    _avg: { timeOnPage: number | null }
+  }>
 
   // Map to date strings with metrics
   const metricsMap = new Map<string, { uniqueVisitors: number; avgTimeOnPage: number }>()
-  metricsByDate.forEach(({ timestamp, _count, _avg }) => {
-    const dateStr = timestamp.toISOString().split('T')[0]
+  metricsByDate.forEach((item) => {
+    const dateStr = item.timestamp.toISOString().split('T')[0]
     metricsMap.set(dateStr, {
-      uniqueVisitors: _count.visitorId,
-      avgTimeOnPage: Math.round(_avg.timeOnPage || 0)
+      uniqueVisitors: item._count.visitorId,
+      avgTimeOnPage: Math.round(item._avg.timeOnPage || 0)
     })
   })
 
@@ -327,8 +334,12 @@ export const getProjectAnalytics = async (projectId: string, days: number = 30, 
       _avg: { timeOnPage: true, scrollDepth: true },
       orderBy: { _count: { id: 'desc' } },
       take: 10
-    }),
-    
+    }) as unknown as Promise<Array<{
+      articleId: string
+      _count: { id: number }
+      _avg: { timeOnPage: number | null; scrollDepth: number | null }
+    }>>,
+
     // Top countries
     prisma.pageView.groupBy({
       by: ['country'],
@@ -336,8 +347,11 @@ export const getProjectAnalytics = async (projectId: string, days: number = 30, 
       _count: { id: true },
       orderBy: { _count: { id: 'desc' } },
       take: 10
-    }),
-    
+    }) as unknown as Promise<Array<{
+      country: string | null
+      _count: { id: number }
+    }>>,
+
     // Top cities with country info
     prisma.pageView.groupBy({
       by: ['city', 'country', 'countryCode'],
@@ -345,8 +359,13 @@ export const getProjectAnalytics = async (projectId: string, days: number = 30, 
       _count: { id: true },
       orderBy: { _count: { id: 'desc' } },
       take: 10
-    }),
-    
+    }) as unknown as Promise<Array<{
+      city: string | null
+      country: string | null
+      countryCode: string | null
+      _count: { id: number }
+    }>>,
+
     // Top regions with country info
     prisma.pageView.groupBy({
       by: ['region', 'country', 'countryCode'],
@@ -354,16 +373,24 @@ export const getProjectAnalytics = async (projectId: string, days: number = 30, 
       _count: { id: true },
       orderBy: { _count: { id: 'desc' } },
       take: 10
-    }),
-    
+    }) as unknown as Promise<Array<{
+      region: string | null
+      country: string | null
+      countryCode: string | null
+      _count: { id: number }
+    }>>,
+
     // Device stats
     prisma.pageView.groupBy({
       by: ['device'],
       where: { ...baseWhere, device: { not: null } },
       _count: { id: true },
       orderBy: { _count: { id: 'desc' } }
-    }),
-    
+    }) as unknown as Promise<Array<{
+      device: string | null
+      _count: { id: number }
+    }>>,
+
     // Browser stats
     prisma.pageView.groupBy({
       by: ['browser'],
@@ -371,7 +398,10 @@ export const getProjectAnalytics = async (projectId: string, days: number = 30, 
       _count: { id: true },
       orderBy: { _count: { id: 'desc' } },
       take: 5
-    }),
+    }) as unknown as Promise<Array<{
+      browser: string | null
+      _count: { id: number }
+    }>>,
 
     // Top referrers
     prisma.pageView.groupBy({
@@ -380,7 +410,10 @@ export const getProjectAnalytics = async (projectId: string, days: number = 30, 
       _count: { id: true },
       orderBy: { _count: { id: 'desc' } },
       take: 10
-    }),
+    }) as unknown as Promise<Array<{
+      referrerDomain: string | null
+      _count: { id: number }
+    }>>,
 
     // Direct traffic (no referrer)
     prisma.pageView.count({
