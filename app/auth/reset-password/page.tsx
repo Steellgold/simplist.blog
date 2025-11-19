@@ -1,6 +1,7 @@
 import { ResetPasswordForm } from "@/components/auth/reset-password-form"
 import { SimplistIcon } from "@/components/icon"
 import type { Metadata } from "next"
+import { Suspense } from "react"
 
 export const metadata: Metadata = {
   title: "Reset Password",
@@ -15,7 +16,9 @@ const ResetPasswordPage = () => {
           <SimplistIcon />
         </div>
 
-        <ResetPasswordForm />
+        <Suspense fallback={null}>
+          <ResetPasswordForm />
+        </Suspense>
       </div>
     </div>
   )
