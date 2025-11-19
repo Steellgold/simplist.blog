@@ -58,7 +58,7 @@ export const getProjectApiKeys = async (projectId: string) => {
     cacheStrategy: {
       ttl: 60, // Cache for 60 seconds
       swr: 300, // Serve stale data for up to 5 minutes while revalidating
-      tags: [`apikeys-${projectId}`], // Tag for cache invalidation
+      tags: [`apikeys_${projectId.replace(/-/g, '_')}`], // Tag for cache invalidation (replace - with _)
     },
   })
 

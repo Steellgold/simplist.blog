@@ -63,7 +63,7 @@ export const getDashboardData = async (
       cacheStrategy: {
         ttl: 30, // Shorter TTL for dashboard data
         swr: 120,
-        tags: [`project-${projectId}`],
+        tags: [`project_${projectId.replace(/-/g, '_')}`],
       },
     });
 
@@ -102,7 +102,7 @@ export const getDashboardData = async (
         cacheStrategy: {
           ttl: 30,
           swr: 120,
-          tags: [`articles-${projectId}`],
+          tags: [`articles_${projectId.replace(/-/g, '_')}`],
         },
       }),
     ]);
