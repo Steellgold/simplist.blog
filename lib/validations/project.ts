@@ -9,6 +9,7 @@ export const RESERVED_SLUGS = [
   "_vercel",
   "public",
   "static",
+  "project",
 
   // Authentication routes
   "auth",
