@@ -14,6 +14,7 @@ interface ProviderButtonProps {
   onAuthEnd?: () => void
   disabled?: boolean
   isLastUsed?: boolean
+  variant?: "login" | "register"
 }
 
 const providerConfig = {
@@ -41,7 +42,14 @@ const providerConfig = {
   },
 }
 
-export const ProviderButton = ({ type, onAuthStart, onAuthEnd, disabled, isLastUsed }: ProviderButtonProps) => {
+export const ProviderButton = ({
+  type,
+  onAuthStart,
+  onAuthEnd,
+  disabled,
+  isLastUsed,
+  variant = "login",
+}: ProviderButtonProps) => {
   const [loading, setLoading] = useState(false)
   const config = providerConfig[type]
 
@@ -72,10 +80,10 @@ export const ProviderButton = ({ type, onAuthStart, onAuthEnd, disabled, isLastU
         className="w-full"
       >
         {loading ? <Spinner /> : config.icon}
-        Login with {config.name}
+        {variant === "register" ? "Sign up with" : "Login with"} {config.name}
       </Button>
 
-      {isLastUsed && (
+      {variant === "login" && isLastUsed && (
         <span className={cn(
           "absolute top-1/2 right-1 -translate-y-1/2",
           "rounded-md bg-primary/10 px-3 py-1",

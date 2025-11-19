@@ -100,7 +100,7 @@ const LoginFormContent = ({ className, ...props }: React.ComponentProps<"div">) 
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)}>
             <FieldGroup>
-              <OAuthProviders />
+              <OAuthProviders variant="login" />
 
               <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
                 Or continue with
