@@ -27,7 +27,11 @@ const CreateProjectPage = async () => {
 
   return (
     <SidebarProvider>
-      <AppSidebarWrapper user={user} projects={projects} />
+      <AppSidebarWrapper
+        user={user}
+        projects={projects}
+      />
+
       <div className="flex-1">
         {/* Backdrop blur */}
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40" />

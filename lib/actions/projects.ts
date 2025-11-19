@@ -14,20 +14,6 @@ export const getUserProjects = async () => {
     where: {
       userId: user.id,
     },
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      description: true,
-      timezone: true,
-      defaultLanguage: true,
-      createdAt: true,
-      updatedAt: true,
-      subscriptionTier: true,
-      subscriptionExpiresAt: true,
-      stripeCustomerId: true,
-      allowedOrigins: true,
-    },
     orderBy: {
       createdAt: "desc",
     },
