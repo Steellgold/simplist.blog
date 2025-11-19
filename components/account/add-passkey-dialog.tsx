@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
@@ -43,47 +43,67 @@ export const AddPasskeyDialog = ({ open, onOpenChange, userName }: AddPasskeyDia
   })
 
   const onSubmit = async (data: AddPasskeyInput) => {
-    setIsSubmitting(true);
+    const toastId = toast.loading("Adding passkey...")
+    setIsSubmitting(true)
 
-    await authClient.passkey.addPasskey({
-      name: data.name,
-      authenticatorAttachment: "cross-platform",
-      fetchOptions: {
-        onSuccess: () => {
-          toast.success("Passkey added successfully")
-          reset()
-          onOpenChange(false)
-          router.refresh()
+    try {
+      await authClient.passkey.addPasskey({
+        name: data.name,
+        authenticatorAttachment: "cross-platform",
+        fetchOptions: {
+          onSuccess: () => {
+            toast.success("Passkey added successfully", { id: toastId })
+            reset()
+            onOpenChange(false)
+            router.refresh()
+            toast.dismiss(toastId)
+          },
+          onResponse: () => {
+            setIsSubmitting(false)
+            toast.dismiss(toastId)
+          },
+          onError: (e) => {
+            toast.error(e.error.message, { id: toastId })
+            setIsSubmitting(false)
+            return
+          },
         },
-        onResponse: (response) => {
-          console.log(response)
-        },
-        onError: (e) => {
-          toast.error(e.error.message)
-        }
-      }
-    })
-  }
-
-  const handleClose = () => {
-    if (!isSubmitting) {
-      reset()
-      onOpenChange(false)
+      })
+    } catch (error) {
+      console.error(error)
+      toast.error("Unable to add passkey", { id: toastId })
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
+  const handleClose = () => {
+    if (isSubmitting) return;
+
+    reset()
+    onOpenChange(false)
+  }
+
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
+    <Dialog
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (!nextOpen) {
+          handleClose()
+          return
+        }
+
+        onOpenChange(nextOpen)
+      }}
+    >
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Add Passkey</DialogTitle>
-          <DialogDescription>
-            Give your passkey a name to identify it later
-          </DialogDescription>
+          <DialogDescription>Give your passkey a name to identify it later</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)}>
-          <FieldGroup>
+          <FieldGroup className="pb-4">
             <Field>
               <FieldLabel htmlFor="name">Passkey Name</FieldLabel>
               <Input
@@ -98,22 +118,24 @@ export const AddPasskeyDialog = ({ open, onOpenChange, userName }: AddPasskeyDia
               )}
             </Field>
           </FieldGroup>
+
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleClose}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+            </DialogClose>
+
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? <Spinner /> : "Add Passkey"}
+            </Button>
+          </DialogFooter>
         </form>
-
-        <DialogFooter>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleClose}
-            disabled={isSubmitting}
-          >
-            Cancel
-          </Button>
-
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? <Spinner /> : "Add Passkey"}
-          </Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   )

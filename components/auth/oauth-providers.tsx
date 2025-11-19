@@ -1,9 +1,10 @@
 "use client"
 
-import { Field } from "@/components/ui/field"
+import { Field, FieldSeparator } from "@/components/ui/field"
 import { authClient } from "@/lib/auth-client"
 import { createContext, useContext, useEffect, useState } from "react"
 import { ProviderButton } from "./provider-button"
+import { PasskeyButton } from "./passkey-button"
 
 interface OAuthProvidersContextType {
   isAuthenticating: boolean
@@ -54,6 +55,12 @@ export const OAuthProviders = () => {
         onAuthEnd={() => setIsAuthenticating(false)}
         disabled={isAuthenticating}
         isLastUsed={lastLogin === "google"}
+      />
+
+      <PasskeyButton
+        onAuthStart={() => setIsAuthenticating(true)}
+        onAuthEnd={() => setIsAuthenticating(false)}
+        disabled={isAuthenticating}
       />
     </Field>
   )

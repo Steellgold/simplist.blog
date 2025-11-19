@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 
 import { Button } from "@/components/ui/button"
@@ -38,6 +38,36 @@ const LoginFormContent = ({ className, ...props }: React.ComponentProps<"div">) 
       password: "",
     },
   })
+
+  useEffect(() => {
+    const initConditionalUI = async () => {
+      if (
+        typeof window !== 'undefined' &&
+        window.PublicKeyCredential &&
+        typeof window.PublicKeyCredential.isConditionalMediationAvailable === 'function'
+      ) {
+        const available = await window.PublicKeyCredential.isConditionalMediationAvailable()
+        if (available) {
+          void authClient.signIn.passkey({ 
+            autoFill: true,
+            fetchOptions: {
+              onSuccess: () => {
+                router.push("/")
+                toast.success("Logged in successfully with Passkey")
+              },
+              onError: (context) => {
+                if (context.error.message !== "The operation either timed out or was not allowed.") {
+                  console.error("Passkey autofill failed:", context.error.message)
+                }
+              }
+            }
+          })
+        }
+      }
+    }
+
+    initConditionalUI()
+  }, [router])
 
   const onSubmit = async (data: LoginInput) => {
     setIsLoading(true)
@@ -91,6 +121,7 @@ const LoginFormContent = ({ className, ...props }: React.ComponentProps<"div">) 
                     id="email"
                     type="email"
                     placeholder="jondoe@company.com"
+                    autoComplete="username webauthn"
                     {...register("email")}
                     disabled={isLoading || isAuthenticating}
                   />
@@ -110,6 +141,7 @@ const LoginFormContent = ({ className, ...props }: React.ComponentProps<"div">) 
 
                   <PasswordInput
                     id="password"
+                    autoComplete="current-password webauthn"
                     {...register("password")}
                     disabled={isLoading || isAuthenticating}
                   />
