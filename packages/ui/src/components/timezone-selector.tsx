@@ -2,10 +2,10 @@
 
 import { Check, ChevronsUpDown } from "lucide-react"
 import * as React from "react"
-import { Button } from "./components/button"
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "./components/command"
-import { Popover, PopoverContent, PopoverTrigger } from "./components/popover"
-import { cn } from "./lib/utils"
+import { cn } from "../lib/utils"
+import { Button } from "./button"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "./command"
+import { Popover, PopoverContent, PopoverTrigger } from "./popover"
 
 // Liste complète des timezones IANA avec leurs offsets UTC
 const TIMEZONES = [
