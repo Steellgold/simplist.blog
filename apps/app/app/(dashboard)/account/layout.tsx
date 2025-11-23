@@ -1,7 +1,7 @@
 import { AccountSidebar } from "@/components/layout/account-sidebar"
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
-import { ThemeSwitcher } from "@/components/ui/switch-theme"
 import { getCurrentUser } from "@/lib/auth-helper"
+import { ThemeSwitcher } from "@simplist/ui/components/shared/switch-theme"
+import { SidebarProvider, SidebarTrigger } from "@simplist/ui/components/sidebar"
 import { redirect } from "next/navigation"
 import { type ReactNode } from "react"
 

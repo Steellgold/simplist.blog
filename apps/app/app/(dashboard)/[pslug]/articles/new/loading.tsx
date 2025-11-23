@@ -1,7 +1,7 @@
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton"
+import { Card, CardContent, CardHeader } from "@simplist/ui/components/card"
+import { Skeleton } from "@simplist/ui/components/skeleton"
 
-const EditArticleLoading = () => {
+const NewArticleLoading = () => {
   return (
     <div className="container max-w-7xl mx-auto space-y-6">
       <div>
@@ -68,4 +68,4 @@ const EditArticleLoading = () => {
   )
 }
 
-export default EditArticleLoading
+export default NewArticleLoading

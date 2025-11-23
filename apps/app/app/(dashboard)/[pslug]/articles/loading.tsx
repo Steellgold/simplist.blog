@@ -1,5 +1,5 @@
 import { PageLayout } from "@/components/layout/page-layout"
-import { Skeleton } from "@/components/ui/skeleton"
+import { Skeleton } from "@simplist/ui/components/skeleton"
 
 const ArticlesLoading = () => {
   return (

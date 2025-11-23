@@ -1,14 +1,12 @@
 import { AppSidebarWrapper } from "@/components/layout/sidebar-wrapper";
 import { ProjectContextProvider } from "@/components/projects/context-provider";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { ThemeSwitcher } from "@/components/ui/switch-theme";
 import { getUserProjects } from "@/lib/actions/projects";
 import { getCurrentUser } from "@/lib/auth-helper";
-import { prisma } from "@simplist/db";
 import { type LanguageCode } from "@/lib/types/languages";
+import { ThemeSwitcher } from "@simplist/ui/components/shared/switch-theme";
+import { SidebarProvider, SidebarTrigger } from "@simplist/ui/components/sidebar";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { Suspense } from "react";
 
 export const metadata: Metadata = {
   robots: {

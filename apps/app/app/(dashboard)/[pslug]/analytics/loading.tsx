@@ -1,6 +1,6 @@
 import { PageLayout } from "@/components/layout/page-layout"
-import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton"
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@simplist/ui/components/card"
+import { Skeleton } from "@simplist/ui/components/skeleton"
 
 const AnalyticsLoading = () => {
   return (

@@ -1,7 +1,7 @@
 import { PageLayout } from "@/components/layout/page-layout"
-import { Card, CardContent } from "@/components/ui/card"
-import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel, FieldSeparator, FieldSet, FieldTitle } from "@/components/ui/field"
-import { Skeleton } from "@/components/ui/skeleton"
+import { Card, CardContent } from "@simplist/ui/components/card"
+import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel, FieldSeparator, FieldSet, FieldTitle } from "@simplist/ui/components/field"
+import { Skeleton } from "@simplist/ui/components/skeleton"
 
 const BillingLoadingSkeleton = () => {
   return (
