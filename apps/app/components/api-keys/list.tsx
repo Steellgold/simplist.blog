@@ -1,5 +1,6 @@
 "use client"
 
+import { deleteApiKey } from "@/lib/actions/api-keys"
 import {
   AlertDialog, AlertDialogCancel,
   AlertDialogContent,
@@ -7,15 +8,14 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle
-} from "@/components/ui/alert-dialog"
-import { toast } from "@/components/ui/sonner"
-import { deleteApiKey } from "@/lib/actions/api-keys"
+} from "@simplist/ui/components/alert-dialog"
+import { Button } from "@simplist/ui/components/button"
+import { toast } from "@simplist/ui/components/sonner"
+import { Spinner } from "@simplist/ui/components/spinner"
+import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { columns, type ApiKey } from "./columns"
 import { ApiKeysDataTable } from "./data-table"
-import { Button } from "@/components/ui/button"
-import { Spinner } from "@/components/ui/spinner"
-import { useRouter } from "next/navigation"
 
 interface ApiKeysListProps {
   apiKeys: ApiKey[]

@@ -13,8 +13,8 @@ import {
 } from "@tanstack/react-table"
 import { useState } from "react"
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { Button } from "@simplist/ui/components/button"
+import { Input } from "@simplist/ui/components/input"
 import {
   Table,
   TableBody,
@@ -22,7 +22,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@simplist/ui/components/table"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]

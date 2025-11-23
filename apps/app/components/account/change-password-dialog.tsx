@@ -1,17 +1,17 @@
 "use client"
 
+import { PasswordInput } from "@/components/auth/password-input"
+import { changePassword } from "@/lib/actions/security"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { Button } from "@simplist/ui/components/button"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@simplist/ui/components/dialog"
+import { Field, FieldError, FieldGroup, FieldLabel } from "@simplist/ui/components/field"
+import { Spinner } from "@simplist/ui/components/spinner"
+import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
-import { PasswordInput } from "@/components/auth/password-input"
 import { toast } from "sonner"
-import { Spinner } from "@/components/ui/spinner"
-import { changePassword } from "@/lib/actions/security"
-import { useRouter } from "next/navigation"
+import { z } from "zod"
 
 const changePasswordSchema = z.object({
   currentPassword: z.string().optional(),

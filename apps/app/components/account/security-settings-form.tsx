@@ -1,21 +1,21 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel, FieldSeparator } from "@/components/ui/field"
-import { Key, Trash2 } from "lucide-react"
-import { ChangePasswordDialog } from "./change-password-dialog"
-import { AddPasskeyDialog } from "./add-passkey-dialog"
-import { toast } from "sonner"
 import { deletePasskey } from "@/lib/actions/security"
-import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemTitle } from "@/components/ui/item"
-import { Passkey } from "better-auth/plugins/passkey"
 import { User } from "@/lib/auth-client"
-import { Enable2FADialog } from "./enable-2fa-dialog"
+import { Passkey } from "@better-auth/passkey"
+import { Button } from "@simplist/ui/components/button"
+import { Card, CardContent } from "@simplist/ui/components/card"
+import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel, FieldSeparator } from "@simplist/ui/components/field"
+import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemTitle } from "@simplist/ui/components/item"
+import { Switch } from "@simplist/ui/components/switch"
+import { Key, Trash2 } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
+import { toast } from "sonner"
+import { AddPasskeyDialog } from "./add-passkey-dialog"
+import { ChangePasswordDialog } from "./change-password-dialog"
 import { Disable2FADialog } from "./disable-2fa-dialog"
-import { Switch } from "../ui/switch"
+import { Enable2FADialog } from "./enable-2fa-dialog"
 
 type Props = {
   user: User
@@ -126,7 +126,7 @@ export const SecuritySettingsForm = ({ user, hasPassword, passkeys }: Props) => 
                     </ItemContent>
                     <ItemActions>
                       <Button
-                        variant="outlineDestructive"
+                        variant="destructive"
                         size="icon-sm"
                         onClick={() => handleDeletePasskey(passkey.id)}
                       >

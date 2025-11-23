@@ -4,7 +4,10 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 
-import { Button } from "@/components/ui/button"
+import { useApiKeyLimits } from "@/hooks/use-subscription-limits"
+import { createApiKey } from "@/lib/actions/api-keys"
+import { CreateApiKeyInput, createApiKeySchema } from "@/lib/validations/api-key"
+import { Button } from "@simplist/ui/components/button"
 import {
   Dialog,
   DialogContent,
@@ -12,24 +15,21 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
+} from "@simplist/ui/components/dialog"
+import { Field, FieldGroup, FieldLabel } from "@simplist/ui/components/field"
+import { Input } from "@simplist/ui/components/input"
+import { ProgressButton } from "@simplist/ui/components/progress-button"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { toast } from "@/components/ui/sonner"
-import { useApiKeyLimits } from "@/hooks/use-subscription-limits"
-import { CreateApiKeyInput, createApiKeySchema } from "@/lib/validations/api-key"
-import { createApiKey } from "@/lib/actions/api-keys"
+} from "@simplist/ui/components/select"
+import { toast } from "@simplist/ui/components/sonner"
+import { Spinner } from "@simplist/ui/components/spinner"
 import { Check, Copy, Plus } from "lucide-react"
 import Image from "next/image"
-import { Spinner } from "@/components/ui/spinner"
-import { ProgressButton } from "../ui/progress-button"
 import { useRouter } from "next/navigation"
 
 interface CreateApiKeyFormProps {

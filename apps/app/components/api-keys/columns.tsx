@@ -1,7 +1,7 @@
 "use client"
 
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { Badge } from "@simplist/ui/components/badge"
+import { Button } from "@simplist/ui/components/button"
 import { ColumnDef } from "@tanstack/react-table"
 import { Trash2 } from "lucide-react"
 

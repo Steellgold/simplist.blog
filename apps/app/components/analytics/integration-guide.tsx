@@ -1,8 +1,8 @@
 "use client"
 
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Alert, AlertDescription, AlertTitle } from '@simplist/ui/components/alert'
+import { Button } from '@simplist/ui/components/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@simplist/ui/components/card'
 import { Check, Copy } from 'lucide-react'
 import { useState } from 'react'
 

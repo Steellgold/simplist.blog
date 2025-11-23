@@ -1,17 +1,18 @@
 "use client"
 
-import { Button } from '@/components/ui/button'
-import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { useIsMobile } from '@/hooks/use-mobile'
+import { AnalyticsDataMultiPeriod } from '@/lib/actions/analytics'
+import { getCountryCode, getCountryFlagUrl, getCountryInfo } from '@/lib/utils/countries'
+import { Button } from '@simplist/ui/components/button'
+import { ButtonGroup } from '@simplist/ui/components/button-group'
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '@simplist/ui/components/card'
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent
-} from '@/components/ui/chart'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { useIsMobile } from '@/hooks/use-mobile'
-import { AnalyticsDataMultiPeriod } from '@/lib/actions/analytics'
-import { getCountryCode, getCountryFlagUrl, getCountryInfo } from '@/lib/utils/countries'
+} from '@simplist/ui/components/chart'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@simplist/ui/components/select'
 import {
   Activity,
   Clock,
@@ -34,7 +35,6 @@ import {
   YAxis
 } from "recharts"
 import { RecentActivityTable } from './recent-activity-table'
-import { ButtonGroup } from '@/components/ui/button-group'
 
 interface AnalyticsDashboardProps {
   analyticsData: AnalyticsDataMultiPeriod

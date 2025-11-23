@@ -1,21 +1,21 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { toast } from "sonner"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter } from "@/components/ui/card"
-import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldSeparator, FieldSet } from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import { Spinner } from "@/components/ui/spinner"
 import { updateUserInformation } from "@/lib/actions/user"
-import { UpdateUserEmailInput, updateUserEmailSchema, UpdateUserInformationInput, updateUserInformationSchema } from "@/lib/validations/user"
 import { authClient, User } from "@/lib/auth-client"
-import { UserIconAvatar } from "../icon-avatar"
-import { Alert, AlertDescription, AlertTitle } from "../ui/alert"
+import { UpdateUserEmailInput, updateUserEmailSchema, UpdateUserInformationInput, updateUserInformationSchema } from "@/lib/validations/user"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { Alert, AlertDescription, AlertTitle } from "@simplist/ui/components/alert"
+import { Button } from "@simplist/ui/components/button"
+import { Card, CardContent, CardFooter } from "@simplist/ui/components/card"
+import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel, FieldSeparator, FieldSet } from "@simplist/ui/components/field"
+import { Input } from "@simplist/ui/components/input"
+import { Spinner } from "@simplist/ui/components/spinner"
 import { CheckCircle2Icon } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
+import { useForm } from "react-hook-form"
+import { toast } from "sonner"
+import { UserIconAvatar } from "../icon-avatar"
 
 interface AccountSettingsFormProps {
   user: User
@@ -160,7 +160,7 @@ export const AccountSettingsForm = ({ user, isOAuthUser }: AccountSettingsFormPr
             <CardContent>
               {isEmailSubmitted && (
                 <>
-                  <Alert className="mb-4" variant="success">
+                  <Alert className="mb-4" variant="default">
                     <CheckCircle2Icon />
                     <AlertTitle>Success! Your email has been updated</AlertTitle>
                     <AlertDescription>
