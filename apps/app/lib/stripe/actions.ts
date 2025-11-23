@@ -1,9 +1,9 @@
 "use server";
 
 import { getCurrentUser } from "@/lib/auth-helper";
-import { prisma } from "@simplist/db";
 import { stripe, STRIPE_PRODUCTS } from "@/lib/stripe/client";
 import type { PaymentMethodInfo, SubscriptionInfo } from "@/lib/stripe/types";
+import { prisma } from "@simplist/db";
 import { redirect } from "next/navigation";
 import type Stripe from "stripe";
 

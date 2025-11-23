@@ -1,11 +1,11 @@
 "use server"
 
-import { revalidatePath } from "next/cache"
-import { redirect } from "next/navigation"
-import { headers } from "next/headers"
+import { auth } from "@/lib/auth"
 import { getCurrentUser } from "@/lib/auth-helper"
 import { prisma } from "@simplist/db"
-import { auth } from "@/lib/auth"
+import { revalidatePath } from "next/cache"
+import { headers } from "next/headers"
+import { redirect } from "next/navigation"
 
 export const changePassword = async (currentPassword: string, newPassword: string) => {
   const user = await getCurrentUser()

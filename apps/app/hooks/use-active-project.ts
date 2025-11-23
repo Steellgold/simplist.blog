@@ -1,8 +1,8 @@
 "use client"
 
+import { Project } from "@simplist/db"
 import { useParams, useRouter } from "next/navigation"
 import { useCallback, useMemo } from "react"
-import { Project } from "@simplist/db"
 
 interface UseActiveProjectProps {
   projects: Project[]

@@ -1,10 +1,10 @@
+import { ResetPassword, VerifyEmail } from "@/components/emails";
+import { passkey } from "@better-auth/passkey";
+import { render } from "@react-email/render";
+import { prisma } from "@simplist/db";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { lastLoginMethod, twoFactor, username } from "better-auth/plugins";
-import { passkey } from "better-auth/plugins/passkey"
-import { render } from "@react-email/render";
-import { VerifyEmail, ResetPassword } from "@/components/emails";
-import { prisma } from "@simplist/db";
+import { lastLoginMethod, twoFactor } from "better-auth/plugins";
 import { sendEmail } from "./ses";
 
 export const auth = betterAuth({

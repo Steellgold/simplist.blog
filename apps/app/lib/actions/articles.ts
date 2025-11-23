@@ -2,10 +2,10 @@
 
 import { assertR2ObjectIsImage, getR2PublicUrl } from "@/lib/actions/images"
 import { getCurrentUser } from "@/lib/auth-helper"
-import { prisma } from "@simplist/db"
 import { checkArticleQuota, checkFeatureAccess, checkVariantQuota } from "@/lib/subscription/quota-check"
 import { type LanguageCode, isValidLanguageCode } from "@/lib/types/languages"
 import { generateSlug } from "@/lib/utils"
+import { prisma } from "@simplist/db"
 import { revalidatePath } from "next/cache"
 import { forbidden, notFound, redirect } from "next/navigation"
 

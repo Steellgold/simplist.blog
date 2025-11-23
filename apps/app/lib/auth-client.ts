@@ -1,7 +1,8 @@
-import { inferAdditionalFields, lastLoginMethodClient, passkeyClient, twoFactorClient, usernameClient } from "better-auth/client/plugins"
+import { passkeyClient } from "@better-auth/passkey/client"
+import { InferUser } from "better-auth"
+import { inferAdditionalFields, lastLoginMethodClient, twoFactorClient } from "better-auth/client/plugins"
 import { createAuthClient } from "better-auth/react"
 import { auth } from "./auth"
-import { InferUser } from "better-auth"
 
 export const authClient = createAuthClient({
   plugins: [
