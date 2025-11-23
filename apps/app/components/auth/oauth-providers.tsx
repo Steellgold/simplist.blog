@@ -1,10 +1,10 @@
 "use client"
 
-import { Field, FieldSeparator } from "@/components/ui/field"
 import { authClient } from "@/lib/auth-client"
+import { Field } from "@simplist/ui/components/field"
 import { createContext, useContext, useEffect, useState } from "react"
-import { ProviderButton } from "./provider-button"
 import { PasskeyButton } from "./passkey-button"
+import { ProviderButton } from "./provider-button"
 
 interface OAuthProvidersContextType {
   isAuthenticating: boolean

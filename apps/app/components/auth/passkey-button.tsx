@@ -1,12 +1,12 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
-import { Spinner } from "@/components/ui/spinner"
 import { authClient } from "@/lib/auth-client"
+import { Button } from "@simplist/ui/components/button"
+import { toast } from "@simplist/ui/components/sonner"
+import { Spinner } from "@simplist/ui/components/spinner"
+import { KeyRoundIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { toast } from "@/components/ui/sonner"
-import { KeyRoundIcon } from "lucide-react"
 
 interface PasskeyButtonProps {
   onAuthStart?: () => void

@@ -1,18 +1,18 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import { toast } from "@/components/ui/sonner"
 import { authClient } from "@/lib/auth-client"
 import { cn } from "@/lib/utils"
 import { ForgotPasswordInput, forgotPasswordSchema } from "@/lib/validations/auth"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { Alert, AlertDescription, AlertTitle } from "@simplist/ui/components/alert"
+import { Button } from "@simplist/ui/components/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@simplist/ui/components/card"
+import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@simplist/ui/components/field"
+import { Input } from "@simplist/ui/components/input"
+import { toast } from "@simplist/ui/components/sonner"
+import { AlertCircleIcon } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { AlertCircleIcon } from "lucide-react"
 import { useForm } from "react-hook-form"
 
 export const ForgotPasswordForm = ({ className, ...props }: React.ComponentProps<"div">) => {
@@ -33,7 +33,7 @@ export const ForgotPasswordForm = ({ className, ...props }: React.ComponentProps
     setError("")
 
     toast.promise(
-      authClient.forgetPassword({
+      authClient.requestPasswordReset({
         email: data.email,
         redirectTo: "/auth/reset-password"
       }, {

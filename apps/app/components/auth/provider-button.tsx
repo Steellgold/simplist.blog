@@ -1,9 +1,9 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
-import { Spinner } from "@/components/ui/spinner"
 import { authClient } from "@/lib/auth-client"
 import { cn } from "@/lib/utils"
+import { Button } from "@simplist/ui/components/button"
+import { Spinner } from "@simplist/ui/components/spinner"
 import { useState } from "react"
 
 type ProviderType = "github" | "google"
