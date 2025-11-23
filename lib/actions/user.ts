@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { getCurrentUser } from "../auth-helper"
-import { prisma } from "@/lib/db"
+import { prisma } from "@simplist/db"
 import { UpdateUserInformationInput, updateUserInformationSchema } from "../validations/user"
 
 export const updateUserInformation = async (input: UpdateUserInformationInput) => {

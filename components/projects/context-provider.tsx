@@ -1,6 +1,6 @@
 "use client"
 
-import { Project } from "@prisma/client"
+import { Project } from "@simplist/db"
 import { createContext, ReactNode, useContext } from "react"
 
 interface ProjectContextType {

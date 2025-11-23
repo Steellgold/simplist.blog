@@ -1,5 +1,5 @@
 import { getCurrentUser } from "@/lib/auth-helper";
-import { prisma } from "@/lib/db";
+import { prisma } from "@simplist/db";
 import { NextResponse } from "next/server";
 
 export const GET = async (request: Request) => {

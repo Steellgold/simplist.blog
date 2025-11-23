@@ -1,5 +1,4 @@
-import { prisma } from "@/lib/db";
-import { SubscriptionTier } from "@prisma/client";
+import { prisma, SubscriptionTier } from "@simplist/db";
 import { getPlanLimits } from "./plans";
 
 export interface QuotaCheckResult {

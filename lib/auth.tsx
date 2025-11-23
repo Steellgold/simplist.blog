@@ -4,7 +4,7 @@ import { lastLoginMethod, twoFactor, username } from "better-auth/plugins";
 import { passkey } from "better-auth/plugins/passkey"
 import { render } from "@react-email/render";
 import { VerifyEmail, ResetPassword } from "@/components/emails";
-import { prisma } from "./db";
+import { prisma } from "@simplist/db";
 import { sendEmail } from "./ses";
 
 export const auth = betterAuth({

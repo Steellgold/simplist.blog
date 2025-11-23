@@ -3,9 +3,9 @@ import { PageLayout } from "@/components/layout/page-layout"
 import { EmptyProject } from "@/components/projects/empty-project"
 import { getAllProjectAnalytics } from "@/lib/actions/analytics"
 import { getCurrentUser } from "@/lib/auth-helper"
-import { prisma } from "@/lib/db"
-import { redirect } from "next/navigation"
 import { getProjectSubscription } from "@/lib/subscription/quota-check"
+import { prisma } from "@simplist/db"
+import { redirect } from "next/navigation"
 
 interface AnalyticsPageProps {
   params: Promise<{
@@ -22,7 +22,7 @@ const AnalyticsPage = async ({ params }: AnalyticsPageProps) => {
   // Get project from slug
   const project = await prisma.project.findFirst({
     where: { slug, userId: user.id },
-    cacheStrategy: { ttl: 60 },
+    
   })
   if (!project) return <EmptyProject />
 

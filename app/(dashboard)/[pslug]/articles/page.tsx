@@ -1,8 +1,8 @@
 import { ArticlesClientPage } from "@/components/articles/articles-client-page"
 import { getProjectArticles } from "@/lib/actions/articles"
 import { getCurrentUser } from "@/lib/auth-helper"
-import { prisma } from "@/lib/db"
 import { getPlanLimits } from "@/lib/subscription/plans"
+import { prisma } from "@simplist/db"
 import { redirect } from "next/navigation"
 
 const ArticlesPage = async ({ params }: { params: Promise<{ pslug: string }> }) => {
@@ -17,7 +17,7 @@ const ArticlesPage = async ({ params }: { params: Promise<{ pslug: string }> }) 
       userId: user.id,
       slug: resolvedParams.pslug,
     },
-    cacheStrategy: { ttl: 60 },
+    
   })
 
   if (!project) redirect("/create-project")

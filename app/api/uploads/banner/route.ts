@@ -1,6 +1,6 @@
 import { buildBannerKey, createR2Client, getPublicUrlForKey } from "@/lib/actions/images"
 import { getCurrentUser } from "@/lib/auth-helper"
-import { prisma } from "@/lib/db"
+import { prisma } from "@simplist/db"
 import { checkStorageQuota, updateStorageUsage } from "@/lib/subscription/quota-check"
 import { PutObjectCommand } from "@aws-sdk/client-s3"
 import { NextResponse } from "next/server"

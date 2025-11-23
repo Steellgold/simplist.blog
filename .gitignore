@@ -48,6 +48,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# Prisma generated client
+packages/db/generated/
+
 certificates
 
 # Documentation files (auto-generated)

@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Project } from "@prisma/client";
+import { Project } from "@simplist/db";
 import { useState } from "react";
 
 interface ProjectSelectorModalProps {

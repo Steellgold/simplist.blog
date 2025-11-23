@@ -1,8 +1,7 @@
 import { BillingClientPage } from "@/components/billing/billing-client-page"
 import { getCurrentUser } from "@/lib/auth-helper"
-import { prisma } from "@/lib/db"
+import { prisma, SubscriptionTier } from "@simplist/db"
 import { getProjectBillingHistory, getProjectSubscription } from "@/lib/stripe/actions"
-import { SubscriptionTier } from "@prisma/client"
 import { redirect } from "next/navigation"
 
 const BillingPage = async ({ params }: { params: Promise<{ pslug: string }> }) => {

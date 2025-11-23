@@ -1,8 +1,7 @@
 "use server"
 
 import { getCurrentUser } from '@/lib/auth-helper'
-import { analyticsCacheUtils, apiKeyCache, prisma } from '@/lib/db'
-import { Prisma } from '@prisma/client'
+import { analyticsCacheUtils, apiKeyCache, prisma, Prisma } from '@simplist/db'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 

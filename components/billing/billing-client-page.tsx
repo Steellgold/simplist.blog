@@ -4,7 +4,7 @@ import { CurrentPlanCard } from "@/components/billing/current-plan-card"
 import { InvoicesCard } from "@/components/billing/invoices-card"
 import { PageLayout } from "@/components/layout/page-layout"
 import type { BillingEntry, SubscriptionInfo } from "@/lib/stripe/types"
-import { SubscriptionTier } from "@prisma/client"
+import { SubscriptionTier } from "@simplist/db"
 
 type BillingClientPageProps = {
   project: {

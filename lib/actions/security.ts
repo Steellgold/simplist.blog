@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { headers } from "next/headers"
 import { getCurrentUser } from "@/lib/auth-helper"
-import { prisma } from "@/lib/db"
+import { prisma } from "@simplist/db"
 import { auth } from "@/lib/auth"
 
 export const changePassword = async (currentPassword: string, newPassword: string) => {

@@ -1,4 +1,4 @@
-import { SubscriptionTier } from "@prisma/client";
+import { SubscriptionTier } from "@simplist/db";
 
 export type SubscriptionInterval = "monthly" | "yearly";
 

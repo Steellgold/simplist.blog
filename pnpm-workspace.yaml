@@ -1,6 +1,10 @@
 packages:
   - packages/*
 
+catalogs:
+  prisma:
+    prisma: latest
+
 onlyBuiltDependencies:
   - '@prisma/client'
   - '@prisma/engines'

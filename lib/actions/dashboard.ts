@@ -1,7 +1,7 @@
 "use server";
 
-import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth-helper";
+import { prisma } from "@simplist/db";
 import { notFound, unauthorized } from "next/navigation";
 
 export interface DashboardData {
@@ -60,7 +60,7 @@ export const getDashboardData = async (
         subscriptionExpiresAt: true,
         totalStorageUsed: true,
       },
-      cacheStrategy: { ttl: 30 },
+      
     });
 
     if (!project) return notFound();
@@ -95,7 +95,7 @@ export const getDashboardData = async (
           updatedAt: "desc",
         },
         take: 5,
-        cacheStrategy: { ttl: 30 },
+        
       }),
     ]);
 
@@ -106,7 +106,7 @@ export const getDashboardData = async (
         status: "active",
         deletedAt: null,
       },
-      cacheStrategy: { ttl: 30 },
+      
     });
 
     // Fetch analytics data
@@ -121,7 +121,7 @@ export const getDashboardData = async (
             projectId,
           },
         },
-        cacheStrategy: { ttl: 30 },
+        
       }),
       // Today's views and unique visitors
       prisma.pageView.aggregate({
@@ -136,7 +136,7 @@ export const getDashboardData = async (
         _count: {
           id: true,
         },
-        cacheStrategy: { ttl: 30 },
+        
       }),
       // Count bounced views
       prisma.pageView.count({
@@ -146,7 +146,7 @@ export const getDashboardData = async (
           },
           bounced: true,
         },
-        cacheStrategy: { ttl: 30 },
+        
       }),
       // Total views for bounce rate calculation
       prisma.pageView.count({
@@ -155,7 +155,7 @@ export const getDashboardData = async (
             projectId,
           },
         },
-        cacheStrategy: { ttl: 30 },
+        
       }),
     ]);
 
@@ -173,7 +173,7 @@ export const getDashboardData = async (
       select: {
         visitorId: true,
       },
-      cacheStrategy: { ttl: 30 },
+      
     });
 
     // Calculate average bounce rate

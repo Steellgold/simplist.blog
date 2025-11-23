@@ -2,7 +2,7 @@ import { User } from "@/lib/auth-client"
 import { FC } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn, getUserInitials } from "@/lib/utils";
-import { Project } from "@prisma/client";
+import { Project } from "@simplist/db";
 
 type Props = {
   user: User;

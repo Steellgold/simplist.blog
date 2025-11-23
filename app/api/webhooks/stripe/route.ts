@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/db";
+import { prisma } from "@simplist/db";
 import { getSubscriptionExpiryDate, stripe } from "@/lib/stripe/client";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";

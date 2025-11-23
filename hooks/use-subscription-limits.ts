@@ -1,7 +1,7 @@
 "use client";
 
 import { getPlanLimits } from "@/lib/subscription/plans";
-import { SubscriptionTier } from "@prisma/client";
+import { SubscriptionTier } from "@simplist/db";
 import { useEffect, useState } from "react";
 
 interface ProjectSubscription {

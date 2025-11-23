@@ -1,7 +1,7 @@
 import { ApiKeysClientPage } from "@/components/api-keys/api-keys-client-page"
 import { getProjectApiKeys } from "@/lib/actions/api-keys"
 import { getCurrentUser } from "@/lib/auth-helper"
-import { prisma } from "@/lib/db"
+import { prisma } from "@simplist/db"
 import { redirect } from "next/navigation"
 
 const ApiKeysPage = async ({ params }: { params: Promise<{ pslug: string }> }) => {
@@ -16,7 +16,7 @@ const ApiKeysPage = async ({ params }: { params: Promise<{ pslug: string }> }) =
       userId: user.id,
       slug: resolvedParams.pslug,
     },
-    cacheStrategy: { ttl: 60 },
+    
   })
 
   if (!project) redirect("/create-project")

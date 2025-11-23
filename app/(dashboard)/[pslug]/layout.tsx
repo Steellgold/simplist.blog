@@ -4,7 +4,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { ThemeSwitcher } from "@/components/ui/switch-theme";
 import { getUserProjects } from "@/lib/actions/projects";
 import { getCurrentUser } from "@/lib/auth-helper";
-import { prisma } from "@/lib/db";
+import { prisma } from "@simplist/db";
 import { type LanguageCode } from "@/lib/types/languages";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";

@@ -1,7 +1,7 @@
 import { PageLayout } from "@/components/layout/page-layout"
 import { SecuritySettingsForm } from "@/components/account/security-settings-form"
 import { getCurrentUser } from "@/lib/auth-helper"
-import { prisma } from "@/lib/db"
+import { prisma } from "@simplist/db"
 import { unauthorized } from "next/navigation"
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"

@@ -2,7 +2,7 @@
 
 import { useParams } from "next/navigation"
 import { useMemo } from "react"
-import { Project } from "@prisma/client"
+import { Project } from "@simplist/db"
 
 interface UseCurrentProjectProps {
   projects: Project[]

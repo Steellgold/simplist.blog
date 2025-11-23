@@ -1,10 +1,11 @@
+import { createMDX } from "fumadocs-mdx/next";
 import type { NextConfig } from "next";
-import { createMDX } from 'fumadocs-mdx/next';
 
 const nextConfig: NextConfig = {
   experimental: {
     authInterrupts: true
   },
+  transpilePackages: ["@simplist/db", "pg"],
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "cdn.simplist.blog" },

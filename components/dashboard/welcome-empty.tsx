@@ -3,7 +3,7 @@
 import { buttonVariants } from "@/components/ui/button"
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
 import { UpgradeOverlay } from "@/components/ui/upgrade-overlay"
-import { SubscriptionTier } from "@prisma/client"
+import { SubscriptionTier } from "@simplist/db"
 import { ArrowUpRightIcon, FileText, Key, LineChart } from "lucide-react"
 import Link from "next/link"
 

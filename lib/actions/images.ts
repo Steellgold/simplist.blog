@@ -3,7 +3,7 @@
 import { getCurrentUser } from "@/lib/auth-helper"
 import { z } from "zod"
 import { sanitizeFileName } from "@/lib/utils"
-import { prisma } from "@/lib/db"
+import { prisma } from "@simplist/db"
 
 import { S3Client, DeleteObjectCommand, HeadObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3"
 import { PutObjectCommand } from "@aws-sdk/client-s3"

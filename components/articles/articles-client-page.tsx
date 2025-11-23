@@ -5,7 +5,7 @@ import { ArticlesDataTable } from "@/components/articles/data-table"
 import { PageLayout } from "@/components/layout/page-layout"
 import { buttonVariants } from "@/components/ui/button"
 import { ProgressButton } from "@/components/ui/progress-button"
-import type { Article } from "@prisma/client"
+import type { Article } from "@simplist/db"
 import { Plus } from "lucide-react"
 import Link from "next/link"
 

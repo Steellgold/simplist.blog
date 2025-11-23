@@ -6,24 +6,30 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "require": "./dist/index.js"
+      "import": "./dist/index.js"
     }
   },
   "scripts": {
-    "build": "prisma generate --no-engine && tsc",
+    "build": "prisma generate && tsc",
     "dev": "tsc --watch",
-    "db:generate": "prisma generate --no-engine",
+    "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
     "db:studio": "prisma studio"
   },
   "dependencies": {
-    "@prisma/client": "^6.19.0",
-    "@prisma/extension-accelerate": "^2.0.2",
-    "@upstash/redis": "^1.35.6"
+    "@prisma/adapter-pg": "^7.0.0",
+    "@prisma/client": "^7.0.0",
+    "@upstash/redis": "^1.35.6",
+    "dotenv": "^16.4.7",
+    "pg": "^8.13.1"
   },
   "devDependencies": {
-    "prisma": "^6.19.0",
+    "@types/node": "^22.10.2",
+    "@types/pg": "^8.11.10",
+    "prisma": "catalog:prisma",
+    "tsx": "^4.19.2",
     "typescript": "^5"
   }
 }

@@ -3,7 +3,7 @@
 import { ApiKeysList } from "@/components/api-keys/list"
 import { CreateApiKeyForm } from "@/components/api-keys/create-form"
 import { PageLayout } from "@/components/layout/page-layout"
-import type { ApiKey } from "@prisma/client"
+import type { ApiKey } from "@simplist/db"
 
 type ApiKeySelect = Pick<
   ApiKey,

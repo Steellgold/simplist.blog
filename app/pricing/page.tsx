@@ -15,7 +15,7 @@ import NumberFlow from "@number-flow/react";
 import { ArrowRight, BadgeCheck, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Project } from "@prisma/client";
+import { Project } from "@simplist/db";
 
 const PricingPage = () => {
   const [frequency, setFrequency] = useState<SubscriptionInterval>("monthly");

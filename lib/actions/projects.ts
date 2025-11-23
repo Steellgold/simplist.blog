@@ -1,9 +1,9 @@
 "use server"
 
+import { prisma } from "@simplist/db"
 import { revalidatePath } from "next/cache"
-import { forbidden, notFound, redirect } from "next/navigation"
+import { forbidden, redirect } from "next/navigation"
 import { getCurrentUser } from "../auth-helper"
-import { prisma } from "../db"
 import { CreateProjectActionInput, createProjectSchema, RESERVED_SLUGS, UpdateProjectSettingsInput } from "../validations/project"
 
 export const getUserProjects = async () => {
@@ -17,7 +17,7 @@ export const getUserProjects = async () => {
     orderBy: {
       createdAt: "desc",
     },
-    cacheStrategy: { ttl: 60 },
+    
   })
 
   return projects
