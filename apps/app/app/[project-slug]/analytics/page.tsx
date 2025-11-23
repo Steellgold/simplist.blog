@@ -9,13 +9,13 @@ import { redirect } from "next/navigation"
 
 interface AnalyticsPageProps {
   params: Promise<{
-    pslug: string
+    "project-slug": string
   }>
 }
 
 const AnalyticsPage = async ({ params }: AnalyticsPageProps) => {
   const user = await getCurrentUser()
-  const { pslug: slug } = await params
+  const { "project-slug": slug } = await params
 
   if (!user) redirect("/auth/login");
 

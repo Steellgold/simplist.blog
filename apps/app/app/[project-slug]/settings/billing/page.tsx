@@ -4,7 +4,7 @@ import { prisma, SubscriptionTier } from "@simplist/db"
 import { getProjectBillingHistory, getProjectSubscription } from "@/lib/stripe/actions"
 import { redirect } from "next/navigation"
 
-const BillingPage = async ({ params }: { params: Promise<{ pslug: string }> }) => {
+const BillingPage = async ({ params }: { params: Promise<{ "project-slug": string }> }) => {
   const resolvedParams = await params
   const user = await getCurrentUser()
 
@@ -14,7 +14,7 @@ const BillingPage = async ({ params }: { params: Promise<{ pslug: string }> }) =
   const project = await prisma.project.findFirst({
     where: {
       userId: user.id,
-      slug: resolvedParams.pslug,
+      slug: resolvedParams."project-slug",
     },
   })
 

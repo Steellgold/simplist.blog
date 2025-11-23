@@ -5,7 +5,7 @@ import { getPlanLimits } from "@/lib/subscription/plans"
 import { prisma } from "@simplist/db"
 import { redirect } from "next/navigation"
 
-const ArticlesPage = async ({ params }: { params: Promise<{ pslug: string }> }) => {
+const ArticlesPage = async ({ params }: { params: Promise<{ "project-slug": string }> }) => {
   const resolvedParams = await params
 
   const user = await getCurrentUser()
@@ -15,7 +15,7 @@ const ArticlesPage = async ({ params }: { params: Promise<{ pslug: string }> }) 
   const project = await prisma.project.findFirst({
     where: {
       userId: user.id,
-      slug: resolvedParams.pslug,
+      slug: resolvedParams."project-slug",
     },
     
   })

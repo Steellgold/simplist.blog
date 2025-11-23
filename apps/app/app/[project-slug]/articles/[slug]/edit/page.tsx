@@ -8,7 +8,7 @@ import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 
 type PageParams = Promise<{ 
-  pslug: string
+  "project-slug": string
   slug: string 
 }>
 
@@ -23,7 +23,7 @@ export const generateMetadata = async ({ params }: { params: PageParams }): Prom
 }
 
 const EditArticlePage = async ({ params }: { params: Promise<PageParams> }) => {
-  const { pslug, slug } = await params;
+  const { "project-slug", slug } = await params;
 
   const user = await getCurrentUser()
   if (!user) redirect("/auth/login")
@@ -32,7 +32,7 @@ const EditArticlePage = async ({ params }: { params: Promise<PageParams> }) => {
   const article = await getArticleBySlugWithVariants(slug)
   if (article) {
     if (article.status === "deleted") {
-      return <ArticleRestore slug={pslug} articleId={article.id} />
+      return <ArticleRestore slug={"project-slug"} articleId={article.id} />
     }
 
     return (
@@ -46,7 +46,7 @@ const EditArticlePage = async ({ params }: { params: Promise<PageParams> }) => {
   }
 
   // Article doesn't exist at all
-  return <ArticleNotFound slug={pslug} />
+  return <ArticleNotFound slug={"project-slug"} />
 }
 
 export default EditArticlePage

@@ -11,7 +11,7 @@ interface UseCurrentProjectProps {
 
 export const useCurrentProject = ({ projects, currentProject }: UseCurrentProjectProps) => {
   const params = useParams()
-  const projectSlug = params["pslug"] as string
+  const projectSlug = params["project-slug"] as string
 
   const project = useMemo(() => {
     if (currentProject) {

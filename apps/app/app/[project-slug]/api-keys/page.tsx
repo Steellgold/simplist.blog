@@ -4,7 +4,7 @@ import { getCurrentUser } from "@/lib/auth-helper"
 import { prisma } from "@simplist/db"
 import { redirect } from "next/navigation"
 
-const ApiKeysPage = async ({ params }: { params: Promise<{ pslug: string }> }) => {
+const ApiKeysPage = async ({ params }: { params: Promise<{ "project-slug": string }> }) => {
   const resolvedParams = await params
   const user = await getCurrentUser()
 
@@ -14,7 +14,7 @@ const ApiKeysPage = async ({ params }: { params: Promise<{ pslug: string }> }) =
   const project = await prisma.project.findFirst({
     where: {
       userId: user.id,
-      slug: resolvedParams.pslug,
+      slug: resolvedParams."project-slug",
     },
     
   })
