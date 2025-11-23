@@ -1,11 +1,11 @@
 "use client"
 
-import { PasswordInput } from "@simplist/ui/components/password-input"
 import { authClient } from "@/lib/auth-client"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@simplist/ui/components/button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@simplist/ui/components/dialog"
 import { Field, FieldError, FieldGroup, FieldLabel } from "@simplist/ui/components/field"
+import { PasswordInput } from "@simplist/ui/components/password-input"
 import { Spinner } from "@simplist/ui/components/spinner"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
