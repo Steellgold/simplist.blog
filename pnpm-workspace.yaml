@@ -1,15 +1,3 @@
 packages:
-  - packages/*
-
-catalogs:
-  prisma:
-    prisma: latest
-
-onlyBuiltDependencies:
-  - '@prisma/client'
-  - '@prisma/engines'
-  - '@tailwindcss/oxide'
-  - esbuild
-  - prisma
-  - sharp
-  - unrs-resolver
+  - "apps/*"
+  - "packages/*"
