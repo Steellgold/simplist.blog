@@ -4,6 +4,7 @@ const nextConfig: NextConfig = {
   experimental: {
     authInterrupts: true
   },
+  transpilePackages: ["@simplist/ui"],
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "cdn.simplist.blog" },

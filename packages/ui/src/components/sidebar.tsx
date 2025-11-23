@@ -23,7 +23,7 @@ import {
   TooltipTrigger,
 } from "@simplist/ui/components/tooltip"
 import { useIsMobile } from "@simplist/ui/hooks/use-mobile"
-import { cn } from "./../lib/utils"
+import { cn } from "@simplist/ui/lib/utils"
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7

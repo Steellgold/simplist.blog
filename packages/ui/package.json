@@ -75,10 +75,10 @@
   "exports": {
     "./globals.css": "./src/styles/globals.css",
     "./postcss.config": "./postcss.config.mjs",
-    "./lib/*": "./src/lib/*.ts",
-    "./components/*": "./src/components/*.tsx",
+    "./lib/*": "./src/lib/*",
+    "./components/*": "./src/components/*",
+    "./components/shared/*": "./src/components/shared/*",
     "./hooks/*": "./src/hooks/*",
-    "./shared/*": "./src/shared/*.tsx",
-    "./animate-ui/*": "./src/components/animate-ui/*.tsx"
+    "./animate-ui/*": "./src/components/animate-ui/icons/*"
   }
 }

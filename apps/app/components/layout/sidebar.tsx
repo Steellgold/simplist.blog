@@ -7,12 +7,12 @@ import { ProjectSwitcher } from "@/components/projects/switcher"
 import { MiniBadge } from "@/components/ui/mini-badge"
 import type { User } from "@/lib/auth-client"
 import type { Project } from "@simplist/db/types"
-import { ChartLine } from "@simplist/ui/animate-ui/icons/chart-line"
-import { LayersIcon } from "@simplist/ui/animate-ui/icons/layers"
-import { LayoutDashboardIcon } from "@simplist/ui/animate-ui/icons/layout-dashboard"
-import { SettingsIcon } from "@simplist/ui/animate-ui/icons/settings"
-import { Star } from "@simplist/ui/animate-ui/icons/star"
-import { UnplugIcon } from "@simplist/ui/animate-ui/icons/unplug"
+import { ChartLine } from "@simplist/ui/animate-ui/chart-line"
+import { LayersIcon } from "@simplist/ui/animate-ui/layers"
+import { LayoutDashboardIcon } from "@simplist/ui/animate-ui/layout-dashboard"
+import { SettingsIcon } from "@simplist/ui/animate-ui/settings"
+import { Star } from "@simplist/ui/animate-ui/star"
+import { UnplugIcon } from "@simplist/ui/animate-ui/unplug"
 import {
   Sidebar,
   SidebarContent,

@@ -26,6 +26,12 @@
     "paths": {
       "@/*": [
         "./*"
+      ],
+      "@simplist/ui/animate-ui/*": [
+        "../../packages/ui/src/components/animate-ui/icons/*"
+      ],
+      "@simplist/ui/*": [
+        "../../packages/ui/src/*"
       ]
     }
   },

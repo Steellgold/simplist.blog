@@ -11,9 +11,9 @@ import {
 } from 'motion/react';
 import * as React from 'react';
 
-import { Slot, type WithAsChild } from '@simplist/ui/animate-ui/primitives/animate/slot';
 import { useIsInView } from '@simplist/ui/hooks/use-is-in-view';
 import { cn } from '@simplist/ui/lib/utils';
+import { Slot, type WithAsChild } from '../primitives/animate/slot';
 
 const staticAnimations = {
   path: {
@@ -646,3 +646,4 @@ export {
   staticAnimations, useAnimateIconContext, type AnimateIconContextValue, type AnimateIconProps, type IconProps,
   type IconWrapperProps
 };
+
