@@ -15,7 +15,7 @@ const ArticlesPage = async ({ params }: { params: Promise<{ "project-slug": stri
   const project = await prisma.project.findFirst({
     where: {
       userId: user.id,
-      slug: resolvedParams."project-slug",
+      slug: resolvedParams["project-slug"],
     },
     
   })

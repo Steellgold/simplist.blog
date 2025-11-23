@@ -1,6 +1,6 @@
 "use client"
 
-import { PasswordInput } from "@/components/auth/password-input"
+import { PasswordInput } from "@simplist/ui/components/password-input"
 import { authClient } from "@/lib/auth-client"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@simplist/ui/components/button"

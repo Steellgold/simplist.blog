@@ -23,7 +23,9 @@ export const generateMetadata = async ({ params }: { params: PageParams }): Prom
 }
 
 const EditArticlePage = async ({ params }: { params: Promise<PageParams> }) => {
-  const { "project-slug", slug } = await params;
+  const resolvedParams = await params;
+  const projectSlug = resolvedParams["project-slug"];
+  const slug = resolvedParams.slug;
 
   const user = await getCurrentUser()
   if (!user) redirect("/auth/login")
@@ -32,7 +34,7 @@ const EditArticlePage = async ({ params }: { params: Promise<PageParams> }) => {
   const article = await getArticleBySlugWithVariants(slug)
   if (article) {
     if (article.status === "deleted") {
-      return <ArticleRestore slug={"project-slug"} articleId={article.id} />
+      return <ArticleRestore slug={projectSlug} articleId={article.id} />
     }
 
     return (
@@ -46,7 +48,7 @@ const EditArticlePage = async ({ params }: { params: Promise<PageParams> }) => {
   }
 
   // Article doesn't exist at all
-  return <ArticleNotFound slug={"project-slug"} />
+  return <ArticleNotFound slug={projectSlug} />
 }
 
 export default EditArticlePage

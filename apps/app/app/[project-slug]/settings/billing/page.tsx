@@ -14,7 +14,7 @@ const BillingPage = async ({ params }: { params: Promise<{ "project-slug": strin
   const project = await prisma.project.findFirst({
     where: {
       userId: user.id,
-      slug: resolvedParams."project-slug",
+      slug: resolvedParams["project-slug"],
     },
   })
 
