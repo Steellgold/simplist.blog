@@ -1,12 +1,12 @@
+import { getUserProjects } from "@/lib/actions/projects";
 import { getCurrentUser } from "@/lib/auth-helper";
 import { redirect } from "next/navigation";
-import { getUserProjects } from "@/lib/actions/projects";
 
 const RootPage = async () => {
   const user = await getCurrentUser();
 
   if (!user) {
-    redirect("/home");
+    redirect("/auth/login");
   }
 
   const projects = await getUserProjects();
