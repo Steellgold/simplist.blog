@@ -7,7 +7,7 @@ const schema = {
   properties: {
     PORT: {
       type: "string",
-      default: "3001"
+      default: "4000"
     },
     HOST: {
       type: "string", 

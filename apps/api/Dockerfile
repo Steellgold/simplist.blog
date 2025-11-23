@@ -28,7 +28,7 @@ WORKDIR /app/packages/api
 RUN pnpm run build
 
 # Expose port
-EXPOSE 3001
+EXPOSE 4000
 
 # Start the server
 CMD ["pnpm", "start"]
