@@ -1,4 +1,3 @@
-import React from "react";
 import { EmailLayout } from "./email-layout";
 
 interface ResetPasswordProps {

@@ -1,7 +1,7 @@
 "use client";
 
-import { Button } from "@/components/ui/button"
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
+import { Button } from "@simplist/ui/components/button"
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@simplist/ui/components/empty"
 import { ArrowRightIcon, FolderIcon } from "lucide-react"
 
 export const EmptyProject = () => {

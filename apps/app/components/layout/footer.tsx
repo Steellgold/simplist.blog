@@ -1,4 +1,4 @@
-import { ThemeSwitcher } from "@/components/ui/switch-theme";
+import { ThemeSwitcher } from "@simplist/ui/components/shared/switch-theme";
 import Link from "next/link";
 
 const Footer = () => {

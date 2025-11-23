@@ -1,7 +1,7 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@simplist/ui/components/card";
+import { Progress } from "@simplist/ui/components/progress";
 import { AlertTriangle, BarChart3 } from "lucide-react";
 
 interface UsageCardProps {

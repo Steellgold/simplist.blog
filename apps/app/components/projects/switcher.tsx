@@ -1,9 +1,11 @@
 "use client"
 
-import { ChevronsUpDown, Loader2, Plus } from "lucide-react"
-import { useState } from "react"
 import { MiniBadge } from "@/components/ui/mini-badge"
+import { ChevronsUpDown, Plus } from "lucide-react"
+import { useState } from "react"
 
+import { ProjectIconAvatar } from "@/components/icon-avatar"
+import type { Project } from "@simplist/db/types"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,16 +13,14 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@simplist/ui/components/dropdown-menu"
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "@/components/ui/sidebar"
-import { ProjectIconAvatar } from "@/components/icon-avatar"
-import type { Project } from "@simplist/db/types"
-import { Spinner } from "@/components/ui/spinner"
+} from "@simplist/ui/components/sidebar"
+import { Spinner } from "@simplist/ui/components/spinner"
 
 interface ProjectSwitcherProps {
   projects: Project[]

@@ -1,12 +1,12 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { UserDropdown } from "@/components/layout/navbar-user-dropdown";
-import { authClient } from "@/lib/auth-client";
-import Link from "next/link";
-import { useScrollTop } from "@/hooks/use-scroll-top";
-import { cn } from "@/lib/utils";
 import { SimplistIcon } from "@/components/icon";
+import { UserDropdown } from "@/components/layout/navbar-user-dropdown";
+import { useScrollTop } from "@/hooks/use-scroll-top";
+import { authClient } from "@/lib/auth-client";
+import { cn } from "@/lib/utils";
+import { Button } from "@simplist/ui/components/button";
+import Link from "next/link";
 
 export const AppNavbar = () => {
   const { data, isPending } = authClient.useSession();

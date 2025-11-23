@@ -1,17 +1,18 @@
 "use client"
 
-import { LogOut, Settings } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
-import { ChartLine } from "@/components/animate-ui/icons/chart-line"
-import { LayersIcon } from "@/components/animate-ui/icons/layers"
-import { LayoutDashboardIcon } from "@/components/animate-ui/icons/layout-dashboard"
-import { SettingsIcon } from "@/components/animate-ui/icons/settings"
-import { Star } from "@/components/animate-ui/icons/star"
-import { UnplugIcon } from "@/components/animate-ui/icons/unplug"
 import { ProjectSwitcher } from "@/components/projects/switcher"
 import { MiniBadge } from "@/components/ui/mini-badge"
+import type { User } from "@/lib/auth-client"
+import type { Project } from "@simplist/db/types"
+import { ChartLine } from "@simplist/ui/animate-ui/icons/chart-line"
+import { LayersIcon } from "@simplist/ui/animate-ui/icons/layers"
+import { LayoutDashboardIcon } from "@simplist/ui/animate-ui/icons/layout-dashboard"
+import { SettingsIcon } from "@simplist/ui/animate-ui/icons/settings"
+import { Star } from "@simplist/ui/animate-ui/icons/star"
+import { UnplugIcon } from "@simplist/ui/animate-ui/icons/unplug"
 import {
   Sidebar,
   SidebarContent,
@@ -23,11 +24,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem
-} from "@/components/ui/sidebar"
+} from "@simplist/ui/components/sidebar"
 import { cloneElement, useState, type ReactNode } from "react"
 import { SidebarFooterItem } from "./sidebar-footer-item"
-import type { User } from "@/lib/auth-client"
-import type { Project } from "@simplist/db/types"
 
 interface AppSidebarProps {
   user: User

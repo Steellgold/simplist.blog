@@ -1,16 +1,16 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import type { Project } from "@simplist/db/types";
+import { Button } from "@simplist/ui/components/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@simplist/ui/components/dialog";
+import { Label } from "@simplist/ui/components/label";
+import { RadioGroup, RadioGroupItem } from "@simplist/ui/components/radio-group";
 import { useState } from "react";
 
 interface ProjectSelectorModalProps {

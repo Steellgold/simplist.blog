@@ -1,6 +1,8 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { UserIconAvatar } from "@/components/icon-avatar";
+import { authClient, type User } from "@/lib/auth-client";
+import { Button } from "@simplist/ui/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,11 +10,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { authClient, type User } from "@/lib/auth-client";
+} from "@simplist/ui/components/dropdown-menu";
 import { LayoutDashboard, LogOut, Settings } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { UserIconAvatar } from "@/components/icon-avatar";
 
 interface UserDropdownProps {
   user: User;

@@ -1,6 +1,8 @@
 "use client";
 
-import { LogOut, Settings, MailWarning, Mailbox } from "lucide-react"
+import { UserIconAvatar } from "@/components/icon-avatar";
+import { authClient, type User } from "@/lib/auth-client";
+import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,17 +10,15 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar"
-import { ClientOnly } from "@/components/ui/client-only"
-import { authClient, type User } from "@/lib/auth-client"
-import Link from "next/link"
+} from "@simplist/ui/components/dropdown-menu";
+import { ClientOnly } from "@simplist/ui/components/shared/client-only";
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@simplist/ui/components/sidebar";
+import { Spinner } from "@simplist/ui/components/spinner";
+import { LogOut, MailWarning, Mailbox, Settings } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Spinner } from "@/components/ui/spinner";
-import { UserIconAvatar } from "@/components/icon-avatar";
-import { cn } from "@/lib/utils";
 
 interface SidebarFooterItemProps {
   user: User

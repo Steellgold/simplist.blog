@@ -1,8 +1,6 @@
 "use client"
 
-import { ChevronLeft, Shield, Trash2, User as UserIcon } from "lucide-react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
+import type { User } from "@/lib/auth-client"
 import {
   Sidebar,
   SidebarContent,
@@ -14,10 +12,12 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem
-} from "@/components/ui/sidebar"
-import type { User } from "@/lib/auth-client"
-import { SidebarFooterItem } from "./sidebar-footer-item"
+} from "@simplist/ui/components/sidebar"
+import { ChevronLeft, Shield, Trash2, User as UserIcon } from "lucide-react"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { FC } from "react"
+import { SidebarFooterItem } from "./sidebar-footer-item"
 
 interface AccountSidebarProps {
   user: User

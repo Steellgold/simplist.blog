@@ -1,7 +1,7 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User } from "@/lib/auth-client";
 import { cn, getUserInitials } from "@/lib/utils";
 import type { Project } from "@simplist/db/types";
+import { Avatar, AvatarFallback, AvatarImage } from "@simplist/ui/components/avatar";
 import { FC } from "react";
 
 type Props = {
