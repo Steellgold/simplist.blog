@@ -7,7 +7,7 @@ import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel, FieldSet
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { createCheckoutSession } from "@/lib/stripe/actions"
 import { getPlan } from "@/lib/subscription/plans"
-import { SubscriptionTier } from "@simplist/db"
+import { SubscriptionTier } from "@simplist/db/types"
 import { Check, CircleFadingArrowUp } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"

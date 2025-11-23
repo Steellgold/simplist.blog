@@ -1,6 +1,6 @@
 "use client"
 
-import { Project } from "@simplist/db"
+import type { Project } from "@simplist/db/types"
 import { createContext, ReactNode, useContext } from "react"
 
 interface ProjectContextType {

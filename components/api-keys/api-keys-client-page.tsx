@@ -1,9 +1,9 @@
 "use client"
 
-import { ApiKeysList } from "@/components/api-keys/list"
 import { CreateApiKeyForm } from "@/components/api-keys/create-form"
+import { ApiKeysList } from "@/components/api-keys/list"
 import { PageLayout } from "@/components/layout/page-layout"
-import type { ApiKey } from "@simplist/db"
+import type { ApiKey } from "@simplist/db/types"
 
 type ApiKeySelect = Pick<
   ApiKey,

@@ -27,7 +27,7 @@ import {
 import { cloneElement, useState, type ReactNode } from "react"
 import { SidebarFooterItem } from "./sidebar-footer-item"
 import type { User } from "@/lib/auth-client"
-import { Project } from "@simplist/db"
+import type { Project } from "@simplist/db/types"
 
 interface AppSidebarProps {
   user: User

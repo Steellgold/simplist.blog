@@ -8,7 +8,7 @@ import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel, FieldSep
 import { Spinner } from "@/components/ui/spinner"
 import { createBillingPortalSession } from "@/lib/stripe/actions"
 import { getPlan } from "@/lib/subscription/plans"
-import { SubscriptionTier } from "@simplist/db"
+import { SubscriptionTier } from "@simplist/db/types"
 import { Check, CircleGauge } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"

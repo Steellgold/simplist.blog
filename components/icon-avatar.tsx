@@ -1,8 +1,8 @@
-import { User } from "@/lib/auth-client"
-import { FC } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { User } from "@/lib/auth-client";
 import { cn, getUserInitials } from "@/lib/utils";
-import { Project } from "@simplist/db";
+import type { Project } from "@simplist/db/types";
+import { FC } from "react";
 
 type Props = {
   user: User;

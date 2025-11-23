@@ -19,7 +19,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { ProjectIconAvatar } from "@/components/icon-avatar"
-import { Project } from "@simplist/db"
+import type { Project } from "@simplist/db/types"
 import { Spinner } from "@/components/ui/spinner"
 
 interface ProjectSwitcherProps {
