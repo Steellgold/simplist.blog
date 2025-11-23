@@ -33,6 +33,9 @@ importers:
       '@number-flow/react':
         specifier: ^0.5.10
         version: 0.5.10(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@prisma/adapter-pg':
+        specifier: ^7.0.0
+        version: 7.0.0
       '@prisma/client-runtime-utils':
         specifier: ^7.0.0
         version: 7.0.0
@@ -144,6 +147,18 @@ importers:
       nuqs:
         specifier: ^2.7.2
         version: 2.7.2(next@16.0.0(@babel/core@7.28.4)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)
+      pg:
+        specifier: ^8.16.3
+        version: 8.16.3
+      pg-connection-string:
+        specifier: ^2.9.1
+        version: 2.9.1
+      pg-pool:
+        specifier: ^3.10.1
+        version: 3.10.1(pg@8.16.3)
+      pgpass:
+        specifier: ^1.0.5
+        version: 1.0.5
       prettier:
         specifier: ^3.6.2
         version: 3.6.2

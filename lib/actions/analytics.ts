@@ -112,10 +112,7 @@ export const getArticleViewsOverTime = async (
       timestamp: { gte: startDate }
     },
     _count: { _all: true }
-  }) as Array<{
-    timestamp: Date
-    _count: { _all: number }
-  }>
+  })
 
   // Map to date strings with counts
   const viewsMap = new Map<string, number>()
@@ -133,11 +130,7 @@ export const getArticleViewsOverTime = async (
     },
     _count: { visitorId: true },
     _avg: { timeOnPage: true }
-  }) as Array<{
-    timestamp: Date
-    _count: { visitorId: number }
-    _avg: { timeOnPage: number | null }
-  }>
+  })
 
   // Map to date strings with metrics
   const metricsMap = new Map<string, { uniqueVisitors: number; avgTimeOnPage: number }>()
