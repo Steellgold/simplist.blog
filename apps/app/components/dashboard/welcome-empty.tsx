@@ -1,9 +1,9 @@
 "use client"
 
-import { buttonVariants } from "@/components/ui/button"
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
 import { UpgradeOverlay } from "@/components/ui/upgrade-overlay"
 import type { SubscriptionTier } from "@simplist/db/types"
+import { buttonVariants } from "@simplist/ui/components/button"
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@simplist/ui/components/empty"
 import { ArrowUpRightIcon, FileText, Key, LineChart } from "lucide-react"
 import Link from "next/link"
 

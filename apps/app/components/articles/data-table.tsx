@@ -1,5 +1,6 @@
 "use client"
 
+import { useProjectContext } from "@/components/projects/context-provider"
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -12,11 +13,11 @@ import {
   SortingState,
   useReactTable,
 } from "@tanstack/react-table"
-import { Trash, TrendingUp, X } from "lucide-react"
+import { Trash, TrendingUp } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { useProjectContext } from "@/components/projects/context-provider"
 
+import { bulkDeleteArticles } from "@/lib/actions/articles"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,10 +27,12 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { Button, buttonVariants } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { toast } from "@/components/ui/sonner"
+} from "@simplist/ui/components/alert-dialog"
+import { Button, buttonVariants } from "@simplist/ui/components/button"
+import { ButtonGroup } from "@simplist/ui/components/button-group"
+import { Input } from "@simplist/ui/components/input"
+import { toast } from "@simplist/ui/components/sonner"
+import { Spinner } from "@simplist/ui/components/spinner"
 import {
   Table,
   TableBody,
@@ -37,12 +40,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { ButtonGroup } from "@/components/ui/button-group"
-import { Spinner } from "@/components/ui/spinner"
-import { bulkDeleteArticles } from "@/lib/actions/articles"
-import { MiniBadge } from "../ui/mini-badge"
-import NumberFlow from "@number-flow/react"
+} from "@simplist/ui/components/table"
 import Link from "next/link"
 
 interface DataTableProps<TData extends { id: string }, TValue> {

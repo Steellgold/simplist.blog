@@ -1,6 +1,7 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { UpgradeOverlay } from "@/components/ui/upgrade-overlay";
+import { Button } from "@simplist/ui/components/button";
 import {
   Card,
   CardContent,
@@ -8,7 +9,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@simplist/ui/components/card";
 import {
   Item,
   ItemContent,
@@ -17,8 +18,7 @@ import {
   ItemMedia,
   ItemSeparator,
   ItemTitle,
-} from "@/components/ui/item";
-import { UpgradeOverlay } from "@/components/ui/upgrade-overlay";
+} from "@simplist/ui/components/item";
 import {
   ArrowUpRight,
   Eye,

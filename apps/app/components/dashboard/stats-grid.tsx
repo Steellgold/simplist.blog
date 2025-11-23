@@ -1,6 +1,6 @@
-import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText, Eye, Key, HardDrive } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@simplist/ui/components/card";
+import { Progress } from "@simplist/ui/components/progress";
+import { Eye, FileText, HardDrive, Key } from "lucide-react";
 
 interface StatsGridProps {
   publishedArticles: number;

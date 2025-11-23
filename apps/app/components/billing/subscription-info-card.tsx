@@ -1,8 +1,8 @@
 "use client"
 
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import type { SubscriptionInfo } from "@/lib/stripe/types"
+import { Badge } from "@simplist/ui/components/badge"
+import { Card, CardContent, CardHeader } from "@simplist/ui/components/card"
 import { Calendar, CircleAlert, CircleCheck, CircleX } from "lucide-react"
 import type Stripe from "stripe"
 

@@ -1,9 +1,9 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
-import { Spinner } from "@/components/ui/spinner";
 import { restoreArticle } from "@/lib/actions/articles";
+import { Button } from "@simplist/ui/components/button";
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@simplist/ui/components/empty";
+import { Spinner } from "@simplist/ui/components/spinner";
 import { ArrowLeftIcon, File, RotateCcwIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";

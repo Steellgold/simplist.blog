@@ -1,16 +1,16 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
+import { Button } from "@simplist/ui/components/button";
+import { Calendar } from "@simplist/ui/components/calendar";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { ScrollArea } from "@/components/ui/scroll-area";
+} from "@simplist/ui/components/dialog";
+import { Label } from "@simplist/ui/components/label";
+import { ScrollArea } from "@simplist/ui/components/scroll-area";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Clock, X } from "lucide-react";

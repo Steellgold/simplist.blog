@@ -1,8 +1,8 @@
 "use client";
 
-import { Button, buttonVariants } from "@/components/ui/button"
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
-import { ArrowRightIcon, File, PlusIcon } from "lucide-react"
+import { Button, buttonVariants } from "@simplist/ui/components/button";
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@simplist/ui/components/empty";
+import { ArrowRightIcon, File, PlusIcon } from "lucide-react";
 import Link from "next/link";
 
 type Props = {

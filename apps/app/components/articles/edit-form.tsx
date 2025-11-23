@@ -1,12 +1,12 @@
 "use client";
 
-import { buttonVariants } from "@/components/ui/button";
-import { toast } from "@/components/ui/sonner";
+import { buttonVariants } from "@simplist/ui/components/button";
+import { toast } from "@simplist/ui/components/sonner";
 import { useProject } from "@/hooks/use-project-context";
 import { type ArticleVariant } from "@/hooks/use-variant-operations";
-import { createArticle, updateArticleCoverImage } from "@/lib/actions/articles";
+import { removeArticleCoverImage, updateArticle, updateArticleCoverImage } from "@/lib/actions/articles";
 import { type LanguageCode, getLanguageName } from "@/lib/types/languages";
-import { Trash2 } from "lucide-react";
+import { X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -18,31 +18,85 @@ import { ArticleVisibilityCard } from "./visibility-card";
 
 type ArticleStatus = "draft" | "published" | "scheduled";
 
-type CreateArticleFormProps = {
+type Article = {
+  id: string;
+  title: string;
+  excerpt: string | null;
+  content: string;
+  status: string;
+  coverImage: string | null;
   projectId: string;
+  scheduledPublishAt?: Date | null;
+  variants?: Array<{
+    id: string;
+    lang: string;
+    title: string;
+    excerpt: string | null;
+    content: string;
+    coverImage: string | null;
+  }>;
+  project: {
+    defaultLanguage?: string;
+  };
 };
 
-export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
+type EditArticleFormProps = {
+  article: Article;
+};
+
+export const EditArticleForm = ({ article }: EditArticleFormProps) => {
   const router = useRouter();
   const { currentProject } = useProject();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isRemovingImage, setIsRemovingImage] = useState(false);
 
   // Default language from project or fallback to English
-  const defaultLanguage: LanguageCode = (currentProject?.defaultLanguage as LanguageCode) || "en";
+  const defaultLanguage: LanguageCode = (article.project.defaultLanguage as LanguageCode) || (currentProject?.defaultLanguage as LanguageCode) || "en";
+
+  // Initialize variants with main article data and existing variants
+  const initializeVariants = (): ArticleVariant[] => {
+    const variants: ArticleVariant[] = [];
+    
+    // Add main article as default language variant
+    variants.push({
+      lang: defaultLanguage,
+      title: article.title,
+      excerpt: article.excerpt || "",
+      content: article.content,
+      coverImage: article.coverImage || undefined,
+    });
+
+    // Add existing variants (if any)
+    if (article.variants) {
+      article.variants.forEach(variant => {
+        if (variant.lang !== defaultLanguage) {
+          variants.push({
+            lang: variant.lang as LanguageCode,
+            title: variant.title,
+            excerpt: variant.excerpt || "",
+            content: variant.content,
+            coverImage: variant.coverImage || undefined,
+          });
+        }
+      });
+    }
+
+    return variants;
+  };
 
   // Form state
-  const [title, setTitle] = useState("");
-  const [excerpt, setExcerpt] = useState("");
-  const [content, setContent] = useState("");
-  const [status, setStatus] = useState<ArticleStatus>("draft");
-  const [scheduledPublishAt, setScheduledPublishAt] = useState<Date | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [title, setTitle] = useState(article.title);
+  const [excerpt, setExcerpt] = useState(article.excerpt || "");
+  const [content, setContent] = useState(article.content);
+  const [status, setStatus] = useState<ArticleStatus>(article.status as ArticleStatus);
+  const [scheduledPublishAt, setScheduledPublishAt] = useState<Date | null>(
+    article.scheduledPublishAt ? new Date(article.scheduledPublishAt) : null
+  );
+  const [imagePreview, setImagePreview] = useState<string | null>(article.coverImage);
   const [imageFile, setImageFile] = useState<File | null>(null);
 
     // Variants state
-    const [variants, setVariants] = useState<ArticleVariant[]>([
-      { lang: defaultLanguage, title: "", excerpt: "", content: "" }
-    ]);
+    const [variants, setVariants] = useState<ArticleVariant[]>(initializeVariants());
     const [activeVariant, setActiveVariant] = useState<LanguageCode>(defaultLanguage);
 
   // Sync form fields with active variant (default or selected)
@@ -85,13 +139,30 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
   };
 
   // Remove image
-  const handleRemoveImage = () => {
+  const handleRemoveImage = async () => {
+    setIsRemovingImage(true);
+    
+    // If there's a server image, delete it
+    if (article.coverImage && !imageFile) {
+      try {
+        await removeArticleCoverImage(article.id);
+        router.refresh();
+      } catch (error) {
+        console.error("Failed to remove cover image:", error);
+        toast.error("Failed to remove image");
+        setIsRemovingImage(false);
+        return;
+      }
+    }
+    
     setImagePreview(null);
     setImageFile(null);
     updateActiveVariant({ coverImage: undefined });
     // Reset file input
     const input = document.getElementById("image-upload") as HTMLInputElement;
     if (input) input.value = "";
+    
+    setIsRemovingImage(false);
   };
 
   // Handle form submission
@@ -113,11 +184,11 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
       }
     }
 
-    const toastId = toast.loading("Creating article...");
+    const toastId = toast.loading("Updating article...");
 
     try {
-      // Step 1: Create article
-      toast.loading("Generating slug and calculating stats...", { id: toastId });
+      // Step 1: Update article
+      toast.loading("Updating article content and metadata...", { id: toastId });
       
       // Get default language variant for main article
       const defaultVariant = variants.find(v => v.lang === defaultLanguage);
@@ -136,20 +207,18 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
           coverImage: v.coverImage,
         }));
 
-      const article = await createArticle({
+      await updateArticle(article.id, {
         title: defaultVariant.title,
         excerpt: defaultVariant.excerpt,
         content: defaultVariant.content,
         status,
-        coverImage: defaultVariant.coverImage,
-        scheduledPublishAt: status === "scheduled" ? scheduledPublishAt || undefined : undefined,
-        projectId: currentProject?.id,
-        variants: articleVariants.length > 0 ? articleVariants : undefined,
+        scheduledPublishAt: status === "scheduled" ? scheduledPublishAt : null,
+        variants: articleVariants,
       });
 
-      // Step 2: Upload image if provided
-      if (imageFile && article) {
-        toast.loading("Uploading cover image...", { id: toastId });
+      // Step 2: Upload new image if provided
+      if (imageFile) {
+        toast.loading("Uploading new cover image...", { id: toastId });
         const form = new FormData()
         form.append("file", imageFile)
         form.append("projectId", article.projectId)
@@ -174,13 +243,13 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
       }
 
       // Step 3: Success
-      toast.success("Article created successfully!", { id: toastId });
+      toast.success("Article updated successfully!", { id: toastId });
 
       router.push(`/${currentProject?.slug}/articles`);
       router.refresh();
     } catch (error) {
-      console.error("Error creating article:", error);
-      toast.error("Failed to create article. Please try again.", { id: toastId });
+      console.error("Error updating article:", error);
+      toast.error("Failed to update article. Please try again.", { id: toastId });
       setIsSubmitting(false);
     }
   };
@@ -218,7 +287,7 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
             status={status}
             onStatusChange={(v) => setStatus(v)}
             isSubmitting={isSubmitting}
-            submitLabel="Publish"
+            submitLabel="Update"
             scheduledPublishAt={scheduledPublishAt}
             onScheduleChange={setScheduledPublishAt}
             projectTimezone="UTC"
@@ -226,10 +295,10 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
             leftAction={(
               <Link
                 href={`/${currentProject?.slug}/articles`}
-                className={buttonVariants({ variant: "outlineDestructive", size: "sm" })}
+                className={buttonVariants({ variant: "outline", size: "sm" })}
               >
-                <Trash2 />
-                Delete
+                <X />
+                Cancel
               </Link>
             )}
           />
@@ -238,14 +307,14 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
             imagePreview={imagePreview}
             onImageChange={handlePickedImage}
             onRemoveImage={handleRemoveImage}
-            uploadLabel={activeVariant === defaultLanguage ? "Upload Image" : `Upload Image for ${getLanguageName(activeVariant)}`}
+            uploadLabel={activeVariant === defaultLanguage ? "Change Image" : `Change Image for ${getLanguageName(activeVariant)}`}
             emptyDescription={
               activeVariant === defaultLanguage 
-                ? "On the response API it will return the URL of the image."
+                ? "Update the article cover image."
                 : `Upload a specific image for ${getLanguageName(activeVariant)} variant. Each variant can have its own image.`
             }
+            isRemoving={isRemovingImage}
           />
-          
 
           <VariantCard
             defaultLanguage={defaultLanguage}
@@ -260,3 +329,4 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
     </form>
   );
 }
+

@@ -1,11 +1,11 @@
 "use client"
 
-import { Badge } from "@/components/ui/badge"
-import { buttonVariants } from "@/components/ui/button"
-import { ButtonGroup } from "@/components/ui/button-group"
-import { Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "@/components/ui/item"
 import { getPaymentMethodIcon } from "@/lib/payment-method-icons"
 import type { BillingEntry, PaymentMethodInfo } from "@/lib/stripe/types"
+import { Badge } from "@simplist/ui/components/badge"
+import { buttonVariants } from "@simplist/ui/components/button"
+import { ButtonGroup } from "@simplist/ui/components/button-group"
+import { Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "@simplist/ui/components/item"
 import { CheckCircle, CircleX, Download, LifeBuoy, Loader2, Receipt } from "lucide-react"
 import Link from "next/link"
 

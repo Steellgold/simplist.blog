@@ -1,12 +1,12 @@
 "use client"
 
 import { BillingItem } from "@/components/billing/billing-item"
-import { Button } from "@/components/ui/button"
-import { ButtonGroup } from "@/components/ui/button-group"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
-import { ItemGroup, ItemSeparator } from "@/components/ui/item"
 import type { BillingEntry } from "@/lib/stripe/types"
+import { Button } from "@simplist/ui/components/button"
+import { ButtonGroup } from "@simplist/ui/components/button-group"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@simplist/ui/components/card"
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@simplist/ui/components/empty"
+import { ItemGroup, ItemSeparator } from "@simplist/ui/components/item"
 import { PiggyBank } from "lucide-react"
 import React, { useState } from "react"
 

@@ -1,8 +1,8 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Spinner } from "@/components/ui/spinner";
+import { Button } from "@simplist/ui/components/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@simplist/ui/components/card";
+import { Spinner } from "@simplist/ui/components/spinner";
 import { Trash2, Upload } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
@@ -78,7 +78,7 @@ export const ArticleBannerUpload = ({ imagePreview, onImageChange, onRemoveImage
             <div className="flex gap-2">
               <Button 
                 type="button" 
-                variant="outlineDestructive" 
+                variant="destructive" 
                 size="sm" 
                 className="flex-1" 
                 onClick={onRemoveImage}

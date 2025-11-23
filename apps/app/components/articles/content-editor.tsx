@@ -1,10 +1,10 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { ButtonGroup } from "@/components/ui/button-group";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { InputGroup, InputGroupAddon, InputGroupTextarea } from "@/components/ui/input-group";
+import { Button } from "@simplist/ui/components/button";
+import { ButtonGroup } from "@simplist/ui/components/button-group";
+import { Card, CardContent, CardHeader, CardTitle } from "@simplist/ui/components/card";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@simplist/ui/components/dropdown-menu";
+import { InputGroup, InputGroupAddon, InputGroupTextarea } from "@simplist/ui/components/input-group";
 import { Bold, Code, FileCode2, Heading2, Image as ImageIcon, Italic, Link as LinkIcon, List, ListOrdered, Quote } from "lucide-react";
 import { useCallback, useMemo } from "react";
 

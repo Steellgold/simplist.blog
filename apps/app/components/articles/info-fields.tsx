@@ -1,9 +1,9 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@simplist/ui/components/card";
+import { Input } from "@simplist/ui/components/input";
+import { Label } from "@simplist/ui/components/label";
+import { Textarea } from "@simplist/ui/components/textarea";
 
 type ArticleInfoFieldsProps = {
   title: string;

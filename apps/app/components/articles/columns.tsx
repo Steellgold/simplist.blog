@@ -1,5 +1,6 @@
 "use client"
 
+import { useProjectContext } from "@/components/projects/context-provider"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 import { Clock, Copy, Edit, MoreHorizontal, Trash, TrendingUp } from "lucide-react"
@@ -7,8 +8,8 @@ import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
-import { useProjectContext } from "@/components/projects/context-provider"
 
+import { deleteArticle } from "@/lib/actions/articles"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,10 +19,10 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
+} from "@simplist/ui/components/alert-dialog"
+import { Badge } from "@simplist/ui/components/badge"
+import { Button } from "@simplist/ui/components/button"
+import { Checkbox } from "@simplist/ui/components/checkbox"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,10 +30,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { toast } from "@/components/ui/sonner"
-import { deleteArticle } from "@/lib/actions/articles"
-import { Spinner } from "@/components/ui/spinner"
+} from "@simplist/ui/components/dropdown-menu"
+import { toast } from "@simplist/ui/components/sonner"
+import { Spinner } from "@simplist/ui/components/spinner"
 
 type Article = {
   id: string

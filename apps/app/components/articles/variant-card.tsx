@@ -1,8 +1,11 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
-import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { UpgradeOverlay } from "@/components/ui/upgrade-overlay"
+import { useProject } from "@/hooks/use-project-context"
+import { useVariantLimits } from "@/hooks/use-subscription-limits"
+import { useVariantOperations, type ArticleVariant } from "@/hooks/use-variant-operations"
+import { getAllLanguages, getFlagUrl, getLanguageName, getPopularLanguages, type LanguageCode } from "@/lib/types/languages"
+import { cn } from "@/lib/utils"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,16 +15,11 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { toast } from "@/components/ui/sonner"
-import { UpgradeOverlay } from "@/components/ui/upgrade-overlay"
-import { useProject } from "@/hooks/use-project-context"
-import { useVariantLimits } from "@/hooks/use-subscription-limits"
-import { useVariantOperations, type ArticleVariant } from "@/hooks/use-variant-operations"
-import { getFlagUrl, getLanguageName, type LanguageCode, getAllLanguages, getPopularLanguages } from "@/lib/types/languages"
-import { Plus, Trash2, Check } from "lucide-react"
-import { useState } from "react"
-import { UpgradeProject } from "../projects/upgrade-project"
+} from "@simplist/ui/components/alert-dialog"
+import { Button } from "@simplist/ui/components/button"
+import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@simplist/ui/components/card"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@simplist/ui/components/command"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@simplist/ui/components/dialog"
 import {
   Field,
   FieldContent,
@@ -30,11 +28,13 @@ import {
   FieldLabel,
   FieldSet,
   FieldTitle,
-} from "@/components/ui/field"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
-import { cn } from "@/lib/utils"
+} from "@simplist/ui/components/field"
+import { RadioGroup, RadioGroupItem } from "@simplist/ui/components/radio-group"
+import { toast } from "@simplist/ui/components/sonner"
+import { Check, Plus, Trash2 } from "lucide-react"
 import Image from "next/image"
+import { useState } from "react"
+import { UpgradeProject } from "../projects/upgrade-project"
 
 interface VariantCardProps {
   defaultLanguage: LanguageCode
@@ -311,7 +311,7 @@ export const VariantCard = ({
           <CardFooter className="border-t">
             <Button
               type="button"
-              variant="outlineDestructive"
+              variant="destructive"
               size="sm"
               onClick={() => handleDeleteClick(activeVariant)}
               disabled={disabled || isFreeTier}

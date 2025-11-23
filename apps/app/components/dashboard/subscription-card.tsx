@@ -1,12 +1,12 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { MiniBadge } from "@/components/ui/mini-badge";
-import { Progress } from "@/components/ui/progress";
-import { CreditCard, TrendingUp } from "lucide-react";
+import { Button } from "@simplist/ui/components/button";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@simplist/ui/components/card";
+import { Progress } from "@simplist/ui/components/progress";
 import { format } from "date-fns";
+import { CreditCard, TrendingUp } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface SubscriptionCardProps {
   projectId: string;

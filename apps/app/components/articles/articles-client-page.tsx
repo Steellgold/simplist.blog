@@ -3,9 +3,9 @@
 import { useArticlesColumns } from "@/components/articles/columns"
 import { ArticlesDataTable } from "@/components/articles/data-table"
 import { PageLayout } from "@/components/layout/page-layout"
-import { buttonVariants } from "@/components/ui/button"
-import { ProgressButton } from "@/components/ui/progress-button"
 import type { Article } from "@simplist/db/types"
+import { buttonVariants } from "@simplist/ui/components/button"
+import { ProgressButton } from "@simplist/ui/components/progress-button"
 import { Plus } from "lucide-react"
 import Link from "next/link"
 

@@ -1,10 +1,10 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ProgressButton } from "@/components/ui/progress-button";
+import { Button } from "@simplist/ui/components/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@simplist/ui/components/card";
+import { ProgressButton } from "@simplist/ui/components/progress-button";
 import { FileText, Key, LineChart, Settings } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface QuickActionsCardProps {
   projectSlug: string;

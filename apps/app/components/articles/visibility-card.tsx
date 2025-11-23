@@ -1,10 +1,10 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Spinner } from "@/components/ui/spinner";
+import { Button } from "@simplist/ui/components/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@simplist/ui/components/card";
+import { Label } from "@simplist/ui/components/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@simplist/ui/components/select";
+import { Spinner } from "@simplist/ui/components/spinner";
 import { useApiKeyLimits } from "@/hooks/use-subscription-limits";
 import Image from "next/image";
 import { ReactNode } from "react";
