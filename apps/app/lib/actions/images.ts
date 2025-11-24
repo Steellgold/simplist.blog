@@ -2,12 +2,10 @@
 
 import { getCurrentUser } from "@/lib/auth-helper"
 import { sanitizeFileName } from "@/lib/utils"
-import { prisma } from "@simplist/db"
 import { z } from "zod"
 
-import { DeleteObjectCommand, GetObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3"
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
-import { forbidden, unauthorized } from "next/navigation"
+import { DeleteObjectCommand, GetObjectCommand, HeadObjectCommand, S3Client } from "@aws-sdk/client-s3"
+import { unauthorized } from "next/navigation"
 
 const envSchema = z.object({
   R2_ACCOUNT_ID: z.string().min(1),
@@ -46,16 +44,6 @@ export const createR2Client = async () => {
   })
 }
 
-const buildObjectKey = (params: { userId: string; originalFileName: string }) => {
-  const { userId, originalFileName } = params
-  const cleanedName = sanitizeFileName(originalFileName)
-  const ext = cleanedName.includes(".") ? cleanedName.split(".").pop() : undefined
-  const safeExt = ext ? ext.toLowerCase() : "bin"
-  const timestamp = Date.now()
-  const random = Math.random().toString(36).slice(2, 10)
-  return `users/${userId}/images/${timestamp}-${random}.${safeExt}`
-}
-
 export const buildBannerKey = async (params: { projectId: string; postId: string; originalFileName: string }) => {
   const { projectId, postId, originalFileName } = params
   const cleanedName = sanitizeFileName(originalFileName)
@@ -73,110 +61,6 @@ export const getPublicUrlForKey = async (key: string) => {
   }
   return `https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com/${R2_BUCKET_NAME}/${key}`
 }
-
-const getUploadUrlInput = z.object({
-  fileName: z.string().min(1),
-  contentType: z
-    .string()
-    .min(1)
-    .refine(v => v.startsWith("image/"), "Only image content types are allowed"),
-  maxSizeBytes: z.number().int().positive().max(25 * 1024 * 1024).optional(),
-  expiresInSeconds: z.number().int().positive().max(60 * 10).default(60),
-})
-
-export const getR2UploadUrl = async (input: z.infer<typeof getUploadUrlInput>) => {
-  const user = await getCurrentUser()
-  if (!user) {
-    unauthorized()
-  }
-
-  const data = getUploadUrlInput.parse(input)
-  const { R2_BUCKET_NAME } = getEnv()
-  const s3 = await createR2Client()
-
-  const key = buildObjectKey({ userId: user.id, originalFileName: data.fileName })
-
-  const command = new PutObjectCommand({
-    Bucket: R2_BUCKET_NAME,
-    Key: key,
-    ContentType: data.contentType,
-    // R2 ignores ACLs; bucket should be made public via policy if needed
-  })
-
-  const uploadUrl = await getSignedUrl(s3, command, { expiresIn: data.expiresInSeconds })
-
-  return {
-    key,
-    uploadUrl,
-    publicUrl: await getPublicUrlForKey(key),
-  }
-}
-
-const getBannerUploadUrlInput = z.object({
-  projectId: z.string().min(1),
-  postId: z.string().min(1),
-  fileName: z.string().min(1),
-  contentType: z
-    .string()
-    .min(1)
-    .refine(v => v.startsWith("image/"), "Only image content types are allowed"),
-  expiresInSeconds: z.number().int().positive().max(60 * 10).default(60),
-})
-
-// Generate a presigned URL for the banner using the key layout:
-// public/[projectId]/[postId]/b/banner-[timestamp].[extension]
-export const getR2BannerUploadUrl = async (input: z.infer<typeof getBannerUploadUrlInput>) => {
-  const user = await getCurrentUser()
-  if (!user) {
-    unauthorized()
-  }
-
-  const data = getBannerUploadUrlInput.parse(input)
-
-  // Authorization: ensure the article belongs to the current user's project
-  const article = await prisma.article.findFirst({
-    where: { id: data.postId },
-    select: {
-      id: true,
-      project: {
-        select: {
-          id: true,
-          userId: true
-        }
-      }
-    },
-  })
-
-  if (!article || article.project.id !== data.projectId || article.project.userId !== user.id) {
-    forbidden()
-  }
-
-  const { R2_BUCKET_NAME } = getEnv()
-  const s3 = await createR2Client()
-
-  const key = await buildBannerKey({
-    projectId: data.projectId,
-    postId: data.postId,
-    originalFileName: data.fileName,
-  })
-
-  const command = new PutObjectCommand({
-    Bucket: R2_BUCKET_NAME,
-    Key: key,
-    ContentType: data.contentType,
-  })
-
-  const uploadUrl = await getSignedUrl(s3, command, { expiresIn: data.expiresInSeconds })
-
-  return {
-    key,
-    uploadUrl,
-    publicUrl: await getPublicUrlForKey(key),
-  }
-}
-
-// Sanitize a filename: remove diacritics, lowercase, replace spaces with '-', keep [a-z0-9._-]
-// sanitizeFileName is provided by lib/utils
 
 // Try to determine if the object is an image via ContentType and/or magic numbers
 const detectObjectMime = async (
@@ -252,24 +136,58 @@ export const assertR2ObjectIsImage = async (key: string) => {
   return { mime: result.mime }
 }
 
-const deleteInput = z.object({ key: z.string().min(1) })
+export const getR2PublicUrl = async (key: string) => {
+  return await getPublicUrlForKey(key)
+}
 
-export const deleteR2Object = async (input: z.infer<typeof deleteInput>) => {
-  const user = await getCurrentUser()
-  if (!user) {
-    unauthorized()
+/**
+ * Extract R2 object key from public URL (internal helper)
+ */
+const extractKeyFromUrl = (url: string): string | null => {
+  try {
+    const { R2_PUBLIC_DOMAIN } = getEnv()
+
+    // Try custom domain first
+    if (R2_PUBLIC_DOMAIN && url.startsWith(R2_PUBLIC_DOMAIN)) {
+      const base = R2_PUBLIC_DOMAIN.endsWith("/") ? R2_PUBLIC_DOMAIN.slice(0, -1) : R2_PUBLIC_DOMAIN
+      return url.replace(`${base}/`, "")
+    }
+
+    // Try R2 default URL pattern: https://{accountId}.r2.cloudflarestorage.com/{bucket}/{key}
+    const r2Pattern = /^https:\/\/[^.]+\.r2\.cloudflarestorage\.com\/[^/]+\/(.+)$/
+    const match = url.match(r2Pattern)
+    if (match) {
+      return match[1]
+    }
+
+    return null
+  } catch {
+    return null
   }
+}
 
-  const { key } = deleteInput.parse(input)
+/**
+ * Delete banner from R2 storage
+ * This function validates ownership through project access
+ */
+export const deleteBannerFromR2 = async (params: { coverImageUrl: string; projectId: string }) => {
+  const { coverImageUrl, projectId } = params
   const { R2_BUCKET_NAME } = getEnv()
-  const s3 = await createR2Client()
 
-  // Basic ownership guard: restrict deletion to keys under the user's prefix
-  const allowedPrefix = `users/${user.id}/`
-  if (!key.startsWith(allowedPrefix)) {
-    forbidden()
+  // Extract key from URL
+  const key = extractKeyFromUrl(coverImageUrl)
+  if (!key) {
+    throw new Error("Invalid R2 URL")
   }
 
+  // Security: verify the key is a banner in the user's project
+  const expectedPrefix = `public/${projectId}/`
+  if (!key.startsWith(expectedPrefix)) {
+    throw new Error("Unauthorized: Banner does not belong to this project")
+  }
+
+  // Delete from R2
+  const s3 = await createR2Client()
   await s3.send(
     new DeleteObjectCommand({
       Bucket: R2_BUCKET_NAME,
@@ -277,9 +195,5 @@ export const deleteR2Object = async (input: z.infer<typeof deleteInput>) => {
     })
   )
 
-  return { ok: true }
-}
-
-export const getR2PublicUrl = async (key: string) => {
-  return await getPublicUrlForKey(key)
+  return { ok: true, deletedKey: key }
 }

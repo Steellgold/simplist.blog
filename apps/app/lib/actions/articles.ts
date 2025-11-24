@@ -1,6 +1,6 @@
 "use server"
 
-import { assertR2ObjectIsImage, getR2PublicUrl } from "@/lib/actions/images"
+import { assertR2ObjectIsImage, deleteBannerFromR2, getR2PublicUrl } from "@/lib/actions/images"
 import { getCurrentUser } from "@/lib/auth-helper"
 import { checkArticleQuota, checkFeatureAccess, checkVariantQuota } from "@/lib/subscription/quota-check"
 import { type LanguageCode, isValidLanguageCode } from "@/lib/types/languages"
@@ -181,7 +181,7 @@ export const createArticle = async (formData: {
   return article;
 }
 
-export const updateArticleCoverImage = async (params: { articleId: string; objectKey: string }) => {
+export const updateArticleCoverImage = async (params: { articleId: string; objectKey: string; variantLang?: string }) => {
   const user = await getCurrentUser()
   if (!user) {
     redirect("/auth/login")
@@ -196,7 +196,8 @@ export const updateArticleCoverImage = async (params: { articleId: string; objec
         select: {
           userId: true,
           id: true,
-          slug: true
+          slug: true,
+          defaultLanguage: true
         }
       }
     },
@@ -211,17 +212,31 @@ export const updateArticleCoverImage = async (params: { articleId: string; objec
 
   const coverImageUrl = await getR2PublicUrl(params.objectKey)
 
-  const updated = await prisma.article.update({
-    where: { id: params.articleId },
-    data: { coverImage: coverImageUrl },
-  })
+  // If variantLang is providdeed and it's NOT the default language, update the variant
+  // Otherwise, update the main article
+  if (params.variantLang && params.variantLang !== article.project.defaultLanguage) {
+    await prisma.articleVariant.update({
+      where: {
+        articleId_lang: {
+          articleId: params.articleId,
+          lang: params.variantLang
+        }
+      },
+      data: { coverImage: coverImageUrl },
+    })
+  } else {
+    await prisma.article.update({
+      where: { id: params.articleId },
+      data: { coverImage: coverImageUrl },
+    })
+  }
 
   revalidatePath(`/${article.project.slug}`, "layout")
   revalidatePath(`/${article.project.slug}/articles`, "page")
-  return updated
+  return { coverImageUrl }
 }
 
-export const removeArticleCoverImage = async (articleId: string) => {
+export const removeArticleCoverImage = async (articleId: string, variantLang?: string) => {
   const user = await getCurrentUser()
   if (!user) {
     redirect("/auth/login")
@@ -232,10 +247,18 @@ export const removeArticleCoverImage = async (articleId: string) => {
     select: {
       id: true,
       coverImage: true,
+      projectId: true,
+      variants: {
+        select: {
+          lang: true,
+          coverImage: true
+        }
+      },
       project: {
         select: {
           userId: true,
-          slug: true
+          slug: true,
+          defaultLanguage: true
         }
       }
     },
@@ -245,14 +268,54 @@ export const removeArticleCoverImage = async (articleId: string) => {
     forbidden()
   }
 
-  const updated = await prisma.article.update({
-    where: { id: articleId },
-    data: { coverImage: null },
-  })
+  // Determine which cover image URL to delete
+  let coverImageToDelete: string | null = null
+
+  // If variantLang is provided and it's NOT the default language, remove from variant
+  // Otherwise, remove from main article
+  if (variantLang && variantLang !== article.project.defaultLanguage) {
+    const variant = article.variants.find(v => v.lang === variantLang)
+    if (variant?.coverImage) {
+      coverImageToDelete = variant.coverImage
+    }
+
+    await prisma.articleVariant.update({
+      where: {
+        articleId_lang: {
+          articleId,
+          lang: variantLang
+        }
+      },
+      data: { coverImage: null },
+    })
+  } else {
+    if (article.coverImage) {
+      coverImageToDelete = article.coverImage
+    }
+
+    await prisma.article.update({
+      where: { id: articleId },
+      data: { coverImage: null },
+    })
+  }
+
+  // Delete the actual file from R2 CDN
+  if (coverImageToDelete) {
+    try {
+      await deleteBannerFromR2({
+        coverImageUrl: coverImageToDelete,
+        projectId: article.projectId
+      })
+    } catch (error) {
+      console.error("Failed to delete banner from R2:", error)
+      // Don't fail the entire operation if R2 deletion fails
+      // The database is already updated, and we can clean up orphaned files later
+    }
+  }
 
   revalidatePath(`/${article.project.slug}`, "layout")
   revalidatePath(`/${article.project.slug}/articles`, "page")
-  return updated
+  return { success: true }
 }
 
 export const getProjectArticles = async (projectId: string, userId?: string) => {
@@ -304,6 +367,7 @@ export const getProjectArticles = async (projectId: string, userId?: string) => 
       variants: {
         select: {
           lang: true,
+          coverImage: true,
         },
       },
     },
