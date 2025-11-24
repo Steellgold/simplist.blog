@@ -108,6 +108,8 @@ model Project {
   updatedAt             DateTime         @updatedAt
 
   @@unique([slug, userId])
+  @@index([userId, createdAt])
+  @@index([userId, subscriptionTier])
   @@map("project")
 }
 
@@ -127,6 +129,8 @@ model ApiKey {
   updatedAt   DateTime  @updatedAt
 
   @@unique([key])
+  @@index([projectId, status])
+  @@index([key, status])
   @@map("api_key")
 }
 
@@ -160,6 +164,9 @@ model Article {
   deletedAt          DateTime?
 
   @@unique([slug, projectId])
+  @@index([projectId, status])
+  @@index([projectId, createdAt])
+  @@index([projectId, published])
   @@map("article")
 }
 
@@ -238,6 +245,9 @@ model PageView {
   @@index([sessionId])
   @@index([timestamp])
   @@index([country])
+  @@index([projectId, timestamp])
+  @@index([projectId, createdAt])
+  @@index([articleId, timestamp])
   @@map("page_view")
 }
 
