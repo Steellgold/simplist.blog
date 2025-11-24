@@ -136,7 +136,15 @@ export const getR2BannerUploadUrl = async (input: z.infer<typeof getBannerUpload
   // Authorization: ensure the article belongs to the current user's project
   const article = await prisma.article.findFirst({
     where: { id: data.postId },
-    include: { project: true },
+    select: {
+      id: true,
+      project: {
+        select: {
+          id: true,
+          userId: true
+        }
+      }
+    },
   })
 
   if (!article || article.project.id !== data.projectId || article.project.userId !== user.id) {

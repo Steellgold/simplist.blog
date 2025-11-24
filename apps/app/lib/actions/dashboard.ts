@@ -159,22 +159,14 @@ export const getDashboardData = async (
       }),
     ]);
 
-    // Count unique visitors today
-    const uniqueVisitorsToday = await prisma.pageView.findMany({
-      where: {
-        article: {
-          projectId,
-        },
-        createdAt: {
-          gte: today,
-        },
-      },
-      distinct: ["visitorId"],
-      select: {
-        visitorId: true,
-      },
-      
-    });
+    // Count unique visitors today using aggregation instead of loading all records
+    const uniqueVisitorsTodayCount = await prisma.$queryRaw<[{ count: bigint }]>`
+      SELECT COUNT(DISTINCT "visitorId") as count
+      FROM "page_view" pv
+      INNER JOIN "article" a ON pv."articleId" = a.id
+      WHERE a."projectId" = ${projectId}
+      AND pv."createdAt" >= ${today}
+    `.then((result: { count: any; }[]) => Number(result[0]?.count ?? 0));
 
     // Calculate average bounce rate
     const averageBounceRate = totalCount > 0 ? (bouncedCount / totalCount) * 100 : 0;
@@ -182,7 +174,7 @@ export const getDashboardData = async (
     const analyticsData = {
       totalViews,
       todayViews: todayStats._count.id,
-      todayUniqueVisitors: uniqueVisitorsToday.length,
+      todayUniqueVisitors: uniqueVisitorsTodayCount,
       averageBounceRate,
     };
 

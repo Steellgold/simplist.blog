@@ -183,7 +183,17 @@ export const updateArticleCoverImage = async (params: { articleId: string; objec
 
   const article = await prisma.article.findFirst({
     where: { id: params.articleId },
-    include: { project: true },
+    select: {
+      id: true,
+      coverImage: true,
+      project: {
+        select: {
+          userId: true,
+          id: true,
+          slug: true
+        }
+      }
+    },
   })
 
   if (!article || article.project.userId !== user.id) {
@@ -213,7 +223,16 @@ export const removeArticleCoverImage = async (articleId: string) => {
 
   const article = await prisma.article.findFirst({
     where: { id: articleId },
-    include: { project: true },
+    select: {
+      id: true,
+      coverImage: true,
+      project: {
+        select: {
+          userId: true,
+          slug: true
+        }
+      }
+    },
   })
 
   if (!article || article.project.userId !== user.id) {
@@ -259,7 +278,8 @@ export const getProjectArticles = async (projectId: string, userId?: string) => 
     },
     orderBy: {
       createdAt: "desc",
-    }
+    },
+    take: 100
   })
 
   return articles
@@ -297,21 +317,31 @@ export const getUserProjectWithArticles = async () => {
     return null
   }
 
-  // Calculate view counts for each article
-  const articlesWithViewCount = await Promise.all(
-    project.articles.map(async (article) => {
-      const viewCount = await prisma.pageView.count({
+  // Calculate view counts for all articles in a single query using groupBy
+  const articleIds = project.articles.map((a) => a.id)
+
+  const viewCounts = articleIds.length > 0
+    ? await prisma.pageView.groupBy({
+        by: ['articleId'],
         where: {
-          articleId: article.id,
+          articleId: { in: articleIds },
+        },
+        _count: {
+          id: true,
         },
       })
-      
-      return {
-        ...article,
-        viewCount,
-      }
-    })
+    : []
+
+  // Create a map for O(1) lookup
+  const viewCountMap = new Map(
+    viewCounts.map((vc) => [vc.articleId, vc._count.id])
   )
+
+  // Merge view counts with articles
+  const articlesWithViewCount = project.articles.map((article) => ({
+    ...article,
+    viewCount: viewCountMap.get(article.id) ?? 0,
+  }))
 
   return {
     ...project,
@@ -402,7 +432,19 @@ export const updateArticle = async (articleId: string, formData: {
 
   const article = await prisma.article.findFirst({
     where: { id: articleId },
-    include: { project: true },
+    select: {
+      id: true,
+      projectId: true,
+      publishedAt: true,
+      project: {
+        select: {
+          id: true,
+          userId: true,
+          subscriptionTier: true,
+          slug: true
+        }
+      }
+    },
   })
 
   if (!article || article.project.userId !== user.id) {

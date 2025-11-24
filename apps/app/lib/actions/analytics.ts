@@ -283,7 +283,7 @@ export const getProjectAnalytics = async (projectId: string, days: number = 30, 
   // Execute all queries in parallel for better performance
   const [
     totalViews,
-    uniqueVisitors,
+    uniqueVisitorsCount,
     avgMetrics,
     bouncedViews,
     topArticlesData,
@@ -299,13 +299,18 @@ export const getProjectAnalytics = async (projectId: string, days: number = 30, 
   ] = await Promise.all([
     // Total views
     prisma.pageView.count({ where: baseWhere }),
-    
-    // Unique visitors
-    prisma.pageView.findMany({
-      where: baseWhere,
-      select: { visitorId: true },
-      distinct: ['visitorId']
-    }),
+
+    // Unique visitors - optimized with raw query to avoid loading all records
+    prisma.$queryRaw<[{ count: bigint }]>`
+      SELECT COUNT(DISTINCT "visitorId") as count
+      FROM "page_view"
+      WHERE "projectId" = ${projectId}
+      AND timestamp >= ${startDate}
+      ${articleIds && articleIds.length ?
+        Prisma.sql`AND "articleId" = ANY(${articleIds})` :
+        Prisma.empty
+      }
+    `.then((result) => Number(result[0]?.count ?? 0)),
     
     // Average metrics
     prisma.pageView.aggregate({
@@ -571,8 +576,8 @@ export const getProjectAnalytics = async (projectId: string, days: number = 30, 
   return {
     summary: {
       totalViews,
-      uniqueVisitors: uniqueVisitors.length,
-      avgViewsPerVisitor: uniqueVisitors.length > 0 ? Math.round((totalViews / uniqueVisitors.length) * 100) / 100 : 0,
+      uniqueVisitors: uniqueVisitorsCount,
+      avgViewsPerVisitor: uniqueVisitorsCount > 0 ? Math.round((totalViews / uniqueVisitorsCount) * 100) / 100 : 0,
       avgTimeOnPage: Math.round(avgMetrics._avg.timeOnPage || 0),
       avgScrollDepth: Math.round(avgMetrics._avg.scrollDepth || 0),
       bounceRate: totalViews > 0 ? Math.round((bouncedViews / totalViews) * 100) : 0
