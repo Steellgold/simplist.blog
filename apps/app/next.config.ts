@@ -2,7 +2,10 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   experimental: {
-    authInterrupts: true
+    authInterrupts: true,
+    serverActions: {
+      bodySizeLimit: "10mb"
+    }
   },
   transpilePackages: ["@simplist/ui"],
   images: {
