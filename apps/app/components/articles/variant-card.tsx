@@ -17,20 +17,21 @@ import {
   AlertDialogTitle,
 } from "@simplist/ui/components/alert-dialog"
 import { Button } from "@simplist/ui/components/button"
-import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@simplist/ui/components/card"
+import { ButtonGroup } from "@simplist/ui/components/button-group"
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@simplist/ui/components/card"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@simplist/ui/components/command"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@simplist/ui/components/dialog"
 import {
-  Field,
-  FieldContent,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-  FieldSet,
-  FieldTitle,
-} from "@simplist/ui/components/field"
-import { RadioGroup, RadioGroupItem } from "@simplist/ui/components/radio-group"
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemMedia,
+  ItemTitle,
+} from "@simplist/ui/components/item"
 import { toast } from "@simplist/ui/components/sonner"
+import { Toggle } from "@simplist/ui/components/toggle"
 import { Check, Plus, Trash2 } from "lucide-react"
 import Image from "next/image"
 import { useState } from "react"
@@ -160,6 +161,7 @@ export const VariantCard = ({
                     <div className="text-sm text-muted-foreground">
                       {quotaError}
                     </div>
+
                     {currentProject && (
                       <UpgradeProject />
                     )}
@@ -185,17 +187,22 @@ export const VariantCard = ({
                                   selectedLanguage === language.code ? "opacity-100" : "opacity-0"
                                 )}
                               />
-                              <img
+
+                              <Image
                                 src={getFlagUrl(language.code)}
                                 alt={`${language.name} flag`}
+                                height={500}
+                                width={500}
                                 className="w-5 h-4 object-cover rounded-xs mr-2"
                               />
+
                               <div className="flex items-center gap-2 flex-1">
                                 <span>{language.name}</span>
                                 <span className="text-muted-foreground text-sm">
                                   {language.nativeName}
                                 </span>
                               </div>
+
                               <span className="text-muted-foreground text-xs font-mono">
                                 {language.code}
                               </span>
@@ -266,62 +273,68 @@ export const VariantCard = ({
           </CardAction>
         </CardHeader>
 
-        <CardContent className="space-y-4">
-          <FieldGroup>
-            <FieldSet>
-              <RadioGroup value={activeVariant} onValueChange={handleSelectVariant}>
-                {variants.map((variant) => {
-                  const isDefault = variant.lang === defaultLanguage
+        <CardContent>
+          <ItemGroup>
+            {variants.map((variant) => {
+              const isDefault = variant.lang === defaultLanguage
+              const isActive = activeVariant === variant.lang
 
-                  return (
-                    <FieldLabel key={variant.lang} htmlFor={`variant-${variant.lang}`} className="cursor-pointer">
-                      <Field orientation="horizontal" className="items-start py-1">
-                        <div className="flex items-start gap-3 flex-1 pt-1">
-                          <Image
-                            src={getFlagUrl(variant.lang)}
-                            alt={`${getLanguageName(variant.lang)} flag`}
-                            width={24}
-                            height={16}
-                            className="object-cover rounded mt-0.5"
-                          />
+              return (
+                <Item key={variant.lang} variant="outline" size="sm">
+                  <ItemMedia variant="icon">
+                    <Image
+                      src={getFlagUrl(variant.lang)}
+                      alt={`${getLanguageName(variant.lang)} flag`}
+                      width={30}
+                      height={30}
+                      className="object-cover rounded-sm w-5 h-5"
+                    />
+                  </ItemMedia>
 
-                          <FieldContent className="gap-0.5">
-                            <FieldTitle className="font-medium">{getLanguageName(variant.lang)}</FieldTitle>
-                            <FieldDescription className="text-sm">
-                              {isDefault ? "Default language" : (variant.title || "Untitled variant")}
-                            </FieldDescription>
-                          </FieldContent>
-                        </div>
-                        <RadioGroupItem
-                          value={variant.lang}
-                          id={`variant-${variant.lang}`}
+                  <ItemContent>
+                    <ItemTitle>{getLanguageName(variant.lang)}</ItemTitle>
+                    <ItemDescription className="line-clamp-1">
+                      {isDefault ? "Default language" : (variant.title || "Untitled variant")}
+                    </ItemDescription>
+                  </ItemContent>
+
+                  <ItemActions>
+                    <ButtonGroup>
+                      <Toggle
+                        pressed={isActive}
+                        onPressedChange={() => handleSelectVariant(variant.lang)}
+                        disabled={disabled || isFreeTier}
+                        size="sm"
+                        variant="outline"
+                        className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+                      >
+                        <Check />
+                      </Toggle>
+
+                      {!isDefault && (
+                        <Button
+                          type="button"
+                          size="icon-sm"
+                          variant="outline"
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            handleDeleteClick(variant.lang)
+                          }}
                           disabled={disabled || isFreeTier}
-                          className="mt-1 shrink-0"
-                        />
-                      </Field>
-                    </FieldLabel>
-                  )
-                })}
-              </RadioGroup>
-            </FieldSet>
-          </FieldGroup>
+                          className="hover:text-destructive hover:bg-destructive/10"
+                          title={`Delete ${getLanguageName(variant.lang)} variant`}
+                        >
+                          <Trash2 />
+                        </Button>
+                      )}
+                    </ButtonGroup>
+                  </ItemActions>
+                </Item>
+              )
+            })}
+          </ItemGroup>
         </CardContent>
-
-        {activeVariant && activeVariant !== defaultLanguage && (
-          <CardFooter className="border-t">
-            <Button
-              type="button"
-              variant="destructive"
-              size="sm"
-              onClick={() => handleDeleteClick(activeVariant)}
-              disabled={disabled || isFreeTier}
-              className="w-full"
-            >
-              <Trash2 />
-              Delete this variant
-            </Button>
-          </CardFooter>
-        )}
       </Card>
 
       {/* Delete Confirmation Alert */}

@@ -200,12 +200,15 @@ export const useArticlesColumns = (): ColumnDef<Article>[] => {
     cell: ({ row }) => {
       const coverImage = row.getValue("coverImage") as string | null
       const title = row.getValue("title") as string
+      const variants = row.original.variants as Array<{ lang: string; coverImage?: string | null }> | undefined
+
+      const displayImage = coverImage || variants?.find(v => v.coverImage)?.coverImage || null
 
       return (
         <div className="w-24 h-16 relative rounded-md overflow-hidden bg-muted">
-          {coverImage ? (
+          {displayImage ? (
             <Image
-              src={coverImage}
+              src={displayImage}
               alt={title}
               fill
               sizes="128px"
@@ -256,7 +259,7 @@ export const useArticlesColumns = (): ColumnDef<Article>[] => {
         )
       }
 
-      return <VariantFlags variants={variants} maxVisible={4} size="sm" />
+      return <VariantFlags variants={variants} maxVisible={4} />
     },
   },
   {

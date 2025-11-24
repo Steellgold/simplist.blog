@@ -37,7 +37,7 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
   const [status, setStatus] = useState<ArticleStatus>("draft");
   const [scheduledPublishAt, setScheduledPublishAt] = useState<Date | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageFiles, setImageFiles] = useState<Map<LanguageCode, File>>(new Map());
 
     // Variants state
     const [variants, setVariants] = useState<ArticleVariant[]>([
@@ -69,12 +69,20 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
   // Handle image upload
   const handlePickedImage = (file: File | null) => {
     if (!file) {
-      setImageFile(null);
+      setImageFiles(prev => {
+        const next = new Map(prev);
+        next.delete(activeVariant);
+        return next;
+      });
       setImagePreview(null);
       updateActiveVariant({ coverImage: undefined });
       return;
     }
-    setImageFile(file);
+    setImageFiles(prev => {
+      const next = new Map(prev);
+      next.set(activeVariant, file);
+      return next;
+    });
     const reader = new FileReader();
     reader.onloadend = () => {
       const imageUrl = reader.result as string;
@@ -87,7 +95,11 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
   // Remove image
   const handleRemoveImage = () => {
     setImagePreview(null);
-    setImageFile(null);
+    setImageFiles(prev => {
+      const next = new Map(prev);
+      next.delete(activeVariant);
+      return next;
+    });
     updateActiveVariant({ coverImage: undefined });
     // Reset file input
     const input = document.getElementById("image-upload") as HTMLInputElement;
@@ -147,30 +159,37 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
         variants: articleVariants.length > 0 ? articleVariants : undefined,
       });
 
-      // Step 2: Upload image if provided
-      if (imageFile && article) {
-        toast.loading("Uploading cover image...", { id: toastId });
-        const form = new FormData()
-        form.append("file", imageFile)
-        form.append("projectId", article.projectId)
-        form.append("postId", article.id)
+      // Step 2: Upload all images if provided
+      if (imageFiles.size > 0 && article) {
+        const totalImages = imageFiles.size;
+        let uploadedCount = 0;
 
-        const res = await fetch("/api/uploads/banner", {
-          method: "POST",
-          body: form,
-        })
+        for (const [lang, file] of imageFiles.entries()) {
+          uploadedCount++;
+          toast.loading(`Uploading cover image ${uploadedCount}/${totalImages}...`, { id: toastId });
 
-        if (!res.ok) {
-          throw new Error("Failed to upload image to storage")
+          const form = new FormData()
+          form.append("file", file)
+          form.append("projectId", article.projectId)
+          form.append("postId", article.id)
+
+          const res = await fetch("/api/uploads/banner", {
+            method: "POST",
+            body: form,
+          })
+
+          if (!res.ok) {
+            throw new Error(`Failed to upload image for ${lang}`)
+          }
+
+          const data = await res.json()
+
+          await updateArticleCoverImage({
+            articleId: article.id,
+            objectKey: data.key,
+            variantLang: lang,
+          })
         }
-
-        toast.loading("Processing image and updating article...", { id: toastId });
-        const data = await res.json()
-
-        await updateArticleCoverImage({
-          articleId: article.id,
-          objectKey: data.key,
-        })
       }
 
       // Step 3: Success

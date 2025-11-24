@@ -1,11 +1,11 @@
 "use client";
 
-import { buttonVariants } from "@simplist/ui/components/button";
-import { toast } from "@simplist/ui/components/sonner";
 import { useProject } from "@/hooks/use-project-context";
 import { type ArticleVariant } from "@/hooks/use-variant-operations";
 import { removeArticleCoverImage, updateArticle, updateArticleCoverImage } from "@/lib/actions/articles";
 import { type LanguageCode, getLanguageName } from "@/lib/types/languages";
+import { buttonVariants } from "@simplist/ui/components/button";
+import { toast } from "@simplist/ui/components/sonner";
 import { X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -93,7 +93,7 @@ export const EditArticleForm = ({ article }: EditArticleFormProps) => {
     article.scheduledPublishAt ? new Date(article.scheduledPublishAt) : null
   );
   const [imagePreview, setImagePreview] = useState<string | null>(article.coverImage);
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageFiles, setImageFiles] = useState<Map<LanguageCode, File>>(new Map());
 
     // Variants state
     const [variants, setVariants] = useState<ArticleVariant[]>(initializeVariants());
@@ -123,12 +123,20 @@ export const EditArticleForm = ({ article }: EditArticleFormProps) => {
   // Handle image upload
   const handlePickedImage = (file: File | null) => {
     if (!file) {
-      setImageFile(null);
+      setImageFiles(prev => {
+        const next = new Map(prev);
+        next.delete(activeVariant);
+        return next;
+      });
       setImagePreview(null);
       updateActiveVariant({ coverImage: undefined });
       return;
     }
-    setImageFile(file);
+    setImageFiles(prev => {
+      const next = new Map(prev);
+      next.set(activeVariant, file);
+      return next;
+    });
     const reader = new FileReader();
     reader.onloadend = () => {
       const imageUrl = reader.result as string;
@@ -141,11 +149,15 @@ export const EditArticleForm = ({ article }: EditArticleFormProps) => {
   // Remove image
   const handleRemoveImage = async () => {
     setIsRemovingImage(true);
-    
+
+    const currentVariant = variants.find(v => v.lang === activeVariant);
+    const hasNewImageFile = imageFiles.has(activeVariant);
+    const hasServerImage = currentVariant?.coverImage && !hasNewImageFile;
+
     // If there's a server image, delete it
-    if (article.coverImage && !imageFile) {
+    if (hasServerImage) {
       try {
-        await removeArticleCoverImage(article.id);
+        await removeArticleCoverImage(article.id, activeVariant);
         router.refresh();
       } catch (error) {
         console.error("Failed to remove cover image:", error);
@@ -154,14 +166,18 @@ export const EditArticleForm = ({ article }: EditArticleFormProps) => {
         return;
       }
     }
-    
+
     setImagePreview(null);
-    setImageFile(null);
+    setImageFiles(prev => {
+      const next = new Map(prev);
+      next.delete(activeVariant);
+      return next;
+    });
     updateActiveVariant({ coverImage: undefined });
     // Reset file input
     const input = document.getElementById("image-upload") as HTMLInputElement;
     if (input) input.value = "";
-    
+
     setIsRemovingImage(false);
   };
 
@@ -216,30 +232,37 @@ export const EditArticleForm = ({ article }: EditArticleFormProps) => {
         variants: articleVariants,
       });
 
-      // Step 2: Upload new image if provided
-      if (imageFile) {
-        toast.loading("Uploading new cover image...", { id: toastId });
-        const form = new FormData()
-        form.append("file", imageFile)
-        form.append("projectId", article.projectId)
-        form.append("postId", article.id)
+      // Step 2: Upload all new images if provided
+      if (imageFiles.size > 0) {
+        const totalImages = imageFiles.size;
+        let uploadedCount = 0;
 
-        const res = await fetch("/api/uploads/banner", {
-          method: "POST",
-          body: form,
-        })
+        for (const [lang, file] of imageFiles.entries()) {
+          uploadedCount++;
+          toast.loading(`Uploading cover image ${uploadedCount}/${totalImages}...`, { id: toastId });
 
-        if (!res.ok) {
-          throw new Error("Failed to upload image to storage")
+          const form = new FormData()
+          form.append("file", file)
+          form.append("projectId", article.projectId)
+          form.append("postId", article.id)
+
+          const res = await fetch("/api/uploads/banner", {
+            method: "POST",
+            body: form,
+          })
+
+          if (!res.ok) {
+            throw new Error(`Failed to upload image for ${lang}`)
+          }
+
+          const data = await res.json()
+
+          await updateArticleCoverImage({
+            articleId: article.id,
+            objectKey: data.key,
+            variantLang: lang,
+          })
         }
-
-        toast.loading("Processing image and updating article...", { id: toastId });
-        const data = await res.json()
-
-        await updateArticleCoverImage({
-          articleId: article.id,
-          objectKey: data.key,
-        })
       }
 
       // Step 3: Success
