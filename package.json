@@ -11,7 +11,11 @@
     "db:migrate": "pnpm --filter @simplist/db run db:migrate",
     "db:deploy": "pnpm --filter @simplist/db run db:deploy",
     "db:studio": "pnpm --filter @simplist/db run db:studio",
-    "db:build": "pnpm --filter @simplist/db run build"
+    "db:build": "pnpm --filter @simplist/db run build",
+
+    "api:build": "pnpm --filter @simplist/db --filter @simplist/api --filter @simplist/eslint-config --filter @simplist/typescript-config --filter api run build",
+    "api:dev": "pnpm --filter api run dev",
+    "api:start": "pnpm --filter api run start" 
   },
   "devDependencies": {
     "@simplist/eslint-config": "workspace:*",
