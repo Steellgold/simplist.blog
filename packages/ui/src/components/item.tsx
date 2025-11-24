@@ -1,9 +1,8 @@
+import { Separator } from "@radix-ui/react-separator"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
 import * as React from "react"
-
-import { Separator } from "@simplist/ui/components/separator"
-import { cn } from "@simplist/ui/lib/utils"
+import { cn } from "../lib/utils"
 
 function ItemGroup({ className, ...props }: React.ComponentProps<"div">) {
   return (
@@ -31,7 +30,7 @@ function ItemSeparator({
 }
 
 const itemVariants = cva(
-  "group/item flex items-center border border-transparent text-sm rounded-md transition-colors [a]:hover:bg-accent/50 [a]:transition-colors duration-100 flex-wrap outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
+  "group/item flex items-center border border-transparent text-sm rounded-md transition-colors [a]:hover:bg-accent/50 [a]:transition-colors duration-100 flex-wrap outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] group-has-[[data-slot=item]]/item-group:[&:not(:first-child)]:rounded-t-none group-has-[[data-slot=item]]/item-group:[&:not(:last-child)]:rounded-b-none group-has-[[data-slot=item]]/item-group:[&:not(:first-child)]:border-t-0",
   {
     variants: {
       variant: {
@@ -180,7 +179,7 @@ function ItemFooter({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 export {
-    Item, ItemActions, ItemContent, ItemDescription, ItemFooter, ItemGroup, ItemHeader, ItemMedia, ItemSeparator,
-    ItemTitle
+  Item, ItemActions, ItemContent, ItemDescription, ItemFooter, ItemGroup, ItemHeader, ItemMedia, ItemSeparator,
+  ItemTitle
 }
 
