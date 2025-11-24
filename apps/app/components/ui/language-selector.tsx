@@ -6,7 +6,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Popover, PopoverContent, PopoverTrigger } from "@simplist/ui/components/popover"
 import { cn } from "@simplist/ui/lib/utils"
 import { Check, ChevronsUpDown } from "lucide-react"
-import * as React from "react"
+import { useEffect, useState } from "react"
 
 interface LanguageSelectorProps {
   value?: LanguageCode
@@ -25,8 +25,13 @@ export function LanguageSelector({
   showPopular = true,
   disabled = false,
 }: LanguageSelectorProps) {
-  const [open, setOpen] = React.useState(false)
-  const [internalValue, setInternalValue] = React.useState<LanguageCode>(defaultValue)
+  const [open, setOpen] = useState(false)
+  const [internalValue, setInternalValue] = useState<LanguageCode>(defaultValue)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   // Use controlled value if provided, otherwise use internal value
   const value = controlledValue !== undefined ? controlledValue : internalValue
@@ -45,6 +50,39 @@ export function LanguageSelector({
   const selectedLanguage = LANGUAGES.find((lang) => lang.code === value)
   const popularLanguages = getPopularLanguages()
   const allLanguages = getAllLanguages()
+
+  if (!mounted) {
+    return (
+      <Button
+        variant="outline"
+        role="combobox"
+        className={cn(
+          "w-full justify-between bg-transparent",
+          disabled && "opacity-50 cursor-not-allowed"
+        )}
+        disabled
+      >
+        {selectedLanguage ? (
+          <div className="flex items-center gap-2">
+            <img
+              src={getFlagUrl(selectedLanguage.code)}
+              alt={`${selectedLanguage.name} flag`}
+              className="w-4 h-3 object-cover rounded-xs"
+              onError={(e) => {
+                // Fallback to a generic icon if flag image fails to load
+                e.currentTarget.style.display = 'none'
+              }}
+            />
+            <span>{selectedLanguage.name}</span>
+            <span className="text-muted-foreground text-sm">({selectedLanguage.nativeName})</span>
+          </div>
+        ) : (
+          placeholder
+        )}
+        <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
+      </Button>
+    )
+  }
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -174,8 +212,13 @@ export function CompactLanguageSelector({
   defaultValue = "en",
   disabled = false,
 }: Omit<LanguageSelectorProps, 'placeholder' | 'showPopular'>) {
-  const [open, setOpen] = React.useState(false)
-  const [internalValue, setInternalValue] = React.useState<LanguageCode>(defaultValue)
+  const [open, setOpen] = useState(false)
+  const [internalValue, setInternalValue] = useState<LanguageCode>(defaultValue)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const value = controlledValue !== undefined ? controlledValue : internalValue
 
@@ -192,6 +235,40 @@ export function CompactLanguageSelector({
 
   const selectedLanguage = LANGUAGES.find((lang) => lang.code === value)
   const allLanguages = getAllLanguages()
+
+  if (!mounted) {
+    return (
+      <Button
+        variant="outline"
+        size="sm"
+        role="combobox"
+        className={cn(
+          "w-auto justify-between bg-transparent",
+          disabled && "opacity-50 cursor-not-allowed"
+        )}
+        disabled
+      >
+        {selectedLanguage ? (
+          <div className="flex items-center gap-1.5">
+            <img
+              src={getFlagUrl(selectedLanguage.code)}
+              alt={`${selectedLanguage.name} flag`}
+              className="w-4 h-3 object-cover rounded-xs"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none'
+              }}
+            />
+            <span className="text-sm">
+              {selectedLanguage.name} ({selectedLanguage.nativeName})
+            </span>
+          </div>
+        ) : (
+          <span className="text-sm text-muted-foreground">Select language</span>
+        )}
+        <ChevronsUpDown className="ml-1 size-3 shrink-0 opacity-50" />
+      </Button>
+    )
+  }
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

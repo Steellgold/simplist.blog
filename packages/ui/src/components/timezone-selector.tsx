@@ -1,13 +1,12 @@
 "use client"
 
+import { cn } from "@simplist/ui/lib/utils"
 import { Check, ChevronsUpDown } from "lucide-react"
-import * as React from "react"
-import { cn } from "../lib/utils"
+import { useEffect, useState } from "react"
 import { Button } from "./button"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "./command"
 import { Popover, PopoverContent, PopoverTrigger } from "./popover"
 
-// Liste complète des timezones IANA avec leurs offsets UTC
 const TIMEZONES = [
   { value: "Pacific/Midway", label: "Pacific/Midway", offset: "UTC-11:00" },
   { value: "Pacific/Honolulu", label: "Pacific/Honolulu", offset: "UTC-10:00" },
@@ -134,10 +133,14 @@ export function TimezoneCombobox({
   onValueChange,
   defaultValue = "Europe/Zurich",
 }: TimezoneComboboxProps) {
-  const [open, setOpen] = React.useState(false)
-  const [internalValue, setInternalValue] = React.useState(defaultValue)
+  const [open, setOpen] = useState(false)
+  const [internalValue, setInternalValue] = useState(defaultValue)
+  const [mounted, setMounted] = useState(false)
 
-  // Utiliser la valeur contrôlée si fournie, sinon utiliser la valeur interne
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
   const value = controlledValue !== undefined ? controlledValue : internalValue
 
   const handleSelect = (currentValue: string) => {
@@ -152,6 +155,22 @@ export function TimezoneCombobox({
   }
 
   const selectedTimezone = TIMEZONES.find((tz) => tz.value === value)
+
+  if (!mounted) {
+    return (
+      <Button
+        variant="outline"
+        role="combobox"
+        className="w-full justify-between bg-transparent"
+        disabled
+      >
+        {selectedTimezone
+          ? `${selectedTimezone.label} (${selectedTimezone.offset})`
+          : "Select a timezone..."}
+        <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
+      </Button>
+    )
+  }
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
