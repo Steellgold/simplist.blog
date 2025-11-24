@@ -226,6 +226,9 @@ export const updateProjectSettings = async (projectId: string, input: UpdateProj
   // Extract string values from allowedOrigins
   const allowedOriginStrings = input.allowedOrigins?.map(origin => origin.value).filter(value => value?.trim() !== "")
 
+  // Detect if default language has changed
+  const languageChanged = project.defaultLanguage !== input.defaultLanguage
+
   const updated = await prisma.project.update({
     where: { id: projectId },
     data: {
@@ -237,6 +240,16 @@ export const updateProjectSettings = async (projectId: string, input: UpdateProj
       allowedOrigins: allowedOriginStrings,
     },
   })
+
+  // If default language changed, migrate article variants
+  if (languageChanged) {
+    const { migrateArticleVariantsOnLanguageChange } = await import("../migrations/migrate-article-variants")
+    await migrateArticleVariantsOnLanguageChange(
+      projectId,
+      project.defaultLanguage,
+      input.defaultLanguage
+    )
+  }
 
   // Revalidate dashboard pages that show project info
   revalidatePath("/")

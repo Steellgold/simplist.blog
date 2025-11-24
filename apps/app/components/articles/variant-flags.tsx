@@ -1,21 +1,19 @@
 "use client"
 
-import { getFlagUrl, LanguageCode } from "@/lib/types/languages"
-import { cn } from "@/lib/utils"
-import Image from "next/image"
+import { getFlagUrl, getLanguageName, LanguageCode } from "@/lib/types/languages"
+import { Avatar, AvatarFallback, AvatarImage } from "@simplist/ui/components/avatar"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@simplist/ui/components/tooltip"
 
 interface VariantFlagsProps {
   variants: Array<{
     lang: LanguageCode
   }>
   maxVisible?: number
-  size?: "sm" | "md"
 }
 
 export const VariantFlags = ({
   variants,
-  maxVisible = 4,
-  size = "md"
+  maxVisible = 4
 }: VariantFlagsProps) => {
   if (!variants || variants.length === 0) {
     return null
@@ -25,42 +23,30 @@ export const VariantFlags = ({
   const remainingCount = Math.max(0, variants.length - maxVisible)
   const hasMore = remainingCount > 0
 
-  const sizeClasses = {
-    sm: { flag: "w-5 h-4", text: "text-[10px]" },
-    md: { flag: "w-6 h-4", text: "text-xs" }
-  }
-
-  const classes = sizeClasses[size]
-
   return (
-    <div className="gap-1 grid grid-cols-2">
-      {visibleVariants.map((variant, index) => {
-        const isLast = index === visibleVariants.length - 1
-        const shouldBlur = hasMore && isLast
+    <TooltipProvider>
+      <div className="flex space-x-0 ">
+        {visibleVariants.map((variant) => (
+          <Tooltip key={variant.lang}>
+            <TooltipTrigger>
+              <Avatar className={`ring-2 ring-background rounded-xs size-4`}>
+                <AvatarImage src={`${getFlagUrl(variant.lang)}`} alt={variant.lang} />
+                <AvatarFallback>{variant.lang.toUpperCase()}</AvatarFallback>
+              </Avatar>
+            </TooltipTrigger>
 
-        return (
-          <div
-            key={variant.lang}
-            className="relative rounded-xs overflow-hidden border border-border"
-          >
-            <Image
-              src={getFlagUrl(variant.lang)}
-              alt={`${variant.lang} flag`}
-              width={size === "sm" ? 20 : 24}
-              height={16}
-              className={cn("object-cover", classes.flag, shouldBlur && "blur-[2px]")}
-            />
+            <TooltipContent>
+              {getLanguageName(variant.lang)}
+            </TooltipContent>
+          </Tooltip>
+        ))}
 
-            {shouldBlur && (
-              <div className="absolute inset-0 bg-black/80 flex items-center justify-center">
-                <span className={cn("text-white font-semibold", classes.text)}>
-                  +{remainingCount}
-                </span>
-              </div>
-            )}
-          </div>
-        )
-      })}
-    </div>
+        {hasMore && (
+          <Avatar className="size-4 ring-2 ring-background rounded-xs">
+            <AvatarFallback className="text-[10px] font-semibold">+{remainingCount}</AvatarFallback>
+          </Avatar>
+        )}
+      </div>
+    </TooltipProvider>
   )
 }

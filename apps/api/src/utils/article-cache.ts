@@ -102,17 +102,18 @@ export const cacheArticlesList = async (
  * Get cached articles list
  */
 export const getCachedArticlesList = async (
-  projectId: string, 
+  projectId: string,
   params: any
 ): Promise<CachedArticleListItem[] | null> => {
   try {
     const cacheKey = getListCacheKey(projectId, params)
     const cached = await redis.get(cacheKey)
-    
+
     if (cached) {
-      return JSON.parse(cached as string)
+      const cacheString = typeof cached === 'string' ? cached : JSON.stringify(cached)
+      return JSON.parse(cacheString)
     }
-    
+
     return null
   } catch (error) {
     console.error("Failed to get cached articles list:", error)
@@ -141,24 +142,25 @@ export const cacheArticle = async (
  * Get cached individual article
  */
 export const getCachedArticle = async (
-  projectId: string, 
+  projectId: string,
   slug: string
 ): Promise<CachedArticle | null> => {
   try {
     const cacheKey = getArticleCacheKey(projectId, slug)
     const cached = await redis.get(cacheKey)
-    
+
     if (cached) {
-      const article = JSON.parse(cached as string)
-      
+      const cacheString = typeof cached === 'string' ? cached : JSON.stringify(cached)
+      const article = JSON.parse(cacheString)
+
       // If article has no content, it was cached from list - return null to fetch from DB
       if (!article.content) {
         return null
       }
-      
+
       return article
     }
-    
+
     return null
   } catch (error) {
     console.error("Failed to get cached article:", error)
