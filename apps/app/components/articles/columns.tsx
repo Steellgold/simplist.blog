@@ -8,8 +8,10 @@ import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
+import { VariantFlags } from "./variant-flags"
 
 import { deleteArticle } from "@/lib/actions/articles"
+import { LanguageCode } from "@/lib/types/languages"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -45,6 +47,7 @@ type Article = {
   createdAt: Date
   updatedAt: Date
   scheduledPublishAt?: Date | null
+  variants?: Array<{ lang: LanguageCode }>
 }
 
 const ArticleActionsCell = ({ article }: { article: Article }) => {
@@ -236,6 +239,24 @@ export const useArticlesColumns = (): ColumnDef<Article>[] => {
           )}
         </>
       )
+    },
+  },
+  {
+    id: "variants",
+    header: "Variants",
+    cell: ({ row }) => {
+      const article = row.original
+      const variants = article.variants || []
+
+      if (variants.length === 0) {
+        return (
+          <div className="text-xs text-muted-foreground italic flex justify-center select-none">
+            X
+          </div>
+        )
+      }
+
+      return <VariantFlags variants={variants} maxVisible={4} size="sm" />
     },
   },
   {

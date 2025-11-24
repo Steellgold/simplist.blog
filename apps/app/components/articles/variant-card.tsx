@@ -65,7 +65,7 @@ export const VariantCard = ({
     variantCount
   } = useVariantOperations(variants, onVariantsUpdate, defaultLanguage)
 
-  const { canAddVariant, isFreeTier, quotaError } = useVariantLimits(currentProject?.id, variantCount)
+  const { canAddVariant, isFreeTier, quotaError, isLoading: isLoadingLimits } = useVariantLimits(currentProject?.id, variantCount)
 
   const handleAddVariant = () => {
     if (!selectedLanguage) {
@@ -348,7 +348,7 @@ export const VariantCard = ({
       </AlertDialog>
 
       {/* Pro Backdrop */}
-      {isFreeTier && (
+      {!isLoadingLimits && isFreeTier && (
         <UpgradeOverlay
           title="Unlock this feature"
           description="Create article variants in different languages to reach a global audience."

@@ -301,6 +301,11 @@ export const getProjectArticles = async (projectId: string, userId?: string) => 
       scheduledPublishAt: true,
       deletedAt: true,
       projectId: true,
+      variants: {
+        select: {
+          lang: true,
+        },
+      },
     },
     orderBy: {
       createdAt: "desc",
