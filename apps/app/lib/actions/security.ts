@@ -20,6 +20,9 @@ export const changePassword = async (currentPassword: string, newPassword: strin
       userId: user.id,
       providerId: "credential",
     },
+    select: {
+      id: true,
+    },
   })
 
   // If no credential account (OAuth user setting first password)
@@ -61,6 +64,9 @@ export const deletePasskey = async (passkeyId: string) => {
     where: {
       id: passkeyId,
       userId: user.id,
+    },
+    select: {
+      id: true,
     },
   })
 

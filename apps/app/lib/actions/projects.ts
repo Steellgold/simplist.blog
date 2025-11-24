@@ -53,23 +53,29 @@ export const createProject = async (input: CreateProjectActionInput) => {
   }
 
   // Check if slug already exists for this user and make it unique if needed
-  let finalSlug = input.slug
-  let counter = 1
-
-  while (true) {
-    const existingProject = await prisma.project.findFirst({
-      where: {
-        slug: finalSlug,
-        userId: user.id,
+  const existingSlugs = await prisma.project.findMany({
+    where: {
+      slug: {
+        startsWith: input.slug,
       },
-    })
+      userId: user.id,
+    },
+    select: {
+      slug: true,
+    },
+  })
 
-    if (!existingProject) {
-      break
+  let finalSlug = input.slug
+  if (existingSlugs.length > 0) {
+    const slugSet = new Set(existingSlugs.map(p => p.slug))
+
+    if (slugSet.has(input.slug)) {
+      let counter = 1
+      while (slugSet.has(`${input.slug}-${counter}`)) {
+        counter++
+      }
+      finalSlug = `${input.slug}-${counter}`
     }
-
-    finalSlug = `${input.slug}-${counter}`
-    counter++
   }
 
   const project = await prisma.project.create({

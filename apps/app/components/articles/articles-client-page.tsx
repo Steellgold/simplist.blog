@@ -10,7 +10,7 @@ import { Plus } from "lucide-react"
 import Link from "next/link"
 
 type ArticlesClientPageProps = {
-  articles: Article[]
+  articles: Omit<Article, 'content'>[]
   project: {
     id: string
     name: string

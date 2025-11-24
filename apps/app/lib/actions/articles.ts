@@ -107,23 +107,29 @@ export const createArticle = async (formData: {
     const baseSlug = generateSlug(formData.title);
 
     // Generate unique slug within transaction
-    let slug = baseSlug;
-    let counter = 1;
-
-    while (true) {
-      const existing = await tx.article.findFirst({
-        where: {
-          slug,
-          projectId: project.id,
+    const existingSlugs = await tx.article.findMany({
+      where: {
+        slug: {
+          startsWith: baseSlug,
         },
-      });
+        projectId: project.id,
+      },
+      select: {
+        slug: true,
+      },
+    });
 
-      if (!existing) {
-        break;
+    let slug = baseSlug;
+    if (existingSlugs.length > 0) {
+      const slugSet = new Set(existingSlugs.map(a => a.slug));
+
+      if (slugSet.has(baseSlug)) {
+        let counter = 1;
+        while (slugSet.has(`${baseSlug}-${counter}`)) {
+          counter++;
+        }
+        slug = `${baseSlug}-${counter}`;
       }
-
-      slug = `${baseSlug}-${counter}`;
-      counter++;
     }
 
     // Calculate content statistics
@@ -276,6 +282,26 @@ export const getProjectArticles = async (projectId: string, userId?: string) => 
         not: "deleted", // Exclude soft-deleted articles
       },
     },
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      excerpt: true,
+      coverImage: true,
+      published: true,
+      status: true,
+      viewCount: true,
+      wordCount: true,
+      characterCount: true,
+      lineCount: true,
+      readTimeMinutes: true,
+      createdAt: true,
+      updatedAt: true,
+      publishedAt: true,
+      scheduledPublishAt: true,
+      deletedAt: true,
+      projectId: true,
+    },
     orderBy: {
       createdAt: "desc",
     },
@@ -296,12 +322,36 @@ export const getUserProjectWithArticles = async () => {
     where: {
       userId: user.id,
     },
-    include: {
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      userId: true,
       articles: {
         where: {
           status: {
             not: "deleted",
           },
+        },
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          excerpt: true,
+          coverImage: true,
+          published: true,
+          status: true,
+          viewCount: true,
+          wordCount: true,
+          characterCount: true,
+          lineCount: true,
+          readTimeMinutes: true,
+          createdAt: true,
+          updatedAt: true,
+          publishedAt: true,
+          scheduledPublishAt: true,
+          deletedAt: true,
+          projectId: true,
         },
         orderBy: {
           createdAt: "desc",
@@ -552,8 +602,14 @@ export const deleteArticle = async (articleId: string) => {
     where: {
       id: articleId,
     },
-    include: {
-      project: true,
+    select: {
+      id: true,
+      project: {
+        select: {
+          userId: true,
+          slug: true,
+        },
+      },
     },
   })
 
@@ -606,8 +662,14 @@ export const bulkDeleteArticles = async (articleIds: string[]) => {
         in: articleIds,
       },
     },
-    include: {
-      project: true,
+    select: {
+      id: true,
+      project: {
+        select: {
+          userId: true,
+          slug: true,
+        },
+      },
     },
   })
 
@@ -656,8 +718,15 @@ export const restoreArticle = async (articleId: string) => {
       id: articleId,
       status: "deleted",
     },
-    include: {
-      project: true,
+    select: {
+      id: true,
+      status: true,
+      project: {
+        select: {
+          userId: true,
+          slug: true,
+        },
+      },
     },
   })
 
@@ -724,7 +793,13 @@ export const getArticleWithVariants = async (articleId: string) => {
       },
     },
     include: {
-      project: true,
+      project: {
+        select: {
+          userId: true,
+          slug: true,
+          defaultLanguage: true,
+        },
+      },
       variants: {
         orderBy: {
           lang: "asc",
@@ -754,7 +829,13 @@ export const getArticleBySlugWithVariants = async (slug: string) => {
       },
     },
     include: {
-      project: true,
+      project: {
+        select: {
+          userId: true,
+          slug: true,
+          defaultLanguage: true,
+        },
+      },
       variants: {
         orderBy: {
           lang: "asc",

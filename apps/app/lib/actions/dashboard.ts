@@ -113,7 +113,7 @@ export const getDashboardData = async (
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const [totalViews, todayStats, bouncedCount, totalCount] = await Promise.all([
+    const [totalViews, todayStats, bouncedCount] = await Promise.all([
       // Total views count
       prisma.pageView.count({
         where: {
@@ -121,7 +121,7 @@ export const getDashboardData = async (
             projectId,
           },
         },
-        
+
       }),
       // Today's views and unique visitors
       prisma.pageView.aggregate({
@@ -136,7 +136,7 @@ export const getDashboardData = async (
         _count: {
           id: true,
         },
-        
+
       }),
       // Count bounced views
       prisma.pageView.count({
@@ -146,16 +146,7 @@ export const getDashboardData = async (
           },
           bounced: true,
         },
-        
-      }),
-      // Total views for bounce rate calculation
-      prisma.pageView.count({
-        where: {
-          article: {
-            projectId,
-          },
-        },
-        
+
       }),
     ]);
 
@@ -169,7 +160,7 @@ export const getDashboardData = async (
     `.then((result: { count: any; }[]) => Number(result[0]?.count ?? 0));
 
     // Calculate average bounce rate
-    const averageBounceRate = totalCount > 0 ? (bouncedCount / totalCount) * 100 : 0;
+    const averageBounceRate = totalViews > 0 ? (bouncedCount / totalViews) * 100 : 0;
 
     const analyticsData = {
       totalViews,
