@@ -1,11 +1,18 @@
+// Helper to convert date to ISO string (handles both Date objects and strings from cache)
+export const toISOString = (date: any): string | null => {
+  if (!date) return null
+  if (typeof date === 'string') return date
+  return date.toISOString()
+}
+
 // Format bytes to human readable string
 export const formatBytes = (bytes: bigint): string => {
   const sizes = ["Bytes", "KB", "MB", "GB"]
   if (bytes === BigInt(0)) return "0 Bytes"
-  
+
   const i = Math.floor(Math.log(Number(bytes)) / Math.log(1024))
   const value = Number(bytes) / Math.pow(1024, i)
-  
+
   return `${Math.round(value * 100) / 100} ${sizes[i]}`
 }
 
@@ -13,9 +20,9 @@ export const formatBytes = (bytes: bigint): string => {
 export const formatArticle = (article: any) => {
   const formatted = {
     ...article,
-    createdAt: article.createdAt.toISOString(),
-    updatedAt: article.updatedAt.toISOString(),
-    publishedAt: article.publishedAt?.toISOString() || null
+    createdAt: toISOString(article.createdAt),
+    updatedAt: toISOString(article.updatedAt),
+    publishedAt: toISOString(article.publishedAt)
   }
 
   // Format variants as key-value map if present
@@ -29,7 +36,7 @@ export const formatArticle = (article: any) => {
 // Format article variants as key-value map
 export const formatVariants = (variants: any[]) => {
   const formattedVariants: Record<string, any> = {}
-  
+
   for (const variant of variants) {
     formattedVariants[variant.lang] = {
       lang: variant.lang,
@@ -41,11 +48,11 @@ export const formatVariants = (variants: any[]) => {
       characterCount: variant.characterCount,
       lineCount: variant.lineCount,
       readTimeMinutes: variant.readTimeMinutes,
-      createdAt: variant.createdAt.toISOString(),
-      updatedAt: variant.updatedAt.toISOString(),
+      createdAt: toISOString(variant.createdAt),
+      updatedAt: toISOString(variant.updatedAt),
     }
   }
-  
+
   return formattedVariants
 }
 
