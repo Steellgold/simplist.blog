@@ -1,12 +1,12 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@simplist/ui/components/card";
-import { Lightbulb } from "@simplist/ui/components/animate-ui/icons/lightbulb";
-import { Cctv } from "@simplist/ui/components/animate-ui/icons/cctv";
-import { Fingerprint } from "@simplist/ui/components/animate-ui/icons/fingerprint";
-import { ChevronLeftRight } from "@simplist/ui/components/animate-ui/icons/chevron-left-right";
-import { ChartNoAxesColumn } from "@simplist/ui/components/animate-ui/icons/chart-no-axes-column";
 import { Blocks } from "@simplist/ui/components/animate-ui/icons/blocks";
+import { Cctv } from "@simplist/ui/components/animate-ui/icons/cctv";
+import { ChartNoAxesColumn } from "@simplist/ui/components/animate-ui/icons/chart-no-axes-column";
+import { ChevronLeftRight } from "@simplist/ui/components/animate-ui/icons/chevron-left-right";
+import { Fingerprint } from "@simplist/ui/components/animate-ui/icons/fingerprint";
+import { Lightbulb } from "@simplist/ui/components/animate-ui/icons/lightbulb";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@simplist/ui/components/card";
 import { useState } from "react";
 
 type Feature = {
@@ -83,7 +83,7 @@ export const FeaturesSection = () => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   return (
-    <section id="features" className="py-28 px-4 bg-secondary/10 mb-20">
+    <section id="features" className="py-28 px-4 mb-20">
       <div className="container max-w-6xl mx-auto">
         <div className="text-center mb-16 intersect-once intersect:motion-preset-fade">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
