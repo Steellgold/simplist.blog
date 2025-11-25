@@ -1,14 +1,7 @@
 "use client"
 
 import { deleteApiKey } from "@/lib/actions/api-keys"
-import {
-  AlertDialog, AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle
-} from "@simplist/ui/components/alert-dialog"
+import { ConfirmDialog } from "@simplist/ui/components/confirm-dialog"
 import { Button } from "@simplist/ui/components/button"
 import { toast } from "@simplist/ui/components/sonner"
 import { Spinner } from "@simplist/ui/components/spinner"
@@ -60,33 +53,16 @@ export const ApiKeysList = ({ apiKeys }: ApiKeysListProps) => {
     <>
       <ApiKeysDataTable columns={columns} data={apiKeys} onDelete={onDeleteClick} />
 
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              Delete API Key
-            </AlertDialogTitle>
-            
-            <AlertDialogDescription>
-              Are you sure you want to delete this API key? This action cannot be
-              undone and any applications using this key will lose access.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>
-              Cancel
-            </AlertDialogCancel>
-
-            <Button
-              onClick={handleDelete}
-              disabled={isDeleting}
-              variant="destructive"
-            >
-              {isDeleting ? <Spinner /> : "Delete"}
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleDelete}
+        title="Delete API Key"
+        description="Are you sure you want to delete this API key? This action cannot be undone and any applications using this key will lose access."
+        confirmText={isDeleting ? <Spinner /> : "Delete"}
+        disabled={isDeleting}
+        variant="destructive"
+      />
     </>
   )
 }

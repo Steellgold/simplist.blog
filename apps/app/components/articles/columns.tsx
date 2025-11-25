@@ -12,16 +12,7 @@ import { VariantFlags } from "./variant-flags"
 
 import { deleteArticle } from "@/lib/actions/articles"
 import { LanguageCode } from "@/lib/types/languages"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@simplist/ui/components/alert-dialog"
+import { ConfirmDialog } from "@simplist/ui/components/confirm-dialog"
 import { Badge } from "@simplist/ui/components/badge"
 import { Button } from "@simplist/ui/components/button"
 import { Checkbox } from "@simplist/ui/components/checkbox"
@@ -125,26 +116,16 @@ const ArticleActionsCell = ({ article }: { article: Article }) => {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will permanently delete the article &quot;{article.title}&quot;. This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              disabled={isDeleting}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              {isDeleting ? <Spinner /> : "I'm sure"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        onConfirm={handleDelete}
+        title="Delete article?"
+        description={`This will permanently delete the article "${article.title}". This action cannot be undone.`}
+        confirmText={isDeleting ? <Spinner /> : "Delete"}
+        disabled={isDeleting}
+        variant="destructive"
+      />
     </>
   )
 }

@@ -18,16 +18,7 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 
 import { bulkDeleteArticles } from "@/lib/actions/articles"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@simplist/ui/components/alert-dialog"
+import { ConfirmDialog } from "@simplist/ui/components/confirm-dialog"
 import { Button, buttonVariants } from "@simplist/ui/components/button"
 import { ButtonGroup } from "@simplist/ui/components/button-group"
 import { Input } from "@simplist/ui/components/input"
@@ -235,26 +226,16 @@ export const ArticlesDataTable = <TData extends { id: string }, TValue>({
         </div>
       </div>
 
-      <AlertDialog open={showBulkDeleteDialog} onOpenChange={setShowBulkDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will permanently delete {selectedCount} {selectedCount === 1 ? "article" : "articles"}. This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleBulkDelete}
-              disabled={isDeleting}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              {isDeleting ? <Spinner /> : "Delete all"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDialog
+        open={showBulkDeleteDialog}
+        onOpenChange={setShowBulkDeleteDialog}
+        onConfirm={handleBulkDelete}
+        title="Delete multiple articles?"
+        description={`This will permanently delete ${selectedCount} ${selectedCount === 1 ? "article" : "articles"}. This action cannot be undone.`}
+        confirmText={isDeleting ? <Spinner /> : "Delete all"}
+        disabled={isDeleting}
+        variant="destructive"
+      />
     </div>
   )
 }

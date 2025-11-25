@@ -48,7 +48,7 @@ export const EditArticleForm = ({ article }: EditArticleFormProps) => {
   const router = useRouter();
   const { currentProject } = useProject();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isRemovingImage, setIsRemovingImage] = useState(false);
+  const [imagesToDelete, setImagesToDelete] = useState<Set<LanguageCode>>(new Set());
 
   // Default language from project or fallback to English
   const defaultLanguage: LanguageCode = (article.project.defaultLanguage as LanguageCode) || (currentProject?.defaultLanguage as LanguageCode) || "en";
@@ -146,25 +146,15 @@ export const EditArticleForm = ({ article }: EditArticleFormProps) => {
     reader.readAsDataURL(file);
   };
 
-  // Remove image
-  const handleRemoveImage = async () => {
-    setIsRemovingImage(true);
-
+  // Remove image (deferred deletion - only marks for deletion)
+  const handleRemoveImage = () => {
     const currentVariant = variants.find(v => v.lang === activeVariant);
     const hasNewImageFile = imageFiles.has(activeVariant);
     const hasServerImage = currentVariant?.coverImage && !hasNewImageFile;
 
-    // If there's a server image, delete it
+    // Mark server image for deletion on submit (not immediate)
     if (hasServerImage) {
-      try {
-        await removeArticleCoverImage(article.id, activeVariant);
-        router.refresh();
-      } catch (error) {
-        console.error("Failed to remove cover image:", error);
-        toast.error("Failed to remove image");
-        setIsRemovingImage(false);
-        return;
-      }
+      setImagesToDelete(prev => new Set(prev).add(activeVariant));
     }
 
     setImagePreview(null);
@@ -177,8 +167,6 @@ export const EditArticleForm = ({ article }: EditArticleFormProps) => {
     // Reset file input
     const input = document.getElementById("image-upload") as HTMLInputElement;
     if (input) input.value = "";
-
-    setIsRemovingImage(false);
   };
 
   // Handle form submission
@@ -232,7 +220,25 @@ export const EditArticleForm = ({ article }: EditArticleFormProps) => {
         variants: articleVariants,
       });
 
-      // Step 2: Upload all new images if provided
+      // Step 2: Delete marked images from server and R2
+      if (imagesToDelete.size > 0) {
+        const totalDeletes = imagesToDelete.size;
+        let deletedCount = 0;
+
+        for (const lang of imagesToDelete) {
+          deletedCount++;
+          toast.loading(`Deleting cover image ${deletedCount}/${totalDeletes}...`, { id: toastId });
+
+          try {
+            await removeArticleCoverImage(article.id, lang);
+          } catch (error) {
+            console.error(`Failed to delete image for ${lang}:`, error);
+            // Continue with other deletions even if one fails
+          }
+        }
+      }
+
+      // Step 3: Upload all new images if provided
       if (imageFiles.size > 0) {
         const totalImages = imageFiles.size;
         let uploadedCount = 0;
@@ -265,7 +271,7 @@ export const EditArticleForm = ({ article }: EditArticleFormProps) => {
         }
       }
 
-      // Step 3: Success
+      // Step 4: Success
       toast.success("Article updated successfully!", { id: toastId });
 
       router.push(`/${currentProject?.slug}/articles`);
@@ -332,11 +338,10 @@ export const EditArticleForm = ({ article }: EditArticleFormProps) => {
             onRemoveImage={handleRemoveImage}
             uploadLabel={activeVariant === defaultLanguage ? "Change Image" : `Change Image for ${getLanguageName(activeVariant)}`}
             emptyDescription={
-              activeVariant === defaultLanguage 
+              activeVariant === defaultLanguage
                 ? "Update the article cover image."
                 : `Upload a specific image for ${getLanguageName(activeVariant)} variant. Each variant can have its own image.`
             }
-            isRemoving={isRemovingImage}
           />
 
           <VariantCard

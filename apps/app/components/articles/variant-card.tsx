@@ -6,16 +6,7 @@ import { useVariantLimits } from "@/hooks/use-subscription-limits"
 import { useVariantOperations, type ArticleVariant } from "@/hooks/use-variant-operations"
 import { getAllLanguages, getFlagUrl, getLanguageName, getPopularLanguages, type LanguageCode } from "@/lib/types/languages"
 import { cn } from "@/lib/utils"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@simplist/ui/components/alert-dialog"
+import { ConfirmDialog } from "@simplist/ui/components/confirm-dialog"
 import { Button } from "@simplist/ui/components/button"
 import { ButtonGroup } from "@simplist/ui/components/button-group"
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@simplist/ui/components/card"
@@ -338,27 +329,19 @@ export const VariantCard = ({
       </Card>
 
       {/* Delete Confirmation Alert */}
-      <AlertDialog open={deleteAlertOpen} onOpenChange={setDeleteAlertOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete variant?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This variant contains content. Are you sure you want to delete the{" "}
-              <strong>{variantToDelete && getLanguageName(variantToDelete)}</strong> variant?
-              This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => variantToDelete && confirmDeleteVariant(variantToDelete)}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDialog
+        open={deleteAlertOpen}
+        onOpenChange={setDeleteAlertOpen}
+        onConfirm={() => variantToDelete && confirmDeleteVariant(variantToDelete)}
+        title="Delete variant?"
+        description={
+          variantToDelete
+            ? `This variant contains content. Are you sure you want to delete the ${getLanguageName(variantToDelete)} variant? This action will be applied when you update the article.`
+            : "This action will be applied when you update the article."
+        }
+        confirmText="Delete"
+        variant="destructive"
+      />
 
       {/* Pro Backdrop */}
       {!isLoadingLimits && isFreeTier && (

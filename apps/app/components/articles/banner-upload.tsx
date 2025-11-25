@@ -2,10 +2,12 @@
 
 import { Button } from "@simplist/ui/components/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@simplist/ui/components/card";
+import { ConfirmDialog } from "@simplist/ui/components/confirm-dialog";
 import { Spinner } from "@simplist/ui/components/spinner";
 import { Trash2, Upload } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
+import { useState } from "react";
 
 type ArticleBannerUploadProps = {
   imagePreview: string | null;
@@ -17,6 +19,7 @@ type ArticleBannerUploadProps = {
 };
 
 export const ArticleBannerUpload = ({ imagePreview, onImageChange, onRemoveImage, uploadLabel = "Upload Image", emptyDescription = "On the response API it will return the URL of the image.", isRemoving = false }: ArticleBannerUploadProps) => {
+  const [deleteAlertOpen, setDeleteAlertOpen] = useState(false);
   const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
   const ALLOWED_MIME_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"];
 
@@ -49,6 +52,15 @@ export const ArticleBannerUpload = ({ imagePreview, onImageChange, onRemoveImage
     document.getElementById("image-upload")?.click();
   };
 
+  const handleDeleteClick = () => {
+    setDeleteAlertOpen(true);
+  };
+
+  const confirmDelete = () => {
+    onRemoveImage();
+    setDeleteAlertOpen(false);
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -76,12 +88,12 @@ export const ArticleBannerUpload = ({ imagePreview, onImageChange, onRemoveImage
               <Image src={imagePreview} alt="Post banner preview" fill sizes="(max-width: 1024px) 100vw, 33vw" className="object-cover" />
             </div>
             <div className="flex gap-2">
-              <Button 
-                type="button" 
-                variant="destructive" 
-                size="sm" 
-                className="flex-1" 
-                onClick={onRemoveImage}
+              <Button
+                type="button"
+                variant="destructive"
+                size="sm"
+                className="flex-1"
+                onClick={handleDeleteClick}
                 disabled={isRemoving}
               >
                 {isRemoving ? <Spinner /> : <Trash2 />}
@@ -97,6 +109,16 @@ export const ArticleBannerUpload = ({ imagePreview, onImageChange, onRemoveImage
           </div>
         )}
       </CardContent>
+
+      <ConfirmDialog
+        open={deleteAlertOpen}
+        onOpenChange={setDeleteAlertOpen}
+        onConfirm={confirmDelete}
+        title="Remove cover image?"
+        description="This will remove the cover image from this variant. This action will be applied when you update the article."
+        confirmText="Remove Image"
+        variant="destructive"
+      />
     </Card>
   );
 }
