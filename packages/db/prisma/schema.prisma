@@ -233,6 +233,8 @@ model PageView {
   scrollDepth    Float? // Percentage scrolled (0-100)
   exitPosition   Float? // Where user was when leaving (0-100)
   bounced        Boolean  @default(false)
+  // Request source tracking
+  requestSource  String   @default("direct") // "direct" (web interface) or "sdk" (via SDK)
   // Metadata
   pageUrl        String?
   pageTitle      String?
