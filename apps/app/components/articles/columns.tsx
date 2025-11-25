@@ -240,7 +240,11 @@ export const useArticlesColumns = (): ColumnDef<Article>[] => {
         )
       }
 
-      return <VariantFlags variants={variants} maxVisible={4} />
+      return (
+        <div className="flex justify-center">
+          <VariantFlags variants={variants} maxVisible={4} />
+        </div>
+      )
     },
   },
   {

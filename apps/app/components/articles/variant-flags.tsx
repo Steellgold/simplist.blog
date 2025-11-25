@@ -25,7 +25,7 @@ export const VariantFlags = ({
 
   return (
     <TooltipProvider>
-      <div className="flex space-x-0 ">
+      <div className="flex space-x-0">
         {visibleVariants.map((variant) => (
           <Tooltip key={variant.lang}>
             <TooltipTrigger>
