@@ -199,7 +199,7 @@ export const getBatchArticleViewsOverTime = async (
       COUNT(DISTINCT "visitorId") as uniquevisitors,
       AVG("timeOnPage") as avgtimeonpage
     FROM "page_view"
-    WHERE "articleId" = ANY(${articleIds})
+    WHERE "articleId" = ANY(ARRAY[${Prisma.join(articleIds)}]::text[])
       AND timestamp >= ${startDate}
     GROUP BY "articleId", DATE(timestamp)
     ORDER BY "articleId", date
@@ -312,16 +312,22 @@ export const getProjectAnalytics = async (projectId: string, days: number = 30, 
     prisma.pageView.count({ where: baseWhere }),
 
     // Unique visitors - optimized with raw query to avoid loading all records
-    prisma.$queryRaw<[{ count: bigint }]>`
-      SELECT COUNT(DISTINCT "visitorId") as count
-      FROM "page_view"
-      WHERE "projectId" = ${projectId}
-      AND timestamp >= ${startDate}
-      ${articleIds && articleIds.length ?
-        Prisma.sql`AND "articleId" = ANY(${articleIds})` :
-        Prisma.empty
-      }
-    `.then((result) => Number(result[0]?.count ?? 0)),
+    prisma.$queryRaw<[{ count: bigint }]>(
+      articleIds && articleIds.length ?
+        Prisma.sql`
+          SELECT COUNT(DISTINCT "visitorId") as count
+          FROM "page_view"
+          WHERE "projectId" = ${projectId}
+          AND timestamp >= ${startDate}
+          AND "articleId" = ANY(ARRAY[${Prisma.join(articleIds)}]::text[])
+        ` :
+        Prisma.sql`
+          SELECT COUNT(DISTINCT "visitorId") as count
+          FROM "page_view"
+          WHERE "projectId" = ${projectId}
+          AND timestamp >= ${startDate}
+        `
+    ).then((result) => Number(result[0]?.count ?? 0)),
     
     // Average metrics
     prisma.pageView.aggregate({
@@ -440,25 +446,39 @@ export const getProjectAnalytics = async (projectId: string, days: number = 30, 
 
     // Views over time with SQL raw query for better performance
     // Note: PostgreSQL returns column names in lowercase in raw queries
-    prisma.$queryRaw<Array<{ date: string; views: bigint; uniquevisitors: bigint; avgtimeonpage: number | null }>>`
-      SELECT
-        DATE(timestamp) as date,
-        COUNT(*) as views,
-        COUNT(DISTINCT "visitorId") as uniquevisitors,
-        AVG("timeOnPage") as avgtimeonpage
-      FROM "page_view" p
-      INNER JOIN "article" a ON p."articleId" = a.id
-      WHERE p."projectId" = ${projectId}
-        AND p.timestamp >= ${startDate}
-        AND a."deletedAt" IS NULL
-        ${articleIds && articleIds.length ?
-          Prisma.sql`AND p."articleId" = ANY(${articleIds})` :
-          Prisma.empty
-        }
-      GROUP BY DATE(timestamp)
-      ORDER BY date DESC
-      LIMIT ${days}
-    `,
+    (articleIds && articleIds.length ?
+      prisma.$queryRaw<Array<{ date: string; views: bigint; uniquevisitors: bigint; avgtimeonpage: number | null }>>`
+        SELECT
+          DATE(timestamp) as date,
+          COUNT(*) as views,
+          COUNT(DISTINCT "visitorId") as uniquevisitors,
+          AVG("timeOnPage") as avgtimeonpage
+        FROM "page_view" p
+        INNER JOIN "article" a ON p."articleId" = a.id
+        WHERE p."projectId" = ${projectId}
+          AND p.timestamp >= ${startDate}
+          AND a."deletedAt" IS NULL
+          AND p."articleId" = ANY(ARRAY[${Prisma.join(articleIds)}]::text[])
+        GROUP BY DATE(timestamp)
+        ORDER BY date DESC
+        LIMIT ${days}
+      ` :
+      prisma.$queryRaw<Array<{ date: string; views: bigint; uniquevisitors: bigint; avgtimeonpage: number | null }>>`
+        SELECT
+          DATE(timestamp) as date,
+          COUNT(*) as views,
+          COUNT(DISTINCT "visitorId") as uniquevisitors,
+          AVG("timeOnPage") as avgtimeonpage
+        FROM "page_view" p
+        INNER JOIN "article" a ON p."articleId" = a.id
+        WHERE p."projectId" = ${projectId}
+          AND p.timestamp >= ${startDate}
+          AND a."deletedAt" IS NULL
+        GROUP BY DATE(timestamp)
+        ORDER BY date DESC
+        LIMIT ${days}
+      `
+    ),
     
     // Recent views
     prisma.pageView.findMany({

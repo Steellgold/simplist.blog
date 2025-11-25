@@ -1,15 +1,15 @@
 "use client";
 
 import { MiniBadge } from "@/components/ui/mini-badge";
-import { Button } from "@simplist/ui/components/button";
+import { buttonVariants } from "@simplist/ui/components/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@simplist/ui/components/card";
 import { Progress } from "@simplist/ui/components/progress";
 import { format } from "date-fns";
 import { CreditCard, TrendingUp } from "lucide-react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface SubscriptionCardProps {
-  projectId: string;
+  projectSlug: string;
   subscriptionTier: "STARTER" | "PRO";
   monthlyApiCalls: number;
   apiCallsLimit: number;
@@ -18,20 +18,15 @@ interface SubscriptionCardProps {
 }
 
 export const SubscriptionCard = ({
-  projectId,
+  projectSlug,
   subscriptionTier,
   monthlyApiCalls,
   apiCallsLimit,
   apiCallsResetAt,
   subscriptionExpiresAt,
 }: SubscriptionCardProps) => {
-  const router = useRouter();
   const isPro = subscriptionTier === "PRO";
   const apiCallsPercentage = apiCallsLimit > 0 ? (monthlyApiCalls / apiCallsLimit) * 100 : 0;
-
-  const handleManageBilling = async () => {
-    router.push(`/p/${projectId}/settings/billing`);
-  };
 
   return (
     <Card>
@@ -76,23 +71,21 @@ export const SubscriptionCard = ({
       </CardContent>
       <CardFooter>
         {isPro ? (
-          <Button
-            variant="outline"
-            className="w-full"
-            onClick={handleManageBilling}
+          <Link
+            className={buttonVariants({ variant: "outline", className: "w-full" })}
+            href={`/${projectSlug}/settings/billing`}
           >
             <CreditCard />
             Manage Subscription
-          </Button>
+          </Link>
         ) : (
-          <Button
-            variant="default"
-            className="w-full"
-            onClick={() => router.push("/pricing")}
+          <Link
+            className={buttonVariants({ variant: "default", className: "w-full" })}
+            href="/pricing"
           >
             <TrendingUp />
             Upgrade to Pro
-          </Button>
+          </Link>
         )}
       </CardFooter>
     </Card>

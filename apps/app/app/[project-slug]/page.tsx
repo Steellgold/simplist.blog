@@ -96,7 +96,7 @@ const ProjectPage = () => {
           />
 
           <SubscriptionCard
-            projectId={currentProject.id}
+            projectSlug={currentProject.slug}
             subscriptionTier={dashboardData.project.subscriptionTier}
             monthlyApiCalls={dashboardData.project.monthlyApiCalls}
             apiCallsLimit={planLimits.maxApiCallsPerMonth}
