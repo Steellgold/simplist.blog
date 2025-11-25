@@ -9,6 +9,16 @@ export interface AnalyticsCacheData {
     avgScrollDepth: number
     bounceRate: number
   }
+  requestSource: {
+    sdk: {
+      count: number
+      percentage: number
+    }
+    direct: {
+      count: number
+      percentage: number
+    }
+  }
   topArticles: Array<{
     id: string
     title: string

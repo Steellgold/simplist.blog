@@ -46,12 +46,14 @@ export class HttpClient {
     options: RequestInit = {}
   ): Promise<T> {
     const url = `${this.baseUrl}${path}`
-    
+
     const config: RequestInit = {
       ...options,
       headers: {
         'Content-Type': 'application/json',
         'X-API-Key': this.apiKey,
+        'User-Agent': 'SimplistSDK/1.0',
+        'X-Simplist-Source': 'sdk',
         ...options.headers,
       },
     }

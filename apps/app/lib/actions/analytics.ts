@@ -14,6 +14,16 @@ export interface AnalyticsData {
     avgScrollDepth: number
     bounceRate: number
   }
+  requestSource: {
+    sdk: {
+      count: number
+      percentage: number
+    }
+    direct: {
+      count: number
+      percentage: number
+    }
+  }
   topArticles: Array<{
     id: string
     title: string
@@ -294,6 +304,7 @@ export const getProjectAnalytics = async (projectId: string, days: number = 30, 
     browserStatsData,
     topReferrersData,
     directTrafficCount,
+    requestSourceStatsData,
     viewsOverTimeData,
     recentViewsData
   ] = await Promise.all([
@@ -416,6 +427,16 @@ export const getProjectAnalytics = async (projectId: string, days: number = 30, 
     prisma.pageView.count({
       where: { ...baseWhere, referrerDomain: null }
     }),
+
+    // Request source stats (SDK vs Direct)
+    prisma.pageView.groupBy({
+      by: ['requestSource'],
+      where: baseWhere,
+      _count: { id: true }
+    }) as unknown as Promise<Array<{
+      requestSource: string
+      _count: { id: number }
+    }>>,
 
     // Views over time with SQL raw query for better performance
     // Note: PostgreSQL returns column names in lowercase in raw queries
@@ -573,6 +594,12 @@ export const getProjectAnalytics = async (projectId: string, days: number = 30, 
     utmCampaign: rv.utmCampaign
   }))
 
+  // Process request source stats
+  const sdkViews = requestSourceStatsData.find(s => s.requestSource === "sdk")?._count.id || 0
+  const directViews = requestSourceStatsData.find(s => s.requestSource === "direct")?._count.id || 0
+  const sdkPercentage = totalViews > 0 ? Math.round((sdkViews / totalViews) * 100) : 0
+  const directPercentage = totalViews > 0 ? Math.round((directViews / totalViews) * 100) : 0
+
   return {
     summary: {
       totalViews,
@@ -581,6 +608,16 @@ export const getProjectAnalytics = async (projectId: string, days: number = 30, 
       avgTimeOnPage: Math.round(avgMetrics._avg.timeOnPage || 0),
       avgScrollDepth: Math.round(avgMetrics._avg.scrollDepth || 0),
       bounceRate: totalViews > 0 ? Math.round((bouncedViews / totalViews) * 100) : 0
+    },
+    requestSource: {
+      sdk: {
+        count: sdkViews,
+        percentage: sdkPercentage
+      },
+      direct: {
+        count: directViews,
+        percentage: directPercentage
+      }
     },
     topArticles,
     topCountries,

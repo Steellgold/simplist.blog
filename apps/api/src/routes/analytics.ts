@@ -149,6 +149,10 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
         }
       }
 
+      // Determine request source from User-Agent or explicit header
+      const isSdkRequest = userAgent.includes("SimplistSDK") || request.headers["x-simplist-source"] === "sdk"
+      const requestSource = isSdkRequest ? "sdk" : "direct"
+
       // Create page view record
       const pageView = await prisma.pageView.create({
         data: {
@@ -156,7 +160,7 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
           projectId,
           visitorId,
           sessionId,
-          
+
           // Geo data only (no IP stored)
           ipAddress: null,
           country: geoData.country,
@@ -164,7 +168,7 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
           region: geoData.region,
           city: geoData.city,
           timezone: geoData.timezone,
-          
+
           // Device/browser info
           userAgent,
           device: userAgentInfo.device,
@@ -172,7 +176,7 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
           os: userAgentInfo.os,
           screenWidth: body.screenWidth,
           screenHeight: body.screenHeight,
-          
+
           // Traffic source
           referrer: body.referrer,
           referrerDomain,
@@ -181,13 +185,16 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
           utmCampaign: body.utmCampaign,
           utmTerm: body.utmTerm,
           utmContent: body.utmContent,
-          
+
           // Engagement metrics (will be updated later)
           timeOnPage: body.timeOnPage,
           scrollDepth: body.scrollDepth,
           exitPosition: body.exitPosition,
           bounced: body.bounced || false,
-          
+
+          // Request source tracking
+          requestSource,
+
           // Metadata
           pageUrl: body.pageUrl,
           pageTitle: body.pageTitle || article.title,
@@ -381,12 +388,37 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
       type TopCountryResult = { country: string; _count: { id: number } }
       const topCountries = topCountriesRaw as TopCountryResult[]
 
+      // Get request source stats (SDK vs Direct)
+      const requestSourceStats = await prisma.pageView.groupBy({
+        by: ["requestSource"],
+        where: {
+          projectId,
+          timestamp: { gte: startDate }
+        },
+        _count: { id: true }
+      })
+
+      const sdkViews = requestSourceStats.find(s => s.requestSource === "sdk")?._count.id || 0
+      const directViews = requestSourceStats.find(s => s.requestSource === "direct")?._count.id || 0
+      const sdkPercentage = totalViews > 0 ? Math.round((sdkViews / totalViews) * 100) : 0
+      const directPercentage = totalViews > 0 ? Math.round((directViews / totalViews) * 100) : 0
+
       return {
         period: { days, startDate, endDate: new Date() },
         summary: {
           totalViews,
           uniqueVisitors: uniqueVisitors.length,
           avgViewsPerVisitor: uniqueVisitors.length > 0 ? Math.round(totalViews / uniqueVisitors.length * 100) / 100 : 0
+        },
+        requestSource: {
+          sdk: {
+            count: sdkViews,
+            percentage: sdkPercentage
+          },
+          direct: {
+            count: directViews,
+            percentage: directPercentage
+          }
         },
         topArticles: topArticlesWithTitles,
         topCountries: topCountries.map(tc => ({

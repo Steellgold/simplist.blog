@@ -49,6 +49,16 @@ export interface AnalyticsStats {
     uniqueVisitors: number
     avgViewsPerVisitor: number
   }
+  requestSource: {
+    sdk: {
+      count: number
+      percentage: number
+    }
+    direct: {
+      count: number
+      percentage: number
+    }
+  }
   topArticles: Array<{
     articleId: string
     title: string
