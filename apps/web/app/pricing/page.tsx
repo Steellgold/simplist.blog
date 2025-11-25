@@ -13,6 +13,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsList, TabsTrigger } from "@simplist/ui/components/tabs";
 import { clsx } from "clsx";
 import { ArrowRight, BadgeCheck, X } from "lucide-react";
+import NumberFlow from "@number-flow/react";
 import { useState } from "react";
 
 export default function PricingPage() {
@@ -55,11 +56,9 @@ export default function PricingPage() {
 
         <div className="mt-8 grid w-full max-w-4xl mx-auto md:grid-cols-2 gap-4">
           {plans.map((plan) => {
-            const currentPrice = getPlanPrice(plan.id, frequency);
+            const currentPrice = getPlanPrice(plan.id, frequency) || plan.prices[0];
             const isNumeric = typeof currentPrice?.amount === "number";
             const isFree = isPlanFree(plan.id);
-
-            if (!currentPrice) return null;
 
             return (
               <Card
@@ -80,9 +79,12 @@ export default function PricingPage() {
                   <CardDescription>
                     <p>{plan.description}</p>
                     {isNumeric ? (
-                      <span className="font-medium text-foreground text-2xl">
-                        ${currentPrice.amount}{currentPrice.displayInterval}
-                      </span>
+                      <NumberFlow
+                        className="font-medium text-foreground text-2xl"
+                        format={{ style: "currency", currency: "USD", maximumFractionDigits: 0 }}
+                        suffix={` ${currentPrice.displayInterval}`}
+                        value={currentPrice.amount}
+                      />
                     ) : (
                       <span className="font-medium text-foreground text-2xl">
                         {currentPrice.displayAmount} {currentPrice.displayInterval}
