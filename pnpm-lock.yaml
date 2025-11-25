@@ -244,6 +244,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@simplist/limits':
+        specifier: workspace:*
+        version: link:../../packages/limits
       '@simplist/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -390,6 +393,15 @@ importers:
       typescript-eslint:
         specifier: ^8.39.0
         version: 8.39.0(eslint@9.32.0(jiti@2.5.1))(typescript@5.9.2)
+
+  packages/limits:
+    devDependencies:
+      '@simplist/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      typescript:
+        specifier: ^5
+        version: 5.9.2
 
   packages/sdk:
     devDependencies:

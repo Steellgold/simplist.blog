@@ -1,165 +1,44 @@
+// Re-export everything from @simplist/limits for backward compatibility
+export * from "@simplist/limits";
+
+// Legacy exports for compatibility with existing code
 import { SubscriptionTier } from "@simplist/db";
+import { 
+  SUBSCRIPTION_PLANS as LIMITS_PLANS,
+  type Plan as LimitsPlan,
+  type PlanId,
+  getPlan as getBasePlan,
+  getAllPlans as getAllBasePlans,
+  getPlanPrice as getBasePlanPrice,
+  getPlanLimits as getBasePlanLimits,
+  planHasFeature as basePlanHasFeature
+} from "@simplist/limits";
 
-export type SubscriptionInterval = "monthly" | "yearly";
-
-export interface PlanFeature {
-  name: string;
-  included: boolean;
-  limit?: string | number;
-}
-
-export interface PlanPrice {
-  amount: number;
-  interval: SubscriptionInterval;
-  displayAmount: string;
-  displayInterval: string;
-  yearlyEquivalent?: string;
-  savings?: string;
-}
-
-export interface Plan {
+// Type mapping for compatibility
+export interface Plan extends Omit<LimitsPlan, 'id'> {
   id: SubscriptionTier;
-  name: string;
-  description: string;
-  highlight?: string;
-  popular?: boolean;
-  prices: PlanPrice[];
-  features: PlanFeature[];
-  limits: {
-    maxArticles: number;
-    maxApiKeys: number;
-    maxStorageBytes: number;
-    maxApiCallsPerMonth: number;
-    maxVariantsPerArticle: number;
-    features: {
-      analytics: boolean;
-      postVariants: boolean;
-      scheduledPublishing: boolean;
-      prioritySupport: boolean;
-      bulkOperations: boolean;
-    };
-  };
 }
 
-export const SUBSCRIPTION_PLANS: Record<SubscriptionTier, Plan> = {
-  STARTER: {
-    id: "STARTER",
-    name: "Starter",
-    description: "Perfect for exploring the platform.",
-    prices: [
-      {
-        amount: 0,
-        interval: "monthly",
-        displayAmount: "$0",
-        displayInterval: "/month",
-      },
-    ],
-    features: [
-      { name: "5 articles", included: true },
-      { name: "1 API key", included: true },
-      { name: "Basic analytics", included: true },
-      { name: "50MB storage", included: true },
-      { name: "1,000 API calls/month", included: true },
-      { name: "Language variants", included: false },
-    ],
-    limits: {
-      maxArticles: 5,
-      maxApiKeys: 1,
-      maxStorageBytes: 50 * 1024 * 1024, // 50MB
-      maxApiCallsPerMonth: 1000,
-      maxVariantsPerArticle: 0, // STARTER: No variants allowed
-      features: {
-        analytics: false, // Advanced analytics are PRO only (STARTER can see basic stats like total views)
-        postVariants: false, // Not available on STARTER
-        scheduledPublishing: false,
-        prioritySupport: true,
-        bulkOperations: false,
-      },
-    },
-  },
-  PRO: {
-    id: "PRO",
-    name: "Pro", 
-    description: "Ideal for creators looking for advanced features.",
-    highlight: "Most Popular",
-    popular: true,
-    prices: [
-      {
-        amount: 19,
-        interval: "monthly",
-        displayAmount: "$19",
-        displayInterval: "/month",
-      },
-      {
-        amount: 14,
-        interval: "yearly",
-        displayAmount: "$14",
-        displayInterval: "/month billed yearly",
-        yearlyEquivalent: "$168/year",
-        savings: "Save $60",
-      },
-    ],
-    features: [
-      { name: "Unlimited articles", included: true },
-      { name: "Unlimited API keys", included: true },
-      { name: "Advanced analytics", included: true },
-      { name: "1GB storage", included: true },
-      { name: "100,000 API calls/month", included: true },
-      { name: "Priority support", included: true },
-      { name: "Unlimited language variants", included: true },
-      { name: "Custom cover images per variant", included: true },
-      { name: "Scheduled publishing", included: true },
-    ],
-    limits: {
-      maxArticles: -1,
-      maxApiKeys: -1,
-      maxStorageBytes: 1024 * 1024 * 1024, // 1GB
-      maxApiCallsPerMonth: 500000,
-      maxVariantsPerArticle: -1, // PRO: unlimited variants per article
-      features: {
-        analytics: true, // PRO has full access to advanced analytics
-        postVariants: true,
-        scheduledPublishing: true,
-        prioritySupport: true,
-        bulkOperations: true,
-      },
-    },
-  },
-};
+// Convert plans to use SubscriptionTier type
+export const SUBSCRIPTION_PLANS: Record<SubscriptionTier, Plan> = LIMITS_PLANS as any;
 
-/**
- * Get plan by ID
- */
+// Legacy function wrappers that work with SubscriptionTier
 export const getPlan = (planId: SubscriptionTier): Plan => {
-  return SUBSCRIPTION_PLANS[planId];
+  return getBasePlan(planId as PlanId) as Plan;
 };
 
-/**
- * Get plan pricing for specific interval
- */
-export const getPlanPrice = (planId: SubscriptionTier, interval: SubscriptionInterval): PlanPrice | undefined => {
-  const plan = getPlan(planId);
-  return plan.prices.find(price => price.interval === interval);
-};
-
-/**
- * Get all plans
- */
 export const getAllPlans = (): Plan[] => {
-  return Object.values(SUBSCRIPTION_PLANS);
+  return getAllBasePlans() as Plan[];
 };
 
-/**
- * Check if a plan has a specific feature
- */
-export const planHasFeature = (planId: SubscriptionTier, featureName: keyof Plan['limits']['features']): boolean => {
-  const plan = getPlan(planId);
-  return plan.limits.features[featureName];
+export const getPlanPrice = (planId: SubscriptionTier, interval: any) => {
+  return getBasePlanPrice(planId as PlanId, interval);
 };
 
-/**
- * Get plan limits
- */
+export const planHasFeature = (planId: SubscriptionTier, featureName: any): boolean => {
+  return basePlanHasFeature(planId as PlanId, featureName);
+};
+
 export const getPlanLimits = (planId: SubscriptionTier) => {
-  return getPlan(planId).limits;
+  return getBasePlanLimits(planId as PlanId);
 };
