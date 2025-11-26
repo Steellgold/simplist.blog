@@ -79,6 +79,7 @@
     "./components/*": "./src/components/*",
     "./components/shared/*": "./src/components/shared/*",
     "./hooks/*": "./src/hooks/*",
-    "./animate-ui/*": "./src/components/animate-ui/icons/*"
+    "./animate-ui/*": "./src/components/animate-ui/icons/*",
+    "./pages/*": "./src/pages/*"
   }
 }

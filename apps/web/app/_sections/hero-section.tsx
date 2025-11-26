@@ -1,11 +1,11 @@
 import { Badge } from "@simplist/ui/components/badge";
-import { Button, buttonVariants } from "@simplist/ui/components/button";
+import { buttonVariants } from "@simplist/ui/components/button";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 export const HeroSection = () => {
   return (
-    <section className="py-[148px] px-4">
+    <section className="py-[118px] px-4">
       <div className="container max-w-4xl mx-auto text-center">
         <Badge variant="secondary" className="mb-4 motion-preset-fade motion-delay-[200ms]">
           Simple Content Management API

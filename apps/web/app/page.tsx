@@ -1,9 +1,9 @@
 import { Footer } from "@/components/layout/footer";
 import { Navbar } from "@/components/layout/navbar";
+import { LightRays } from "@simplist/ui/components/shared/light-rays";
 import { ApiDemoSection } from "./_sections/api-demo-section";
 import { FeaturesSection } from "./_sections/features-section";
 import { HeroSection } from "./_sections/hero-section";
-import { LightRays } from "@simplist/ui/components/shared/light-rays";
 
 const HomePage = async () => {
   return (

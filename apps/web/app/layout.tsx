@@ -1,10 +1,10 @@
+import { ObserverProvider } from "@simplist/ui/components/shared/observer-provider";
 import { ThemeProvider } from "@simplist/ui/components/shared/theme-provider";
 import { Toaster } from "@simplist/ui/components/sonner";
-import type { Metadata } from "next";
-import { Nunito, Syne, Geist_Mono } from "next/font/google";
 import "@simplist/ui/globals.css";
+import type { Metadata } from "next";
+import { Geist_Mono, Nunito, Syne } from "next/font/google";
 import { FC } from "react";
-import { ObserverProvider } from "@simplist/ui/components/shared/observer-provider";
 
 const nunito = Nunito({
   variable: "--font-nunito",

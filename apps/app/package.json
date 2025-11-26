@@ -20,6 +20,7 @@
     "@prisma/adapter-pg": "^7.0.0",
     "@react-email/render": "^1.4.0",
     "@simplist/db": "workspace:*",
+    "@simplist/limits": "workspace:*",
     "@simplist/ui": "workspace:*",
     "@tanstack/react-table": "^8.21.3",
     "better-auth": "^1.3.27",

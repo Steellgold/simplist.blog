@@ -105,6 +105,9 @@ importers:
       '@simplist/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@simplist/limits':
+        specifier: workspace:*
+        version: link:../../packages/limits
       '@simplist/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -222,7 +225,7 @@ importers:
         version: 9.32.0(jiti@2.5.1)
       eslint-config-next:
         specifier: 16.0.0
-        version: 16.0.0(@typescript-eslint/parser@8.47.0(eslint@9.32.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.32.0(jiti@2.5.1))(typescript@5.9.2)
+        version: 16.0.0(eslint@9.32.0(jiti@2.5.1))(typescript@5.9.2)
       shadcn:
         specifier: ^3.5.0
         version: 3.5.0(@types/node@20.19.9)(typescript@5.9.2)
@@ -244,6 +247,12 @@ importers:
 
   apps/web:
     dependencies:
+      '@number-flow/react':
+        specifier: ^0.5.10
+        version: 0.5.10(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@simplist/limits':
+        specifier: workspace:*
+        version: link:../../packages/limits
       '@simplist/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -298,7 +307,7 @@ importers:
         version: 9.32.0(jiti@2.5.1)
       eslint-config-next:
         specifier: 16.0.0
-        version: 16.0.0(eslint@9.32.0(jiti@2.5.1))(typescript@5.9.2)
+        version: 16.0.0(@typescript-eslint/parser@8.47.0(eslint@9.32.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.32.0(jiti@2.5.1))(typescript@5.9.2)
       tailwindcss:
         specifier: ^4
         version: 4.1.11
@@ -390,6 +399,15 @@ importers:
       typescript-eslint:
         specifier: ^8.39.0
         version: 8.39.0(eslint@9.32.0(jiti@2.5.1))(typescript@5.9.2)
+
+  packages/limits:
+    devDependencies:
+      '@simplist/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      typescript:
+        specifier: ^5
+        version: 5.9.2
 
   packages/sdk:
     devDependencies:
