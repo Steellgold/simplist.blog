@@ -40,3 +40,9 @@ export const getUserInitials = (name: string) => {
   }
   return name.substring(0, 2).toUpperCase()
 }
+
+export const getRedirectUrl = () => {
+  if (typeof window === "undefined") return "/"
+  const params = new URLSearchParams(window.location.search)
+  return params.get("redirect") || "/"
+}
