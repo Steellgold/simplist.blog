@@ -23,6 +23,7 @@ model User {
   sessions      Session[]
   accounts      Account[]
   projects      Project[]
+  projectMembers ProjectMember[]
 
   twoFactorEnabled Boolean?    @default(false)
   twofactors       TwoFactor[]
@@ -82,6 +83,13 @@ enum SubscriptionTier {
   PRO
 }
 
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  EXPIRED
+}
+
 model Project {
   id                    String           @id @default(cuid())
   name                  String
@@ -104,10 +112,13 @@ model Project {
   user                  User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   apiKeys               ApiKey[]
   articles              Article[]
+  members               ProjectMember[]
+  roles                 ProjectRole[]
+  invitations           ProjectInvitation[]
   createdAt             DateTime         @default(now())
   updatedAt             DateTime         @updatedAt
 
-  @@unique([slug, userId])
+  @@unique([slug])
   @@index([userId, createdAt])
   @@index([userId, subscriptionTier])
   @@map("project")
@@ -152,6 +163,9 @@ model Article {
   readTimeMinutes    Int              @default(0)
   // Scheduled publishing
   scheduledPublishAt DateTime?
+  // Audit trail
+  createdBy          String
+  updatedBy          String?
   // Relations
   projectId          String
   project            Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
@@ -305,4 +319,91 @@ model Passkey {
   aaguid       String?
 
   @@map("passkey")
+}
+
+// Rôles personnalisables par projet
+model ProjectRole {
+  id          String   @id @default(cuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  name        String   // "Administrator", "Editor", "Viewer", etc. (customizable)
+  slug        String   // "admin", "editor", "viewer" (pour identifier le rôle)
+
+  // Permissions granulaires
+  canManageProject      Boolean @default(false)  // Modifier settings projet
+  canManageMembers      Boolean @default(false)  // Inviter/retirer membres
+  canManageRoles        Boolean @default(false)  // Modifier les rôles/permissions
+  canManageArticles     Boolean @default(false)  // Créer/modifier articles
+  canManageApiKeys      Boolean @default(false)  // Créer/supprimer API keys
+  canViewAnalytics      Boolean @default(true)   // Voir analytics
+  canManageBilling      Boolean @default(false)  // Gérer abonnement (réservé OWNER)
+  canDeleteProject      Boolean @default(false)  // Supprimer projet (réservé OWNER)
+
+  isOwner     Boolean  @default(false)  // Rôle fantôme réservé au créateur
+  isDefault   Boolean  @default(false)  // Rôle par défaut créé à l'init du projet
+
+  members     ProjectMember[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([projectId, slug])
+  @@index([projectId, isDefault])
+  @@map("project_role")
+}
+
+// Table de jointure User ↔ Project
+model ProjectMember {
+  id        String   @id @default(cuid())
+
+  // Relations
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // Rôle assigné (personnalisable)
+  roleId    String
+  role      ProjectRole @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  // Tracking
+  invitedBy String?
+  invitedAt DateTime @default(now())
+  joinedAt  DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, projectId])
+  @@index([projectId, roleId])
+  @@index([userId])
+  @@map("project_member")
+}
+
+// Système d'invitations avec token sécurisé
+model ProjectInvitation {
+  id        String           @id @default(cuid())
+
+  email     String
+  projectId String
+  project   Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  roleId    String           // Rôle à assigner lors de l'acceptation
+  status    InvitationStatus @default(PENDING)
+
+  token     String           @unique
+  expiresAt DateTime         // 7 jours par défaut
+
+  invitedBy String
+  invitedAt DateTime         @default(now())
+  acceptedAt DateTime?
+
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  @@unique([email, projectId, status])
+  @@index([token])
+  @@index([projectId, status])
+  @@map("project_invitation")
 }
