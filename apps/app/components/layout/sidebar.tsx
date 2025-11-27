@@ -11,6 +11,8 @@ import { ChartLine } from "@simplist/ui/animate-ui/chart-line"
 import { LayersIcon } from "@simplist/ui/animate-ui/layers"
 import { LayoutDashboardIcon } from "@simplist/ui/animate-ui/layout-dashboard"
 import { SettingsIcon } from "@simplist/ui/animate-ui/settings"
+import { ClipboardListIcon } from "@simplist/ui/animate-ui/clipboard-list"
+import { UsersIcon } from "@simplist/ui/animate-ui/users"
 import { Star } from "@simplist/ui/animate-ui/star"
 import { UnplugIcon } from "@simplist/ui/animate-ui/unplug"
 import {
@@ -47,11 +49,7 @@ type NavigationItem = {
   matchStrategy?: "exact" | "prefix"
 }
 
-const getNavigationItems = (
-  isPro: boolean,
-  projectSlug: string,
-  isProjectPro?: boolean
-): NavigationItem[] => [
+const getNavigationItems = (isPro: boolean, projectSlug: string): NavigationItem[] => [
   {
     title: "Dashboard",
     icon: <LayoutDashboardIcon />,
@@ -88,6 +86,21 @@ const getNavigationItems = (
   }
 ]
 
+const getTeamItems = (isPro: boolean, projectSlug: string): NavigationItem[] => [
+  {
+    title: "Members",
+    icon: <UsersIcon />,
+    href: `/${projectSlug}/settings/members`,
+  },
+  {
+    title: "Roles",
+    icon: <ClipboardListIcon />,
+    href: `/${projectSlug}/settings/roles`,
+    disabled: !isPro,
+    showProBadge: !isPro,
+  }
+]
+
 export const AppSidebar = ({
   user,
   projects,
@@ -103,7 +116,8 @@ export const AppSidebar = ({
     activeProject?.subscriptionExpiresAt &&
     new Date(activeProject.subscriptionExpiresAt) > new Date();
 
-  const navigationItems = getNavigationItems(isPro ?? false, activeProject?.slug || "", isPro ?? false);
+  const navigationItems = getNavigationItems(isPro ?? false, activeProject?.slug || "");
+  const teamItems = getTeamItems(isPro ?? false, activeProject?.slug || "");
 
   const isItemActive = (href: string, matchStrategy: "exact" | "prefix" = "prefix") => {
     if (matchStrategy === "exact") {
@@ -130,6 +144,51 @@ export const AppSidebar = ({
           <SidebarGroupContent>
             <SidebarMenu>
               {navigationItems.map((item) => {
+                const isActive = isItemActive(item.href, item.matchStrategy)
+                return (
+                  <SidebarMenuItem key={item.href}>
+                    <SidebarMenuButton
+                      asChild={!item.disabled}
+                      disabled={item.disabled}
+                      isActive={isActive}
+                      className={item.disabled ? "opacity-50 cursor-not-allowed" : ""}
+                      onMouseEnter={() => setItemHovered(item.href)}
+                      onMouseLeave={() => setItemHovered(null)}
+                      tooltip={item.disabled ? `${item.title} (Premium required)` : undefined}
+                    >
+                      {item.disabled ? (
+                        <div className="flex items-center gap-2 w-full [&>svg]:size-4">
+                          {cloneElement(item.icon as React.ReactElement, {
+                            // @ts-expect-error - animate prop is added dynamically
+                            animate: itemHovered === item.href
+                          })}
+                          <span className="flex-1 group-data-[collapsible=icon]:hidden">{item.title}</span>
+                          {item.showProBadge && (
+                            <MiniBadge tier="PRO" size="sm" className="group-data-[collapsible=icon]:hidden" />
+                          )}
+                        </div>
+                      ) : (
+                        <Link href={item.href}>
+                          {cloneElement(item.icon as React.ReactElement, {
+                            // @ts-expect-error - animate prop is added dynamically
+                            animate: itemHovered === item.href || isActive
+                          })}
+                          <span className="group-data-[collapsible=icon]:hidden">{item.title}</span>
+                        </Link>
+                      )}
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Team</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {teamItems.map((item) => {
                 const isActive = isItemActive(item.href, item.matchStrategy)
                 return (
                   <SidebarMenuItem key={item.href}>
