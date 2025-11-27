@@ -24,6 +24,8 @@ model User {
   accounts      Account[]
   projects      Project[]
   projectMembers ProjectMember[]
+  articles      Article[] @relation("ArticleAuthor")
+  updatedArticles Article[] @relation("ArticleLastUpdatedBy")
 
   twoFactorEnabled Boolean?    @default(false)
   twofactors       TwoFactor[]
@@ -165,7 +167,9 @@ model Article {
   scheduledPublishAt DateTime?
   // Audit trail
   createdBy          String
+  author             User             @relation("ArticleAuthor", fields: [createdBy], references: [id], onDelete: Cascade)
   updatedBy          String?
+  lastUpdatedBy      User?            @relation("ArticleLastUpdatedBy", fields: [updatedBy], references: [id], onDelete: SetNull)
   // Relations
   projectId          String
   project            Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
