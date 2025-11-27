@@ -1,19 +1,19 @@
 'use client';
 
+import * as React from 'react';
 import {
   motion,
   useAnimation,
-  type HTMLMotionProps,
-  type LegacyAnimationControls,
   type SVGMotionProps,
   type UseInViewOptions,
+  type LegacyAnimationControls,
   type Variants,
+  type HTMLMotionProps,
 } from 'motion/react';
-import * as React from 'react';
 
-import { useIsInView } from '@simplist/ui/hooks/use-is-in-view';
 import { cn } from '@simplist/ui/lib/utils';
-import { Slot, type WithAsChild } from '../primitives/animate/slot';
+import { useIsInView } from '../../../hooks/use-is-in-view';
+import { Slot, type WithAsChild } from '../../../components/animate-ui/primitives/animate/slot';
 
 const staticAnimations = {
   path: {
@@ -642,8 +642,14 @@ function getVariants<
 }
 
 export {
-  AnimateIcon, getVariants, IconWrapper, pathClassName,
-  staticAnimations, useAnimateIconContext, type AnimateIconContextValue, type AnimateIconProps, type IconProps,
-  type IconWrapperProps
+  pathClassName,
+  staticAnimations,
+  AnimateIcon,
+  IconWrapper,
+  useAnimateIconContext,
+  getVariants,
+  type IconProps,
+  type IconWrapperProps,
+  type AnimateIconProps,
+  type AnimateIconContextValue,
 };
-
