@@ -95,7 +95,23 @@ const articlesRoutes: FastifyPluginAsync = async (fastify) => {
           readTimeMinutes: true,
           createdAt: true,
           updatedAt: true,
-          publishedAt: true
+          publishedAt: true,
+          author: {
+            select: {
+              name: true,
+              firstName: true,
+              lastName: true,
+              image: true
+            }
+          },
+          lastUpdatedBy: {
+            select: {
+              name: true,
+              firstName: true,
+              lastName: true,
+              image: true
+            }
+          }
         },
         orderBy: { [sort]: order },
         skip: (page - 1) * limit,
@@ -180,6 +196,22 @@ const articlesRoutes: FastifyPluginAsync = async (fastify) => {
         },
         include: {
           variants: true,
+          author: {
+            select: {
+              name: true,
+              firstName: true,
+              lastName: true,
+              image: true
+            }
+          },
+          lastUpdatedBy: {
+            select: {
+              name: true,
+              firstName: true,
+              lastName: true,
+              image: true
+            }
+          },
           ...(includeSeo ? { project: true } : {})
         }
       })
