@@ -97,6 +97,100 @@ const cronRoutes: FastifyPluginAsync = async (fastify) => {
       })
     }
   })
+
+  // POST /cron/expire-invitations - Mark expired invitations
+  fastify.post("/cron/expire-invitations", {
+    schema: {
+      headers: {
+        type: "object",
+        properties: {
+          "x-cron-secret": { type: "string" }
+        },
+        required: ["x-cron-secret"]
+      }
+    }
+  }, async (request, reply) => {
+    const cronSecret = request.headers["x-cron-secret"] as string
+    const expectedSecret = process.env.CRON_SECRET
+
+    // Verify cron secret
+    if (!expectedSecret || cronSecret !== expectedSecret) {
+      fastify.log.warn("Unauthorized cron request")
+      return reply.status(401).send({
+        error: "Unauthorized",
+        message: "Invalid cron secret",
+        statusCode: 401
+      })
+    }
+
+    try {
+      const now = new Date()
+      fastify.log.info(`Starting invitation expiration check at ${now.toISOString()}`)
+
+      // Find all pending invitations that have expired
+      const expiredInvitations = await prisma.projectInvitation.findMany({
+        where: {
+          status: "PENDING",
+          expiresAt: {
+            lt: now
+          }
+        },
+        include: {
+          project: {
+            select: {
+              id: true,
+              name: true
+            }
+          }
+        }
+      })
+
+      fastify.log.info(`Found ${expiredInvitations.length} expired invitations`)
+
+      const results = {
+        processed: 0,
+        expired: 0,
+        errors: [] as string[]
+      }
+
+      // Process each expired invitation
+      for (const invitation of expiredInvitations) {
+        try {
+          results.processed++
+
+          // Update invitation status to EXPIRED
+          await prisma.projectInvitation.update({
+            where: { id: invitation.id },
+            data: { status: "EXPIRED" }
+          })
+
+          results.expired++
+          fastify.log.info(`Expired invitation: ${invitation.email} for project ${invitation.project.name} (${invitation.id})`)
+
+        } catch (error) {
+          const errorMsg = `Failed to expire invitation ${invitation.id}: ${error instanceof Error ? error.message : "Unknown error"}`
+          results.errors.push(errorMsg)
+          fastify.log.error(error, `Error expiring invitation ${invitation.id}`)
+        }
+      }
+
+      fastify.log.info(`Cron job completed: ${results.expired}/${results.processed} invitations expired`)
+
+      return {
+        success: true,
+        timestamp: now.toISOString(),
+        results
+      }
+
+    } catch (error) {
+      fastify.log.error(error, "Error in invitation expiration cron job")
+      return reply.status(500).send({
+        error: "Internal Server Error",
+        message: "Failed to process expired invitations",
+        statusCode: 500
+      })
+    }
+  })
 }
 
 export default cronRoutes
