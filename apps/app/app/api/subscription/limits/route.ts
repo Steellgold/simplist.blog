@@ -1,4 +1,5 @@
 import { getCurrentUser } from "@/lib/auth-helper";
+import { hasProjectAccess } from "@/lib/auth/permissions";
 import { prisma } from "@simplist/db";
 import { NextResponse } from "next/server";
 
@@ -18,11 +19,16 @@ export const GET = async (request: Request) => {
       return NextResponse.json({ error: "Project ID is required" }, { status: 400 });
     }
 
+    // Verify user has access to this project (either as owner or member)
+    const hasAccess = await hasProjectAccess(projectId, currentUser.id);
+    if (!hasAccess) {
+      return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    }
+
     // Get project subscription data
-    const project = await prisma.project.findFirst({
+    const project = await prisma.project.findUnique({
       where: {
         id: projectId,
-        userId: currentUser.id,
       },
       select: {
         id: true,

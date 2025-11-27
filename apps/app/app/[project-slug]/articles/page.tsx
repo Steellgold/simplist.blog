@@ -1,6 +1,7 @@
 import { ArticlesClientPage } from "@/components/articles/articles-client-page"
 import { getProjectArticles } from "@/lib/actions/articles"
 import { getCurrentUser } from "@/lib/auth-helper"
+import { getUserProjectMembership } from "@/lib/auth/permissions"
 import { getPlanLimits } from "@/lib/subscription/plans"
 import { prisma } from "@simplist/db"
 import { redirect } from "next/navigation"
@@ -12,15 +13,18 @@ const ArticlesPage = async ({ params }: { params: Promise<{ "project-slug": stri
 
   if (!user) redirect("/auth/login")
 
-  const project = await prisma.project.findFirst({
+  // Find project by slug
+  const project = await prisma.project.findUnique({
     where: {
-      userId: user.id,
       slug: resolvedParams["project-slug"],
     },
-    
   })
 
   if (!project) redirect("/create-project")
+
+  // Verify user has access to this project (either as owner or member)
+  const membership = await getUserProjectMembership(project.id, user.id);
+  if (!membership) redirect("/create-project")
 
   const articles = await getProjectArticles(project.id, user.id)
 

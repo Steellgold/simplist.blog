@@ -155,7 +155,7 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
         status,
         coverImage: defaultVariant.coverImage,
         scheduledPublishAt: status === "scheduled" ? scheduledPublishAt || undefined : undefined,
-        projectId: currentProject?.id,
+        projectId,
         variants: articleVariants.length > 0 ? articleVariants : undefined,
       });
 

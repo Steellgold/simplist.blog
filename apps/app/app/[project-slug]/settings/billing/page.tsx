@@ -1,5 +1,6 @@
 import { BillingClientPage } from "@/components/billing/billing-client-page"
 import { getCurrentUser } from "@/lib/auth-helper"
+import { getUserProjectMembership } from "@/lib/auth/permissions"
 import { prisma, SubscriptionTier } from "@simplist/db"
 import { getProjectBillingHistory, getProjectSubscription } from "@/lib/stripe/actions"
 import { redirect } from "next/navigation"
@@ -10,15 +11,18 @@ const BillingPage = async ({ params }: { params: Promise<{ "project-slug": strin
 
   if (!user) redirect("/auth/login")
 
-  // Get user's project
-  const project = await prisma.project.findFirst({
+  // Get project by slug
+  const project = await prisma.project.findUnique({
     where: {
-      userId: user.id,
       slug: resolvedParams["project-slug"],
     },
   })
 
   if (!project) redirect("/create-project")
+
+  // Verify user has access to this project (either as owner or member)
+  const membership = await getUserProjectMembership(project.id, user.id);
+  if (!membership) redirect("/create-project")
 
   // Fetch billing data in parallel
   const [billingEntries, subscriptionInfo] = await Promise.all([

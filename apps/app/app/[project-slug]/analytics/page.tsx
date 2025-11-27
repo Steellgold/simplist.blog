@@ -3,6 +3,7 @@ import { PageLayout } from "@/components/layout/page-layout"
 import { EmptyProject } from "@/components/projects/empty-project"
 import { getAllProjectAnalytics } from "@/lib/actions/analytics"
 import { getCurrentUser } from "@/lib/auth-helper"
+import { getUserProjectMembership } from "@/lib/auth/permissions"
 import { getProjectSubscription } from "@/lib/subscription/quota-check"
 import { prisma } from "@simplist/db"
 import { redirect } from "next/navigation"
@@ -20,11 +21,14 @@ const AnalyticsPage = async ({ params }: AnalyticsPageProps) => {
   if (!user) redirect("/auth/login");
 
   // Get project from slug
-  const project = await prisma.project.findFirst({
-    where: { slug, userId: user.id },
-    
+  const project = await prisma.project.findUnique({
+    where: { slug },
   })
   if (!project) return <EmptyProject />
+
+  // Verify user has access to this project (either as owner or member)
+  const membership = await getUserProjectMembership(project.id, user.id);
+  if (!membership) return <EmptyProject />
 
   // Check subscription tier - Analytics is PRO only
   const subscription = await getProjectSubscription(project.id)
