@@ -19,6 +19,7 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, Plan> = {
       { name: "Basic analytics", included: true },
       { name: "50MB storage", included: true },
       { name: "1,000 API calls/month", included: true },
+      { name: "Solo mode only", included: true },
       { name: "Language variants", included: false },
     ],
     limits: {
@@ -27,6 +28,7 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, Plan> = {
       maxStorageBytes: 50 * 1024 * 1024, // 50MB
       maxApiCallsPerMonth: 1000,
       maxVariantsPerArticle: 0, // STARTER: No variants allowed
+      maxMembers: 1, // STARTER: Solo mode only (owner)
       features: {
         analytics: false, // Advanced analytics are PRO only
         postVariants: false, // Not available on STARTER
@@ -64,6 +66,7 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, Plan> = {
       { name: "Advanced analytics", included: true },
       { name: "1GB storage", included: true },
       { name: "500,000 API calls/month", included: true },
+      { name: "Up to 10 team members", included: true },
       { name: "Priority support", included: true },
       { name: "Unlimited language variants", included: true },
       { name: "Custom cover images per variant", included: true },
@@ -75,6 +78,7 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, Plan> = {
       maxStorageBytes: 1024 * 1024 * 1024, // 1GB
       maxApiCallsPerMonth: 500000,
       maxVariantsPerArticle: -1, // PRO: unlimited variants per article
+      maxMembers: 10, // PRO: Up to 10 team members
       features: {
         analytics: true, // PRO has full access to advanced analytics
         postVariants: true,

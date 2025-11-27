@@ -23,6 +23,7 @@ export interface PlanLimits {
   maxStorageBytes: number;
   maxApiCallsPerMonth: number;
   maxVariantsPerArticle: number;
+  maxMembers: number;
   features: {
     analytics: boolean;
     postVariants: boolean;
