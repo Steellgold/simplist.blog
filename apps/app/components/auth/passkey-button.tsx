@@ -1,6 +1,7 @@
 "use client"
 
 import { authClient } from "@/lib/auth-client"
+import { getRedirectUrl } from "@/lib/utils"
 import { Button } from "@simplist/ui/components/button"
 import { toast } from "@simplist/ui/components/sonner"
 import { Spinner } from "@simplist/ui/components/spinner"
@@ -29,7 +30,7 @@ export const PasskeyButton = ({ onAuthStart, onAuthEnd, disabled }: PasskeyButto
         toast.error(result.error.message || "Failed to login with Passkey")
       } else {
         toast.success("Logged in successfully with Passkey")
-        router.push("/")
+        router.push(getRedirectUrl())
       }
     } catch (error) {
       console.error("Failed to login with Passkey:", error)

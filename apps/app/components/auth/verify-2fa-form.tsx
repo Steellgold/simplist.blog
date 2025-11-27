@@ -1,6 +1,7 @@
 "use client"
 
 import { authClient } from "@/lib/auth-client"
+import { getRedirectUrl } from "@/lib/utils"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Alert, AlertDescription, AlertTitle } from "@simplist/ui/components/alert"
 import { Button } from "@simplist/ui/components/button"
@@ -68,7 +69,7 @@ export const Verify2FAForm = () => {
             setError(result.error.message || "Invalid code. Please try again.")
             throw new Error(result.error.message || "Invalid code")
           }
-          router.push("/")
+          router.push(getRedirectUrl())
           return result
         }
       ),

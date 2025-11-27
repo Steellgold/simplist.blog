@@ -7,7 +7,7 @@ import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 
 import { authClient } from "@/lib/auth-client"
-import { cn } from "@/lib/utils"
+import { cn, getRedirectUrl } from "@/lib/utils"
 import { LoginInput, loginSchema } from "@/lib/validations/auth"
 import { Alert, AlertDescription, AlertTitle } from "@simplist/ui/components/alert"
 import { Button } from "@simplist/ui/components/button"
@@ -48,11 +48,11 @@ const LoginFormContent = ({ className, ...props }: React.ComponentProps<"div">) 
       ) {
         const available = await window.PublicKeyCredential.isConditionalMediationAvailable()
         if (available) {
-          void authClient.signIn.passkey({ 
+          void authClient.signIn.passkey({
             autoFill: true,
             fetchOptions: {
               onSuccess: () => {
-                router.push("/")
+                router.push(getRedirectUrl())
                 toast.success("Logged in successfully with Passkey")
               },
               onError: (context) => {
@@ -79,7 +79,7 @@ const LoginFormContent = ({ className, ...props }: React.ComponentProps<"div">) 
       }, {
         onSuccess: (context) => {
           if (!context.data.twoFactorRedirect) {
-            router.push("/")
+            router.push(getRedirectUrl())
             toast.success("Logged in successfully")
           }
         },

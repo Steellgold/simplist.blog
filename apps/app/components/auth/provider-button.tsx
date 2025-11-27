@@ -1,7 +1,7 @@
 "use client"
 
 import { authClient } from "@/lib/auth-client"
-import { cn } from "@/lib/utils"
+import { cn, getRedirectUrl } from "@/lib/utils"
 import { Button } from "@simplist/ui/components/button"
 import { Spinner } from "@simplist/ui/components/spinner"
 import { useState } from "react"
@@ -60,7 +60,7 @@ export const ProviderButton = ({
     try {
       await authClient.signIn.social({
         provider: type,
-        callbackURL: "/",
+        callbackURL: getRedirectUrl(),
       })
     } catch (error) {
       console.error(`Failed to login with ${type}:`, error)
