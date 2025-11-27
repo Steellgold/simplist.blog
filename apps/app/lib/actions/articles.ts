@@ -2,6 +2,7 @@
 
 import { assertR2ObjectIsImage, deleteBannerFromR2, getR2PublicUrl } from "@/lib/actions/images"
 import { getCurrentUser } from "@/lib/auth-helper"
+import { requirePermission, hasProjectAccess } from "@/lib/auth/permissions"
 import { checkArticleQuota, checkFeatureAccess, checkVariantQuota } from "@/lib/subscription/quota-check"
 import { type LanguageCode, isValidLanguageCode } from "@/lib/types/languages"
 import { generateSlug } from "@/lib/utils"
@@ -40,22 +41,12 @@ export const createArticle = async (formData: {
   status: "draft" | "published" | "scheduled";
   coverImage?: string;
   scheduledPublishAt?: Date;
-  projectId?: string;
+  projectId: string;
   variants?: ArticleVariantInput[];
 }) => {
-  const user = await getCurrentUser();
+  const { user, membership } = await requirePermission(formData.projectId, "canManageArticles");
 
-  if (!user) redirect("/auth/login");
-
-  // Get the specified project or user's first project (single project mode)
-  const project = await prisma.project.findFirst({
-    where: {
-      userId: user.id,
-      ...(formData.projectId ? { id: formData.projectId } : {}),
-    },
-  });
-
-  if (!project) redirect("/create-project");
+  const project = membership.project;
 
   // Check article quota
   const quotaCheck = await checkArticleQuota(user.id, project.id);
@@ -148,6 +139,7 @@ export const createArticle = async (formData: {
         publishedAt: formData.status === "published" ? new Date() : null,
         scheduledPublishAt: formData.scheduledPublishAt || null,
         projectId: project.id,
+        createdBy: user.id,
         ...stats,
       },
     });
@@ -182,19 +174,14 @@ export const createArticle = async (formData: {
 }
 
 export const updateArticleCoverImage = async (params: { articleId: string; objectKey: string; variantLang?: string }) => {
-  const user = await getCurrentUser()
-  if (!user) {
-    redirect("/auth/login")
-  }
-
-  const article = await prisma.article.findFirst({
+  const article = await prisma.article.findUnique({
     where: { id: params.articleId },
     select: {
       id: true,
       coverImage: true,
+      projectId: true,
       project: {
         select: {
-          userId: true,
           id: true,
           slug: true,
           defaultLanguage: true
@@ -203,9 +190,11 @@ export const updateArticleCoverImage = async (params: { articleId: string; objec
     },
   })
 
-  if (!article || article.project.userId !== user.id) {
-    forbidden()
+  if (!article) {
+    throw new Error("Article not found")
   }
+
+  const { user } = await requirePermission(article.projectId, "canManageArticles")
 
   // Validate the uploaded object is an image
   await assertR2ObjectIsImage(params.objectKey)
@@ -227,7 +216,10 @@ export const updateArticleCoverImage = async (params: { articleId: string; objec
   } else {
     await prisma.article.update({
       where: { id: params.articleId },
-      data: { coverImage: coverImageUrl },
+      data: {
+        coverImage: coverImageUrl,
+        updatedBy: user.id,
+      },
     })
   }
 
@@ -237,12 +229,7 @@ export const updateArticleCoverImage = async (params: { articleId: string; objec
 }
 
 export const removeArticleCoverImage = async (articleId: string, variantLang?: string) => {
-  const user = await getCurrentUser()
-  if (!user) {
-    redirect("/auth/login")
-  }
-
-  const article = await prisma.article.findFirst({
+  const article = await prisma.article.findUnique({
     where: { id: articleId },
     select: {
       id: true,
@@ -256,7 +243,6 @@ export const removeArticleCoverImage = async (articleId: string, variantLang?: s
       },
       project: {
         select: {
-          userId: true,
           slug: true,
           defaultLanguage: true
         }
@@ -264,9 +250,11 @@ export const removeArticleCoverImage = async (articleId: string, variantLang?: s
     },
   })
 
-  if (!article || article.project.userId !== user.id) {
-    forbidden()
+  if (!article) {
+    throw new Error("Article not found")
   }
+
+  const { user } = await requirePermission(article.projectId, "canManageArticles")
 
   // Determine which cover image URL to delete
   let coverImageToDelete: string | null = null
@@ -295,7 +283,10 @@ export const removeArticleCoverImage = async (articleId: string, variantLang?: s
 
     await prisma.article.update({
       where: { id: articleId },
-      data: { coverImage: null },
+      data: {
+        coverImage: null,
+        updatedBy: user.id,
+      },
     })
   }
 
@@ -328,14 +319,9 @@ export const getProjectArticles = async (projectId: string, userId?: string) => 
 
     userId = user.id
 
-    const project = await prisma.project.findFirst({
-      where: {
-        id: projectId,
-        userId: user.id,
-      },
-    })
-
-    if (!project) forbidden();
+    // Verify user has access to this project (either as owner or member)
+    const hasAccess = await hasProjectAccess(projectId, user.id);
+    if (!hasAccess) forbidden();
   }
 
   const articles = await prisma.article.findMany({
@@ -364,6 +350,8 @@ export const getProjectArticles = async (projectId: string, userId?: string) => 
       scheduledPublishAt: true,
       deletedAt: true,
       projectId: true,
+      createdBy: true,
+      updatedBy: true,
       variants: {
         select: {
           lang: true,
@@ -502,14 +490,17 @@ export const getArticleBySlug = async (slug: string) => {
   const article = await prisma.article.findFirst({
     where: {
       slug,
-      project: {
-        userId: user.id, // Ensure user owns the project
-      },
     },
     include: {
       project: true,
     },
   })
+
+  if (!article) return null;
+
+  // Verify user has access to this article's project (either as owner or member)
+  const hasAccess = await hasProjectAccess(article.projectId, user.id);
+  if (!hasAccess) return null;
 
   return article
 }
@@ -524,14 +515,17 @@ export const getDeletedArticleBySlug = async (slug: string) => {
     where: {
       slug,
       status: "deleted",
-      project: {
-        userId: user.id, // Ensure user owns the project
-      },
     },
     include: {
       project: true,
     },
   })
+
+  if (!article) return null;
+
+  // Verify user has access to this article's project (either as owner or member)
+  const hasAccess = await hasProjectAccess(article.projectId, user.id);
+  if (!hasAccess) return null;
 
   return article
 }
@@ -544,12 +538,7 @@ export const updateArticle = async (articleId: string, formData: {
   scheduledPublishAt?: Date | null
   variants?: ArticleVariantInput[]
 }) => {
-  const user = await getCurrentUser()
-  if (!user) {
-    redirect("/auth/login")
-  }
-
-  const article = await prisma.article.findFirst({
+  const article = await prisma.article.findUnique({
     where: { id: articleId },
     select: {
       id: true,
@@ -558,7 +547,6 @@ export const updateArticle = async (articleId: string, formData: {
       project: {
         select: {
           id: true,
-          userId: true,
           subscriptionTier: true,
           slug: true
         }
@@ -566,9 +554,11 @@ export const updateArticle = async (articleId: string, formData: {
     },
   })
 
-  if (!article || article.project.userId !== user.id) {
-    forbidden()
+  if (!article) {
+    throw new Error("Article not found")
   }
+
+  const { user } = await requirePermission(article.projectId, "canManageArticles")
 
   // Validate scheduled publishing
   if (formData.status === "scheduled") {
@@ -619,6 +609,7 @@ export const updateArticle = async (articleId: string, formData: {
         published: formData.status === "published",
         publishedAt: formData.status === "published" && !article.publishedAt ? new Date() : article.publishedAt,
         scheduledPublishAt: formData.scheduledPublishAt,
+        updatedBy: user.id,
         ...stats,
       },
     });
@@ -660,31 +651,27 @@ export const updateArticle = async (articleId: string, formData: {
 }
 
 export const deleteArticle = async (articleId: string) => {
-  const user = await getCurrentUser()
-
-  if (!user) {
-    redirect("/auth/login")
-  }
-
   // Verify the article belongs to the user's project
-  const article = await prisma.article.findFirst({
+  const article = await prisma.article.findUnique({
     where: {
       id: articleId,
     },
     select: {
       id: true,
+      projectId: true,
       project: {
         select: {
-          userId: true,
           slug: true,
         },
       },
     },
   })
 
-  if (!article || article.project.userId !== user.id) {
-    throw new Error("Article not found or you don't have permission")
+  if (!article) {
+    throw new Error("Article not found")
   }
+
+  await requirePermission(article.projectId, "canManageArticles")
 
   // Soft delete: update status and deletedAt instead of deleting
   await prisma.article.update({
@@ -702,29 +689,11 @@ export const deleteArticle = async (articleId: string) => {
 }
 
 export const bulkDeleteArticles = async (articleIds: string[]) => {
-  const user = await getCurrentUser()
-
-  if (!user) {
-    redirect("/auth/login")
+  if (!articleIds || articleIds.length === 0) {
+    throw new Error("No articles specified for deletion")
   }
 
-  // Get project ID from first article
-  const firstArticle = await prisma.article.findFirst({
-    where: { id: articleIds[0] },
-    select: { projectId: true },
-  });
-
-  if (!firstArticle) notFound();
-
-  // Check if user has access to bulk operations
-  const hasBulkAccess = await checkFeatureAccess(user.id, firstArticle.projectId, "bulkOperations");
-  if (!hasBulkAccess) {
-    throw new Error("Bulk delete is a Pro feature. Upgrade to Pro to delete multiple articles at once.");
-  }
-
-  if (!articleIds || articleIds.length === 0) forbidden();
-
-  // Verify all articles belong to the user's projects
+  // Verify all articles exist and belong to the same project
   const articles = await prisma.article.findMany({
     where: {
       id: {
@@ -733,27 +702,35 @@ export const bulkDeleteArticles = async (articleIds: string[]) => {
     },
     select: {
       id: true,
+      projectId: true,
       project: {
         select: {
-          userId: true,
           slug: true,
         },
       },
     },
   })
 
-  // Check if all articles belong to user
-  const unauthorizedArticles = articles.filter(
-    (article) => article.project.userId !== user.id
-  )
-
-  if (unauthorizedArticles.length > 0) {
-    throw new Error("You don't have permission to delete some of these articles")
-  }
-
   // Verify count matches (no missing articles)
   if (articles.length !== articleIds.length) {
     throw new Error("Some articles were not found")
+  }
+
+  // Verify all articles belong to the same project
+  const projectIds = new Set(articles.map(a => a.projectId))
+  if (projectIds.size !== 1) {
+    throw new Error("All articles must belong to the same project")
+  }
+
+  const projectId = articles[0].projectId
+
+  // Check permission for the project
+  const { user } = await requirePermission(projectId, "canManageArticles")
+
+  // Check if user has access to bulk operations
+  const hasBulkAccess = await checkFeatureAccess(user.id, projectId, "bulkOperations");
+  if (!hasBulkAccess) {
+    throw new Error("Bulk delete is a Pro feature. Upgrade to Pro to delete multiple articles at once.");
   }
 
   // Soft delete all articles
@@ -776,11 +753,6 @@ export const bulkDeleteArticles = async (articleIds: string[]) => {
 }
 
 export const restoreArticle = async (articleId: string) => {
-  const user = await getCurrentUser()
-  if (!user) {
-    redirect("/auth/login")
-  }
-
   // Verify the article belongs to the user's project and is deleted
   const article = await prisma.article.findFirst({
     where: {
@@ -790,16 +762,20 @@ export const restoreArticle = async (articleId: string) => {
     select: {
       id: true,
       status: true,
+      projectId: true,
       project: {
         select: {
-          userId: true,
           slug: true,
         },
       },
     },
   })
 
-  if (!article || article.project.userId !== user.id) forbidden();
+  if (!article) {
+    throw new Error("Article not found or not deleted")
+  }
+
+  const { user } = await requirePermission(article.projectId, "canManageArticles")
 
   // Restore the article by updating its status and clearing deletedAt
   await prisma.article.update({
@@ -809,6 +785,7 @@ export const restoreArticle = async (articleId: string) => {
     data: {
       status: "draft", // Restore as draft by default
       deletedAt: null,
+      updatedBy: user.id,
     },
   })
 

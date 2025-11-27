@@ -1,6 +1,7 @@
 "use server";
 
 import { getCurrentUser } from "@/lib/auth-helper";
+import { hasProjectAccess } from "@/lib/auth/permissions";
 import { prisma } from "@simplist/db";
 import { notFound, unauthorized } from "next/navigation";
 
@@ -44,11 +45,14 @@ export const getDashboardData = async (
     const user = await getCurrentUser();
     if (!user) unauthorized();
 
-    // Fetch project with ownership verification
-    const project = await prisma.project.findFirst({
+    // Verify user has access to this project (either as owner or member)
+    const hasAccess = await hasProjectAccess(projectId, user.id);
+    if (!hasAccess) return notFound();
+
+    // Fetch project data
+    const project = await prisma.project.findUnique({
       where: {
         id: projectId,
-        userId: user.id,
       },
       select: {
         id: true,
@@ -60,7 +64,6 @@ export const getDashboardData = async (
         subscriptionExpiresAt: true,
         totalStorageUsed: true,
       },
-      
     });
 
     if (!project) return notFound();

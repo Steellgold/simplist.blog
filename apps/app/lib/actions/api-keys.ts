@@ -1,11 +1,10 @@
 "use server"
 
-import { getCurrentUser } from "@/lib/auth-helper"
+import { requirePermission } from "@/lib/auth/permissions"
 import { checkApiKeyQuota, checkFeatureAccess } from "@/lib/subscription/quota-check"
 import { createApiKeySchema } from "@/lib/validations/api-key"
 import { apiKeyCache, prisma } from "@simplist/db"
 import { revalidatePath } from "next/cache"
-import { forbidden, notFound, redirect } from "next/navigation"
 
 // Generate a random API key
 const generateApiKey = (type: "secret" | "public" = "secret"): string => {
@@ -18,23 +17,7 @@ const generateApiKey = (type: "secret" | "public" = "secret"): string => {
 }
 
 export const getProjectApiKeys = async (projectId: string) => {
-  const user = await getCurrentUser()
-
-  if (!user) {
-    redirect("/auth/login")
-  }
-
-  // Verify the project belongs to the user
-  const project = await prisma.project.findFirst({
-    where: {
-      id: projectId,
-      userId: user.id,
-    },
-  })
-
-  if (!project) {
-    throw new Error("Project not found or you don't have permission")
-  }
+  await requirePermission(projectId, "canManageApiKeys");
 
   const apiKeys = await prisma.apiKey.findMany({
     where: {
@@ -55,39 +38,39 @@ export const getProjectApiKeys = async (projectId: string) => {
       status: true,
       createdAt: true,
     }
-  })
+  });
 
-  return apiKeys
+  return apiKeys;
 }
 
 export const createApiKey = async (projectId: string, input: { name: string; type?: "secret" | "public"; expiresInDays?: number | null }) => {
-  const user = await getCurrentUser()
+  const { user } = await requirePermission(projectId, "canManageApiKeys");
 
-  if (!user) {
-    redirect("/auth/login")
+  // Get project for slug (needed for revalidatePath)
+  const project = await prisma.project.findUnique({
+    where: { id: projectId },
+    select: { slug: true },
+  });
+
+  if (!project) {
+    throw new Error("Project not found");
   }
-
-  // Verify the project belongs to the user
-  const project = await prisma.project.findFirst({
-    where: {
-      id: projectId,
-      userId: user.id,
-    },
-  })
-
-  if (!project) return notFound();
 
   // Check API key quota
   const quotaCheck = await checkApiKeyQuota(user.id, projectId);
-  if (!quotaCheck.allowed) forbidden();
+  if (!quotaCheck.allowed) {
+    throw new Error(quotaCheck.reason || "API key quota exceeded");
+  }
 
   // Validate input
-  const validatedData = createApiKeySchema.parse(input)
+  const validatedData = createApiKeySchema.parse(input);
 
   // Check if custom expiration is allowed (Pro feature)
   if (validatedData.expiresInDays && validatedData.expiresInDays > 0) {
     const hasCustomExpiration = await checkFeatureAccess(user.id, projectId, "bulkOperations");
-    if (!hasCustomExpiration) forbidden();
+    if (!hasCustomExpiration) {
+      throw new Error("Custom expiration is a Pro feature");
+    }
   }
 
   // Generate unique API key
@@ -122,30 +105,43 @@ export const createApiKey = async (projectId: string, input: { name: string; typ
     // Ignore cache invalidation errors
   })
 
-  revalidatePath(`/${project.slug}`, "layout")
-  revalidatePath(`/${project.slug}/api-keys`, "page")
-  return newApiKey
+  revalidatePath(`/${project.slug}`, "layout");
+  revalidatePath(`/${project.slug}/api-keys`, "page");
+  return newApiKey;
 }
 
 export const deleteApiKey = async (apiKeyId: string) => {
-  const user = await getCurrentUser()
+  // Get the API key first to find its project
+  const apiKey = await prisma.apiKey.findUnique({
+    where: { id: apiKeyId },
+    select: {
+      id: true,
+      key: true,
+      projectId: true,
+      status: true,
+    },
+  });
 
-  if (!user) {
-    redirect("/auth/login")
+  if (!apiKey) {
+    throw new Error("API key not found");
   }
 
-  // Verify the API key belongs to a project owned by the user
-  const apiKey = await prisma.apiKey.findFirst({
-    where: {
-      id: apiKeyId,
-      status: "active", // Only allow deleting active keys
-    },
-    include: {
-      project: true,
-    },
-  })
+  if (apiKey.status !== "active") {
+    throw new Error("Only active API keys can be deleted");
+  }
 
-  if (!apiKey || apiKey.project.userId !== user.id) forbidden()
+  // Check permission
+  await requirePermission(apiKey.projectId, "canManageApiKeys");
+
+  // Get project for revalidation
+  const project = await prisma.project.findUnique({
+    where: { id: apiKey.projectId },
+    select: { slug: true },
+  });
+
+  if (!project) {
+    throw new Error("Project not found");
+  }
 
   // Soft delete: update status and set deletedAt
   await prisma.apiKey.update({
@@ -156,13 +152,13 @@ export const deleteApiKey = async (apiKeyId: string) => {
       status: "deleted",
       deletedAt: new Date(),
     },
-  })
+  });
 
   // Invalidate cache for the deleted API key (fire and forget)
   apiKeyCache.invalidate(apiKey.key).catch(() => {
     // Ignore cache invalidation errors
-  })
+  });
 
-  revalidatePath(`/${apiKey.project.slug}`, "layout")
-  revalidatePath(`/${apiKey.project.slug}/api-keys`, "page")
+  revalidatePath(`/${project.slug}`, "layout");
+  revalidatePath(`/${project.slug}/api-keys`, "page");
 }

@@ -1,6 +1,7 @@
 "use server"
 
 import { getCurrentUser } from '@/lib/auth-helper'
+import { hasProjectAccess } from '@/lib/auth/permissions'
 import { analyticsCacheUtils, apiKeyCache, prisma, Prisma } from '@simplist/db'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
@@ -668,16 +669,9 @@ export const enableAnalytics = async (projectId: string) => {
     redirect("/auth/login")
   }
 
-
-  // Verify the project belongs to the user
-  const project = await prisma.project.findFirst({
-    where: {
-      id: projectId,
-      userId: user.id,
-    },
-  })
-
-  if (!project) {
+  // Verify user has access to this project (either as owner or member)
+  const hasAccess = await hasProjectAccess(projectId, user.id);
+  if (!hasAccess) {
     throw new Error("Project not found or you don't have permission")
   }
 
@@ -735,15 +729,9 @@ export const getAnalyticsApiKey = async (projectId: string) => {
     redirect("/auth/login")
   }
 
-  // Verify the project belongs to the user
-  const project = await prisma.project.findFirst({
-    where: {
-      id: projectId,
-      userId: user.id,
-    },
-  })
-
-  if (!project) {
+  // Verify user has access to this project (either as owner or member)
+  const hasAccess = await hasProjectAccess(projectId, user.id);
+  if (!hasAccess) {
     throw new Error("Project not found or you don't have permission")
   }
 
