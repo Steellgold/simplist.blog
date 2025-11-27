@@ -141,7 +141,22 @@ console.log(response.meta) // Pagination info
 
 ```typescript
 const response = await client.articles.get('article-slug')
-console.log(response.data) // Full article with content
+const article = response.data
+
+// Full article with content
+console.log(article.title)
+console.log(article.content)
+
+// Author information
+console.log(article.author.name)        // Author's full name
+console.log(article.author.firstName)   // Author's first name (if set)
+console.log(article.author.lastName)    // Author's last name (if set)
+console.log(article.author.image)       // Author's profile picture URL (if set)
+
+// Last editor information (null if article was never updated)
+if (article.lastUpdatedBy) {
+  console.log(article.lastUpdatedBy.name) // Last editor's name
+}
 ```
 
 #### Convenience Methods
@@ -453,6 +468,7 @@ import type {
   Article,
   ArticleVariant,
   ArticleListItem,
+  Author,
   ProjectInfo,
   PageViewData,
   PageEvent,
@@ -466,6 +482,15 @@ import type {
 const articles: ArticleListItem[] = response.data
 const article: Article = singleResponse.data
 const analytics: AnalyticsStats = analyticsResponse
+
+// Author information
+const author: Author = article.author
+console.log(author.name)
+console.log(author.firstName, author.lastName)
+console.log(author.image)
+
+// Last updated by (may be null if never updated)
+const lastEditor: Author | null = article.lastUpdatedBy
 
 // Variant types
 const variant: ArticleVariant = article.variants?.fr

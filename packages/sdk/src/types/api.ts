@@ -33,6 +33,14 @@ export interface ArticleVariant {
   updatedAt: string
 }
 
+// Author type
+export interface Author {
+  name: string
+  firstName: string | null
+  lastName: string | null
+  image: string | null
+}
+
 // Article types
 export interface Article {
   id: string
@@ -48,6 +56,8 @@ export interface Article {
   characterCount: number
   lineCount: number
   readTimeMinutes: number
+  author: Author
+  lastUpdatedBy: Author | null
   createdAt: string
   updatedAt: string
   publishedAt: string | null
