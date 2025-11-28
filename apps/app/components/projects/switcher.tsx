@@ -73,6 +73,7 @@ export const ProjectSwitcher = ({
                   <MiniBadge tier={isPro ? "LPRO" : "LSTARTER"} size="md" />
                 </div>
               </div>
+
               <ChevronsUpDown className="ml-auto group-data-[collapsible=icon]:hidden" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
@@ -86,16 +87,18 @@ export const ProjectSwitcher = ({
             <DropdownMenuLabel className="text-xs text-muted-foreground">
               Projects
             </DropdownMenuLabel>
+
             {projects.map((project) => (
               <DropdownMenuItem
                 key={project.id}
                 onClick={() => handleProjectChange(project)}
                 className="gap-2 p-2"
               >
-                <div className="flex size-6 items-center justify-center rounded-sm bg-sidebar-primary text-sidebar-primary-foreground overflow-hidden">
+                <div className="flex size-6 items-center justify-center text-sidebar-primary-foreground overflow-hidden">
                   <ProjectIconAvatar
                     project={project} 
                     size="xs"
+                    roundedSize="xs"
                   />
                 </div>
                 <div className="flex flex-row items-center gap-2 justify-between w-full">

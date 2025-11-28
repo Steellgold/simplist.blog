@@ -39,19 +39,25 @@ export const UserIconAvatar: FC<Props> = ({ user, size = "md", rounded = 60 }) =
 type ProjectProps = {
   project: Project | null;
   size?: "xs" | "sm" | "md" | "lg";
+  roundedSize?: "xs" | "sm" | "md" | "lg";
 }
 
-export const ProjectIconAvatar: FC<ProjectProps> = ({ project, size = "md" }) => {
+export const ProjectIconAvatar: FC<ProjectProps> = ({ project, size = "md", roundedSize = "lg" }) => {
   if (!project) {
     return <></>;
   }
 
   return (
-    <Avatar className={cn("rounded-lg", {
+    <Avatar className={cn({
       "size-4": size === "xs",
       "size-6": size === "sm",
       "size-8": size === "md",
-      "size-10": size === "lg"
+      "size-10": size === "lg",
+      // 
+      "rounded-xs": roundedSize === "xs",
+      "rounded-sm": roundedSize === "sm",
+      "rounded-md": roundedSize === "md",
+      "rounded-lg": roundedSize === "lg",
     })}>
       <AvatarImage
         src={project.icon ? project.icon : `https://avatar.vercel.sh/${project.name.toLowerCase().replaceAll(" ", "")}`}
@@ -60,7 +66,12 @@ export const ProjectIconAvatar: FC<ProjectProps> = ({ project, size = "md" }) =>
         height={32}
       />
 
-      <AvatarFallback className="rounded-lg">
+      <AvatarFallback className={cn({
+        "rounded-xs": roundedSize === "xs",
+        "rounded-sm": roundedSize === "sm",
+        "rounded-md": roundedSize === "md",
+        "rounded-lg": roundedSize === "lg",
+      })}>
         {getUserInitials(project.name)}
       </AvatarFallback>
     </Avatar>
