@@ -3,10 +3,16 @@
 import { useProjectContext } from "@/components/projects/context-provider"
 
 export const useProject = () => {
-  const { currentProject, projects } = useProjectContext()
+  const {
+    currentProject, projects,
+    currentMember,
+    currentMemberId
+  } = useProjectContext()
 
   return {
     currentProject,
-    projects
+    projects,
+    currentMember,
+    currentMemberId
   }
 }
