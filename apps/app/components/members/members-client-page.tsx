@@ -174,7 +174,7 @@ export const MembersClientPage = ({
                     <div className="flex items-center gap-3">
                       <Avatar className="rounded-sm">
                         <AvatarImage src={member.image || undefined} alt={member.name || undefined} />
-                        <AvatarFallback>{getInitials(member.name)}</AvatarFallback>
+                        <AvatarFallback className="rounded-sm">{getInitials(member.name)}</AvatarFallback>
                       </Avatar>
 
                       <div>
@@ -192,7 +192,7 @@ export const MembersClientPage = ({
                       {!member.role.isOwner && (
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
+                            <Button variant="ghost" size="icon-sm">
                               <MoreVertical />
                             </Button>
                           </DropdownMenuTrigger>
