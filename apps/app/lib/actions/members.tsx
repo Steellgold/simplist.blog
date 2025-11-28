@@ -80,6 +80,65 @@ export const getProjectInvitations = async (projectId: string) => {
 };
 
 /**
+ * Gets pending invitations for the current user
+ */
+export const getUserPendingInvitations = async () => {
+  const user = await getCurrentUser();
+  if (!user) return [];
+
+  const invitations = await prisma.projectInvitation.findMany({
+    where: {
+      email: user.email,
+      status: "PENDING",
+      expiresAt: {
+        gt: new Date(),
+      },
+    },
+    include: {
+      project: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          icon: true,
+        },
+      },
+    },
+    orderBy: {
+      invitedAt: "desc",
+    },
+  });
+
+  // Fetch roles separately
+  const roleIds = invitations.map((inv) => inv.roleId);
+  const roles = await prisma.projectRole.findMany({
+    where: {
+      id: {
+        in: roleIds,
+      },
+    },
+    select: {
+      id: true,
+      name: true,
+    },
+  });
+
+  const roleMap = new Map(roles.map((role) => [role.id, role.name]));
+
+  return invitations.map((inv) => ({
+    id: inv.id,
+    token: inv.token,
+    projectId: inv.project.id,
+    projectName: inv.project.name,
+    projectSlug: inv.project.slug,
+    projectIcon: inv.project.icon,
+    roleName: roleMap.get(inv.roleId) || "Member",
+    invitedAt: inv.invitedAt,
+    expiresAt: inv.expiresAt,
+  }));
+};
+
+/**
  * Invites a member to join the project
  */
 export const inviteProjectMember = async (

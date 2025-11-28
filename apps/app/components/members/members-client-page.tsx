@@ -127,8 +127,8 @@ export const MembersClientPage = ({
     )
   }
 
-  const handleInviteSuccess = (newInvitation: ProjectInvitation) => {
-    setInvitations(prev => [newInvitation, ...prev])
+  const handleInviteSuccess = () => {
+    // Router refresh is handled in the dialog
   }
 
   const getInitials = (name: string | null) => {
@@ -157,7 +157,7 @@ export const MembersClientPage = ({
         <Card>
           <CardHeader>
             <CardTitle>
-              {members.length > 0 ? `Team Members (${members.length})` : "Team members"}
+              {members.length > 1 ? `Team Members (${members.length})` : "Team members"}
             </CardTitle>
 
             <CardDescription>

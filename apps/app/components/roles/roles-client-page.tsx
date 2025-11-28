@@ -3,7 +3,7 @@
 import { PageLayout } from "@/components/layout/page-layout"
 import { Button } from "@simplist/ui/components/button"
 import { MiniBadge } from "@/components/ui/mini-badge"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@simplist/ui/components/card"
+import { Card, CardContent } from "@simplist/ui/components/card"
 import { Badge } from "@simplist/ui/components/badge"
 import {
   DropdownMenu,
@@ -15,11 +15,12 @@ import {
 import { toast } from "@simplist/ui/components/sonner"
 import { ConfirmDialog } from "@simplist/ui/components/confirm-dialog"
 import { deleteProjectRole } from "@/lib/actions/roles"
-import { Lock, MoreVertical, Pencil, Plus, Trash2 } from "lucide-react"
+import { Lock, MoreVertical, Pencil, Plus, SearchX, Trash2 } from "lucide-react"
 import { useState } from "react"
 import { CreateRoleDialog } from "@/components/roles/create-role-dialog"
 import { EditRoleDialog } from "@/components/roles/edit-role-dialog"
 import type { ProjectRole } from "@simplist/db"
+import { Empty, EmptyHeader, EmptyMedia } from "@simplist/ui/components/empty"
 
 type RolesClientPageProps = {
   project: {
@@ -89,8 +90,8 @@ export const RolesClientPage = ({ project, roles: initialRoles }: RolesClientPag
 
   return (
     <PageLayout
-      title="Roles & Permissions"
-      description={`Manage roles and permissions for ${project.name}`}
+      title="Access Control"
+      description={`Manage access to ${project.name}`}
       centered
       actions={
         <Button
@@ -108,15 +109,15 @@ export const RolesClientPage = ({ project, roles: initialRoles }: RolesClientPag
       }
     >
       <Card>
-        <CardHeader>
-          <CardTitle>Project Roles</CardTitle>
-          <CardDescription>
-            Define custom roles with specific permissions for your team members
-          </CardDescription>
-        </CardHeader>
         <CardContent>
           {roles.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">No roles found</div>
+            <Empty className="flex min-h-[calc(90vh-4rem)] items-center justify-center h-full">
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <SearchX />
+                </EmptyMedia>
+              </EmptyHeader>
+            </Empty>
           ) : (
             <div className="divide-y">
               {roles.map((role) => {
@@ -140,16 +141,19 @@ export const RolesClientPage = ({ project, roles: initialRoles }: RolesClientPag
                           )}
                         </div>
 
-                        <p className="text-sm text-muted-foreground">
-                          {permissions.length > 0 ? (
-                            <>
-                              {permissions.slice(0, 3).join(", ")}
-                              {permissions.length > 3 && ` +${permissions.length - 3} more`}
-                            </>
-                          ) : (
-                            "No permissions"
-                          )}
-                        </p>
+                        <div className="flex items-center space-x-3">
+                          <div>
+                            {permissions.slice(0, 3).map((permission) => (
+                              <Badge key={permission} variant="outline" className="text-xs">
+                                {permission}
+                              </Badge>
+                            ))}
+                          </div>
+
+                          <p className="text-sm text-muted-foreground">
+                            {permissions.length > 3 && ` +${permissions.length - 3} more`}
+                          </p>
+                        </div>
                       </div>
 
                       {!role.isOwner && (
@@ -178,16 +182,6 @@ export const RolesClientPage = ({ project, roles: initialRoles }: RolesClientPag
                         </DropdownMenu>
                       )}
                     </div>
-
-                    {permissions.length > 3 && (
-                      <div className="mt-2 flex flex-wrap gap-1">
-                        {permissions.map((permission) => (
-                          <Badge key={permission} variant="outline" className="text-xs">
-                            {permission}
-                          </Badge>
-                        ))}
-                      </div>
-                    )}
                   </div>
                 )
               })}

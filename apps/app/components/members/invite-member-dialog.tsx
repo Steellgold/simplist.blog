@@ -9,7 +9,6 @@ import {
   DialogHeader,
   DialogTitle
 } from "@simplist/ui/components/dialog"
-import { Input } from "@simplist/ui/components/input"
 import { Label } from "@simplist/ui/components/label"
 import {
   Select,
@@ -18,10 +17,13 @@ import {
   SelectTrigger,
   SelectValue
 } from "@simplist/ui/components/select"
+import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@simplist/ui/components/input-group"
 import { toast } from "@simplist/ui/components/sonner"
 import { Spinner } from "@simplist/ui/components/spinner"
 import { inviteProjectMember } from "@/lib/actions/members"
 import { useState } from "react"
+import { Plus, X } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 type Role = {
   id: string
@@ -35,31 +37,86 @@ type InviteMemberDialogProps = {
   projectId: string
   roles: Role[]
   onClose: () => void
-  onSuccess: (invitation: any) => void
+  onSuccess?: () => void
+}
+
+type EmailInvitation = {
+  email: string
+  roleId: string
 }
 
 export const InviteMemberDialog = ({ projectId, roles, onClose, onSuccess }: InviteMemberDialogProps) => {
-  const [email, setEmail] = useState("")
-  const [roleId, setRoleId] = useState(roles[0]?.id || "")
+  const router = useRouter()
+  const [invitations, setInvitations] = useState<EmailInvitation[]>([
+    { email: "", roleId: roles[0]?.id || "" }
+  ])
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const addInvitation = () => {
+    setInvitations([...invitations, { email: "", roleId: roles[0]?.id || "" }])
+  }
+
+  const removeInvitation = (index: number) => {
+    if (invitations.length > 1) {
+      setInvitations(invitations.filter((_, i) => i !== index))
+    }
+  }
+
+  const updateEmail = (index: number, value: string) => {
+    const newInvitations = [...invitations]
+    newInvitations[index].email = value
+    setInvitations(newInvitations)
+  }
+
+  const updateRole = (index: number, roleId: string) => {
+    const newInvitations = [...invitations]
+    newInvitations[index].roleId = roleId
+    setInvitations(newInvitations)
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!email || !roleId) {
-      toast.error("Please fill in all fields")
+    // Filter out empty emails
+    const validInvitations = invitations.filter(inv => inv.email.trim() !== "" && inv.roleId)
+
+    if (validInvitations.length === 0) {
+      toast.error("Please enter at least one email address")
       return
     }
 
     setIsSubmitting(true)
 
     try {
-      const invitation = await inviteProjectMember(projectId, { email, roleId })
-      toast.success(`Invitation sent to ${email}`)
-      onSuccess(invitation)
-      onClose()
+      let successCount = 0
+      let failCount = 0
+      const errors: string[] = []
+
+      for (const invitation of validInvitations) {
+        try {
+          await inviteProjectMember(projectId, {
+            email: invitation.email.trim(),
+            roleId: invitation.roleId
+          })
+          successCount++
+        } catch (error) {
+          failCount++
+          errors.push(`${invitation.email}: ${error instanceof Error ? error.message : "Failed"}`)
+        }
+      }
+
+      if (successCount > 0) {
+        toast.success(`${successCount} invitation${successCount > 1 ? "s" : ""} sent successfully`)
+        router.refresh()
+        if (onSuccess) onSuccess()
+        onClose()
+      }
+
+      if (failCount > 0) {
+        errors.forEach(error => toast.error(error))
+      }
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to send invitation")
+      toast.error(error instanceof Error ? error.message : "Failed to send invitations")
     } finally {
       setIsSubmitting(false)
     }
@@ -72,40 +129,72 @@ export const InviteMemberDialog = ({ projectId, roles, onClose, onSuccess }: Inv
           <DialogHeader>
             <DialogTitle>Invite Team Member</DialogTitle>
             <DialogDescription>
-              Send an invitation to collaborate on this project. They'll receive an email with a link to join.
+              Send invitations to collaborate on this project. Each person will receive an email with a link to join.
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email address</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="colleague@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={isSubmitting}
-                required
-              />
-            </div>
+              <Label>Invitations</Label>
+              <div className="space-y-2">
+                {invitations.map((invitation, index) => (
+                  <InputGroup key={index}>
+                    <InputGroupAddon>
+                      <Select
+                        value={invitation.roleId}
+                        onValueChange={(value) => updateRole(index, value)}
+                        disabled={isSubmitting}
+                      >
+                        <SelectTrigger className="border-0 focus:ring-0 h-auto w-[140px]">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {roles.map((role) => (
+                            <SelectItem key={role.id} value={role.id}>
+                              {role.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </InputGroupAddon>
 
-            <div className="space-y-2">
-              <Label htmlFor="role">Role</Label>
-              <Select value={roleId} onValueChange={setRoleId} disabled={isSubmitting}>
-                <SelectTrigger id="role">
-                  <SelectValue placeholder="Select a role" />
-                </SelectTrigger>
-                <SelectContent>
-                  {roles.map((role) => (
-                    <SelectItem key={role.id} value={role.id}>
-                      {role.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                    <InputGroupInput
+                      type="email"
+                      placeholder="colleague@example.com"
+                      value={invitation.email}
+                      onChange={(e) => updateEmail(index, e.target.value)}
+                      disabled={isSubmitting}
+                    />
+
+                    {invitations.length > 1 && (
+                      <InputGroupAddon align="inline-end">
+                        <InputGroupButton
+                          type="button"
+                          variant="outline"
+                          onClick={() => removeInvitation(index)}
+                          disabled={isSubmitting}
+                        >
+                          <X className="h-4 w-4" />
+                        </InputGroupButton>
+                      </InputGroupAddon>
+                    )}
+                  </InputGroup>
+                ))}
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={addInvitation}
+                  disabled={isSubmitting}
+                  className="w-full"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Another Invitation
+                </Button>
+              </div>
               <p className="text-sm text-muted-foreground">
-                The role determines what permissions this member will have.
+                Each person will receive an email with a link to join your project.
               </p>
             </div>
           </div>
@@ -121,7 +210,7 @@ export const InviteMemberDialog = ({ projectId, roles, onClose, onSuccess }: Inv
                   Sending...
                 </>
               ) : (
-                "Send Invitation"
+                `Send Invitation${invitations.filter(inv => inv.email.trim()).length > 1 ? "s" : ""}`
               )}
             </Button>
           </DialogFooter>

@@ -64,8 +64,8 @@ export const CreateRoleDialog = ({ projectId, onClose, onSuccess }: CreateRoleDi
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!name || !slug) {
-      toast.error("Please fill in all required fields")
+    if (!name) {
+      toast.error("Please enter a role name")
       return
     }
 
@@ -99,33 +99,16 @@ export const CreateRoleDialog = ({ projectId, onClose, onSuccess }: CreateRoleDi
           </DialogHeader>
 
           <div className="space-y-6 py-4">
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Role name</Label>
-                <Input
-                  id="name"
-                  placeholder="e.g., Content Manager"
-                  value={name}
-                  onChange={(e) => handleNameChange(e.target.value)}
-                  disabled={isSubmitting}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="slug">Slug</Label>
-                <Input
-                  id="slug"
-                  placeholder="content-manager"
-                  value={slug}
-                  onChange={(e) => setSlug(e.target.value)}
-                  disabled={isSubmitting}
-                  required
-                />
-                <p className="text-sm text-muted-foreground">
-                  Lowercase letters, numbers, and dashes only
-                </p>
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="name">Role name</Label>
+              <Input
+                id="name"
+                placeholder="e.g., Content Manager"
+                value={name}
+                onChange={(e) => handleNameChange(e.target.value)}
+                disabled={isSubmitting}
+                required
+              />
             </div>
 
             <div className="space-y-3">
