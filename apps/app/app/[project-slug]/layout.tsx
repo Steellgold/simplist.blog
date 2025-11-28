@@ -63,10 +63,11 @@ const ProjectLayout = async ({
   const currentMembership = await getUserProjectMembership(currentProject.id, user.id);
   const currentMember = currentMembership || null;
   const currentMemberId = currentMember?.id || null;
+  const currentRole = currentMembership?.role || null;
 
   return (
     <SidebarProvider>
-      <AppSidebarWrapper user={user} projects={typedProjects} currentProject={currentProject} />
+      <AppSidebarWrapper user={user} projects={typedProjects} currentProject={currentProject} currentRole={currentRole} />
       <ProjectContextProvider projects={typedProjects} currentProject={currentProject} currentMember={currentMember} currentMemberId={currentMemberId}>
         <main className="flex-1 w-full overflow-x-hidden">
           <div className="flex h-14 items-center justify-between border-b px-4 lg:h-16">
