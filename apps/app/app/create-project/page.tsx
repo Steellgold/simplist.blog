@@ -30,6 +30,7 @@ const CreateProjectPage = async () => {
       <AppSidebarWrapper
         user={user}
         projects={projects}
+        currentRole={null}
       />
 
       <div className="flex-1">
