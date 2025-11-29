@@ -1,8 +1,8 @@
 import { MembersClientPage } from "@/components/members/members-client-page"
+import { getProjectInvitations, getProjectMembers } from "@/lib/actions/members"
+import { getProjectRoles } from "@/lib/actions/roles"
 import { getCurrentUser } from "@/lib/auth-helper"
 import { getUserProjectMembership } from "@/lib/auth/permissions"
-import { getProjectMembers, getProjectInvitations } from "@/lib/actions/members"
-import { getProjectRoles } from "@/lib/actions/roles"
 import { prisma } from "@simplist/db"
 import { redirect } from "next/navigation"
 

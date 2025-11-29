@@ -1,8 +1,8 @@
 import { BillingClientPage } from "@/components/billing/billing-client-page"
 import { getCurrentUser } from "@/lib/auth-helper"
 import { getUserProjectMembership } from "@/lib/auth/permissions"
-import { prisma, SubscriptionTier } from "@simplist/db"
 import { getProjectBillingHistory, getProjectSubscription } from "@/lib/stripe/actions"
+import { prisma, SubscriptionTier } from "@simplist/db"
 import { redirect } from "next/navigation"
 
 const BillingPage = async ({ params }: { params: Promise<{ "project-slug": string }> }) => {
@@ -26,8 +26,7 @@ const BillingPage = async ({ params }: { params: Promise<{ "project-slug": strin
 
   // Fetch billing data in parallel
   const [billingEntries, subscriptionInfo] = await Promise.all([
-    getProjectBillingHistory(project.id), // Commented out for testing
-    // Promise.resolve(fakeBillingEntries),
+    getProjectBillingHistory(project.id),
     getProjectSubscription(project.id),
   ])
 
