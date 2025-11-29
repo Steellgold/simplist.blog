@@ -1,5 +1,6 @@
 "use client"
 
+import { UserIconAvatar } from "@/components/icon-avatar"
 import { updateUserInformation } from "@/lib/actions/user"
 import { authClient, User } from "@/lib/auth-client"
 import { UpdateUserEmailInput, updateUserEmailSchema, UpdateUserInformationInput, updateUserInformationSchema } from "@/lib/validations/user"
@@ -9,13 +10,12 @@ import { Button } from "@simplist/ui/components/button"
 import { Card, CardContent, CardFooter } from "@simplist/ui/components/card"
 import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel, FieldSeparator, FieldSet } from "@simplist/ui/components/field"
 import { Input } from "@simplist/ui/components/input"
+import { toast } from "@simplist/ui/components/sonner"
 import { Spinner } from "@simplist/ui/components/spinner"
 import { CheckCircle2Icon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
-import { toast } from "sonner"
-import { UserIconAvatar } from "../icon-avatar"
 
 interface AccountSettingsFormProps {
   user: User

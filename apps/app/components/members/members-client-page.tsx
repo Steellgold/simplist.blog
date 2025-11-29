@@ -1,10 +1,15 @@
 "use client"
 
 import { PageLayout } from "@/components/layout/page-layout"
+import { InviteMemberDialog } from "@/components/members/invite-member-dialog"
+import { removeProjectMember, revokeProjectInvitation, updateMemberRole } from "@/lib/actions/members"
+import type { MemberListItem } from "@/lib/types/members"
+import type { ProjectInvitation, ProjectRole } from "@simplist/db"
+import { Avatar, AvatarFallback, AvatarImage } from "@simplist/ui/components/avatar"
+import { Badge } from "@simplist/ui/components/badge"
 import { Button } from "@simplist/ui/components/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@simplist/ui/components/card"
-import { Badge } from "@simplist/ui/components/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@simplist/ui/components/avatar"
+import { ConfirmDialog } from "@simplist/ui/components/confirm-dialog"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,15 +18,11 @@ import {
   DropdownMenuTrigger
 } from "@simplist/ui/components/dropdown-menu"
 import { toast } from "@simplist/ui/components/sonner"
-import { ConfirmDialog } from "@simplist/ui/components/confirm-dialog"
-import { removeProjectMember, updateMemberRole, revokeProjectInvitation } from "@/lib/actions/members"
-import { Crown, MoreVertical, UserMinus, UserX, Mail, UserPlus } from "lucide-react"
-import { useState } from "react"
-import { InviteMemberDialog } from "@/components/members/invite-member-dialog"
-import { useRouter } from "next/navigation"
+import { getInitials } from "@simplist/ui/lib/utils"
 import { formatDistanceToNow } from "date-fns"
-import type { MemberListItem } from "@/lib/types/members"
-import type { ProjectInvitation, ProjectRole } from "@simplist/db"
+import { MoreVertical, UserMinus, UserPlus, UserX } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
 
 type MembersClientPageProps = {
   project: {
@@ -127,15 +128,6 @@ export const MembersClientPage = ({
     )
   }
 
-  const handleInviteSuccess = () => {
-    // Router refresh is handled in the dialog
-  }
-
-  const getInitials = (name: string | null) => {
-    if (!name) return "?"
-    return name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)
-  }
-
   return (
     <PageLayout
       title="Members"
@@ -143,7 +135,6 @@ export const MembersClientPage = ({
       centered
       actions={
         <Button
-          size="sm"
           onClick={() => setShowInviteDialog(true)}
           disabled={!isPro}
         >
@@ -248,9 +239,11 @@ export const MembersClientPage = ({
                   return (
                     <div key={invitation.id} className="flex items-center justify-between py-4 first:pt-0 last:pb-0">
                       <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                          <Mail className="text-muted-foreground" />
-                        </div>
+                        <Avatar className="rounded-sm">
+                          <AvatarImage src={`https://avatar.vercel.sh/${invitation.email.toLowerCase().replaceAll(" ", "")}`} alt={invitation.email} />
+                          <AvatarFallback className="rounded-sm">{getInitials(invitation.email)}</AvatarFallback>
+                        </Avatar>
+
                         <div>
                           <p className="font-medium">{invitation.email}</p>
                           <p className="text-sm text-muted-foreground">
@@ -263,8 +256,8 @@ export const MembersClientPage = ({
                         <Badge variant="outline">{role?.name || "Unknown Role"}</Badge>
 
                         <Button
-                          variant="ghost"
-                          size="icon"
+                          variant="outline"
+                          size="icon-sm"
                           onClick={() => setRevokeInviteDialog({ id: invitation.id, email: invitation.email })}
                         >
                           <UserX />
@@ -284,7 +277,6 @@ export const MembersClientPage = ({
           projectId={project.id}
           roles={roles.filter(r => !r.isOwner)}
           onClose={() => setShowInviteDialog(false)}
-          onSuccess={handleInviteSuccess}
         />
       )}
 

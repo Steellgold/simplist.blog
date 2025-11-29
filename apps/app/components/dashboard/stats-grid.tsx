@@ -82,12 +82,13 @@ export const StatsGrid = ({
       </Card>
 
       <Card>
-        <CardHeader>
+        <CardHeader className="-mb-3">
           <CardTitle>Storage Used</CardTitle>
           <CardAction>
             <HardDrive className="h-4 w-4" />
           </CardAction>
         </CardHeader>
+
         <CardContent>
           <div className="text-2xl font-bold">{formatStorage(storageUsed)}</div>
           <p className="text-xs text-muted-foreground mt-1">
