@@ -1,7 +1,7 @@
 "use client";
 
 import { UpgradeOverlay } from "@/components/ui/upgrade-overlay";
-import { Button } from "@simplist/ui/components/button";
+import { buttonVariants } from "@simplist/ui/components/button";
 import {
   Card,
   CardContent,
@@ -26,6 +26,7 @@ import {
   TrendingUp,
   Users,
 } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 interface AnalyticsPreviewCardProps {
@@ -100,15 +101,13 @@ export const AnalyticsPreviewCard = ({
         </CardContent>
 
         <CardFooter>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="w-full"
-            onClick={() => router.push(`/${projectSlug}/analytics`)}
+          <Link
+            href={`/${projectSlug}/analytics`}
+            className={buttonVariants({ variant: "secondary", className: "w-full" })}
           >
             View detailed analytics
             <ArrowUpRight />
-          </Button>
+          </Link>
         </CardFooter>
       </Card>
 
