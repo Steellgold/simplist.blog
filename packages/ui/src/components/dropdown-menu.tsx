@@ -1,8 +1,8 @@
 "use client"
 
-import * as React from "react"
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu"
 import { CheckIcon, ChevronRightIcon, CircleIcon } from "lucide-react"
+import * as React from "react"
 
 import { cn } from "@simplist/ui/lib/utils"
 
@@ -79,6 +79,46 @@ function DropdownMenuItem({
       )}
       {...props}
     />
+  )
+}
+
+type DropdownMenuItemLinkProps = React.ComponentProps<
+  typeof DropdownMenuPrimitive.Item
+> & {
+  inset?: boolean
+  variant?: "default" | "destructive"
+  as?: React.ElementType
+  href?: string
+}
+
+function DropdownMenuItemLink({
+  className,
+  inset,
+  variant = "default",
+  as: Comp = "a",
+  href,
+  children,
+  ...props
+}: DropdownMenuItemLinkProps) {
+  return (
+    <DropdownMenuPrimitive.Item
+      asChild
+      data-slot="dropdown-menu-item"
+      data-inset={inset}
+      data-variant={variant}
+      className={cn(
+        "focus:bg-accent focus:text-accent-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 dark:data-[variant=destructive]:focus:bg-destructive/20 data-[variant=destructive]:focus:text-destructive data-[variant=destructive]:*:[svg]:!text-destructive [&_svg:not([class*='text-'])]:text-muted-foreground relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[inset]:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        className
+      )}
+      {...props}
+    >
+      <Comp
+        href={href}
+        className="flex w-full items-center gap-2 no-underline outline-none"
+      >
+        {children}
+      </Comp>
+    </DropdownMenuPrimitive.Item>
   )
 }
 
@@ -239,19 +279,12 @@ function DropdownMenuSubContent({
 }
 
 export {
-  DropdownMenu,
-  DropdownMenuPortal,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuLabel,
-  DropdownMenuItem,
-  DropdownMenuCheckboxItem,
-  DropdownMenuRadioGroup,
+  DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent,
+  DropdownMenuGroup, DropdownMenuItem,
+  DropdownMenuItemLink, DropdownMenuLabel, DropdownMenuPortal, DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuSubContent,
+  DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger
 }
+

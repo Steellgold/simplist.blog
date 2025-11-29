@@ -7,6 +7,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuItemLink,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
@@ -146,12 +147,10 @@ export const SidebarFooterItem = ({ user, isVerified = false }: SidebarFooterIte
                 </>
               )}
 
-              <DropdownMenuItem asChild>
-                <Link href="/account/settings">
-                  <Settings />
-                  Settings
-                </Link>
-              </DropdownMenuItem>
+              <DropdownMenuItemLink as={Link} href="/account/settings">
+                <Settings />
+                Settings
+              </DropdownMenuItemLink>
 
               <DropdownMenuItem onClick={handleLogout} disabled={isLoading}>
                 {isLoading ? <Spinner /> : <LogOut />}

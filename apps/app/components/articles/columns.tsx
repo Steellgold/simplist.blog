@@ -12,14 +12,15 @@ import { VariantFlags } from "./variant-flags"
 
 import { deleteArticle } from "@/lib/actions/articles"
 import { LanguageCode } from "@/lib/types/languages"
-import { ConfirmDialog } from "@simplist/ui/components/confirm-dialog"
 import { Badge } from "@simplist/ui/components/badge"
 import { Button } from "@simplist/ui/components/button"
 import { Checkbox } from "@simplist/ui/components/checkbox"
+import { ConfirmDialog } from "@simplist/ui/components/confirm-dialog"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuItemLink,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
@@ -89,23 +90,24 @@ const ArticleActionsCell = ({ article }: { article: Article }) => {
 
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
+
           <DropdownMenuItem onClick={copyId}>
             <Copy />
             Copy ID
           </DropdownMenuItem>
+
           <DropdownMenuSeparator />
-          <DropdownMenuItem asChild>
-            <Link href={`/${currentProject?.slug}/articles/${article.slug}/edit`}>
-              <Edit />
-              Edit article
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link href={`/${currentProject?.slug}/analytics?articles=${article.id}`}>
-              <TrendingUp />
-              Analytics
-            </Link>
-          </DropdownMenuItem>
+
+          <DropdownMenuItemLink as={Link} href={`/${currentProject?.slug}/articles/${article.slug}/edit`}>
+            <Edit />
+            Edit article
+          </DropdownMenuItemLink>
+
+          <DropdownMenuItemLink as={Link} href={`/${currentProject?.slug}/analytics?articles=${article.id}`}>
+            <TrendingUp />
+            Analytics
+          </DropdownMenuItemLink>
+
           <DropdownMenuItem
             onClick={() => setShowDeleteDialog(true)}
             className="text-destructive focus:text-destructive"
