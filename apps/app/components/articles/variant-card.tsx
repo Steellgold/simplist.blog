@@ -6,11 +6,11 @@ import { useVariantLimits } from "@/hooks/use-subscription-limits"
 import { useVariantOperations, type ArticleVariant } from "@/hooks/use-variant-operations"
 import { getAllLanguages, getFlagUrl, getLanguageName, getPopularLanguages, type LanguageCode } from "@/lib/types/languages"
 import { cn } from "@/lib/utils"
-import { ConfirmDialog } from "@simplist/ui/components/confirm-dialog"
 import { Button } from "@simplist/ui/components/button"
 import { ButtonGroup } from "@simplist/ui/components/button-group"
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@simplist/ui/components/card"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@simplist/ui/components/command"
+import { ConfirmDialog } from "@simplist/ui/components/confirm-dialog"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@simplist/ui/components/dialog"
 import {
   Item,
@@ -57,7 +57,7 @@ export const VariantCard = ({
     variantCount
   } = useVariantOperations(variants, onVariantsUpdate, defaultLanguage)
 
-  const { canAddVariant, isFreeTier, quotaError, isLoading: isLoadingLimits } = useVariantLimits(currentProject?.id, variantCount)
+  const { canAdd, isFreeTier, quotaError, isLoading: isLoadingLimits } = useVariantLimits(currentProject?.id, variantCount)
 
   const handleAddVariant = () => {
     if (!selectedLanguage) {
@@ -132,7 +132,7 @@ export const VariantCard = ({
                   type="button"
                   variant="outline"
                   size="sm"
-                  disabled={disabled || !canAddVariant}
+                  disabled={disabled || !canAdd}
                 >
                   <Plus />
                   New Variant
@@ -147,7 +147,7 @@ export const VariantCard = ({
                   </DialogDescription>
                 </DialogHeader>
 
-                {!canAddVariant && quotaError ? (
+                {!canAdd && quotaError ? (
                   <div className="space-y-4">
                     <div className="text-sm text-muted-foreground">
                       {quotaError}

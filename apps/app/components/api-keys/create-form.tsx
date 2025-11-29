@@ -44,7 +44,7 @@ export const CreateApiKeyForm = ({ projectId, onSuccess }: CreateApiKeyFormProps
   const [copied, setCopied] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const { isAtLimit, currentCount, maxCount, tier, isLoading: limitsLoading, refetch } = useApiKeyLimits(projectId)
+  const { isAtLimit, current, max, tier, isLoading: limitsLoading, refetch } = useApiKeyLimits(projectId)
 
   const isPro = tier === "PRO"
 
@@ -118,21 +118,21 @@ export const CreateApiKeyForm = ({ projectId, onSuccess }: CreateApiKeyFormProps
       }
     }}>
       <DialogTrigger asChild>
-        {maxCount === -1 ? (
+        {max === -1 ? (
           <Button variant="outline" disabled={isButtonDisabled}>
             <Plus className="size-4" />
             Create API Key
           </Button>
         ) : (
           <ProgressButton
-            value={currentCount}
+            value={current}
             min={0}
-            max={maxCount}
+            max={max}
             variant="outline"
             disabled={isButtonDisabled}
           >
             <Plus className="size-4" />
-            Create API Key {!limitsLoading && `(${currentCount}/${maxCount})`}
+            Create API Key {!limitsLoading && `(${current}/${max})`}
           </ProgressButton>
         )}
       </DialogTrigger>

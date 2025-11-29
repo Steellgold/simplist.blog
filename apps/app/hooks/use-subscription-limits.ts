@@ -4,112 +4,85 @@ import { getPlanLimits } from "@/lib/subscription/plans";
 import { SubscriptionTier } from "@simplist/db";
 import { useEffect, useState } from "react";
 
-interface ProjectSubscription {
-  tier: SubscriptionTier;
-  subscriptionExpiresAt: Date | null;
-}
-
-interface ApiKeyUsage {
-  currentCount: number;
-  maxCount: number;
-  canCreateMore: boolean;
-}
-
-interface ArticleUsage {
-  currentCount: number;
-  maxCount: number;
-  canCreateMore: boolean;
-}
-
-interface SubscriptionLimitsData {
-  isLoading: boolean;
-  subscription: ProjectSubscription | null;
-  apiKeyUsage: ApiKeyUsage | null;
-  articleUsage: ArticleUsage | null;
-  limits: ReturnType<typeof getPlanLimits> | null;
-  refetch: () => Promise<void>;
-}
-
-export const useSubscriptionLimits = (projectId?: string): SubscriptionLimitsData => {
-  const [data, setData] = useState<Omit<SubscriptionLimitsData, 'refetch'>>({
+export const useSubscriptionLimits = (projectId?: string) => {
+  const [state, setState] = useState({
     isLoading: true,
-    subscription: null,
-    apiKeyUsage: null,
-    articleUsage: null,
-    limits: null,
+    subscription: null as null | {
+      tier: SubscriptionTier;
+      subscriptionExpiresAt: Date | null;
+    },
+    apiKeyUsage: null as null | {
+      current: number;
+      max: number;
+      canCreate: boolean;
+    },
+    articleUsage: null as null | {
+      current: number;
+      max: number;
+      canCreate: boolean;
+    },
+    limits: null as null | ReturnType<typeof getPlanLimits>,
   });
 
-  const fetchSubscriptionData = async () => {
+  const computeUsage = (current: number, max: number) => ({
+    current,
+    max,
+    canCreate: max === -1 || current < max,
+  });
+
+  const fetchData = async () => {
     if (!projectId) {
-      setData(prev => ({ ...prev, isLoading: false }));
+      setState(s => ({ ...s, isLoading: false }));
       return;
     }
 
     try {
-      setData(prev => ({ ...prev, isLoading: true }));
-      const response = await fetch(`/api/subscription/limits?projectId=${projectId}`);
-      
-      if (!response.ok) {
-        throw new Error("Failed to fetch subscription data");
-      }
+      setState(s => ({ ...s, isLoading: true }));
 
-      const result = await response.json();
+      const res = await fetch(`/api/subscription/limits?projectId=${projectId}`);
+      if (!res.ok) throw new Error();
 
-      const limits = getPlanLimits(result.subscription.tier as SubscriptionTier);
-      const apiKeyUsage: ApiKeyUsage = {
-        currentCount: result.apiKeyCount,
-        maxCount: limits.maxApiKeys,
-        canCreateMore: limits.maxApiKeys === -1 || result.apiKeyCount < limits.maxApiKeys,
-      };
+      const data = await res.json();
+      const limits = getPlanLimits(data.subscription.tier);
 
-      const articleUsage: ArticleUsage = {
-        currentCount: result.articleCount,
-        maxCount: limits.maxArticles,
-        canCreateMore: limits.maxArticles === -1 || result.articleCount < limits.maxArticles,
-      };
-
-      setData({
+      setState({
         isLoading: false,
         subscription: {
-          tier: result.subscription.tier,
-          subscriptionExpiresAt: result.subscription.subscriptionExpiresAt 
-            ? new Date(result.subscription.subscriptionExpiresAt) 
+          tier: data.subscription.tier,
+          subscriptionExpiresAt: data.subscription.subscriptionExpiresAt
+            ? new Date(data.subscription.subscriptionExpiresAt)
             : null,
         },
-        apiKeyUsage,
-        articleUsage,
+        apiKeyUsage: computeUsage(data.apiKeyCount, limits.maxApiKeys),
+        articleUsage: computeUsage(data.articleCount, limits.maxArticles),
         limits,
       });
-    } catch (error) {
-      console.error("Error fetching subscription limits:", error);
-      setData(prev => ({
-        ...prev,
-        isLoading: false,
-      }));
+    } catch {
+      setState(s => ({ ...s, isLoading: false }));
     }
   };
 
   useEffect(() => {
-    fetchSubscriptionData();
+    fetchData();
   }, [projectId]);
 
-  return {
-    ...data,
-    refetch: fetchSubscriptionData,
-  };
+  return { ...state, refetch: fetchData };
 };
 
-// Hook for API key limits
 export const useApiKeyLimits = (projectId?: string) => {
   const { isLoading, apiKeyUsage, subscription, refetch } = useSubscriptionLimits(projectId);
 
+  const tier = subscription?.tier ?? "STARTER";
+  const max = apiKeyUsage?.max ?? 0;
+  const current = apiKeyUsage?.current ?? 0;
+
   return {
     isLoading,
-    canCreateApiKey: apiKeyUsage?.canCreateMore ?? false,
-    currentCount: apiKeyUsage?.currentCount ?? 0,
-    maxCount: apiKeyUsage?.maxCount ?? 0,
-    isAtLimit: apiKeyUsage ? (apiKeyUsage.maxCount !== -1 && apiKeyUsage.currentCount >= apiKeyUsage.maxCount) : false,
-    tier: (subscription?.tier ?? "STARTER") as SubscriptionTier,
+    tier,
+    current,
+    max,
+    canCreate: apiKeyUsage?.canCreate ?? false,
+    isAtLimit: max !== -1 && current >= max,
     refetch,
   };
 };
@@ -117,43 +90,46 @@ export const useApiKeyLimits = (projectId?: string) => {
 export const useArticleLimits = (projectId?: string) => {
   const { isLoading, articleUsage, subscription, refetch } = useSubscriptionLimits(projectId);
 
+  const tier = subscription?.tier ?? "STARTER";
+  const max = articleUsage?.max ?? 0;
+  const current = articleUsage?.current ?? 0;
+
   return {
     isLoading,
-    canCreateArticle: articleUsage?.canCreateMore ?? false,
-    currentCount: articleUsage?.currentCount ?? 0,
-    maxCount: articleUsage?.maxCount ?? 0,
-    isAtLimit: articleUsage ? (articleUsage.maxCount !== -1 && articleUsage.currentCount >= articleUsage.maxCount) : false,
-    tier: (subscription?.tier ?? "STARTER") as SubscriptionTier,
+    tier,
+    current,
+    max,
+    canCreate: articleUsage?.canCreate ?? false,
+    isAtLimit: max !== -1 && current >= max,
     refetch,
   };
 };
 
-export const useVariantLimits = (projectId?: string, currentVariantCount = 0) => {
+export const useVariantLimits = (projectId?: string, currentCount = 0) => {
   const { isLoading, subscription, limits } = useSubscriptionLimits(projectId);
 
   const tier = subscription?.tier ?? "STARTER";
-  const maxVariants = limits?.maxVariantsPerArticle ?? 0;
-  const isFreeTier = tier === "STARTER";
-  
-  // For STARTER plan, no variants allowed (except default language)
-  const canAddVariant = !isFreeTier && (maxVariants === -1 || currentVariantCount < maxVariants);
-  const isAtLimit = isFreeTier || (maxVariants !== -1 && currentVariantCount >= maxVariants);
+  const max = limits?.maxVariantsPerArticle ?? 0;
+  const isFree = tier === "STARTER";
 
-  let quotaError: string | undefined;
-  if (isAtLimit && !isFreeTier) {
-    quotaError = `Variant limit reached. Your ${tier} plan allows up to ${maxVariants} variant${maxVariants === 1 ? '' : 's'} per article.`;
-  } else if (isFreeTier) {
-    quotaError = "Language variants are available with the Pro plan. Upgrade to create article variants in different languages.";
-  }
+  const canAdd = !isFree && (max === -1 || currentCount < max);
+  const isAtLimit = isFree || (max !== -1 && currentCount >= max);
+
+  const quotaError =
+    isAtLimit && !isFree
+      ? `You have reached the limit. Your ${tier} plan allows ${max} variant${max === 1 ? "" : "s"} per article.`
+      : isFree
+      ? "Language variants require the Pro plan."
+      : undefined;
 
   return {
     isLoading,
-    canAddVariant,
-    currentCount: currentVariantCount,
-    maxCount: maxVariants,
-    isAtLimit,
-    isFreeTier,
-    quotaError,
     tier,
+    currentCount,
+    max,
+    canAdd,
+    isFreeTier: isFree,
+    isAtLimit,
+    quotaError,
   };
 };
