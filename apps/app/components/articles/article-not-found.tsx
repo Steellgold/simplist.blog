@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, buttonVariants } from "@simplist/ui/components/button";
+import { buttonVariants } from "@simplist/ui/components/button";
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@simplist/ui/components/empty";
 import { ArrowRightIcon, File, PlusIcon } from "lucide-react";
 import Link from "next/link";
@@ -31,16 +31,12 @@ export const ArticleNotFound = ({ slug }: Props) => {
           </div>
         </EmptyContent>
 
-        <Button
-          variant="link"
-          asChild
-          className="text-muted-foreground"
-          size="sm"
+        <Link
+          className={buttonVariants({ variant: "link", size: "sm" })}
+          href="/"
         >
-          <a href="/">
-            Learn More <ArrowRightIcon />
-          </a>
-        </Button>
+          Learn More <ArrowRightIcon />
+        </Link>
       </Empty>
     </div>
   )

@@ -34,7 +34,7 @@ export const ArticleInfoFields = ({
           <Label htmlFor="title">Title</Label>
           <Input
             id="title"
-            placeholder="How to use GitHub: The basics"
+            placeholder="My Recent Project"
             value={title}
             onChange={(e) => onTitleChange(e.target.value)}
             required
@@ -44,11 +44,12 @@ export const ArticleInfoFields = ({
         <div className="space-y-2">
           <Label htmlFor="excerpt">Excerpt</Label>
           <p className="text-sm text-muted-foreground">
-            A brief description of the post.
+            A brief description of the article.
           </p>
+
           <Textarea
             id="excerpt"
-            placeholder="This article guides you through using GitHub, the essential tool for developers."
+            placeholder="Since last week, I've been working on a new project..."
             value={excerpt}
             onChange={(e) => onExcerptChange(e.target.value)}
             rows={3}

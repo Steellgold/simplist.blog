@@ -217,17 +217,20 @@ export const VariantCard = ({
                                     selectedLanguage === language.code ? "opacity-100" : "opacity-0"
                                   )}
                                 />
+
                                 <img
                                   src={getFlagUrl(language.code)}
                                   alt={`${language.name} flag`}
                                   className="w-5 h-4 object-cover rounded-xs mr-2"
                                 />
+
                                 <div className="flex items-center gap-2 flex-1">
                                   <span>{language.name}</span>
                                   <span className="text-muted-foreground text-sm">
                                     {language.nativeName}
                                   </span>
                                 </div>
+
                                 <span className="text-muted-foreground text-xs font-mono">
                                   {language.code}
                                 </span>
@@ -246,6 +249,7 @@ export const VariantCard = ({
                       >
                         Cancel
                       </Button>
+
                       <Button
                         type="button"
                         variant="default"

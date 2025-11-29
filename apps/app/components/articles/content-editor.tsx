@@ -2,10 +2,10 @@
 
 import { Button } from "@simplist/ui/components/button";
 import { ButtonGroup } from "@simplist/ui/components/button-group";
-import { Card, CardContent, CardHeader, CardTitle } from "@simplist/ui/components/card";
+import { Card, CardContent } from "@simplist/ui/components/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@simplist/ui/components/dropdown-menu";
 import { InputGroup, InputGroupAddon, InputGroupTextarea } from "@simplist/ui/components/input-group";
-import { Bold, Code, FileCode2, Heading2, Image as ImageIcon, Italic, Link as LinkIcon, List, ListOrdered, Quote } from "lucide-react";
+import { Bold, Code, FileCode2, Heading2, Image as ImageIcon, Italic, Link as LinkIcon, List, ListOrdered, MoreHorizontal, Quote } from "lucide-react";
 import { useCallback, useMemo } from "react";
 
 type ArticleContentEditorProps = {
@@ -56,16 +56,28 @@ export const ArticleContentEditor = ({ content, onContentChange, textareaId = "c
     lines: content.split("\n").length,
   }), [content]);
 
+  // Actions principales pour mobile (les plus utilisées)
+  const primaryActions = useMemo(() => [
+    markdownActions.formatting[0], // Bold
+    markdownActions.formatting[1], // Italic
+    markdownActions.lists[0], // List
+  ], [markdownActions]);
+
+  // Actions secondaires regroupées dans le menu "More"
+  const secondaryActions = useMemo(() => [
+    ...markdownActions.lists.slice(1),
+    ...markdownActions.blocks,
+    ...markdownActions.media,
+  ], [markdownActions]);
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Content</CardTitle>
-      </CardHeader>
-      <CardContent>
+    <Card className="p-0.5">
+      <CardContent className="p-1">
         <div className="space-y-2">
           <InputGroup className="min-w-0 overflow-hidden">
             <InputGroupAddon align="block-start" className="w-full">
-              <ButtonGroup className="flex-wrap gap-2">
+              {/* Desktop: affiche tous les boutons */}
+              <ButtonGroup className="hidden sm:flex flex-wrap gap-2">
                 {Object.entries(markdownActions).map(([groupName, actions]) => (
                   <ButtonGroup key={groupName}>
                     {groupName === "media" && (
@@ -91,9 +103,48 @@ export const ArticleContentEditor = ({ content, onContentChange, textareaId = "c
                         <action.icon className="h-4 w-4" />
                       </Button>
                     ))}
-
                   </ButtonGroup>
                 ))}
+              </ButtonGroup>
+
+              <ButtonGroup className="flex sm:hidden">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button type="button" variant="outline" size="sm" className="h-8 px-2" title="Heading">
+                      <Heading2 className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start">
+                    {[1, 2, 3, 4, 5, 6].map((level) => (
+                      <DropdownMenuItem key={level} onClick={() => insertMarkdown("#".repeat(level) + " ", "")} className="cursor-pointer">
+                        <span className="font-semibold">H{level}</span>
+                        <span className="ml-2 text-muted-foreground text-xs">Heading {level}</span>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                {primaryActions.map((action, index) => (
+                  <Button key={index} type="button" variant="outline" size="sm" onClick={action.action} title={action.label}>
+                    <action.icon />
+                  </Button>
+                ))}
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button type="button" variant="outline" size="sm" title="More options">
+                      <MoreHorizontal />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    {secondaryActions.map((action, index) => (
+                      <DropdownMenuItem key={index} onClick={action.action} className="cursor-pointer">
+                        <action.icon className="h-4 w-4 mr-2" />
+                        <span>{action.label}</span>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </ButtonGroup>
             </InputGroupAddon>
 
@@ -103,16 +154,23 @@ export const ArticleContentEditor = ({ content, onContentChange, textareaId = "c
               value={content}
               onChange={(e) => onContentChange(e.target.value)}
               required
-              rows={20}
-              className="font-mono text-sm resize-y min-h-[400px] min-w-0"
+              className="font-mono text-sm resize-none min-h-[450px] sm:min-h-[450px] min-h-[300px] min-w-0"
             />
 
             <InputGroupAddon align="block-end" className="w-full">
-              <div className="flex items-center justify-between w-full text-xs">
-                <div className="flex items-center gap-4">
-                  <span className="text-muted-foreground">{contentStats.words} {contentStats.words === 1 ? "word" : "words"}</span>
-                  <span className="text-muted-foreground">{contentStats.characters} {contentStats.characters === 1 ? "character" : "characters"}</span>
-                  <span className="text-muted-foreground">{contentStats.lines} {contentStats.lines === 1 ? "line" : "lines"}</span>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between w-full text-xs gap-1 sm:gap-0">
+                <div className="flex items-center flex-wrap *:bg-muted">
+                  <span className="text-muted-foreground border-t border-b border-l px-1.5 py-0.5 rounded-l-sm">
+                    {contentStats.words} {contentStats.words === 1 ? "word" : "words"}
+                  </span>
+
+                  <span className="text-muted-foreground border px-1.5 py-0.5">
+                    {contentStats.characters} {contentStats.characters === 1 ? "character" : "characters"}
+                  </span>
+
+                  <span className="text-muted-foreground border-t border-b border-r px-1.5 py-0.5 rounded-r-sm">
+                    {contentStats.lines} {contentStats.lines === 1 ? "line" : "lines"}
+                  </span>
                 </div>
                 <span className="text-muted-foreground/60">~{Math.ceil(contentStats.words / 200)} min read</span>
               </div>
@@ -123,5 +181,3 @@ export const ArticleContentEditor = ({ content, onContentChange, textareaId = "c
     </Card>
   );
 }
-
-

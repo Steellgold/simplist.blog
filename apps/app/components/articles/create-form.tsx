@@ -6,7 +6,7 @@ import { createArticle, updateArticleCoverImage } from "@/lib/actions/articles";
 import { type LanguageCode, getLanguageName } from "@/lib/types/languages";
 import { buttonVariants } from "@simplist/ui/components/button";
 import { toast } from "@simplist/ui/components/sonner";
-import { Trash2 } from "lucide-react";
+import { X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -245,10 +245,10 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
             leftAction={(
               <Link
                 href={`/${currentProject?.slug}/articles`}
-                className={buttonVariants({ variant: "destructive", size: "sm" })}
+                className={buttonVariants({ variant: "outline", size: "sm" })}
               >
-                <Trash2 />
-                Delete
+                <X />
+                Cancel
               </Link>
             )}
           />

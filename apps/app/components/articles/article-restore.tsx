@@ -1,7 +1,7 @@
 "use client";
 
 import { restoreArticle } from "@/lib/actions/articles";
-import { Button } from "@simplist/ui/components/button";
+import { Button, buttonVariants } from "@simplist/ui/components/button";
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@simplist/ui/components/empty";
 import { Spinner } from "@simplist/ui/components/spinner";
 import { ArrowLeftIcon, File, RotateCcwIcon } from "lucide-react";
@@ -73,17 +73,10 @@ export const ArticleRestore = ({ slug, articleId }: Props) => {
           </Button>
         </EmptyContent>
 
-        <Button
-          variant="link"
-          className="text-muted-foreground"
-          size="sm"
-          asChild
-        >
-          <Link href={`/${slug}/articles`}>
-            <ArrowLeftIcon />
-            Back to Articles
-          </Link>
-        </Button>
+        <Link className={buttonVariants({ variant: "link", size: "sm" })} href={`/${slug}/articles`}>
+          <ArrowLeftIcon />
+          Back to Articles
+        </Link>
       </Empty>
     </div>
   )
