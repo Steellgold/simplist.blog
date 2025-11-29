@@ -5,7 +5,7 @@ import { ArticlesDataTable } from "@/components/articles/data-table"
 import { PageLayout } from "@/components/layout/page-layout"
 import type { Article } from "@simplist/db/types"
 import { buttonVariants } from "@simplist/ui/components/button"
-import { ProgressButton } from "@simplist/ui/components/progress-button"
+import { ProgressLink } from "@simplist/ui/components/progress-button"
 import { Plus } from "lucide-react"
 import Link from "next/link"
 
@@ -39,12 +39,10 @@ export const ArticlesClientPage = ({
             New Article
           </Link>
         ) : (
-          <ProgressButton value={articleCount} min={0} max={maxCount} variant="outline" asChild>
-            <Link href={`/${project.slug}/articles/new`} className="flex items-center gap-2">
-              <Plus />
-              New Article ({articleCount}/{maxCount})
-            </Link>
-          </ProgressButton>
+          <ProgressLink href={`/${project.slug}/articles/new`} value={articleCount} min={0} max={maxCount} variant="outline">
+            <Plus />
+            New Article ({articleCount}/{maxCount})
+          </ProgressLink>
         )
       }
     >
