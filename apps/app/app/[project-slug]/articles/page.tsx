@@ -6,11 +6,16 @@ import { getPlanLimits } from "@/lib/subscription/plans"
 import { prisma } from "@simplist/db"
 import { redirect } from "next/navigation"
 
-const ArticlesPage = async ({ params }: { params: Promise<{ "project-slug": string }> }) => {
+type ArticlesPageProps = {
+  params: Promise<{
+    "project-slug": string
+  }>
+}
+
+const ArticlesPage = async ({ params }: ArticlesPageProps) => {
   const resolvedParams = await params
 
   const user = await getCurrentUser()
-
   if (!user) redirect("/auth/login")
 
   // Find project by slug

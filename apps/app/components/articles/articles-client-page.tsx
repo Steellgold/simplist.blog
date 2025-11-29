@@ -39,7 +39,7 @@ export const ArticlesClientPage = ({
             New Article
           </Link>
         ) : (
-          <ProgressLink href={`/${project.slug}/articles/new`} value={articleCount} min={0} max={maxCount} variant="outline">
+          <ProgressLink href={`/${project.slug}/articles/new`} value={articleCount} min={0} max={maxCount} variant="outline" as={Link}>
             <Plus />
             New Article ({articleCount}/{maxCount})
           </ProgressLink>

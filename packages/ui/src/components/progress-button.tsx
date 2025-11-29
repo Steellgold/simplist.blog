@@ -147,7 +147,9 @@ const ProgressButton = forwardRef<HTMLButtonElement, ProgressButtonProps>(
 
 ProgressButton.displayName = "ProgressButton"
 
-interface ProgressLinkProps extends Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'value'>, ProgressBaseProps {}
+interface ProgressLinkProps extends Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'value'>, ProgressBaseProps {
+  as?: "a" | "button" | React.ComponentType<any>
+}
 
 const ProgressLink = forwardRef<HTMLAnchorElement, ProgressLinkProps>(
   (
@@ -155,6 +157,7 @@ const ProgressLink = forwardRef<HTMLAnchorElement, ProgressLinkProps>(
       min = 0,
       max = 100,
       value,
+      as = "a",
       variant,
       size,
       className,
@@ -167,7 +170,7 @@ const ProgressLink = forwardRef<HTMLAnchorElement, ProgressLinkProps>(
     return (
       <ProgressPrimitive
         ref={ref as any}
-        as="a"
+        as={as}
         min={min}
         max={max}
         value={value}
@@ -187,3 +190,4 @@ const ProgressLink = forwardRef<HTMLAnchorElement, ProgressLinkProps>(
 ProgressLink.displayName = "ProgressLink"
 
 export { ProgressButton, ProgressLink, ProgressPrimitive, progressVariants }
+
