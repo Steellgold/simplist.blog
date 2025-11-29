@@ -1,7 +1,8 @@
 import { User } from "@/lib/auth-client";
-import { cn, getUserInitials } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import type { Project } from "@simplist/db/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@simplist/ui/components/avatar";
+import { getInitials } from "@simplist/ui/lib/utils";
 import { FC } from "react";
 
 type Props = {
@@ -30,7 +31,7 @@ export const UserIconAvatar: FC<Props> = ({ user, size = "md", rounded = 60 }) =
       />
 
       <AvatarFallback className="rounded-lg">
-        {getUserInitials(user.name)}
+        {getInitials(user.name)}
       </AvatarFallback>
     </Avatar>
   )
@@ -72,7 +73,7 @@ export const ProjectIconAvatar: FC<ProjectProps> = ({ project, size = "md", roun
         "rounded-md": roundedSize === "md",
         "rounded-lg": roundedSize === "lg",
       })}>
-        {getUserInitials(project.name)}
+        {getInitials(project.name)}
       </AvatarFallback>
     </Avatar>
   )

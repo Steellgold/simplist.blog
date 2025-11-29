@@ -32,15 +32,6 @@ export const sanitizeFileName = (name: string) => {
   return cleaned || `file-${Date.now()}`
 }
 
-export const getUserInitials = (name: string) => {
-  if (!name) return "?"
-  const names = name.split(" ")
-  if (names.length >= 2) {
-    return `${names[0][0]}${names[1][0]}`.toUpperCase()
-  }
-  return name.substring(0, 2).toUpperCase()
-}
-
 export const getRedirectUrl = () => {
   if (typeof window === "undefined") return "/"
   const params = new URLSearchParams(window.location.search)
