@@ -27,8 +27,10 @@ export const PageLayout = ({ title, description, children, actions, centered }: 
             </p>
           )}
         </div>
+
         {actions}
       </div>
+
       {children}
     </div>
   )

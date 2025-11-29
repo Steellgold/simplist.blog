@@ -583,7 +583,7 @@ export const AnalyticsDashboard = ({ analyticsData }: AnalyticsDashboardProps) =
                           style={{ width: `${referrer.percentage}%` }}
                         />
                         <div className="relative flex items-center space-x-2 min-w-0">
-                          <ReferrerIcon className="h-4 w-4 flex-shrink-0" />
+                          <ReferrerIcon />
                           <span className="text-sm font-medium truncate">{referrer.referrer}</span>
                         </div>
                         <span className="relative text-sm text-muted-foreground ml-2 flex-shrink-0">{referrer.percentage}%</span>
