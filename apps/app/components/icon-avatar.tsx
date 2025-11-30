@@ -2,6 +2,9 @@ import { User } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import type { Project } from "@simplist/db/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@simplist/ui/components/avatar";
+import { IconRender } from "@simplist/ui/components/icon-renderer";
+import { getColorValue, getIconTextColorWithBackgroundColorOf } from "@simplist/ui/lib/color";
+import { i } from "@simplist/ui/lib/icons.enum";
 import { getInitials } from "@simplist/ui/lib/utils";
 import { FC } from "react";
 
@@ -41,40 +44,90 @@ type ProjectProps = {
   project: Project | null;
   size?: "xs" | "sm" | "md" | "lg";
   roundedSize?: "xs" | "sm" | "md" | "lg";
+  onlyDot?: boolean;
+  useVercelAvatar?: boolean;
 }
 
-export const ProjectIconAvatar: FC<ProjectProps> = ({ project, size = "md", roundedSize = "lg" }) => {
+export const ProjectIconAvatar: FC<ProjectProps> = ({ 
+  project, 
+  size = "md", 
+  roundedSize = "lg", 
+  onlyDot = false,
+  useVercelAvatar = false 
+}) => {
   if (!project) {
     return <></>;
   }
 
-  return (
-    <Avatar className={cn({
-      "size-4": size === "xs",
-      "size-6": size === "sm",
-      "size-8": size === "md",
-      "size-10": size === "lg",
-      // 
-      "rounded-xs": roundedSize === "xs",
-      "rounded-sm": roundedSize === "sm",
-      "rounded-md": roundedSize === "md",
-      "rounded-lg": roundedSize === "lg",
-    })}>
-      <AvatarImage
-        src={project.icon ? project.icon : `https://avatar.vercel.sh/${project.name.toLowerCase().replaceAll(" ", "")}`}
-        alt={project.name}
-        width={32}
-        height={32}
-      />
+  const iconName = i(project.icon || "building-2");
+  const backgroundColor = getColorValue(project.color || "CYAN");
+  const textColor = getIconTextColorWithBackgroundColorOf(project.color || "CYAN");
 
-      <AvatarFallback className={cn({
+  if (onlyDot) {
+    return (
+      <div className={cn("flex items-center justify-center")}>
+        <div className="size-3.5 rounded-xs" style={{ backgroundColor }}></div>
+      </div>
+    )
+  }
+
+  if (useVercelAvatar) {
+    return (
+      <Avatar className={cn({
+        "size-4": size === "xs",
+        "size-6": size === "sm",
+        "size-8": size === "md",
+        "size-10": size === "lg",
         "rounded-xs": roundedSize === "xs",
         "rounded-sm": roundedSize === "sm",
         "rounded-md": roundedSize === "md",
         "rounded-lg": roundedSize === "lg",
       })}>
-        {getInitials(project.name)}
-      </AvatarFallback>
-    </Avatar>
+        <AvatarImage
+          src={`https://avatar.vercel.sh/${project.name.toLowerCase().replaceAll(" ", "")}`}
+          alt={project.name}
+          width={32}
+          height={32}
+        />
+
+        <AvatarFallback className={cn({
+          "rounded-xs": roundedSize === "xs",
+          "rounded-sm": roundedSize === "sm",
+          "rounded-md": roundedSize === "md",
+          "rounded-lg": roundedSize === "lg",
+        })}>
+          {getInitials(project.name)}
+        </AvatarFallback>
+      </Avatar>
+    )
+  }
+
+  return (
+    <div
+      className={cn("flex items-center justify-center", {
+        "size-4": size === "xs",
+        "size-6": size === "sm",
+        "size-8": size === "md",
+        "size-10": size === "lg",
+        "rounded-xs": roundedSize === "xs",
+        "rounded-sm": roundedSize === "sm",
+        "rounded-md": roundedSize === "md",
+        "rounded-lg": roundedSize === "lg",
+      })}
+      style={{
+        backgroundColor,
+        color: textColor,
+      }}
+    >
+      <IconRender
+        name={iconName}
+        className={cn({
+          "size-2": size === "xs",
+          "size-3": size === "sm",
+          "size-4": size === "md",
+          "size-5": size === "lg",
+        })}
+      />
+    </div>
   )
 }
