@@ -17,3 +17,11 @@ export const getInitials = (name: string | null | undefined): string => {
 
   return name.substring(0, 2).toUpperCase()
 }
+
+export const toKebabCase = (str: string): string => {
+  return str.toLowerCase().replace(/ /g, "-")
+}
+
+export const toPascalCase = (str: string): string => {
+  return str.charAt(0).toUpperCase() + str.slice(1)
+}

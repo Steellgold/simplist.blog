@@ -10,22 +10,85 @@ datasource db {
   provider = "postgresql"
 }
 
+enum Color {
+  RED
+  ORANGE
+  AMBER
+  YELLOW
+  LIME
+  GREEN
+  EMERALD
+  TEAL
+  CYAN
+  SKY
+  BLUE
+  INDIGO
+  VIOLET
+  PURPLE
+  FUCHSIA
+  PINK
+  ROSE
+  BLACK
+  WHITE
+  GRAY
+  SLATE
+  STONE
+  ZINC
+  NEON_GREEN
+  NEON_PINK
+  MINT
+  AQUA
+  TURQUOISE
+  BRONZE
+  GOLD
+  SILVER
+  COPPER
+  MAROON
+  OLIVE
+  NAVY
+  LAVENDER
+  BEIGE
+  PEACH
+  BROWN
+  CHARCOAL
+  MAGENTA
+  CORAL
+  SAPPHIRE
+  RUBY
+  SAND
+  MUSTARD
+  ICE
+  JADE
+  PLUM
+  SEAFOAM
+  INDIGO_DARK
+  LIME_DARK
+  BERRY
+  MOSS
+  FLAMINGO
+  ICE_BLUE
+  MULBERRY
+  MANGO
+  OBSIDIAN
+  WISTERIA
+}
+
 model User {
-  id            String    @id
-  name          String
-  firstName     String?
-  lastName      String?
-  email         String
-  emailVerified Boolean   @default(false)
-  image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @default(now()) @updatedAt
-  sessions      Session[]
-  accounts      Account[]
-  projects      Project[]
-  projectMembers ProjectMember[]
-  articles      Article[] @relation("ArticleAuthor")
-  updatedArticles Article[] @relation("ArticleLastUpdatedBy")
+  id              String          @id
+  name            String
+  firstName       String?
+  lastName        String?
+  email           String
+  emailVerified   Boolean         @default(false)
+  image           String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @default(now()) @updatedAt
+  sessions        Session[]
+  accounts        Account[]
+  projects        Project[]
+  projectMembers  ProjectMember[]
+  articles        Article[]       @relation("ArticleAuthor")
+  updatedArticles Article[]       @relation("ArticleLastUpdatedBy")
 
   twoFactorEnabled Boolean?    @default(false)
   twofactors       TwoFactor[]
@@ -93,32 +156,31 @@ enum InvitationStatus {
 }
 
 model Project {
-  id                    String           @id @default(cuid())
+  id                    String              @id @default(cuid())
   name                  String
   slug                  String
   description           String?
   icon                  String? // R2 object key for project icon
-  allowedOrigins        String[]         @default([]) // Array of allowed origins for CORS
-  timezone              String           @default("UTC") // Project timezone for scheduled publishing
-  defaultLanguage       String           @default("en") // Default language for articles (ISO 639-1 code)
-  subscriptionTier      SubscriptionTier @default(STARTER) // "STARTER" | "PRO" - Project-specific subscription tier
+  color                 Color?              @default(CYAN)
+  allowedOrigins        String[]            @default([]) // Array of allowed origins for CORS
+  timezone              String              @default("UTC") // Project timezone for scheduled publishing
+  defaultLanguage       String              @default("en") // Default language for articles (ISO 639-1 code)
+  subscriptionTier      SubscriptionTier    @default(STARTER) // "STARTER" | "PRO" - Project-specific subscription tier
   subscriptionExpiresAt DateTime? // When the subscription expires (for pro projects)
   stripeCustomerId      String? // Stripe customer ID for this project
   stripeSubscriptionId  String? // Stripe subscription ID for this project
-  // API usage tracking (moved from User)
-  monthlyApiCalls       Int              @default(0) // Reset each month
-  apiCallsResetAt       DateTime         @default(now()) // Date of last reset
-  // Storage tracking (moved from User)
-  totalStorageUsed      Int              @default(0) // In bytes
+  monthlyApiCalls       Int                 @default(0) // Reset each month
+  apiCallsResetAt       DateTime            @default(now()) // Date of last reset
+  totalStorageUsed      Int                 @default(0) // In bytes
   userId                String
-  user                  User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user                  User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   apiKeys               ApiKey[]
   articles              Article[]
   members               ProjectMember[]
   roles                 ProjectRole[]
   invitations           ProjectInvitation[]
-  createdAt             DateTime         @default(now())
-  updatedAt             DateTime         @updatedAt
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
 
   @@unique([slug])
   @@index([userId, createdAt])
@@ -327,30 +389,30 @@ model Passkey {
 
 // Rôles personnalisables par projet
 model ProjectRole {
-  id          String   @id @default(cuid())
-  projectId   String
-  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  id        String  @id @default(cuid())
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
-  name        String   // "Administrator", "Editor", "Viewer", etc. (customizable)
-  slug        String   // "admin", "editor", "viewer" (pour identifier le rôle)
+  name String // "Administrator", "Editor", "Viewer", etc. (customizable)
+  slug String // "admin", "editor", "viewer" (pour identifier le rôle)
 
   // Permissions granulaires
-  canManageProject      Boolean @default(false)  // Modifier settings projet
-  canManageMembers      Boolean @default(false)  // Inviter/retirer membres
-  canManageRoles        Boolean @default(false)  // Modifier les rôles/permissions
-  canManageArticles     Boolean @default(false)  // Créer/modifier articles
-  canManageApiKeys      Boolean @default(false)  // Créer/supprimer API keys
-  canViewAnalytics      Boolean @default(true)   // Voir analytics
-  canManageBilling      Boolean @default(false)  // Gérer abonnement (réservé OWNER)
-  canDeleteProject      Boolean @default(false)  // Supprimer projet (réservé OWNER)
+  canManageProject  Boolean @default(false) // Modifier settings projet
+  canManageMembers  Boolean @default(false) // Inviter/retirer membres
+  canManageRoles    Boolean @default(false) // Modifier les rôles/permissions
+  canManageArticles Boolean @default(false) // Créer/modifier articles
+  canManageApiKeys  Boolean @default(false) // Créer/supprimer API keys
+  canViewAnalytics  Boolean @default(true) // Voir analytics
+  canManageBilling  Boolean @default(false) // Gérer abonnement (réservé OWNER)
+  canDeleteProject  Boolean @default(false) // Supprimer projet (réservé OWNER)
 
-  isOwner     Boolean  @default(false)  // Rôle fantôme réservé au créateur
-  isDefault   Boolean  @default(false)  // Rôle par défaut créé à l'init du projet
+  isOwner   Boolean @default(false) // Rôle fantôme réservé au créateur
+  isDefault Boolean @default(false) // Rôle par défaut créé à l'init du projet
 
-  members     ProjectMember[]
+  members ProjectMember[]
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([projectId, slug])
   @@index([projectId, isDefault])
@@ -359,21 +421,21 @@ model ProjectRole {
 
 // Table de jointure User ↔ Project
 model ProjectMember {
-  id        String   @id @default(cuid())
+  id String @id @default(cuid())
 
   // Relations
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   projectId String
-  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   // Rôle assigné (personnalisable)
-  roleId    String
-  role      ProjectRole @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  roleId String
+  role   ProjectRole @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
   // Tracking
   invitedBy String?
-  invitedAt DateTime @default(now())
+  invitedAt DateTime  @default(now())
   joinedAt  DateTime?
 
   createdAt DateTime @default(now())
@@ -387,24 +449,24 @@ model ProjectMember {
 
 // Système d'invitations avec token sécurisé
 model ProjectInvitation {
-  id        String           @id @default(cuid())
+  id String @id @default(cuid())
 
   email     String
   projectId String
-  project   Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
-  roleId    String           // Rôle à assigner lors de l'acceptation
-  status    InvitationStatus @default(PENDING)
+  roleId String // Rôle à assigner lors de l'acceptation
+  status InvitationStatus @default(PENDING)
 
-  token     String           @unique
-  expiresAt DateTime         // 7 jours par défaut
+  token     String   @unique
+  expiresAt DateTime // 7 jours par défaut
 
-  invitedBy String
-  invitedAt DateTime         @default(now())
+  invitedBy  String
+  invitedAt  DateTime  @default(now())
   acceptedAt DateTime?
 
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([email, projectId, status])
   @@index([token])
