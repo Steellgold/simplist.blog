@@ -2,7 +2,7 @@
 
 import { prisma } from "@simplist/db"
 import { revalidatePath } from "next/cache"
-import { forbidden, redirect } from "next/navigation"
+import { redirect } from "next/navigation"
 import { getCurrentUser } from "../auth-helper"
 import { requirePermission } from "../auth/permissions"
 import { CreateProjectActionInput, createProjectSchema, RESERVED_SLUGS, UpdateProjectSettingsInput } from "../validations/project"
@@ -54,7 +54,8 @@ export const createProject = async (input: CreateProjectActionInput) => {
   const validatedData = createProjectSchema.parse({
     name: input.name,
     description: input.description || "",
-    timezone: input.timezone || "UTC",
+    icon: input.icon || "building-2",
+    color: input.color || "CYAN",
     allowedOrigins: input.allowedOrigins || [],
   })
 
@@ -99,7 +100,9 @@ export const createProject = async (input: CreateProjectActionInput) => {
         name: validatedData.name,
         slug: finalSlug,
         description: validatedData.description ?? null,
-        timezone: validatedData.timezone,
+        icon: validatedData.icon,
+        color: validatedData.color,
+        timezone: "UTC",
         subscriptionTier: "STARTER",
         allowedOrigins: allowedOriginStrings,
         userId: user.id,
@@ -313,7 +316,8 @@ export const updateProjectSettings = async (projectId: string, input: UpdateProj
       name: input.name,
       slug: finalSlug,
       description: input.description ?? null,
-      timezone: input.timezone,
+      icon: input.icon,
+      color: input.color,
       defaultLanguage: input.defaultLanguage,
       allowedOrigins: allowedOriginStrings,
     },

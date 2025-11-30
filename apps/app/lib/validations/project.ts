@@ -1,5 +1,7 @@
-import { z } from "zod";
 import { LANGUAGES } from "@/lib/types/languages";
+import { ColorsEnum } from "@simplist/ui/lib/color";
+import { IconsEnum } from "@simplist/ui/lib/icons.enum";
+import { z } from "zod";
 
 // Reserved slugs that cannot be used for project names
 export const RESERVED_SLUGS = [
@@ -160,6 +162,8 @@ export const createProjectSchema = z.object({
   timezone: z
     .string()
     .min(1, "Timezone is required"),
+  icon: IconsEnum.optional(),
+  color: ColorsEnum.optional(),
   allowedOrigins: z
     .array(
       z.object({
@@ -169,7 +173,7 @@ export const createProjectSchema = z.object({
           .transform((val) => {
             // Normalize the input first
             let normalized = val.trim();
-            
+
             // Handle wildcard domains like *.example.com
             if (normalized.startsWith("*.")) {
               // If it already has https://, remove it before processing
@@ -178,12 +182,12 @@ export const createProjectSchema = z.object({
               }
               return `https://${normalized.replace("*.", "subdomain.")}`;
             }
-            
+
             // If it already starts with https://, don't add it again
             if (normalized.startsWith("https://") || normalized.startsWith("http://")) {
               return normalized.startsWith("http://") ? normalized.replace("http://", "https://") : normalized;
             }
-            
+
             return `https://${normalized}`;
           })
           .pipe(z.url("Please enter a valid domain (supports *.domain.com)"))
@@ -203,8 +207,9 @@ export type CreateProjectInput = z.infer<typeof createProjectSchema>
 export const createProjectActionSchema = z.object({
   name: z.string(),
   slug: z.string(),
-  timezone: z.string(),
   description: z.string().optional(),
+  icon: z.string().optional(),
+  color: z.string().optional(),
   subscriptionTier: z.enum(["STARTER", "PRO"]).optional(),
   allowedOrigins: z.array(z.object({ value: z.string() })).optional(),
 })
@@ -230,9 +235,8 @@ export const updateProjectSettingsSchema = z.object({
     .max(500, "Description must be less than 500 characters")
     .optional()
     .or(z.literal("")),
-  timezone: z
-    .string()
-    .min(1, "Timezone is required"),
+  icon: IconsEnum.optional(),
+  color: ColorsEnum.optional(),
   defaultLanguage: z
     .string()
     .refine((val) => LANGUAGES.some(lang => lang.code === val), "Please select a valid language"),
