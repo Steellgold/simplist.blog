@@ -41,13 +41,8 @@ export const useActiveProject = ({ projects, currentProject }: UseActiveProjectP
     }
   }, [router, projectSlug])
 
-  const createProjectUrl = useCallback(() => {
-    return "/create-project"
-  }, [])
-
   return {
     activeProject,
-    setActiveProject,
-    createProjectUrl,
+    setActiveProject
   }
 }

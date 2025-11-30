@@ -6,17 +6,17 @@ import { usePathname } from "next/navigation"
 import { ProjectSwitcher } from "@/components/projects/switcher"
 import { MiniBadge } from "@/components/ui/mini-badge"
 import type { User } from "@/lib/auth-client"
-import type { Project } from "@simplist/db/types"
+import type { RolePermission } from "@/lib/auth/permissions"
 import type { ProjectRole } from "@simplist/db"
+import type { Project } from "@simplist/db/types"
 import { ChartLine } from "@simplist/ui/animate-ui/chart-line"
+import { ClipboardListIcon } from "@simplist/ui/animate-ui/clipboard-list"
 import { LayersIcon } from "@simplist/ui/animate-ui/layers"
 import { LayoutDashboardIcon } from "@simplist/ui/animate-ui/layout-dashboard"
 import { SettingsIcon } from "@simplist/ui/animate-ui/settings"
-import { ClipboardListIcon } from "@simplist/ui/animate-ui/clipboard-list"
-import { UsersIcon } from "@simplist/ui/animate-ui/users"
 import { Star } from "@simplist/ui/animate-ui/star"
 import { UnplugIcon } from "@simplist/ui/animate-ui/unplug"
-import { Ban } from "lucide-react"
+import { UsersIcon } from "@simplist/ui/animate-ui/users"
 import {
   Sidebar,
   SidebarContent,
@@ -29,9 +29,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem
 } from "@simplist/ui/components/sidebar"
+import { Ban } from "lucide-react"
 import { cloneElement, useState, type ReactNode } from "react"
 import { SidebarFooterItem } from "./sidebar-footer-item"
-import type { RolePermission } from "@/lib/auth/permissions"
 
 /**
  * true = items without permission are hidden
@@ -121,12 +121,9 @@ const getTeamItems = (isPro: boolean, projectSlug: string): NavigationItem[] => 
 ]
 
 export const AppSidebar = ({
-  user,
-  projects,
-  activeProject,
-  currentRole,
-  onProjectChange,
-  onCreateProject,
+  user, projects,
+  activeProject, currentRole,
+  onProjectChange, onCreateProject,
   isCreatingProject = false,
 }: AppSidebarProps) => {
   const [itemHovered, setItemHovered] = useState<string | null>(null)

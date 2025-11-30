@@ -2,8 +2,8 @@
 
 import { useActiveProject } from "@/hooks/use-active-project"
 import type { User } from "@/lib/auth-client"
-import type { Project } from "@simplist/db/types"
 import type { ProjectRole } from "@simplist/db"
+import type { Project } from "@simplist/db/types"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { AppSidebar } from "./sidebar"
@@ -19,7 +19,7 @@ export const AppSidebarWrapper = ({ user, projects, currentProject, currentRole 
   const router = useRouter()
   const [isCreatingProject, setIsCreatingProject] = useState(false)
 
-  const { activeProject, setActiveProject, createProjectUrl } = useActiveProject({
+  const { activeProject, setActiveProject } = useActiveProject({
     projects,
     currentProject
   })
@@ -33,7 +33,7 @@ export const AppSidebarWrapper = ({ user, projects, currentProject, currentRole 
 
   const handleCreateProject = () => {
     setIsCreatingProject(true)
-    router.push(createProjectUrl())
+    router.push("/create-project")
   }
 
   return (
