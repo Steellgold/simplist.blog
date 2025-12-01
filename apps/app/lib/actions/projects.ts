@@ -55,7 +55,7 @@ export const createProject = async (input: CreateProjectActionInput) => {
     name: input.name,
     description: input.description || "",
     icon: input.icon || "building-2",
-    color: input.color || "CYAN",
+    color: input.color || "YELLOW",
     allowedOrigins: input.allowedOrigins || [],
   })
 

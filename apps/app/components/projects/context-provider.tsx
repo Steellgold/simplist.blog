@@ -11,6 +11,7 @@ interface ProjectContextType {
   currentMember: ProjectMember | null
   currentMemberId: string | null
   refreshProjects: () => void
+  updateProject: (project: Project) => void
   isRefreshing: boolean
 }
 
@@ -36,6 +37,11 @@ export const ProjectContextProvider = ({ children, projects: initialProjects, cu
     })
   }
 
+  const updateProject = (project: Project) => {
+    setProjects((prev) => prev.map((p) => (p.id === project.id ? { ...p, ...project } : p)))
+    setCurrentProject((prev) => (prev?.id === project.id ? { ...prev, ...project } : prev))
+  }
+
   if (initialProjects !== projects) {
     setProjects(initialProjects)
   }
@@ -55,6 +61,7 @@ export const ProjectContextProvider = ({ children, projects: initialProjects, cu
       currentMember,
       currentMemberId,
       refreshProjects,
+      updateProject,
       isRefreshing: isPending
     }}>
       {children}

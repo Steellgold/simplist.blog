@@ -9,6 +9,7 @@ export const useProject = () => {
     currentMember,
     currentMemberId,
     refreshProjects,
+    updateProject,
     isRefreshing
   } = useProjectContext()
 
@@ -18,6 +19,7 @@ export const useProject = () => {
     currentMember,
     currentMemberId,
     refreshProjects,
+    updateProject,
     isRefreshing
   }
 }

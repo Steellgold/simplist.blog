@@ -2,7 +2,7 @@
 
 import { MiniBadge } from "@/components/ui/mini-badge"
 import { ChevronsUpDown, Plus } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 import { ProjectIconAvatar } from "@/components/icon-avatar"
 import type { Project } from "@simplist/db/types"
@@ -42,6 +42,13 @@ export const ProjectSwitcher = ({
     projects.find((p) => p.id === activeProjectId) || projects[0]
   )
 
+  useEffect(() => {
+    const nextActive = projects.find((p) => p.id === activeProjectId) || projects[0]
+    if (nextActive) {
+      setActiveProject(nextActive)
+    }
+  }, [projects, activeProjectId])
+
   const handleProjectChange = (project: Project) => {
     setActiveProject(project)
     onProjectChange?.(project.id)
@@ -63,12 +70,16 @@ export const ProjectSwitcher = ({
               suppressHydrationWarning
             >
               <ProjectIconAvatar project={activeProject || projects[0]} size="md" />
+
               <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
                 <div className="flex items-center gap-2">
                   <span className="truncate font-semibold">
-                    {activeProject?.name || "Select project"}
+                    {activeProject?.name.slice(0, 13).concat(
+                      activeProject?.name.length > 13 ? "..." : ""
+                    ) || "Select project"}
                   </span>
                 </div>
+
                 <div className="flex items-center gap-2">
                   <MiniBadge tier={isPro ? "LPRO" : "LSTARTER"} size="md" />
                 </div>
@@ -99,8 +110,10 @@ export const ProjectSwitcher = ({
                     project={project} 
                     size="xs"
                     roundedSize="xs"
+                    onlyDot
                   />
                 </div>
+
                 <div className="flex flex-row items-center gap-2 justify-between w-full">
                   <span className="font-medium">{project.name}</span>
                   <div className="flex items-center">
@@ -121,17 +134,14 @@ export const ProjectSwitcher = ({
             <DropdownMenuItem
               onClick={onCreateProject}
               className="gap-2 p-2"
-              disabled={isCreatingProject || projects.length >= 2}
+              disabled={isCreatingProject}
             >
               <div className="flex size-6 items-center justify-center rounded-md border bg-background">
-                {isCreatingProject ? (
-                  <Spinner />
-                ) : (
-                  <Plus className="size-4" />
-                )}
+                {isCreatingProject ? <Spinner /> : <Plus />}
               </div>
+
               <div className="font-medium text-muted-foreground">
-                {isCreatingProject ? "Creating..." : projects.length >= 2 ? "Limit reached (2/2)" : "Create project"}
+                {isCreatingProject ? "Creating..." : "Create project"}
               </div>
             </DropdownMenuItem>
           </DropdownMenuContent>

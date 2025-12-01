@@ -159,9 +159,6 @@ export const createProjectSchema = z.object({
     .max(500, "Description must be less than 500 characters")
     .optional()
     .or(z.literal("")),
-  timezone: z
-    .string()
-    .min(1, "Timezone is required"),
   icon: IconsEnum.optional(),
   color: ColorsEnum.optional(),
   allowedOrigins: z
@@ -237,7 +234,12 @@ export const updateProjectSettingsSchema = z.object({
     .or(z.literal("")),
   icon: IconsEnum.optional(),
   color: ColorsEnum.optional(),
-  avatarUrl: z.url().optional().or(z.literal("")).nullable(),
+  avatarUrl: z.union([
+    z.url(),
+    z.literal(""),
+    z.literal("pending"),
+    z.null()
+  ]).optional(),
   defaultLanguage: z
     .string()
     .refine((val) => LANGUAGES.some(lang => lang.code === val), "Please select a valid language"),

@@ -48,12 +48,12 @@ type ProjectProps = {
   useVercelAvatar?: boolean;
 }
 
-export const ProjectIconAvatar: FC<ProjectProps> = ({ 
-  project, 
-  size = "md", 
-  roundedSize = "lg", 
+export const ProjectIconAvatar: FC<ProjectProps> = ({
+  project,
+  size = "md",
+  roundedSize = "lg",
   onlyDot = false,
-  useVercelAvatar = false 
+  useVercelAvatar = false
 }) => {
   if (!project) {
     return <></>;
@@ -68,6 +68,52 @@ export const ProjectIconAvatar: FC<ProjectProps> = ({
       <div className={cn("flex items-center justify-center")}>
         <div className="size-3.5 rounded-xs" style={{ backgroundColor }}></div>
       </div>
+    )
+  }
+
+  // If project has an avatarUrl, use Avatar component with the image
+  if (project.avatarUrl) {
+    return (
+      <Avatar className={cn({
+        "size-4": size === "xs",
+        "size-6": size === "sm",
+        "size-8": size === "md",
+        "size-10": size === "lg",
+        "rounded-xs": roundedSize === "xs",
+        "rounded-sm": roundedSize === "sm",
+        "rounded-md": roundedSize === "md",
+        "rounded-lg": roundedSize === "lg",
+      })}>
+        <AvatarImage
+          src={project.avatarUrl}
+          alt={project.name}
+          width={32}
+          height={32}
+        />
+
+        <AvatarFallback
+          className={cn({
+            "rounded-xs": roundedSize === "xs",
+            "rounded-sm": roundedSize === "sm",
+            "rounded-md": roundedSize === "md",
+            "rounded-lg": roundedSize === "lg",
+          })}
+          style={{
+            backgroundColor,
+            color: textColor,
+          }}
+        >
+          <IconRender
+            name={iconName}
+            className={cn({
+              "size-2": size === "xs",
+              "size-3": size === "sm",
+              "size-4": size === "md",
+              "size-5": size === "lg",
+            })}
+          />
+        </AvatarFallback>
+      </Avatar>
     )
   }
 

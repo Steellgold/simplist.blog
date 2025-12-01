@@ -58,6 +58,7 @@ type NavigationItem = {
   showProBadge?: boolean
   matchStrategy?: "exact" | "prefix"
   requiredPermissions?: RolePermission[]
+  category: string
 }
 
 const getNavigationItems = (isPro: boolean, projectSlug: string): NavigationItem[] => [
@@ -66,13 +67,15 @@ const getNavigationItems = (isPro: boolean, projectSlug: string): NavigationItem
     icon: <LayoutDashboardIcon />,
     href: `/${projectSlug}`,
     matchStrategy: "exact",
-    requiredPermissions: []
+    requiredPermissions: [],
+    category: "Navigation"
   },
   {
     title: "Articles",
     icon: <LayersIcon />,
     href: `/${projectSlug}/articles`,
-    requiredPermissions: ["canManageArticles"]
+    requiredPermissions: ["canManageArticles"],
+    category: "Navigation"
   },
   {
     title: "Analytics",
@@ -80,35 +83,37 @@ const getNavigationItems = (isPro: boolean, projectSlug: string): NavigationItem
     href: `/${projectSlug}/analytics`,
     disabled: !isPro,
     showProBadge: !isPro,
-    requiredPermissions: ["canViewAnalytics"]
+    requiredPermissions: ["canViewAnalytics"],
+    category: "Navigation"
+  },
+  {
+    title: "General",
+    icon: <SettingsIcon />,
+    href: `/${projectSlug}/settings`,
+    matchStrategy: "exact",
+    requiredPermissions: ["canManageProject"],
+    category: "Settings"
   },
   {
     title: "API Keys",
     icon: <UnplugIcon />,
     href: `/${projectSlug}/api-keys`,
-    requiredPermissions: ["canManageApiKeys"]
-  },
-  {
-    title: "Settings",
-    icon: <SettingsIcon />,
-    href: `/${projectSlug}/settings`,
-    matchStrategy: "exact",
-    requiredPermissions: ["canManageProject"]
+    requiredPermissions: ["canManageApiKeys"],
+    category: "Settings"
   },
   {
     title: "Billing",
     icon: <Star />,
     href: `/${projectSlug}/settings/billing`,
-    requiredPermissions: ["canManageBilling"]
-  }
-]
-
-const getTeamItems = (isPro: boolean, projectSlug: string): NavigationItem[] => [
+    requiredPermissions: ["canManageBilling"],
+    category: "Settings"
+  },
   {
     title: "Members",
     icon: <UsersIcon />,
     href: `/${projectSlug}/settings/members`,
-    requiredPermissions: ["canManageMembers"]
+    requiredPermissions: ["canManageMembers"],
+      category: "Team"
   },
   {
     title: "Roles",
@@ -116,7 +121,8 @@ const getTeamItems = (isPro: boolean, projectSlug: string): NavigationItem[] => 
     href: `/${projectSlug}/settings/roles`,
     disabled: !isPro,
     showProBadge: !isPro,
-    requiredPermissions: ["canManageRoles"]
+    requiredPermissions: ["canManageRoles"],
+    category: "Team"
   }
 ]
 
@@ -134,7 +140,6 @@ export const AppSidebar = ({
     new Date(activeProject.subscriptionExpiresAt) > new Date();
 
   const navigationItems = getNavigationItems(isPro ?? false, activeProject?.slug || "");
-  const teamItems = getTeamItems(isPro ?? false, activeProject?.slug || "");
 
   const isItemActive = (href: string, matchStrategy: "exact" | "prefix" = "prefix") => {
     if (matchStrategy === "exact") {
@@ -149,8 +154,17 @@ export const AppSidebar = ({
     return item.requiredPermissions.every(permission => currentRole[permission] === true)
   }
 
+  // Regrouper les items par catégorie
+  const itemsByCategory = navigationItems.reduce((acc, item) => {
+    if (!acc[item.category]) {
+      acc[item.category] = []
+    }
+    acc[item.category].push(item)
+    return acc
+  }, {} as Record<string, NavigationItem[]>)
+
   const shouldShowCategory = (items: NavigationItem[]): boolean => {
-    if (!NOT_ALLOWED_HIDDEN) return true // Always show categories if items are visible with Ban icon
+    if (!NOT_ALLOWED_HIDDEN) return true
     return items.some(item => hasAccess(item))
   }
 
@@ -167,133 +181,73 @@ export const AppSidebar = ({
       </SidebarHeader>
 
       <SidebarContent>
-        {shouldShowCategory(navigationItems) && (
-          <SidebarGroup>
-            <SidebarGroupLabel>Navigation</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {navigationItems.map((item) => {
-                  const isActive = isItemActive(item.href, item.matchStrategy)
-                  const userHasAccess = hasAccess(item)
-                  const isDisabled = item.disabled || !userHasAccess
+        {Object.entries(itemsByCategory).map(([category, items]) => {
+          if (!shouldShowCategory(items)) return null
 
-                  if (NOT_ALLOWED_HIDDEN && !userHasAccess) {
-                    return null
-                  }
+          return (
+            <SidebarGroup key={category}>
+              <SidebarGroupLabel>{category}</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {items.map((item) => {
+                    const isActive = isItemActive(item.href, item.matchStrategy)
+                    const userHasAccess = hasAccess(item)
+                    const isDisabled = item.disabled || !userHasAccess
 
-                  return (
-                    <SidebarMenuItem key={item.href}>
-                      <SidebarMenuButton
-                        asChild={!isDisabled}
-                        disabled={isDisabled}
-                        isActive={isActive}
-                        className={isDisabled ? "opacity-50 cursor-not-allowed" : ""}
-                        onMouseEnter={() => setItemHovered(item.href)}
-                        onMouseLeave={() => setItemHovered(null)}
-                        tooltip={
-                          !userHasAccess
-                            ? `${item.title} (No permission)`
-                            : item.disabled
-                              ? `${item.title} (Premium required)`
-                              : undefined
-                        }
-                      >
-                        {isDisabled ? (
-                          <div className="flex items-center gap-2 w-full [&>svg]:size-4">
-                            {userHasAccess ? (
-                              cloneElement(item.icon as React.ReactElement, {
+                    if (NOT_ALLOWED_HIDDEN && !userHasAccess) {
+                      return null
+                    }
+
+                    return (
+                      <SidebarMenuItem key={item.href}>
+                        <SidebarMenuButton
+                          asChild={!isDisabled}
+                          disabled={isDisabled}
+                          isActive={isActive}
+                          className={isDisabled ? "opacity-50 cursor-not-allowed" : ""}
+                          onMouseEnter={() => setItemHovered(item.href)}
+                          onMouseLeave={() => setItemHovered(null)}
+                          tooltip={
+                            !userHasAccess
+                              ? `${item.title} (No permission)`
+                              : item.disabled
+                                ? `${item.title} (Premium required)`
+                                : undefined
+                          }
+                        >
+                          {isDisabled ? (
+                            <div className="flex items-center gap-2 w-full [&>svg]:size-4">
+                              {userHasAccess ? (
+                                cloneElement(item.icon as React.ReactElement, {
+                                  // @ts-expect-error - animate prop is added dynamically
+                                  animate: itemHovered === item.href
+                                })
+                              ) : (
+                                <Ban className="size-4" />
+                              )}
+                              <span className="flex-1 group-data-[collapsible=icon]:hidden">{item.title}</span>
+                              {item.showProBadge && (
+                                <MiniBadge tier="PRO" size="sm" className="group-data-[collapsible=icon]:hidden" />
+                              )}
+                            </div>
+                          ) : (
+                            <Link href={item.href}>
+                              {cloneElement(item.icon as React.ReactElement, {
                                 // @ts-expect-error - animate prop is added dynamically
-                                animate: itemHovered === item.href
-                              })
-                            ) : (
-                              <Ban className="size-4" />
-                            )}
-                            <span className="flex-1 group-data-[collapsible=icon]:hidden">{item.title}</span>
-                            {item.showProBadge && (
-                              <MiniBadge tier="PRO" size="sm" className="group-data-[collapsible=icon]:hidden" />
-                            )}
-                          </div>
-                        ) : (
-                          <Link href={item.href}>
-                            {cloneElement(item.icon as React.ReactElement, {
-                              // @ts-expect-error - animate prop is added dynamically
-                              animate: itemHovered === item.href || isActive
-                            })}
-                            <span className="group-data-[collapsible=icon]:hidden">{item.title}</span>
-                          </Link>
-                        )}
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  )
-                })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
-
-        {shouldShowCategory(teamItems) && (
-          <SidebarGroup>
-            <SidebarGroupLabel>Team</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {teamItems.map((item) => {
-                  const isActive = isItemActive(item.href, item.matchStrategy)
-                  const userHasAccess = hasAccess(item)
-                  const isDisabled = item.disabled || !userHasAccess
-
-                  if (NOT_ALLOWED_HIDDEN && !userHasAccess) {
-                    return null
-                  }
-
-                  return (
-                    <SidebarMenuItem key={item.href}>
-                      <SidebarMenuButton
-                        asChild={!isDisabled}
-                        disabled={isDisabled}
-                        isActive={isActive}
-                        className={isDisabled ? "opacity-50 cursor-not-allowed" : ""}
-                        onMouseEnter={() => setItemHovered(item.href)}
-                        onMouseLeave={() => setItemHovered(null)}
-                        tooltip={
-                          !userHasAccess
-                            ? `${item.title} (No permission)`
-                            : item.disabled
-                              ? `${item.title} (Premium required)`
-                              : undefined
-                        }
-                      >
-                        {isDisabled ? (
-                          <div className="flex items-center gap-2 w-full [&>svg]:size-4">
-                            {userHasAccess ? (
-                              cloneElement(item.icon as React.ReactElement, {
-                                // @ts-expect-error - animate prop is added dynamically
-                                animate: itemHovered === item.href
-                              })
-                            ) : (
-                              <Ban className="size-4" />
-                            )}
-                            <span className="flex-1 group-data-[collapsible=icon]:hidden">{item.title}</span>
-                            {item.showProBadge && (
-                              <MiniBadge tier="PRO" size="sm" className="group-data-[collapsible=icon]:hidden" />
-                            )}
-                          </div>
-                        ) : (
-                          <Link href={item.href}>
-                            {cloneElement(item.icon as React.ReactElement, {
-                              // @ts-expect-error - animate prop is added dynamically
-                              animate: itemHovered === item.href || isActive
-                            })}
-                            <span className="group-data-[collapsible=icon]:hidden">{item.title}</span>
-                          </Link>
-                        )}
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  )
-                })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
+                                animate: itemHovered === item.href || isActive
+                              })}
+                              <span className="group-data-[collapsible=icon]:hidden">{item.title}</span>
+                            </Link>
+                          )}
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    )
+                  })}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          )
+        })}
       </SidebarContent>
 
       <SidebarFooter>

@@ -6,6 +6,8 @@ import { XCircle, X, MoveHorizontal } from "lucide-react"
 import Link from "next/link"
 import { buttonVariants } from "@simplist/ui/components/button"
 import { InvitationActions } from "@/components/members/invitation-actions"
+import { IconRender } from "@simplist/ui/components/icon-renderer"
+import { getColorValue } from "@simplist/ui/lib/color"
 
 type PageProps = {
   params: Promise<{
@@ -75,10 +77,17 @@ export default async function InvitationPage({ params }: PageProps) {
       <div className="flex items-center justify-center gap-8 py-8">
         {/* Project + Inviter avatar stack */}
         <div className="flex flex-col items-center gap-3">
-          <div className="flex -space-x-6 *:data-[slot=avatar]:ring-background *:data-[slot=avatar]:size-16 *:data-[slot=avatar]:ring-4">
+          <div className="flex -space-x-6.5 *:data-[slot=avatar]:ring-background *:data-[slot=avatar]:size-16 *:data-[slot=avatar]:ring-4">
             <Avatar data-slot="avatar">
-              <AvatarImage src={projectIconUrl} alt={invitation?.projectName} />
-              <AvatarFallback>{getInitials(invitation?.projectName)}</AvatarFallback>
+              <AvatarImage src={invitation?.projectIcon.imageUrl || ""} alt={invitation?.projectName} />
+              <AvatarFallback style={{
+                backgroundColor: getColorValue(invitation?.projectIcon.backgroundColor ?? "YELLOW"),
+              }}>
+                <IconRender
+                  name={invitation?.projectIcon.iconName || "building-2"}
+                  className="size-6"
+                />
+              </AvatarFallback>
             </Avatar>
             <Avatar data-slot="avatar">
               <AvatarImage src={inviterImageUrl} alt={invitation?.inviterName} />
