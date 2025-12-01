@@ -251,8 +251,9 @@ export const EditArticleForm = ({ article }: EditArticleFormProps) => {
           form.append("file", file)
           form.append("projectId", article.projectId)
           form.append("postId", article.id)
+          form.append("type", "banner")
 
-          const res = await fetch("/api/uploads/banner", {
+          const res = await fetch("/api/uploads", {
             method: "POST",
             body: form,
           })
