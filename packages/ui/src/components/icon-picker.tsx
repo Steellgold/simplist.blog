@@ -3,6 +3,15 @@
 import { Button } from "@simplist/ui/components/button";
 import { Command, CommandInput } from "@simplist/ui/components/command";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@simplist/ui/components/dialog";
+import {
   Drawer,
   DrawerContent,
   DrawerDescription,
@@ -33,6 +42,7 @@ type IconPickerProps = {
   className?: string;
   iconsPerBatch?: number;
   disabled?: boolean;
+  dialog?: boolean;
 };
 
 export const IconPicker: FC<IconPickerProps> = ({
@@ -42,17 +52,24 @@ export const IconPicker: FC<IconPickerProps> = ({
   className,
   iconsPerBatch = DEFAULT_ICONS_PER_BATCH,
   disabled = false,
+  dialog = false,
 }) => {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [visibleIconCount, setVisibleIconCount] = useState(iconsPerBatch);
+  const [selectedIcon, setSelectedIcon] = useState<IconsEnumType | undefined>(value);
 
   const categoryScrollRef = useRef<HTMLDivElement>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const pickerRef = useRef<HTMLDivElement>(null);
 
   const isDesktop = useMediaQuery("(min-width: 768px)");
+
+  // Synchronize selectedIcon with value prop when it changes
+  useEffect(() => {
+    setSelectedIcon(value);
+  }, [value]);
 
   const categories = useMemo(() => {
     const all = new Set<string>();
@@ -117,14 +134,28 @@ export const IconPicker: FC<IconPickerProps> = ({
   }, [value]);
 
   const handleSelect = (iconName: string) => {
-    onValueChange?.(iconName as IconsEnumType);
+    if (dialog) {
+      setSelectedIcon(iconName as IconsEnumType);
+    } else {
+      onValueChange?.(iconName as IconsEnumType);
 
-    setTimeout(() => {
-      setOpen(false);
-      setSearch("");
-      setSelectedCategory("All");
-      setVisibleIconCount(iconsPerBatch);
-    }, 0);
+      setTimeout(() => {
+        setOpen(false);
+        setSearch("");
+        setSelectedCategory("All");
+        setVisibleIconCount(iconsPerBatch);
+      }, 0);
+    }
+  };
+
+  const handleDialogConfirm = () => {
+    if (selectedIcon) {
+      onValueChange?.(selectedIcon);
+    }
+    setOpen(false);
+    setSearch("");
+    setSelectedCategory("All");
+    setVisibleIconCount(iconsPerBatch);
   };
 
   const handleOpenChange = (newOpen: boolean) => {
@@ -135,6 +166,9 @@ export const IconPicker: FC<IconPickerProps> = ({
       setSearch("");
       setSelectedCategory("All");
       setVisibleIconCount(iconsPerBatch);
+      if (dialog) {
+        setSelectedIcon(value);
+      }
     }
   };
 
@@ -209,6 +243,89 @@ export const IconPicker: FC<IconPickerProps> = ({
   ]);
 
   const hasMoreIcons = visibleIconCount < filteredIcons.length;
+
+  if (dialog) {
+    return (
+      <Dialog open={open} onOpenChange={handleOpenChange}>
+        <DialogTrigger asChild disabled={disabled}>
+          <Button
+            variant="outline"
+            role="combobox"
+            type="button"
+            aria-expanded={open}
+            onClick={() => setOpen(!open)}
+            className={cn(
+              "w-full justify-between",
+              !value && "text-muted-foreground",
+              className,
+              disabled && "opacity-50 cursor-not-allowed",
+            )}
+          >
+            <div className="flex items-center gap-2 min-w-0">
+              {SelectedIcon && <SelectedIcon className="h-4 w-4" />}
+              <span className="truncate text-sm sm:text-base">
+                {value
+                  ? value
+                      .replace(/[-_]/g, " ")
+                      .replace(/\b\w/g, (c) => c.toUpperCase())
+                  : placeholder}
+              </span>
+            </div>
+            <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
+          </Button>
+        </DialogTrigger>
+
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Select an Icon</DialogTitle>
+            <DialogDescription>
+              Select an icon from the list below. You can search by name or filter by category.
+            </DialogDescription>
+          </DialogHeader>
+
+          <IconPickerContent
+            search={search}
+            setSearch={setSearch}
+            selectedCategory={selectedCategory}
+            categories={categories}
+            handleCategorySelect={handleCategorySelect}
+            handleCategoryWheel={handleCategoryWheel}
+            categoryScrollRef={categoryScrollRef}
+            filteredIcons={filteredIcons}
+            visibleIcons={visibleIcons}
+            handleSelect={handleSelect}
+            hasMoreIcons={hasMoreIcons}
+            loadMoreRef={loadMoreRef}
+            handleIconsWheel={handleIconsWheel}
+            searchPlaceholder={searchPlaceholder}
+            value={value}
+            isDialog={true}
+            selectedIcon={selectedIcon}
+          />
+
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => handleOpenChange(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="default"
+              size="sm"
+              onClick={handleDialogConfirm}
+              disabled={!selectedIcon}
+            >
+              Select Icon
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   if (isDesktop) {
     return (
@@ -364,6 +481,8 @@ type IconPickerContentProps = {
   searchPlaceholder: string;
   value?: IconsEnumType;
   isMobile?: boolean;
+  isDialog?: boolean;
+  selectedIcon?: IconsEnumType;
 };
 
 function IconPickerContent({
@@ -383,6 +502,8 @@ function IconPickerContent({
   searchPlaceholder,
   value,
   isMobile = false,
+  isDialog = false,
+  selectedIcon,
 }: IconPickerContentProps) {
   return (
     <Command shouldFilter={false}>
@@ -439,7 +560,9 @@ function IconPickerContent({
                   )[toPascalCase(icon.name)];
                   if (!IconComponent) return null;
 
-                  const isSelected = value === icon.name;
+                  const isSelected = isDialog
+                    ? selectedIcon === icon.name
+                    : value === icon.name;
 
                   return (
                     <Button
