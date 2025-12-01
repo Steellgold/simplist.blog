@@ -3,7 +3,7 @@
 import { useProjectContext } from "@/components/projects/context-provider"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
-import { Clock, Copy, Edit, MoreHorizontal, Trash, TrendingUp } from "lucide-react"
+import { Copy, Edit, MoreVertical, Trash, TrendingUp } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -63,9 +63,8 @@ const ArticleActionsCell = ({ article }: { article: Article }) => {
   const handleDelete = async () => {
     try {
       setIsDeleting(true)
-      await toast.promise(
-        deleteArticle(article.id),
-        {
+      toast.promise(
+        deleteArticle(article.id), {
           loading: "Deleting article...",
           success: "Article deleted successfully",
           error: "Failed to delete article",
@@ -82,9 +81,9 @@ const ArticleActionsCell = ({ article }: { article: Article }) => {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
+          <Button variant="ghost" size="icon-sm">
             <span className="sr-only">Open menu</span>
-            <MoreHorizontal className="h-4 w-4" />
+            <MoreVertical />
           </Button>
         </DropdownMenuTrigger>
 

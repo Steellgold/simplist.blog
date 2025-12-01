@@ -13,7 +13,7 @@ import {
   SortingState,
   useReactTable,
 } from "@tanstack/react-table"
-import { Trash, TrendingUp } from "lucide-react"
+import { Trash, TrendingUp, X } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 
@@ -123,12 +123,12 @@ export const ArticlesDataTable = <TData extends { id: string }, TValue>({
                 size: "sm",
               })}
             >
-              <TrendingUp className="h-4 w-4 sm:mr-1" />
+              <TrendingUp />
               Analytics
             </Link>
 
             <Button
-              variant="destructive"
+              variant="outline-destructive"
               size="sm"
               onClick={() => setShowBulkDeleteDialog(true)}
             >

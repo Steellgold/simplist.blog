@@ -246,7 +246,7 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
             leftAction={(
               <Link
                 href={`/${currentProject?.slug}/articles`}
-                className={buttonVariants({ variant: "outline", size: "sm" })}
+                className={buttonVariants({ variant: "outline-destructive", size: "sm" })}
               >
                 <X />
                 Cancel
