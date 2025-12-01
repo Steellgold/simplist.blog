@@ -175,6 +175,7 @@ model Project {
   totalStorageUsed      Int                 @default(0) // In bytes
   userId                String
   user                  User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tags                  Tag[]
   apiKeys               ApiKey[]
   articles              Article[]
   members               ProjectMember[]
@@ -187,6 +188,23 @@ model Project {
   @@index([userId, createdAt])
   @@index([userId, subscriptionTier])
   @@map("project")
+}
+
+model Tag {
+  id   String @id @default(cuid())
+  name String
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  articles Article[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([projectId, name])
+  @@index([projectId])
+  @@map("tag")
 }
 
 model ApiKey {
@@ -226,6 +244,8 @@ model Article {
   characterCount     Int              @default(0)
   lineCount          Int              @default(0)
   readTimeMinutes    Int              @default(0)
+  //
+  tags               Tag[]
   // Scheduled publishing
   scheduledPublishAt DateTime?
   // Audit trail
