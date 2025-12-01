@@ -11,7 +11,7 @@ import { useEffect, useState } from "react"
 import { VariantFlags } from "./variant-flags"
 
 import { deleteArticle } from "@/lib/actions/articles"
-import { LanguageCode } from "@/lib/types/languages"
+import { getDateFnsLocale, LanguageCode } from "@/lib/types/languages"
 import { Badge } from "@simplist/ui/components/badge"
 import { Button } from "@simplist/ui/components/button"
 import { Checkbox } from "@simplist/ui/components/checkbox"
@@ -27,6 +27,7 @@ import {
 } from "@simplist/ui/components/dropdown-menu"
 import { toast } from "@simplist/ui/components/sonner"
 import { Spinner } from "@simplist/ui/components/spinner"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@simplist/ui/components/tooltip"
 
 type Article = {
   id: string
@@ -256,15 +257,27 @@ export const useArticlesColumns = (): ColumnDef<Article>[] => {
       const config = statusConfig[status] || statusConfig.draft
       const article = row.original
 
+      if (status === "scheduled" && article.scheduledPublishAt) {
+        return (
+          <TooltipProvider delayDuration={100}>
+            <Tooltip>
+              <TooltipTrigger>
+                <Badge variant={config.variant}>{config.label}</Badge>
+              </TooltipTrigger>
+
+              <TooltipContent>
+                {format(new Date(article.scheduledPublishAt), "PPP 'at' HH:mm", { locale: getDateFnsLocale(currentProject?.defaultLanguage || "en") })}
+                <br />
+                Timezone: {currentProject?.timezone}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )
+      }
+
       return (
         <div className="space-y-1">
           <Badge variant={config.variant}>{config.label}</Badge>
-          {status === "scheduled" && article.scheduledPublishAt && (
-            <div className="flex items-center text-xs text-muted-foreground">
-              <Clock className="h-3 w-3 mr-1" />
-              {format(new Date(article.scheduledPublishAt), "MMM d, yyyy \"at\" h:mm a")}
-            </div>
-          )}
         </div>
       )
     },

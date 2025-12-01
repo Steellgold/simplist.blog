@@ -242,6 +242,7 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
             scheduledPublishAt={scheduledPublishAt}
             onScheduleChange={setScheduledPublishAt}
             projectTimezone="UTC"
+            projectDefaultLanguage={defaultLanguage}
             projectId={currentProject?.id}
             leftAction={(
               <Link

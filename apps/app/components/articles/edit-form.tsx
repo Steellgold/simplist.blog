@@ -321,6 +321,7 @@ export const EditArticleForm = ({ article }: EditArticleFormProps) => {
             scheduledPublishAt={scheduledPublishAt}
             onScheduleChange={setScheduledPublishAt}
             projectTimezone="UTC"
+            projectDefaultLanguage={defaultLanguage}
             projectId={currentProject?.id}
             leftAction={(
               <Link

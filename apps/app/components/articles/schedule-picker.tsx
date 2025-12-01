@@ -1,5 +1,6 @@
 "use client";
 
+import { getDateFnsLocale, LanguageCode } from "@/lib/types/languages";
 import { Button } from "@simplist/ui/components/button";
 import { Calendar } from "@simplist/ui/components/calendar";
 import {
@@ -9,10 +10,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@simplist/ui/components/dialog";
-import { Label } from "@simplist/ui/components/label";
+import { Item, ItemContent, ItemDescription, ItemTitle } from "@simplist/ui/components/item";
 import { ScrollArea } from "@simplist/ui/components/scroll-area";
 import { format } from "date-fns";
-import { fr } from "date-fns/locale";
 import { Clock, X } from "lucide-react";
 import { useState } from "react";
 
@@ -20,6 +20,7 @@ type ArticleSchedulePickerProps = {
   scheduledPublishAt: Date | null;
   onScheduleChange: (date: Date | null) => void;
   projectTimezone: string;
+  projectDefaultLanguage: LanguageCode;
   disabled?: boolean;
 };
 
@@ -27,6 +28,7 @@ export const ArticleSchedulePicker = ({
   scheduledPublishAt,
   onScheduleChange,
   projectTimezone,
+  projectDefaultLanguage,
   disabled = false,
 }: ArticleSchedulePickerProps) => {
   const [date, setDate] = useState<Date | undefined>(
@@ -110,40 +112,24 @@ export const ArticleSchedulePicker = ({
     onScheduleChange(null);
   };
 
-  const formatScheduledDate = (date: Date) => {
-    return format(date, "PPP \"at\" p", { locale: fr });
-  };
-
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <Label className="text-sm font-medium">Schedule Publication</Label>
-        {scheduledPublishAt && (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={handleClearSchedule}
-            disabled={disabled}
-          >
-            <X className="h-4 w-4 mr-1" />
-            Clear
-          </Button>
-        )}
-      </div>
-
       {scheduledPublishAt ? (
-        <div className="p-3 bg-muted rounded-md">
-          <div className="flex items-center space-x-2">
-            <Clock className="h-4 w-4" />
-            <span className="text-sm">
-              Scheduled for {formatScheduledDate(scheduledPublishAt)}
-            </span>
-          </div>
-          <div className="text-xs text-muted-foreground mt-1">
-            Timezone: {projectTimezone}
-          </div>
-        </div>
+        <Item variant="muted" className="relative">
+          <ItemContent>
+            <ItemTitle>Scheduled</ItemTitle>
+            <ItemDescription>
+              {format(new Date(scheduledPublishAt), "PPP 'at' HH:mm", { locale: getDateFnsLocale(projectDefaultLanguage) })}
+              <br />
+              Timezone: {projectTimezone}
+            </ItemDescription>
+
+            <Button size="sm" variant="secondary" onClick={handleClearSchedule} disabled={disabled} className="absolute top-2 right-2 border">
+              <X />
+              Clear
+            </Button>
+          </ItemContent>
+        </Item>
       ) : (
         <Dialog>
           <DialogTrigger asChild>
@@ -163,6 +149,7 @@ export const ArticleSchedulePicker = ({
                 selected={date}
                 disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
               />
+
               <div className="relative w-[249px] overflow-hidden">
                 <div className="absolute inset-0 grid gap-4">
                   <div className="space-y-2 px-4 pt-4">

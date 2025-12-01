@@ -9,6 +9,7 @@ import { Spinner } from "@simplist/ui/components/spinner";
 import Image from "next/image";
 import { ReactNode } from "react";
 import { ArticleSchedulePicker } from "./schedule-picker";
+import { LanguageCode } from "@/lib/types/languages";
 
 type ArticleStatus = "draft" | "published" | "scheduled";
 
@@ -21,6 +22,7 @@ type ArticleVisibilityCardProps = {
   scheduledPublishAt?: Date | null;
   onScheduleChange?: (date: Date | null) => void;
   projectTimezone?: string;
+  projectDefaultLanguage?: LanguageCode;
   projectId?: string;
 };
 
@@ -33,6 +35,7 @@ export const ArticleVisibilityCard = ({
   scheduledPublishAt,
   onScheduleChange,
   projectTimezone = "UTC",
+  projectDefaultLanguage = "en",
   projectId
 }: ArticleVisibilityCardProps) => {
   const { tier } = useApiKeyLimits(projectId);
@@ -80,6 +83,7 @@ export const ArticleVisibilityCard = ({
             onScheduleChange={onScheduleChange}
             projectTimezone={projectTimezone}
             disabled={isSubmitting}
+            projectDefaultLanguage={projectDefaultLanguage}
           />
         )}
 
