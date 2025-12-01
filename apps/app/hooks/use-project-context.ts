@@ -4,15 +4,20 @@ import { useProjectContext } from "@/components/projects/context-provider"
 
 export const useProject = () => {
   const {
-    currentProject, projects,
+    currentProject,
+    projects,
     currentMember,
-    currentMemberId
+    currentMemberId,
+    refreshProjects,
+    isRefreshing
   } = useProjectContext()
 
   return {
     currentProject,
     projects,
     currentMember,
-    currentMemberId
+    currentMemberId,
+    refreshProjects,
+    isRefreshing
   }
 }
