@@ -32,7 +32,6 @@ export const ArticlesClientPage = ({
     <PageLayout
       title="Articles"
       description={`Manage your ${project.name} blog articles and track their performance.`}
-      centered
       actions={
         maxCount === -1 ? (
           <Link href={`/${project.slug}/articles/new`} className={buttonVariants({ variant: "outline" })}>

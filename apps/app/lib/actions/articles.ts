@@ -801,7 +801,11 @@ export const getScheduledArticles = async () => {
   // Get user's first project (single project mode)
   const project = await prisma.project.findFirst({
     where: {
-      userId: user.id,
+      members: {
+        some: {
+          userId: user.id,
+        },
+      },
     },
   })
 
@@ -871,7 +875,11 @@ export const getArticleBySlugWithVariants = async (slug: string) => {
     where: {
       slug,
       project: {
-        userId: user.id, // Ensure user owns the project
+        members: {
+          some: {
+            userId: user.id,
+          },
+        },
       },
     },
     include: {
