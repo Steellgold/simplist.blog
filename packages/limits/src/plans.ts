@@ -19,7 +19,6 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, Plan> = {
       { name: "Basic analytics", included: true },
       { name: "50MB storage", included: true },
       { name: "1,000 API calls/month", included: true },
-      { name: "Solo mode only", included: true },
       { name: "Language variants", included: false },
     ],
     limits: {

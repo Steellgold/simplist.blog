@@ -10,6 +10,9 @@ import { ProjectInvitation } from "@/components/emails";
 import { render } from "@react-email/render";
 import { sendEmail } from "../ses";
 import crypto from "crypto";
+import { getPlanLimits } from "../subscription/plans";
+import { i } from "@simplist/ui/lib/icons.enum";
+import { c } from "@simplist/ui/lib/color";
 
 /**
  * Gets all members of a project
@@ -189,6 +192,9 @@ export const inviteProjectMember = async (
     project.subscriptionExpiresAt &&
     project.subscriptionExpiresAt > new Date();
 
+  const tier = isPro ? "PRO" : "STARTER";
+  const limits = getPlanLimits(tier);
+
   const currentMemberCount = await prisma.projectMember.count({
     where: {
       projectId,
@@ -196,11 +202,11 @@ export const inviteProjectMember = async (
     },
   });
 
-  const maxMembers = isPro ? 10 : 1;
+  const maxMembers = limits.maxMembers;
 
   if (currentMemberCount >= maxMembers) {
     throw new Error(
-      `Member limit reached. Your ${project.subscriptionTier} plan allows up to ${maxMembers} member${maxMembers > 1 ? "s" : ""}.`
+      `Member limit reached. Your ${tier} plan allows up to ${maxMembers} member${maxMembers > 1 ? "s" : ""}.`
     );
   }
 
@@ -323,7 +329,7 @@ export const getInvitationDetails = async (token: string) => {
   const [project, role, inviter] = await Promise.all([
     prisma.project.findUnique({
       where: { id: invitation.projectId },
-      select: { name: true, slug: true, icon: true },
+      select: { name: true, slug: true, icon: true, avatarUrl: true, color: true },
     }),
     prisma.projectRole.findUnique({
       where: { id: invitation.roleId },
@@ -340,9 +346,13 @@ export const getInvitationDetails = async (token: string) => {
   }
 
   return {
+    projectIcon: {
+      imageUrl: project.avatarUrl,
+      backgroundColor: c(project.color),
+      iconName: i(project.icon),
+    },
     projectName: project.name,
     projectSlug: project.slug,
-    projectIcon: project.icon,
     roleName: role.name,
     inviterName: inviter.name,
     inviterImage: inviter.image,
@@ -454,7 +464,7 @@ export const updateMemberRole = async (
   memberId: string,
   newRoleId: string
 ) => {
-  await requirePermission(projectId, "canManageMembers");
+  const { user } = await requirePermission(projectId, "canManageMembers");
 
   const member = await prisma.projectMember.findUnique({
     where: { id: memberId },
@@ -463,6 +473,11 @@ export const updateMemberRole = async (
 
   if (!member || member.projectId !== projectId) {
     throw new Error("Member not found");
+  }
+
+  // Cannot change your own role
+  if (member.userId === user.id) {
+    throw new Error("You cannot change your own role");
   }
 
   // Cannot change the role of the OWNER

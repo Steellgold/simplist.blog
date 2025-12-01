@@ -23,6 +23,7 @@ import { formatDistanceToNow } from "date-fns"
 import { MoreVertical, UserMinus, UserPlus, UserX } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
+import { getPlanLimits } from "@/lib/subscription/plans"
 
 type MembersClientPageProps = {
   project: {
@@ -60,6 +61,11 @@ export const MembersClientPage = ({
   const isPro = project.subscriptionTier === "PRO" &&
     project.subscriptionExpiresAt &&
     new Date(project.subscriptionExpiresAt) > new Date()
+
+  const tier = isPro ? "PRO" : "STARTER"
+  const limits = getPlanLimits(tier)
+  const currentMemberCount = members.length
+  const canInviteMore = limits.maxMembers === -1 || currentMemberCount < limits.maxMembers
 
   const handleRemoveMember = async () => {
     if (!removeMemberDialog) return
@@ -136,7 +142,8 @@ export const MembersClientPage = ({
       actions={
         <Button
           onClick={() => setShowInviteDialog(true)}
-          disabled={!isPro}
+          disabled={!canInviteMore}
+          size="sm"
         >
           <UserPlus />
           Invite Member
@@ -155,6 +162,7 @@ export const MembersClientPage = ({
               People who have access to this project
             </CardDescription>
           </CardHeader>
+
           <CardContent>
             {members.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">No members yet</div>
@@ -180,7 +188,7 @@ export const MembersClientPage = ({
                     <div className="flex items-center gap-2">
                       <Badge variant={member.role.isOwner ? "default" : "secondary"}>{member.role.name}</Badge>
 
-                      {!member.role.isOwner && (
+                      {!member.role.isOwner && member.id !== currentMember?.id && (
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon-sm">
@@ -205,7 +213,6 @@ export const MembersClientPage = ({
 
                             <DropdownMenuItem
                               onClick={() => setRemoveMemberDialog({ id: member.id, name: member.name })}
-                              disabled={member.id === currentMember?.id}
                             >
                               <UserMinus />
                               Remove from project

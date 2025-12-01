@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
       bodySizeLimit: "10mb"
     }
   },
-  transpilePackages: ["@simplist/ui"],
+  transpilePackages: ["@simplist/ui", "@simplist/limits"],
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "cdn.simplist.blog" },
