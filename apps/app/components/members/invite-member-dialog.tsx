@@ -10,7 +10,7 @@ import {
   DialogHeader,
   DialogTitle
 } from "@simplist/ui/components/dialog"
-import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@simplist/ui/components/input-group"
+import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput, InputGroupSelect } from "@simplist/ui/components/input-group"
 import { Label } from "@simplist/ui/components/label"
 import {
   Select,
@@ -139,24 +139,19 @@ export const InviteMemberDialog = ({ projectId, roles, onClose, onSuccess }: Inv
               <div className="space-y-2">
                 {invitations.map((invitation, index) => (
                   <InputGroup key={index}>
-                    <InputGroupAddon>
-                      <Select
-                        value={invitation.roleId}
-                        onValueChange={(value) => updateRole(index, value)}
-                        disabled={isSubmitting}
-                      >
-                        <SelectTrigger className="border-0 focus:ring-0 h-auto w-[140px]">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {roles.map((role) => (
-                            <SelectItem key={role.id} value={role.id}>
-                              {role.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </InputGroupAddon>
+                    <Select defaultValue={invitation.roleId} onValueChange={(value) => updateRole(index, value)} disabled={isSubmitting}>
+                      <InputGroupSelect>
+                        <SelectValue />
+                      </InputGroupSelect>
+                      
+                      <SelectContent>
+                        {roles.map((role) => (
+                          <SelectItem key={role.id} value={role.id}>
+                            {role.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
 
                     <InputGroupInput
                       type="email"
@@ -170,11 +165,12 @@ export const InviteMemberDialog = ({ projectId, roles, onClose, onSuccess }: Inv
                       <InputGroupAddon align="inline-end">
                         <InputGroupButton
                           type="button"
-                          variant="outline"
+                          size="icon-xs"
+                          variant="ghost"
                           onClick={() => removeInvitation(index)}
                           disabled={isSubmitting}
                         >
-                          <X className="h-4 w-4" />
+                          <X />
                         </InputGroupButton>
                       </InputGroupAddon>
                     )}
@@ -189,10 +185,11 @@ export const InviteMemberDialog = ({ projectId, roles, onClose, onSuccess }: Inv
                   disabled={isSubmitting}
                   className="w-full"
                 >
-                  <Plus className="h-4 w-4 mr-2" />
+                  <Plus />
                   Add Another Invitation
                 </Button>
               </div>
+
               <p className="text-sm text-muted-foreground">
                 Each person will receive an email with a link to join your project.
               </p>

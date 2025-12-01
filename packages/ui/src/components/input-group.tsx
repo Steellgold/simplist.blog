@@ -7,6 +7,7 @@ import { Button } from "@simplist/ui/components/button"
 import { Input } from "@simplist/ui/components/input"
 import { Textarea } from "@simplist/ui/components/textarea"
 import { cn } from "@simplist/ui/lib/utils"
+import { SelectTrigger } from "./select"
 
 function InputGroup({ className, ...props }: React.ComponentProps<"div">) {
   return (
@@ -160,9 +161,22 @@ function InputGroupTextarea({
   )
 }
 
+function InputGroupSelect({ className, ...props }: React.ComponentProps<typeof SelectTrigger>) {
+  return (
+    <SelectTrigger
+      data-slot="input-group-control"
+      className={cn(
+        "ounded-none border-0 bg-transparent shadow-none focus-visible:ring-0 dark:bg-transparent h-auto",
+        className,
+      )}
+      {...props}
+    />
+  )
+}
+
 export {
     InputGroup,
     InputGroupAddon,
-    InputGroupButton, InputGroupInput, InputGroupText, InputGroupTextarea
+    InputGroupButton, InputGroupInput, InputGroupText, InputGroupTextarea, InputGroupSelect
 }
 

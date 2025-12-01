@@ -27,8 +27,9 @@ export const CreateProjectForm = ({ className, ...props }: React.ComponentProps<
     defaultValues: {
       name: "",
       description: "",
-      timezone: "UTC",
-      allowedOrigins: []
+      allowedOrigins: [],
+      color: "YELLOW",
+      icon: "building-2"
     },
   })
 
@@ -56,7 +57,8 @@ export const CreateProjectForm = ({ className, ...props }: React.ComponentProps<
         name: data.name,
         slug,
         description: data.description,
-        timezone: data.timezone,
+        icon: data.icon,
+        color: data.color,
         allowedOrigins: data.allowedOrigins || []
       }), {
         loading: "Creating project...",
@@ -107,33 +109,6 @@ export const CreateProjectForm = ({ className, ...props }: React.ComponentProps<
                   )}
                 </Field>
 
-                {/* <Field>
-                  <FieldLabel htmlFor="description">Description (Optional)</FieldLabel>
-                  <Textarea
-                    id="description"
-                    placeholder="A brief description of your blog project..."
-                    rows={3}
-                    {...register("description")}
-                  />
-                  {errors.description && (
-                    <p className="text-destructive text-sm mt-1">{errors.description.message}</p>
-                  )}
-                </Field> */}
-
-                <Field>
-                  <FieldLabel htmlFor="timezone">Timezone *</FieldLabel>
-                  <TimezoneCombobox
-                    value={watch("timezone")}
-                    onValueChange={(value) => form.setValue("timezone", value)}
-                  />
-                  {errors.timezone && (
-                    <p className="text-destructive text-sm mt-1">{errors.timezone.message}</p>
-                  )}
-                  <p className="text-muted-foreground text-sm mt-1">
-                    This timezone will be used for scheduled article publishing.
-                  </p>
-                </Field>
-
                 <Field>
                   <FieldLabel>Allowed Origins (Optional)</FieldLabel>
                   <div className="space-y-2">
@@ -149,7 +124,8 @@ export const CreateProjectForm = ({ className, ...props }: React.ComponentProps<
                         <InputGroupAddon align="inline-end">
                           <InputGroupButton
                             type="button"
-                            variant="outline"
+                            variant="ghost"
+                            size="icon-xs"
                             onClick={() => remove(index)}
                           >
                             <X />
