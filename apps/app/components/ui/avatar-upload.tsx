@@ -99,7 +99,7 @@ export function AvatarUpload({
                 onClick={handleRemoveAvatar}
                 className="absolute -top-2 -right-2 p-1 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90 transition-colors"
               >
-                <X />
+                <X className="size-3" />
               </button>
             )}
           </div>
