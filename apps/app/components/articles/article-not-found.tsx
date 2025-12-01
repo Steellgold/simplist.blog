@@ -23,20 +23,11 @@ export const ArticleNotFound = ({ slug }: Props) => {
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
-          <div className="flex gap-2">
-            <Link className={buttonVariants({ variant: "default" })} href={`/${slug}/articles/new`}>
-              Create New Article
-              <PlusIcon />
-            </Link>
-          </div>
+          <Link className={buttonVariants({ variant: "default" })} href={`/${slug}/articles/new`}>
+            Create New Article
+            <PlusIcon />
+          </Link>
         </EmptyContent>
-
-        <Link
-          className={buttonVariants({ variant: "link", size: "sm" })}
-          href="/"
-        >
-          Learn More <ArrowRightIcon />
-        </Link>
       </Empty>
     </div>
   )

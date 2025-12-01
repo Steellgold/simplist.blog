@@ -31,7 +31,7 @@ export const ArticlesClientPage = ({
   return (
     <PageLayout
       title="Articles"
-      description={`Manage your ${project.name} blog articles and track their performance.`}
+      description="Manage your blog articles and track their performance."
       actions={
         maxCount === -1 ? (
           <Link href={`/${project.slug}/articles/new`} className={buttonVariants({ variant: "outline" })}>

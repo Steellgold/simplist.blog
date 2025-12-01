@@ -5,7 +5,7 @@ const ArticlesLoading = () => {
   return (
     <PageLayout
       title="Articles"
-      description="Loading your articles..."
+      description="Manage your blog articles and track their performance."
       actions={
         <Skeleton className="h-9 w-40" />
       }
