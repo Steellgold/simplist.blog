@@ -154,7 +154,7 @@ export const ArticleContentEditor = ({ content, onContentChange, textareaId = "c
               value={content}
               onChange={(e) => onContentChange(e.target.value)}
               required
-              className="font-mono text-sm resize-none min-h-[450px] sm:min-h-[450px] min-h-[300px] min-w-0"
+              className="font-mono text-sm resize-none min-h-[450px] sm:min-h-[450px] min-w-0"
             />
 
             <InputGroupAddon align="block-end" className="w-full">
