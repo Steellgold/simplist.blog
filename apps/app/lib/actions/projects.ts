@@ -318,6 +318,7 @@ export const updateProjectSettings = async (projectId: string, input: UpdateProj
       description: input.description ?? null,
       icon: input.icon,
       color: input.color,
+      avatarUrl: input.avatarUrl ?? null,
       defaultLanguage: input.defaultLanguage,
       allowedOrigins: allowedOriginStrings,
     },

@@ -162,6 +162,7 @@ model Project {
   description           String?
   icon                  String              @default("building-2") // Icon name from Lucide icons
   color                 Color               @default(CYAN)
+  avatarUrl             String? // Custom avatar/logo URL (stored in R2)
   allowedOrigins        String[]            @default([]) // Array of allowed origins for CORS
   timezone              String              @default("UTC") // Project timezone for scheduled publishing
   defaultLanguage       String              @default("en") // Default language for articles (ISO 639-1 code)

@@ -237,6 +237,7 @@ export const updateProjectSettingsSchema = z.object({
     .or(z.literal("")),
   icon: IconsEnum.optional(),
   color: ColorsEnum.optional(),
+  avatarUrl: z.url().optional().or(z.literal("")).nullable(),
   defaultLanguage: z
     .string()
     .refine((val) => LANGUAGES.some(lang => lang.code === val), "Please select a valid language"),
