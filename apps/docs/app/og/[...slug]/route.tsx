@@ -21,7 +21,7 @@ export async function GET(
         description={page.data.description}
         site="Simplist"
         icon={
-          <Image
+          <img
             src="https://cdn.simplist.blog/assets/simplist-text-icon.svg"
             alt="Simplist"
             width={100}
