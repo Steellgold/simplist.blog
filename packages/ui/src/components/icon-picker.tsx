@@ -43,6 +43,7 @@ type IconPickerProps = {
   iconsPerBatch?: number;
   disabled?: boolean;
   dialog?: boolean;
+  dialogTrigger?: React.ReactNode;
 };
 
 export const IconPicker: FC<IconPickerProps> = ({
@@ -53,6 +54,7 @@ export const IconPicker: FC<IconPickerProps> = ({
   iconsPerBatch = DEFAULT_ICONS_PER_BATCH,
   disabled = false,
   dialog = false,
+  dialogTrigger,
 }) => {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -247,7 +249,7 @@ export const IconPicker: FC<IconPickerProps> = ({
   if (dialog) {
     return (
       <Dialog open={open} onOpenChange={handleOpenChange}>
-        <DialogTrigger asChild disabled={disabled}>
+        {dialogTrigger ? dialogTrigger : <DialogTrigger asChild disabled={disabled}>
           <Button
             variant="outline"
             role="combobox"
@@ -273,7 +275,7 @@ export const IconPicker: FC<IconPickerProps> = ({
             </div>
             <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
           </Button>
-        </DialogTrigger>
+        </DialogTrigger>}
 
         <DialogContent className="max-w-2xl">
           <DialogHeader>
@@ -506,7 +508,7 @@ function IconPickerContent({
   selectedIcon,
 }: IconPickerContentProps) {
   return (
-    <Command shouldFilter={false}>
+    <Command shouldFilter={false} className="border">
       <CommandInput
         placeholder={searchPlaceholder}
         className="h-14"
@@ -516,7 +518,7 @@ function IconPickerContent({
 
       {/* Categories section */}
       <div onWheel={handleCategoryWheel}>
-        <ScrollArea className="mt-1.5 h-12 w-full">
+        <ScrollArea className="mt-1.5 h-9.5 w-full">
           <div ref={categoryScrollRef} className="flex gap-2 p-1">
             {categories.map((category) => (
               <Button
@@ -525,7 +527,7 @@ function IconPickerContent({
                 variant={selectedCategory === category ? "default" : "outline"}
                 size="sm"
                 onClick={() => handleCategorySelect(category)}
-                className="shrink-0 text-xs"
+                className="shrink-0 text-xs h-6"
               >
                 {category}
               </Button>
@@ -569,12 +571,12 @@ function IconPickerContent({
                       key={icon.name}
                       type="button"
                       variant={isSelected ? "default" : "ghost"}
+                      size="icon-sm"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleSelect(icon.name);
                       }}
                       title={icon.name}
-                      className={cn(isMobile ? "h-14 w-14" : "h-8.5 w-8.5")}
                     >
                       <IconComponent
                         className={cn(isMobile ? "size-6" : "size-5")}
