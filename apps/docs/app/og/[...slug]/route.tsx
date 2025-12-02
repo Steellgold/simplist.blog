@@ -19,10 +19,9 @@ export async function GET(
       <DefaultImage
         title={page.data.title}
         description={page.data.description}
-        site="Simplist"
         icon={
           <img
-            src="https://cdn.simplist.blog/assets/simplist-text-icon.svg"
+            src="https://cdn.simplist.blog/assets/icon.svg"
             alt="Simplist"
             width={100}
             height={100}
