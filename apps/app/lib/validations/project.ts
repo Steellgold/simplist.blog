@@ -154,11 +154,6 @@ export const createProjectSchema = z.object({
     .string()
     .min(1, "Project name is required")
     .max(100, "Project name must be less than 100 characters"),
-  description: z
-    .string()
-    .max(500, "Description must be less than 500 characters")
-    .optional()
-    .or(z.literal("")),
   icon: IconsEnum.optional(),
   color: ColorsEnum.optional(),
   allowedOrigins: z
@@ -204,7 +199,6 @@ export type CreateProjectInput = z.infer<typeof createProjectSchema>
 export const createProjectActionSchema = z.object({
   name: z.string(),
   slug: z.string(),
-  description: z.string().optional(),
   icon: z.string().optional(),
   color: z.string().optional(),
   subscriptionTier: z.enum(["STARTER", "PRO"]).optional(),
@@ -227,11 +221,6 @@ export const updateProjectSettingsSchema = z.object({
       (slug) => !RESERVED_SLUGS.includes(slug as typeof RESERVED_SLUGS[number]),
       "This slug is reserved and cannot be used"
     ),
-  description: z
-    .string()
-    .max(500, "Description must be less than 500 characters")
-    .optional()
-    .or(z.literal("")),
   icon: IconsEnum.optional(),
   color: ColorsEnum.optional(),
   avatarUrl: z.union([

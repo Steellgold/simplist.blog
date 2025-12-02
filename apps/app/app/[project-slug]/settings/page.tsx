@@ -44,7 +44,6 @@ const SettingsPage = () => {
     defaultValues: {
       name: currentProject?.name || "",
       slug: currentProject?.slug || "",
-      // description: currentProject?.description || "",
       icon: i(currentProject?.icon || "building-2"),
       color: currentProject?.color || "CYAN",
       avatarUrl: currentProject?.avatarUrl || null,
@@ -108,7 +107,6 @@ const SettingsPage = () => {
       updateProjectSettings(currentProject.id, {
         name: data.name,
         slug: data.slug,
-        description: data.description,
         icon: data.icon,
         color: data.color,
         avatarUrl: uploadedAvatarUrl,

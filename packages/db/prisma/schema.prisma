@@ -119,7 +119,6 @@ model Project {
   id                    String              @id @default(cuid())
   name                  String
   slug                  String
-  description           String?
   icon                  String              @default("building-2") // Icon name from Lucide icons
   color                 Color               @default(CYAN)
   avatarUrl             String? // Custom avatar/logo URL (stored in R2)

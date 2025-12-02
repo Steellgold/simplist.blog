@@ -26,7 +26,6 @@ export const CreateProjectForm = ({ className, ...props }: React.ComponentProps<
     resolver: zodResolver(createProjectSchema),
     defaultValues: {
       name: "",
-      description: "",
       allowedOrigins: [],
       color: "YELLOW",
       icon: "building-2"
@@ -56,7 +55,6 @@ export const CreateProjectForm = ({ className, ...props }: React.ComponentProps<
       createProject({
         name: data.name,
         slug,
-        description: data.description,
         icon: data.icon,
         color: data.color,
         allowedOrigins: data.allowedOrigins || []

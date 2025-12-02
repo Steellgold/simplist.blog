@@ -46,8 +46,7 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
               type: "object",
               properties: {
                 name: { type: "string" },
-                slug: { type: "string" },
-                description: { type: ["string", "null"] }
+                slug: { type: "string" }
               },
               required: ["name", "slug"]
             }
@@ -99,8 +98,7 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
         seo: seoMetadata,
         project: {
           name: project.name,
-          slug: project.slug,
-          description: project.description
+          slug: project.slug
         }
       }
 
@@ -180,8 +178,7 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
         seo: seoMetadata,
         project: {
           name: project.name,
-          slug: project.slug,
-          description: project.description
+          slug: project.slug
         }
       }
 
@@ -383,8 +380,7 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
       return reply.send({
         project: {
           name: project.name,
-          slug: project.slug,
-          description: project.description
+          slug: project.slug
         },
         articles: structuredData,
         generatedAt: new Date().toISOString()

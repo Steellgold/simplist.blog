@@ -17,7 +17,6 @@ const projectsRoutes: FastifyPluginAsync = async (fastify) => {
           id: true,
           name: true,
           slug: true,
-          description: true,
           createdAt: true,
           updatedAt: true
         }

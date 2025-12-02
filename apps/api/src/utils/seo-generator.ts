@@ -85,13 +85,11 @@ export const generateArticleStructuredData = (article: any, project: any, url?: 
     image: article.coverImage || undefined,
     author: {
       "@type": "Organization",
-      name: project.name,
-      description: project.description || undefined
+      name: project.name
     },
     publisher: {
       "@type": "Organization",
-      name: project.name,
-      description: project.description || undefined
+      name: project.name
     },
     datePublished: article.publishedAt,
     dateModified: article.updatedAt,
@@ -144,7 +142,7 @@ export const generateRSSFeed = (articles: any[], project: any, baseUrl: string, 
 <rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title><![CDATA[${project.name}${lang ? ` (${lang.toUpperCase()})` : ''}]]></title>
-    <description><![CDATA[${project.description || `Articles from ${project.name}`}]]></description>
+    <description><![CDATA[Articles from ${project.name}]]></description>
     <link>${siteUrl}</link>
     <atom:link href="${feedUrl}" rel="self" type="application/rss+xml"/>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>

@@ -53,7 +53,6 @@ export const createProject = async (input: CreateProjectActionInput) => {
   // Validate input with Zod
   const validatedData = createProjectSchema.parse({
     name: input.name,
-    description: input.description || "",
     icon: input.icon || "building-2",
     color: input.color || "YELLOW",
     allowedOrigins: input.allowedOrigins || [],
@@ -99,7 +98,6 @@ export const createProject = async (input: CreateProjectActionInput) => {
       data: {
         name: validatedData.name,
         slug: finalSlug,
-        description: validatedData.description ?? null,
         icon: validatedData.icon,
         color: validatedData.color,
         timezone: "UTC",
@@ -205,13 +203,13 @@ export const deleteProject = async (projectId: string) => {
 
 export const updateProject = async (
   projectId: string,
-  input: { name: string; description?: string }
+  input: { name: string }
 ) => {
   await requirePermission(projectId, "canManageProject");
 
   const project = await prisma.project.findUnique({
     where: { id: projectId },
-    select: { slug: true, description: true },
+    select: { slug: true },
   });
 
   if (!project) {
@@ -254,7 +252,6 @@ export const updateProject = async (
     data: {
       name: input.name,
       slug: finalSlug,
-      description: input.description ?? project.description,
     },
   });
 
@@ -315,7 +312,6 @@ export const updateProjectSettings = async (projectId: string, input: UpdateProj
     data: {
       name: input.name,
       slug: finalSlug,
-      description: input.description ?? null,
       icon: input.icon,
       color: input.color,
       avatarUrl: input.avatarUrl ?? null,
