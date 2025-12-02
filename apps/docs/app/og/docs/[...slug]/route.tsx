@@ -1,7 +1,8 @@
 import { getPageImage, source } from '@/lib/source';
+import { generate as DefaultImage } from 'fumadocs-ui/og';
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { ImageResponse } from 'next/og';
-import { generate as DefaultImage } from 'fumadocs-ui/og';
 
 export const revalidate = false;
 
@@ -18,7 +19,17 @@ export async function GET(
       <DefaultImage
         title={page.data.title}
         description={page.data.description}
-        site="My App"
+        site="Simplist"
+        icon={
+          <Image
+            src="https://cdn.simplist.blog/assets/simplist-text-icon.svg"
+            alt="Simplist"
+            width={100}
+            height={100}
+          />
+        }
+        primaryColor="#f6c44f"
+        primaryTextColor="#3a2a1a"
       />
     ),
     {
