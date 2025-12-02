@@ -1,6 +1,5 @@
 import { getPageImage, source } from '@/lib/source';
 import { generate as DefaultImage } from 'fumadocs-ui/og';
-import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { ImageResponse } from 'next/og';
 
@@ -21,10 +20,10 @@ export async function GET(
         description={page.data.description}
         icon={
           <img
-            src="https://cdn.simplist.blog/assets/icon.svg"
+            src="https://cdn.simplist.blog/assets/Simplist4060.svg"
             alt="Simplist"
-            width={100}
-            height={100}
+            width={40}
+            height={60}
           />
         }
         primaryColor="#f6c44f"
