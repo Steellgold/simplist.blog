@@ -165,7 +165,7 @@ const SettingsPage = () => {
             <FieldDescription className="mt-1">The display name of your blog project.</FieldDescription>
           </CardHeader>
 
-          <CardContent>
+          <CardContent className="py-2.5">
             <Input
               id="name"
               {...register("name")}
@@ -198,7 +198,7 @@ const SettingsPage = () => {
             </FieldDescription>
           </CardHeader>
 
-          <CardContent>
+          <CardContent className="py-2.5">
             <InputGroup className="max-w-md">
               <InputGroupAddon>https://simplist.blog/</InputGroupAddon>
               <InputGroupInput
@@ -253,7 +253,7 @@ const SettingsPage = () => {
             </CardAction>
           </CardHeader>
 
-          <CardContent>
+          <CardContent className="py-2.5">
             <div className="space-y-4">
               {displayType === "icon" ? (
                 <div>
@@ -272,9 +272,9 @@ const SettingsPage = () => {
                     </div>
 
                     <ColorSelector
-                      value={watch("color") as ColorsEnumType}
+                      value={watch("color") as ColorsEnumType | null}
                       onValueChange={(value) => {
-                        form.setValue("color", value, { shouldDirty: true })
+                        form.setValue("color", value === null ? undefined : value, { shouldDirty: true })
                       }}
                       disabled={isDisabled}
                       className="flex-1 w-full"
@@ -336,7 +336,7 @@ const SettingsPage = () => {
             <FieldDescription className="mt-1">The default language for new articles and language variant system.</FieldDescription>
           </CardHeader>
 
-          <CardContent>
+          <CardContent className="py-2.5">
             <CompactLanguageSelector
               value={watch("defaultLanguage") as LanguageCode}
               onValueChange={(value) => {
@@ -369,7 +369,7 @@ const SettingsPage = () => {
             <FieldDescription className="mt-1">Domains that can access your project (CORS).</FieldDescription>
           </CardHeader>
 
-          <CardContent>
+          <CardContent className="py-2.5">
             <div className="space-y-3">
               {fields.map((field, index) => (
                 <div key={field.id}>
