@@ -109,35 +109,6 @@ export const checkStorageQuota = async (
   };
 };
 
-/**
- * Check if user can create a new API key
- */
-export const checkApiKeyQuota = async (
-  userId: string,
-  projectId: string
-): Promise<QuotaCheckResult> => {
-  const subscription = await getProjectSubscription(projectId);
-
-  // Count existing active API keys
-  const apiKeyCount = await prisma.apiKey.count({
-    where: {
-      projectId,
-      status: "active",
-    },
-  });
-
-  // -1 means unlimited
-  if (subscription.limits.maxApiKeys !== -1 && apiKeyCount >= subscription.limits.maxApiKeys) {
-    return {
-      allowed: false,
-      reason: `API key limit reached. Your ${subscription.tier} plan allows up to ${subscription.limits.maxApiKeys} API keys.`,
-      current: apiKeyCount,
-      limit: subscription.limits.maxApiKeys,
-    };
-  }
-
-  return { allowed: true, current: apiKeyCount, limit: subscription.limits.maxApiKeys };
-};
 
 /**
  * Check if user has exceeded monthly API call quota

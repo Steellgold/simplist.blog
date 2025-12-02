@@ -101,8 +101,8 @@ export const UpgradeModal = ({ projectId, projectName }: UpgradeModalProps) => {
                     <FieldContent>
                       <div className="flex items-center gap-2">
                         <FieldTitle>Yearly</FieldTitle>
-                        <Badge variant="secondary" className="bg-green-800 border-green-600 text-white">
-                          {yearlyPrice?.savings}
+                        <Badge variant="default">
+                          {yearlyPrice?.savings} off
                         </Badge>
                       </div>
 
@@ -123,7 +123,10 @@ export const UpgradeModal = ({ projectId, projectName }: UpgradeModalProps) => {
           </FieldGroup>
 
           <div className="space-y-2">
-            <h4 className="font-medium text-sm">Unlock these features</h4>
+            <h4 className="font-medium text-sm">
+              Unlock these features
+            </h4>
+            
             <div className="grid grid-cols-2 gap-1">
               {proPlan.features.slice(0, 6).map((feature) => (
                 <div key={feature.name} className="flex items-center gap-1.5">

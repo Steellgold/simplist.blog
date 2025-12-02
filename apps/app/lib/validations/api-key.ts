@@ -1,6 +1,5 @@
 import { z } from "zod"
 
-export const apiKeyTypes = ["secret", "public"] as const
 export const apiKeyPermissions = ["read", "analytics"] as const
 
 export const createApiKeySchema = z.object({
@@ -8,7 +7,9 @@ export const createApiKeySchema = z.object({
     .string()
     .min(1, "API key name is required")
     .max(100, "API key name must be less than 100 characters"),
-  type: z.enum(apiKeyTypes),
+  permissions: z
+    .array(z.enum(apiKeyPermissions))
+    .min(1, "Select at least one permission"),
   expiresInDays: z
     .number()
     .int()

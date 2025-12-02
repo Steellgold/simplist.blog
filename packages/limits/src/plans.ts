@@ -15,7 +15,6 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, Plan> = {
     ],
     features: [
       { name: "5 articles", included: true },
-      { name: "1 API key", included: true },
       { name: "Basic analytics", included: true },
       { name: "50MB storage", included: true },
       { name: "1,000 API calls/month", included: true },
@@ -23,7 +22,6 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, Plan> = {
     ],
     limits: {
       maxArticles: 5,
-      maxApiKeys: 1,
       maxStorageBytes: 50 * 1024 * 1024, // 50MB
       maxApiCallsPerMonth: 1000,
       maxVariantsPerArticle: 0, // STARTER: No variants allowed
@@ -61,7 +59,6 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, Plan> = {
     ],
     features: [
       { name: "Unlimited articles", included: true },
-      { name: "Unlimited API keys", included: true },
       { name: "Advanced analytics", included: true },
       { name: "1GB storage", included: true },
       { name: "500,000 API calls/month", included: true },
@@ -73,7 +70,6 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, Plan> = {
     ],
     limits: {
       maxArticles: -1,
-      maxApiKeys: -1,
       maxStorageBytes: 1024 * 1024 * 1024, // 1GB
       maxApiCallsPerMonth: 500000,
       maxVariantsPerArticle: -1, // PRO: unlimited variants per article

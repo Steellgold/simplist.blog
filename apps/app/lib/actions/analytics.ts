@@ -653,8 +653,8 @@ export const getProjectAnalytics = async (projectId: string, days: number = 30, 
 }
 
 // Generate a random API key
-const generateApiKey = (type: "secret" | "public" = "secret"): string => {
-  const prefix = type === "secret" ? "sk" : "pk"
+const generateApiKey = (): string => {
+  const prefix = "prj"
   const randomBytes = crypto.getRandomValues(new Uint8Array(32))
   const key = Array.from(randomBytes)
     .map(b => b.toString(16).padStart(2, "0"))
@@ -680,7 +680,6 @@ export const enableAnalytics = async (projectId: string) => {
   const existingApiKey = await prisma.apiKey.findFirst({
     where: {
       projectId: projectId,
-      type: "public",
       permissions: {
         has: "analytics",
       },
@@ -695,22 +694,21 @@ export const enableAnalytics = async (projectId: string) => {
     }
   }
 
-  // Generate a new public API key for analytics
-  const publicKey = generateApiKey('public')
+  // Generate a new API key for analytics
+  const apiKey = generateApiKey()
 
   const newApiKey = await prisma.apiKey.create({
     data: {
       name: "Analytics API Key",
-      key: publicKey,
-      type: "public",
-      permissions: ["read", "analytics"],
+      key: apiKey,
+      permissions: ["analytics"],
       projectId: projectId,
       status: "active",
     },
   })
 
   // Invalidate cache for the new API key (fire and forget)
-  apiKeyCache.invalidate(publicKey).catch(() => {
+  apiKeyCache.invalidate(apiKey).catch(() => {
     // Ignore cache invalidation errors
   })
 

@@ -9,6 +9,6 @@ const Layout: FC<PropsWithChildren> = ({ children }) => {
       {children}
     </DocsLayout>
   );
-}
+};
 
 export default Layout;

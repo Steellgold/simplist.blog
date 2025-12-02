@@ -91,8 +91,8 @@ export class SimplistClient {
       throw new Error('API key is required. Provide it via options.apiKey or set SIMPLIST_API_KEY environment variable.')
     }
 
-    if (!apiKey.startsWith('sk_') && !apiKey.startsWith('pk_')) {
-      throw new Error('Invalid API key format. API key should start with "sk_" (secret) or "pk_" (public)')
+    if (!apiKey.includes('prj_')) {
+      throw new Error('Invalid API key format. API key should contain an underscore (e.g., "prj_your_api_key_here")')
     }
 
     const httpOptions: HttpClientOptions = {

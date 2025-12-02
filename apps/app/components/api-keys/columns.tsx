@@ -46,28 +46,10 @@ export const columns: ColumnDef<ApiKey>[] = [
     header: "API Key",
     cell: ({ row }) => {
       const key = row.getValue("key") as string
-      const type = row.getValue("type") as string
       return (
-        <div className="flex items-center gap-2">
-          <code className="text-sm font-mono">
-            {maskKey(key)}
-          </code>
-          <Badge variant={type === "public" ? "secondary" : "default"} className="text-xs">
-            {type === "public" ? "PK" : "SK"}
-          </Badge>
-        </div>
-      )
-    },
-  },
-  {
-    accessorKey: "type",
-    header: "Type",
-    cell: ({ row }) => {
-      const type = row.getValue("type") as string
-      return (
-        <Badge variant={type === "public" ? "outline" : "default"}>
-          {type === "public" ? "Public" : "Secret"}
-        </Badge>
+        <code className="text-sm font-mono">
+          {maskKey(key)}
+        </code>
       )
     },
   },

@@ -41,20 +41,12 @@ export const GET = async (request: Request) => {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
-    const [apiKeyCount, articleCount] = await Promise.all([
-      prisma.apiKey.count({
-        where: {
-          projectId: project.id,
-          deletedAt: null,
-        },
-      }),
-      prisma.article.count({
-        where: {
-          projectId: project.id,
-          status: { not: "deleted" },
-        },
-      }),
-    ]);
+    const articleCount = await prisma.article.count({
+      where: {
+        projectId: project.id,
+        status: { not: "deleted" },
+      },
+    });
 
     // Determine subscription tier (default to free if null)
     const subscriptionTier = project.subscriptionTier || "STARTER";
@@ -64,7 +56,6 @@ export const GET = async (request: Request) => {
         tier: subscriptionTier,
         subscriptionExpiresAt: project.subscriptionExpiresAt,
       },
-      apiKeyCount,
       articleCount,
     });
   } catch (error) {

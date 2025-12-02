@@ -11,11 +11,6 @@ export const useSubscriptionLimits = (projectId?: string) => {
       tier: SubscriptionTier;
       subscriptionExpiresAt: Date | null;
     },
-    apiKeyUsage: null as null | {
-      current: number;
-      max: number;
-      canCreate: boolean;
-    },
     articleUsage: null as null | {
       current: number;
       max: number;
@@ -53,7 +48,6 @@ export const useSubscriptionLimits = (projectId?: string) => {
             ? new Date(data.subscription.subscriptionExpiresAt)
             : null,
         },
-        apiKeyUsage: computeUsage(data.apiKeyCount, limits.maxApiKeys),
         articleUsage: computeUsage(data.articleCount, limits.maxArticles),
         limits,
       });
@@ -69,23 +63,6 @@ export const useSubscriptionLimits = (projectId?: string) => {
   return { ...state, refetch: fetchData };
 };
 
-export const useApiKeyLimits = (projectId?: string) => {
-  const { isLoading, apiKeyUsage, subscription, refetch } = useSubscriptionLimits(projectId);
-
-  const tier = subscription?.tier ?? "STARTER";
-  const max = apiKeyUsage?.max ?? 0;
-  const current = apiKeyUsage?.current ?? 0;
-
-  return {
-    isLoading,
-    tier,
-    current,
-    max,
-    canCreate: apiKeyUsage?.canCreate ?? false,
-    isAtLimit: max !== -1 && current >= max,
-    refetch,
-  };
-};
 
 export const useArticleLimits = (projectId?: string) => {
   const { isLoading, articleUsage, subscription, refetch } = useSubscriptionLimits(projectId);

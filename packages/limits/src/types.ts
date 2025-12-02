@@ -19,7 +19,6 @@ export interface PlanFeature {
 
 export interface PlanLimits {
   maxArticles: number;
-  maxApiKeys: number;
   maxStorageBytes: number;
   maxApiCallsPerMonth: number;
   maxVariantsPerArticle: number;

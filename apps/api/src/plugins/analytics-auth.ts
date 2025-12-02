@@ -1,6 +1,6 @@
+import type { ApiKey } from "@simplist/db"
 import * as db from "@simplist/db"
 import fp from "fastify-plugin"
-import type { ApiKey, Project } from "@simplist/db"
 
 const { prisma, apiKeyCache } = db
 
@@ -75,10 +75,9 @@ export default fp(async function (fastify) {
         apiKey = {
           id: dbApiKey.id,
           name: dbApiKey.name,
-          type: dbApiKey.type,
           permissions: dbApiKey.permissions,
           projectId: dbApiKey.projectId,
-          project: {
+            project: {
             id: dbApiKey.project.id,
             name: dbApiKey.project.name,
             slug: dbApiKey.project.slug,

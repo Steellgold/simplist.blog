@@ -1,6 +1,6 @@
 "use client";
 
-import { useApiKeyLimits } from "@/hooks/use-subscription-limits";
+import { useSubscriptionLimits } from "@/hooks/use-subscription-limits";
 import { Button } from "@simplist/ui/components/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@simplist/ui/components/card";
 import { Label } from "@simplist/ui/components/label";
@@ -38,8 +38,8 @@ export const ArticleVisibilityCard = ({
   projectDefaultLanguage = "en",
   projectId
 }: ArticleVisibilityCardProps) => {
-  const { tier } = useApiKeyLimits(projectId);
-  const isPro = tier === "PRO";
+  const { subscription } = useSubscriptionLimits(projectId);
+  const isPro = subscription?.tier === "PRO";
 
   return (
     <Card>

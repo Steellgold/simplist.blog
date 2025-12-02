@@ -1,14 +1,14 @@
 "use server"
 
 import { requirePermission } from "@/lib/auth/permissions"
-import { checkApiKeyQuota, checkFeatureAccess } from "@/lib/subscription/quota-check"
+import { checkFeatureAccess } from "@/lib/subscription/quota-check"
 import { createApiKeySchema } from "@/lib/validations/api-key"
 import { apiKeyCache, prisma } from "@simplist/db"
 import { revalidatePath } from "next/cache"
 
 // Generate a random API key
-const generateApiKey = (type: "secret" | "public" = "secret"): string => {
-  const prefix = type === "secret" ? "sk" : "pk"
+const generateApiKey = (): string => {
+  const prefix = "prj"
   const randomBytes = crypto.getRandomValues(new Uint8Array(32))
   const key = Array.from(randomBytes)
     .map(b => b.toString(16).padStart(2, "0"))
@@ -31,7 +31,6 @@ export const getProjectApiKeys = async (projectId: string) => {
       id: true,
       name: true,
       key: true,
-      type: true,
       permissions: true,
       lastUsedAt: true,
       expiresAt: true,
@@ -43,7 +42,7 @@ export const getProjectApiKeys = async (projectId: string) => {
   return apiKeys;
 }
 
-export const createApiKey = async (projectId: string, input: { name: string; type?: "secret" | "public"; expiresInDays?: number | null }) => {
+export const createApiKey = async (projectId: string, input: { name: string; permissions: string[]; expiresInDays?: number | null }) => {
   const { user } = await requirePermission(projectId, "canManageApiKeys");
 
   // Get project for slug (needed for revalidatePath)
@@ -54,12 +53,6 @@ export const createApiKey = async (projectId: string, input: { name: string; typ
 
   if (!project) {
     throw new Error("Project not found");
-  }
-
-  // Check API key quota
-  const quotaCheck = await checkApiKeyQuota(user.id, projectId);
-  if (!quotaCheck.allowed) {
-    throw new Error(quotaCheck.reason || "API key quota exceeded");
   }
 
   // Validate input
@@ -74,12 +67,7 @@ export const createApiKey = async (projectId: string, input: { name: string; typ
   }
 
   // Generate unique API key
-  const apiKey = generateApiKey(validatedData.type)
-
-  // Determine permissions based on key type
-  // Secret keys (sk_) get "read" permission for articles & project data
-  // Public keys (pk_) get "analytics" permission for tracking only
-  const permissions = validatedData.type === "public" ? ["analytics"] : ["read"]
+  const apiKey = generateApiKey()
 
   // Calculate expiration date if provided
   let expiresAt: Date | null = null
@@ -92,8 +80,7 @@ export const createApiKey = async (projectId: string, input: { name: string; typ
     data: {
       name: validatedData.name,
       key: apiKey,
-      type: validatedData.type,
-      permissions: permissions,
+      permissions: validatedData.permissions,
       projectId: projectId,
       expiresAt: expiresAt,
       status: "active",

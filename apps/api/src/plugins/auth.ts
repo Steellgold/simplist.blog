@@ -14,7 +14,6 @@ declare module "fastify" {
     apiKey?: {
       id: string
       name: string
-      type: string
       permissions: string[]
       projectId: string
       project: {
@@ -90,7 +89,6 @@ export default fp(async function (fastify) {
         apiKey = {
           id: dbApiKey.id,
           name: dbApiKey.name,
-          type: dbApiKey.type,
           permissions: dbApiKey.permissions,
           projectId: dbApiKey.projectId,
           project: {
