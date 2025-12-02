@@ -122,11 +122,16 @@ export const createTag = async (
             articles: true,
           },
         },
+        project: {
+          select: {
+            slug: true,
+          },
+        },
       },
     })
 
-    revalidatePath(`/${projectId}/tags`)
-    revalidatePath(`/${projectId}/articles`)
+    revalidatePath(`/${tag.project.slug}/tags`)
+    revalidatePath(`/${tag.project.slug}/articles`)
 
     return {
       success: true,
@@ -217,11 +222,16 @@ export const updateTag = async (
             articles: true,
           },
         },
+        project: {
+          select: {
+            slug: true,
+          },
+        },
       },
     })
 
-    revalidatePath(`/${projectId}/tags`)
-    revalidatePath(`/${projectId}/articles`)
+    revalidatePath(`/${tag.project.slug}/tags`)
+    revalidatePath(`/${tag.project.slug}/articles`)
 
     return {
       success: true,
@@ -277,18 +287,30 @@ export const deleteTag = async (
     }
 
     // Delete the tag (cascade will remove associations with articles)
-    await prisma.tag.delete({
+    const deletedTag = await prisma.tag.delete({
       where: {
         id: tagId,
       },
+      select: {
+        _count: {
+          select: {
+            articles: true,
+          },
+        },
+        project: {
+          select: {
+            slug: true,
+          },
+        },
+      },
     })
 
-    revalidatePath(`/${projectId}/tags`)
-    revalidatePath(`/${projectId}/articles`)
+    revalidatePath(`/${deletedTag.project.slug}/tags`)
+    revalidatePath(`/${deletedTag.project.slug}/articles`)
 
     return {
       success: true,
-      articlesAffected: tag._count.articles,
+      articlesAffected: deletedTag._count.articles,
     }
   } catch (error) {
     console.error("Error deleting tag:", error)
@@ -326,6 +348,14 @@ export const updateTagAppearance = async (
           name: tagName,
         },
       },
+      select: {
+        id: true,
+        project: {
+          select: {
+            slug: true,
+          },
+        },
+      },
     })
 
     if (!tag) {
@@ -345,9 +375,10 @@ export const updateTagAppearance = async (
         ...(color !== undefined && { color }),
       },
     })
+    const projectSlug = tag.project.slug
 
-    revalidatePath(`/${projectId}/tags`)
-    revalidatePath(`/${projectId}/articles`)
+    revalidatePath(`/${projectSlug}/tags`)
+    revalidatePath(`/${projectSlug}/articles`)
 
     return {
       success: true,

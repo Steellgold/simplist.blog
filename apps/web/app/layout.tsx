@@ -35,14 +35,16 @@ export const metadata: Metadata = {
     default: `Simplist - ${slogan}`,
     template: "%s - Simplist",
   },
-  description: "Simplist is a simple, fast. Post your content in the simplest way possible, and just get your content back with an API.",
+  description:
+    "Simplist is a simple, fast content management API. Post your content in the simplest way possible, and just get your content back with an API.",
   openGraph: {
     type: "website",
     locale: "en_US",
     url: defaultUrl,
     siteName: "Simplist",
     title: `Simplist - ${slogan}`,
-    description: "Simplist is a simple, fast. Post your content in the simplest way possible, and just get your content back with an API.",
+    description:
+      "Simplist is a simple, fast content management API. Post your content in the simplest way possible, and just get your content back with an API.",
     images: [
       {
         url: "https://cdn.simplist.blog/assets/og-image.png",
@@ -57,7 +59,8 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     creator: "@steellgold",
     creatorId: "1779571985149820928",
-    description: "Simplist is a simple, fast. Post your content in the simplest way possible, and just get your content back with an API.",
+    description:
+      "Simplist is a simple, fast content management API. Post your content in the simplest way possible, and just get your content back with an API.",
     images: [
       {
         url: "https://cdn.simplist.blog/assets/og-image.png",

@@ -23,7 +23,7 @@ export const ArticleTagsCard: FC<ArticleTagsCardProps> = ({
       <CardHeader>
         <CardTitle>Tags</CardTitle>
         <CardDescription>
-          Add tags to help organize and categorize you.
+          Add tags to help organize and categorize your content.
         </CardDescription>
       </CardHeader>
 

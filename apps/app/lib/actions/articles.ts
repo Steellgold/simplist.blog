@@ -484,7 +484,10 @@ export const getArticle = async (articleId: string) => {
     },
   })
 
-  if (!article || article.project.userId !== user.id) {
+  if (!article) return null
+
+  const hasAccess = await hasProjectAccess(article.projectId, user.id)
+  if (!hasAccess) {
     return null
   }
 
@@ -865,7 +868,7 @@ export const getArticleWithVariants = async (articleId: string) => {
     include: {
       project: {
         select: {
-          userId: true,
+          id: true,
           slug: true,
           defaultLanguage: true,
         },
@@ -878,7 +881,10 @@ export const getArticleWithVariants = async (articleId: string) => {
     },
   })
 
-  if (!article || article.project.userId !== user.id) {
+  if (!article) return null
+
+  const hasAccess = await hasProjectAccess(article.project.id, user.id)
+  if (!hasAccess) {
     return null
   }
 

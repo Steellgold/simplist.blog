@@ -35,23 +35,32 @@ export default fp(async function (fastify) {
         fastify.log.info({ allowedOrigins: apiKey.project.allowedOrigins, origin }, "Checking project-specific CORS")
 
         const isAllowed = apiKey.project.allowedOrigins.some((allowedOrigin: string) => {
-          // Exact match
+          const originWithoutProtocol = origin.replace(/^https?:\/\//, "")
+          const normalizedAllowed = allowedOrigin.replace(/^https?:\/\//, "")
+
+          // Exact match on full origin (including protocol) if stored that way
           if (allowedOrigin === origin) {
             fastify.log.info({ allowedOrigin, origin }, "Exact match found")
             return true
           }
 
-          // Wildcard match for subdomains (e.g., https://*.example.com or *.example.com)
-          if (allowedOrigin.includes("*.")) {
-            // Remove all protocols first (handles cases like https://https://*.example.com)
-            let wildcardDomain = allowedOrigin.replace(/^https?:\/\//g, "")
+          // Exact match on hostname when stored without protocol
+          if (!normalizedAllowed.includes("*.")) {
+            const hostnameMatch = originWithoutProtocol === normalizedAllowed
+            if (hostnameMatch) {
+              fastify.log.info({ allowedOrigin, origin, normalizedAllowed, originWithoutProtocol }, "Hostname match found")
+            }
+            return hostnameMatch
+          }
 
-            // Now extract the domain part after the wildcard
+          // Wildcard match for subdomains (e.g., https://*.example.com or *.example.com)
+          if (normalizedAllowed.includes("*.")) {
+            let wildcardDomain = normalizedAllowed
+
             if (wildcardDomain.startsWith("*.")) {
               wildcardDomain = wildcardDomain.replace("*.", "")
             }
 
-            const originWithoutProtocol = origin.replace(/^https?:\/\//, "")
             const matches = originWithoutProtocol.endsWith(`.${wildcardDomain}`) || originWithoutProtocol === wildcardDomain
 
             fastify.log.info({
