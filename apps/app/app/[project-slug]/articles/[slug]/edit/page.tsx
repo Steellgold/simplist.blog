@@ -3,7 +3,9 @@ import { ArticleRestore } from "@/components/articles/article-restore"
 import { EditArticleForm } from "@/components/articles/edit-form"
 import { PageLayout } from "@/components/layout/page-layout"
 import { getArticleBySlugWithVariants } from "@/lib/actions/articles"
+import { getProjectTagsWithMetadata } from "@/lib/actions/tags"
 import { getCurrentUser } from "@/lib/auth-helper"
+import { type Tag } from "@simplist/db"
 import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 
@@ -37,12 +39,15 @@ const EditArticlePage = async ({ params }: { params: Promise<PageParams> }) => {
       return <ArticleRestore slug={projectSlug} articleId={article.id} />
     }
 
+    const tags = await getProjectTagsWithMetadata(article.projectId);
+    const availableTags: Tag[] = tags.map(tag => ({ ...tag, projectId: article.projectId }));
+
     return (
       <PageLayout
         title="Edit Article"
         description="Update your article content and settings."
       >
-        <EditArticleForm article={article} />
+        <EditArticleForm article={article} availableTags={availableTags} />
       </PageLayout>
     )
   }

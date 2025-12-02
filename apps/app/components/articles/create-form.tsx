@@ -3,7 +3,9 @@
 import { useProject } from "@/hooks/use-project-context";
 import { type ArticleVariant } from "@/hooks/use-variant-operations";
 import { createArticle, updateArticleCoverImage } from "@/lib/actions/articles";
+import { createTag, updateTagAppearance } from "@/lib/actions/tags";
 import { type LanguageCode, getLanguageName } from "@/lib/types/languages";
+import { type Tag } from "@simplist/db";
 import { buttonVariants } from "@simplist/ui/components/button";
 import { toast } from "@simplist/ui/components/sonner";
 import { X } from "lucide-react";
@@ -13,6 +15,7 @@ import { useEffect, useState } from "react";
 import { ArticleBannerUpload } from "./banner-upload";
 import { ArticleContentEditor } from "./content-editor";
 import { ArticleInfoFields } from "./info-fields";
+import { ArticleTagsCard } from "./tags-card";
 import { VariantCard } from "./variant-card";
 import { ArticleVisibilityCard } from "./visibility-card";
 
@@ -20,9 +23,10 @@ type ArticleStatus = "draft" | "published" | "scheduled";
 
 type CreateArticleFormProps = {
   projectId: string;
+  availableTags: Tag[];
 };
 
-export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
+export const CreateArticleForm = ({ projectId, availableTags: initialAvailableTags }: CreateArticleFormProps) => {
   const router = useRouter();
   const { currentProject } = useProject();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -38,12 +42,14 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
   const [scheduledPublishAt, setScheduledPublishAt] = useState<Date | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFiles, setImageFiles] = useState<Map<LanguageCode, File>>(new Map());
+  const [tags, setTags] = useState<Tag[]>([]);
+  const [availableTags] = useState<Tag[]>(initialAvailableTags);
 
-    // Variants state
-    const [variants, setVariants] = useState<ArticleVariant[]>([
-      { lang: defaultLanguage, title: "", excerpt: "", content: "" }
-    ]);
-    const [activeVariant, setActiveVariant] = useState<LanguageCode>(defaultLanguage);
+  // Variants state
+  const [variants, setVariants] = useState<ArticleVariant[]>([
+    { lang: defaultLanguage, title: "", excerpt: "", content: "" }
+  ]);
+  const [activeVariant, setActiveVariant] = useState<LanguageCode>(defaultLanguage);
 
   // Sync form fields with active variant (default or selected)
   useEffect(() => {
@@ -148,6 +154,44 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
           coverImage: v.coverImage,
         }));
 
+      // Step 1a: Create new tags and get their IDs
+      const tagIds: string[] = [];
+      if (tags.length > 0) {
+        toast.loading("Processing tags...", { id: toastId });
+
+        for (const tag of tags) {
+          // Check if tag exists in availableTags
+          const existingTag = initialAvailableTags.find(t => t.name === tag.name);
+
+          if (existingTag) {
+            // Tag exists - check if appearance changed
+            if (tag.icon !== existingTag.icon || tag.color !== existingTag.color) {
+              // Update tag appearance
+              await updateTagAppearance(
+                tag.name,
+                projectId,
+                (tag.icon || "tag") as any,
+                tag.color as any
+              );
+            }
+            tagIds.push(existingTag.id);
+          } else {
+            // New tag - create it
+            const result = await createTag(projectId, {
+              name: tag.name,
+              icon: (tag.icon || "tag") as any,
+              color: tag.color as any,
+            });
+            if (result.success && result.tag) {
+              tagIds.push(result.tag.id);
+            }
+          }
+        }
+      }
+
+      // Step 1b: Create article
+      toast.loading("Creating article...", { id: toastId });
+
       const article = await createArticle({
         title: defaultVariant.title,
         excerpt: defaultVariant.excerpt,
@@ -157,6 +201,7 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
         scheduledPublishAt: status === "scheduled" ? scheduledPublishAt || undefined : undefined,
         projectId,
         variants: articleVariants.length > 0 ? articleVariants : undefined,
+        tags: tagIds.length > 0 ? tagIds : undefined,
       });
 
       // Step 2: Upload all images if provided
@@ -261,12 +306,30 @@ export const CreateArticleForm = ({ projectId }: CreateArticleFormProps) => {
             onRemoveImage={handleRemoveImage}
             uploadLabel={activeVariant === defaultLanguage ? "Upload Image" : `Upload Image for ${getLanguageName(activeVariant)}`}
             emptyDescription={
-              activeVariant === defaultLanguage 
+              activeVariant === defaultLanguage
                 ? "On the response API it will return the URL of the image."
                 : `Upload a specific image for ${getLanguageName(activeVariant)} variant. Each variant can have its own image.`
             }
           />
-          
+
+          <ArticleTagsCard
+            tags={tags}
+            availableTags={availableTags}
+            onTagsChange={setTags}
+            onCreateTag={async (name) => {
+              // Create temporary local tag (will be saved on article submit)
+              const tempTag: Tag = {
+                id: `temp-${Date.now()}`, // Temporary ID
+                name,
+                icon: "tag",
+                color: null,
+                projectId,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+              };
+              return tempTag;
+            }}
+          />
 
           <VariantCard
             defaultLanguage={defaultLanguage}

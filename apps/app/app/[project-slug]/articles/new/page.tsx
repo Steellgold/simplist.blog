@@ -1,21 +1,47 @@
-"use client"
-
 import { CreateArticleForm } from "@/components/articles/create-form";
 import { PageLayout } from "@/components/layout/page-layout";
-import { EmptyProject } from "@/components/projects/empty-project";
-import { useProject } from "@/hooks/use-project-context";
+import { getProjectTagsWithMetadata } from "@/lib/actions/tags";
+import { getCurrentUser } from "@/lib/auth-helper";
+import { prisma, type Tag } from "@simplist/db";
+import { redirect } from "next/navigation";
+import { FC } from "react";
 
-const NewArticlePage = () => {
-  const { currentProject } = useProject();
-  if (!currentProject) return <EmptyProject />
+type PageParams = {
+  params: Promise<{
+    "project-slug": string;
+  }>;
+}
+
+const NewArticlePage: FC<PageParams> = async ({ params }) => {
+  const resolvedParams = await params;
+  const projectSlug = resolvedParams["project-slug"];
+
+  const user = await getCurrentUser();
+  if (!user) redirect("/auth/login");
+
+  // Get project by slug
+  const project = await prisma.project.findUnique({
+    where: { slug: projectSlug },
+    select: { id: true, name: true },
+  });
+
+  if (!project) {
+    redirect("/");
+  }
+
+  const tags = await getProjectTagsWithMetadata(project.id);
+  const availableTags: Tag[] = tags.map(tag => ({ ...tag, projectId: project.id }));
 
   return (
     <div className="container max-w-7xl mx-auto">
       <PageLayout
         title="Create a new article"
-        description={`Write and publish a new article for your ${currentProject.name} blog`}
+        description={`Write and publish a new article for your ${project.name} blog`}
       >
-        <CreateArticleForm projectId={currentProject.id} />
+        <CreateArticleForm
+          projectId={project.id}
+          availableTags={availableTags}
+        />
       </PageLayout>
     </div>
   );

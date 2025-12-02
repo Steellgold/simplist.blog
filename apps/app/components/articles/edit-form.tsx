@@ -3,16 +3,19 @@
 import { useProject } from "@/hooks/use-project-context";
 import { type ArticleVariant } from "@/hooks/use-variant-operations";
 import { removeArticleCoverImage, updateArticle, updateArticleCoverImage } from "@/lib/actions/articles";
+import { createTag, updateTagAppearance } from "@/lib/actions/tags";
 import { type LanguageCode, getLanguageName } from "@/lib/types/languages";
+import { type Tag } from "@simplist/db";
 import { buttonVariants } from "@simplist/ui/components/button";
 import { toast } from "@simplist/ui/components/sonner";
 import { X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { ArticleBannerUpload } from "./banner-upload";
 import { ArticleContentEditor } from "./content-editor";
 import { ArticleInfoFields } from "./info-fields";
+import { ArticleTagsCard } from "./tags-card";
 import { VariantCard } from "./variant-card";
 import { ArticleVisibilityCard } from "./visibility-card";
 
@@ -35,6 +38,10 @@ type Article = {
     content: string;
     coverImage: string | null;
   }>;
+  tags?: Array<{
+    id: string;
+    name: string;
+  }>;
   project: {
     defaultLanguage?: string;
   };
@@ -42,13 +49,15 @@ type Article = {
 
 type EditArticleFormProps = {
   article: Article;
+  availableTags: Tag[];
 };
 
-export const EditArticleForm = ({ article }: EditArticleFormProps) => {
+export const EditArticleForm: FC<EditArticleFormProps> = ({ article, availableTags: initialAvailableTags }) => {
   const router = useRouter();
   const { currentProject } = useProject();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imagesToDelete, setImagesToDelete] = useState<Set<LanguageCode>>(new Set());
+  const [availableTags, setAvailableTags] = useState<Tag[]>(initialAvailableTags);
 
   // Default language from project or fallback to English
   const defaultLanguage: LanguageCode = (article.project.defaultLanguage as LanguageCode) || (currentProject?.defaultLanguage as LanguageCode) || "en";
@@ -94,6 +103,16 @@ export const EditArticleForm = ({ article }: EditArticleFormProps) => {
   );
   const [imagePreview, setImagePreview] = useState<string | null>(article.coverImage);
   const [imageFiles, setImageFiles] = useState<Map<LanguageCode, File>>(new Map());
+
+  // Initialize tags by matching article tag names with available tags
+  const [tags, setTags] = useState<Tag[]>(() => {
+    if (!article.tags || article.tags.length === 0) return [];
+
+    // Match article tags with available tags to get full Tag objects
+    return article.tags
+      .map(articleTag => initialAvailableTags.find(t => t.name === articleTag.name))
+      .filter((tag): tag is Tag => tag !== undefined);
+  });
 
     // Variants state
     const [variants, setVariants] = useState<ArticleVariant[]>(initializeVariants());
@@ -211,6 +230,43 @@ export const EditArticleForm = ({ article }: EditArticleFormProps) => {
           coverImage: v.coverImage,
         }));
 
+      // Process tags (create new ones and update appearances)
+      const tagIds: string[] = [];
+      if (tags.length > 0) {
+        toast.loading("Processing tags...", { id: toastId });
+
+        for (const tag of tags) {
+          // Check if tag exists in availableTags
+          const existingTag = availableTags.find(t => t.name === tag.name);
+
+          if (existingTag) {
+            // Tag exists - check if appearance changed
+            if (tag.icon !== existingTag.icon || tag.color !== existingTag.color) {
+              // Update tag appearance
+              await updateTagAppearance(
+                tag.name,
+                article.projectId,
+                (tag.icon || "tag") as any,
+                tag.color as any
+              );
+            }
+            tagIds.push(existingTag.id);
+          } else {
+            // New tag - create it
+            const result = await createTag(article.projectId, {
+              name: tag.name,
+              icon: (tag.icon || "tag") as any,
+              color: tag.color as any,
+            });
+            if (result.success && result.tag) {
+              tagIds.push(result.tag.id);
+            }
+          }
+        }
+      }
+
+      toast.loading("Updating article...", { id: toastId });
+
       await updateArticle(article.id, {
         title: defaultVariant.title,
         excerpt: defaultVariant.excerpt,
@@ -218,6 +274,7 @@ export const EditArticleForm = ({ article }: EditArticleFormProps) => {
         status,
         scheduledPublishAt: status === "scheduled" ? scheduledPublishAt : null,
         variants: articleVariants,
+        tags: tagIds.length > 0 ? tagIds : undefined,
       });
 
       // Step 2: Delete marked images from server and R2
@@ -344,6 +401,24 @@ export const EditArticleForm = ({ article }: EditArticleFormProps) => {
                 ? "Update the article cover image."
                 : `Upload a specific image for ${getLanguageName(activeVariant)} variant. Each variant can have its own image.`
             }
+          />
+
+          <ArticleTagsCard
+            tags={tags}
+            availableTags={availableTags}
+            onTagsChange={setTags}
+            onCreateTag={async (name) => {
+              const tempTag: Tag = {
+                id: `temp-${Date.now()}`,
+                name,
+                icon: "tag",
+                color: null,
+                projectId: article.projectId,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+              };
+              return tempTag;
+            }}
           />
 
           <VariantCard

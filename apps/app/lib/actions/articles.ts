@@ -2,7 +2,7 @@
 
 import { assertR2ObjectIsImage, deleteBannerFromR2, getR2PublicUrl } from "@/lib/actions/images"
 import { getCurrentUser } from "@/lib/auth-helper"
-import { requirePermission, hasProjectAccess } from "@/lib/auth/permissions"
+import { hasProjectAccess, requirePermission } from "@/lib/auth/permissions"
 import { checkArticleQuota, checkFeatureAccess, checkVariantQuota } from "@/lib/subscription/quota-check"
 import { type LanguageCode, isValidLanguageCode } from "@/lib/types/languages"
 import { generateSlug } from "@/lib/utils"
@@ -43,6 +43,7 @@ export const createArticle = async (formData: {
   scheduledPublishAt?: Date;
   projectId: string;
   variants?: ArticleVariantInput[];
+  tags?: string[];
 }) => {
   const { user, membership } = await requirePermission(formData.projectId, "canManageArticles");
 
@@ -126,6 +127,12 @@ export const createArticle = async (formData: {
     // Calculate content statistics
     const stats = calculateStats(formData.content);
 
+    // Handle tags: connect existing tags by ID
+    let tagConnections: { id: string }[] = [];
+    if (formData.tags && formData.tags.length > 0) {
+      tagConnections = formData.tags.map(tagId => ({ id: tagId }));
+    }
+
     // Create article within transaction
     const newArticle = await tx.article.create({
       data: {
@@ -140,6 +147,9 @@ export const createArticle = async (formData: {
         scheduledPublishAt: formData.scheduledPublishAt || null,
         projectId: project.id,
         createdBy: user.id,
+        tags: {
+          connect: tagConnections,
+        },
         ...stats,
       },
     });
@@ -537,6 +547,7 @@ export const updateArticle = async (articleId: string, formData: {
   status: "draft" | "published" | "scheduled"
   scheduledPublishAt?: Date | null
   variants?: ArticleVariantInput[]
+  tags?: string[]
 }) => {
   const article = await prisma.article.findUnique({
     where: { id: articleId },
@@ -598,6 +609,12 @@ export const updateArticle = async (articleId: string, formData: {
     // Calculate content statistics
     const stats = calculateStats(formData.content);
 
+    // Handle tags: connect existing tags by ID
+    let tagConnections: { id: string }[] = [];
+    if (formData.tags && formData.tags.length > 0) {
+      tagConnections = formData.tags.map(tagId => ({ id: tagId }));
+    }
+
     // Update article
     const updatedArticle = await tx.article.update({
       where: { id: articleId },
@@ -610,6 +627,9 @@ export const updateArticle = async (articleId: string, formData: {
         publishedAt: formData.status === "published" && !article.publishedAt ? new Date() : article.publishedAt,
         scheduledPublishAt: formData.scheduledPublishAt,
         updatedBy: user.id,
+        tags: {
+          set: tagConnections,
+        },
         ...stats,
       },
     });
@@ -895,8 +915,44 @@ export const getArticleBySlugWithVariants = async (slug: string) => {
           lang: "asc",
         },
       },
+      tags: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
     },
   })
 
   return article
+}
+
+export const getProjectTags = async (projectId: string) => {
+  const user = await getCurrentUser()
+  if (!user) {
+    redirect("/auth/login")
+  }
+
+  // Verify user has access to this project
+  const hasAccess = await hasProjectAccess(projectId, user.id)
+  if (!hasAccess) {
+    forbidden()
+  }
+
+  const tags = await prisma.tag.findMany({
+    where: {
+      projectId,
+    },
+    select: {
+      id: true,
+      name: true,
+      icon: true,
+      color: true
+    },
+    orderBy: {
+      name: "asc",
+    },
+  })
+
+  return tags.map((tag) => tag.name)
 }
