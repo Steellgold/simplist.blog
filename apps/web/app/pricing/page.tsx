@@ -1,6 +1,8 @@
 "use client";
 
 import { Footer } from "@/components/layout/footer";
+import { Navbar } from "@/components/layout/navbar";
+import NumberFlow from "@number-flow/react";
 import {
   getAllPlans,
   getPlanPrice,
@@ -13,7 +15,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsList, TabsTrigger } from "@simplist/ui/components/tabs";
 import { clsx } from "clsx";
 import { ArrowRight, BadgeCheck, X } from "lucide-react";
-import NumberFlow from "@number-flow/react";
 import { useState } from "react";
 
 export default function PricingPage() {
@@ -31,6 +32,7 @@ export default function PricingPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary/20">
+      <Navbar />
       <div className="container mx-auto px-4 py-16 max-w-6xl">
         <div className="flex flex-col items-center text-center mb-12">
           <h1 className="text-4xl font-bold">Simple, transparent pricing</h1>
