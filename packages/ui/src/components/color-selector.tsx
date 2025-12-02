@@ -35,13 +35,21 @@ import { cn } from "@simplist/ui/lib/utils";
 import { Check, ChevronDown, Search } from "lucide-react";
 import { FC, useEffect, useState } from "react";
 
+type CustomColorOption = {
+  value: null | string;
+  label: string;
+  colorValue?: string;
+};
+
 type ColorSelectorProps = {
-  value: ColorsEnumType;
-  onValueChange: (value: ColorsEnumType) => void;
+  value: ColorsEnumType | null;
+  onValueChange: (value: ColorsEnumType | null) => void;
   triggerClassName?: string;
   disabled?: boolean;
   className?: string;
   dialog?: boolean;
+  dialogTrigger?: React.ReactNode;
+  customOptions?: CustomColorOption[];
 };
 
 export const ColorSelector: FC<ColorSelectorProps> = ({
@@ -51,10 +59,12 @@ export const ColorSelector: FC<ColorSelectorProps> = ({
   disabled = false,
   className = "",
   dialog = false,
+  dialogTrigger,
+  customOptions = [],
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
-  const [selectedColor, setSelectedColor] = useState<ColorsEnumType>(value);
+  const [selectedColor, setSelectedColor] = useState<ColorsEnumType | null>(value);
 
   // Synchronize selectedColor with value prop when it changes
   useEffect(() => {
@@ -65,7 +75,7 @@ export const ColorSelector: FC<ColorSelectorProps> = ({
     getColorLabel(color).toLowerCase().includes(searchValue.toLowerCase()),
   );
 
-  const handleColorSelect = (color: ColorsEnumType) => {
+  const handleColorSelect = (color: ColorsEnumType | null) => {
     if (dialog) {
       setSelectedColor(color);
     } else {
@@ -89,6 +99,9 @@ export const ColorSelector: FC<ColorSelectorProps> = ({
     }
   };
 
+  const customOption = customOptions.find(opt => opt.value === value);
+  const displayLabel = customOption ? customOption.label : (value ? getColorLabel(value) : "Select color");
+
   const trigger = (
     <Button
       variant="outline"
@@ -99,11 +112,21 @@ export const ColorSelector: FC<ColorSelectorProps> = ({
       )}
       disabled={disabled}
     >
-      <div
-        className="w-4 h-4 rounded-full"
-        style={{ backgroundColor: getColorValue(value) }}
-      />
-      {getColorLabel(value)}
+      {value ? (
+        <div
+          className={cn(
+            "w-4 h-4 rounded-full",
+            {
+              "border-0 dark:border dark:border-gray-300/25": value === "BLACK",
+              "border border-gray-900/25 dark:border-0": value === "WHITE"
+            }
+          )}
+          style={{ backgroundColor: customOption?.colorValue || getColorValue(value) }}
+        />
+      ) : (
+        <div className="w-4 h-4 rounded-full border-2 border-gray-300 bg-transparent" />
+      )}
+      {displayLabel}
       <ChevronDown className="h-4 w-4 ml-auto shrink-0 opacity-50" />
     </Button>
   );
@@ -111,7 +134,7 @@ export const ColorSelector: FC<ColorSelectorProps> = ({
   if (dialog) {
     return (
       <Dialog open={isOpen} onOpenChange={handleDialogOpenChange}>
-        <DialogTrigger asChild>{trigger}</DialogTrigger>
+        {dialogTrigger ? dialogTrigger : <DialogTrigger asChild>{trigger}</DialogTrigger>}
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Select a Color</DialogTitle>
@@ -125,7 +148,35 @@ export const ColorSelector: FC<ColorSelectorProps> = ({
             <CommandList className="h-[300px] max-h-[300px]">
               <CommandEmpty>No color found.</CommandEmpty>
 
-              <CommandGroup>
+              {customOptions.length > 0 && (
+                <CommandGroup heading="Options">
+                  {customOptions.map((option) => (
+                    <CommandItem
+                      key={option.value || 'null'}
+                      value={`${option.label} ${option.value || 'null'}`}
+                      onSelect={() => handleColorSelect(option.value as ColorsEnumType | null)}
+                      className="cursor-pointer"
+                    >
+                      <Check
+                        className={cn(selectedColor === option.value ? "opacity-100" : "opacity-0")}
+                      />
+
+                      {option.colorValue ? (
+                        <div
+                          className="w-4 h-4 rounded-full mr-2"
+                          style={{ backgroundColor: option.colorValue }}
+                        />
+                      ) : (
+                        <div className="w-4 h-4 rounded-full mr-2 border-2 border-gray-300 bg-transparent" />
+                      )}
+
+                      <span>{option.label}</span>
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              )}
+
+              <CommandGroup heading={customOptions.length > 0 ? "Colors" : undefined}>
                 {filteredColors.map((color) => (
                   <CommandItem
                     key={color}
@@ -134,14 +185,15 @@ export const ColorSelector: FC<ColorSelectorProps> = ({
                     className="cursor-pointer"
                   >
                     <Check
-                      className={cn(
-                        "mr-2 size-4",
-                        selectedColor === color ? "opacity-100" : "opacity-0",
-                      )}
+                      className={cn(selectedColor === color ? "opacity-100" : "opacity-0")}
                     />
 
                     <div
-                      className="w-4 h-4 rounded-full mr-2"
+                      className={cn(
+                        "w-4 h-4 rounded-full mr-2", {
+                          "border-0 dark:border dark:border-gray-300/25": color === "BLACK",
+                          "border border-gray-900/25 dark:border-0": color === "WHITE"
+                        })}
                       style={{ backgroundColor: getColorValue(color) }}
                     />
 
@@ -167,9 +219,9 @@ export const ColorSelector: FC<ColorSelectorProps> = ({
               variant="default"
               size="sm"
               onClick={handleDialogConfirm}
-              disabled={!selectedColor}
+              disabled={selectedColor === undefined}
             >
-              Select Color
+              Select this Color
             </Button>
           </DialogFooter>
         </DialogContent>

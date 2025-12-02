@@ -8,15 +8,7 @@ type ColorMapResult = {
 
 export const ColorsEnum = z.enum([
   "RED", "ORANGE", "AMBER", "YELLOW", "LIME", "GREEN", "EMERALD", "TEAL", "CYAN", "SKY",
-  "BLUE", "INDIGO", "VIOLET", "PURPLE", "FUCHSIA", "PINK", "ROSE", "BLACK", "WHITE",
-
-  "GRAY", "SLATE", "STONE", "ZINC", "NEON_GREEN", "NEON_PINK", "MINT", "AQUA", "TURQUOISE",
-  "BRONZE", "GOLD", "SILVER", "COPPER", "MAROON", "OLIVE", "NAVY", "LAVENDER", "BEIGE", "PEACH",
-  "BROWN", "CHARCOAL",
-
-  "MAGENTA", "CORAL", "SAPPHIRE", "RUBY", "SAND", "MUSTARD", "ICE", "JADE", "PLUM",
-  "SEAFOAM", "INDIGO_DARK", "LIME_DARK", "BERRY", "MOSS", "FLAMINGO", "ICE_BLUE",
-  "MULBERRY", "MANGO", "OBSIDIAN", "WISTERIA"
+  "BLUE", "INDIGO", "VIOLET", "PURPLE", "FUCHSIA", "PINK", "ROSE", "BLACK", "WHITE", "GRAY"
 ]);
 
 export type ColorsEnumType = z.infer<typeof ColorsEnum>;
@@ -45,55 +37,11 @@ export const COLOR_MAP: Record<ColorsEnumType | Color, ColorMapResult> = {
   ROSE: { value: "#F43F5E", label: "Rose" },
   BLACK: { value: "#000000", label: "Black" },
   WHITE: { value: "#FFFFFF", label: "White" },
-
-  GRAY: { value: "#9CA3AF", label: "Gray" },
-  SLATE: { value: "#64748B", label: "Slate" },
-  STONE: { value: "#78716C", label: "Stone" },
-  ZINC: { value: "#71717A", label: "Zinc" },
-  NEON_GREEN: { value: "#39FF14", label: "Neon Green" },
-  NEON_PINK: { value: "#FF6EC7", label: "Neon Pink" },
-  MINT: { value: "#98FF98", label: "Mint" },
-  AQUA: { value: "#00FFFF", label: "Aqua" },
-  TURQUOISE: { value: "#40E0D0", label: "Turquoise" },
-  BRONZE: { value: "#CD7F32", label: "Bronze" },
-  GOLD: { value: "#FFD700", label: "Gold" },
-  SILVER: { value: "#C0C0C0", label: "Silver" },
-  COPPER: { value: "#B87333", label: "Copper" },
-  MAROON: { value: "#800000", label: "Maroon" },
-  OLIVE: { value: "#808000", label: "Olive" },
-  NAVY: { value: "#000080", label: "Navy" },
-  LAVENDER: { value: "#E6E6FA", label: "Lavender" },
-  BEIGE: { value: "#F5F5DC", label: "Beige" },
-  PEACH: { value: "#FFE5B4", label: "Peach" },
-  BROWN: { value: "#A52A2A", label: "Brown" },
-  CHARCOAL: { value: "#36454F", label: "Charcoal" },
-
-  MAGENTA: { value: "#FF00FF", label: "Magenta" },
-  CORAL: { value: "#FF7F50", label: "Coral" },
-  SAPPHIRE: { value: "#0F52BA", label: "Sapphire" },
-  RUBY: { value: "#E0115F", label: "Ruby" },
-  SAND: { value: "#F4A460", label: "Sand" },
-  MUSTARD: { value: "#FFDB58", label: "Mustard" },
-  ICE: { value: "#D6FFFA", label: "Ice" },
-  JADE: { value: "#00A86B", label: "Jade" },
-  PLUM: { value: "#DDA0DD", label: "Plum" },
-  SEAFOAM: { value: "#93E9BE", label: "Seafoam" },
-  INDIGO_DARK: { value: "#3F00FF", label: "Dark Indigo" },
-  LIME_DARK: { value: "#4B830D", label: "Dark Lime" },
-  BERRY: { value: "#8A0253", label: "Berry" },
-  MOSS: { value: "#8A9A5B", label: "Moss" },
-  FLAMINGO: { value: "#FC8EAC", label: "Flamingo" },
-  ICE_BLUE: { value: "#AFDBF5", label: "Ice Blue" },
-  MULBERRY: { value: "#70193D", label: "Mulberry" },
-  MANGO: { value: "#FFB347", label: "Mango" },
-  OBSIDIAN: { value: "#0B0C10", label: "Obsidian" },
-  WISTERIA: { value: "#C9A0DC", label: "Wisteria" }
+  GRAY: { value: "#9CA3AF", label: "Gray" }
 };
 
 const lightTextColors: ColorsEnumType[] = [
-  "BLACK", "RED", "ORANGE", "SKY", "BLUE", "INDIGO", "VIOLET", "PURPLE", "FUCHSIA",
-  "PINK", "ROSE", "MAROON", "BERRY", "NAVY", "INDIGO_DARK", "OBSIDIAN", "CHARCOAL", "MULBERRY",
-  "RUBY"
+  "BLACK", "RED", "ORANGE", "SKY", "BLUE", "INDIGO", "VIOLET", "PURPLE", "FUCHSIA", "PINK", "ROSE"
 ];
 
 export const getIconTextColorWithBackgroundColorOf = (
