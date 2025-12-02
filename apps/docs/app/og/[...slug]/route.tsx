@@ -20,7 +20,7 @@ export async function GET(
         description={page.data.description}
         icon={
           <img
-            src="https://cdn.simplist.blog/assets/Simplist4060.svg"
+            src="https://cdn.simplist.blog/assets/Simplist4060.png"
             alt="Simplist"
             width={40}
             height={60}
