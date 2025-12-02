@@ -127,17 +127,19 @@ export const VariantCard = ({
 
           <CardAction>
             <Dialog open={addVariantOpen} onOpenChange={handleDialogOpenChange}>
-              <DialogTrigger asChild>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  disabled={disabled || !canAdd}
-                >
-                  <Plus />
-                  New Variant
-                </Button>
-              </DialogTrigger>
+              {canAdd && (
+                <DialogTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={disabled || !canAdd}
+                  >
+                    <Plus />
+                    New Variant
+                  </Button>
+                </DialogTrigger>
+              )}
 
               <DialogContent>
                 <DialogHeader>
