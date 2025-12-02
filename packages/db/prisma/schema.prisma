@@ -151,8 +151,10 @@ model Project {
 }
 
 model Tag {
-  id   String @id @default(cuid())
-  name String
+  id    String  @id @default(cuid())
+  name  String
+  color Color?
+  icon  String? @default("tag")
 
   projectId String
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)

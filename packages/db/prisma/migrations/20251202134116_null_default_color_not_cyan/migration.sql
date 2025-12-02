@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "tag" ALTER COLUMN "color" DROP DEFAULT;
