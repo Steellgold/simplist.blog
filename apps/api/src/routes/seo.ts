@@ -1,9 +1,42 @@
 import * as db from "@simplist/db"
+import { getRedis } from "@simplist/db"
 import { FastifyPluginAsync } from "fastify"
 import { type SitemapEntry } from "../schemas/seo"
 import { generateRSSFeed, generateSeoMetadata, generateSitemap } from "../utils/seo-generator"
 
 const { prisma } = db
+const redis = getRedis()
+
+const SEO_CACHE_TTL = 5 * 60
+
+const buildSitemapCacheKey = (
+  projectId: string,
+  baseUrl: string,
+  format: "xml" | "json",
+  lang?: string,
+  customPath?: string
+) => {
+  return `seo:sitemap:${projectId}:${format}:${lang || ""}:${customPath || ""}:${baseUrl}`
+}
+
+const buildRssCacheKey = (
+  projectId: string,
+  baseUrl: string,
+  limit: number,
+  lang?: string,
+  customPath?: string
+) => {
+  return `seo:rss:${projectId}:${limit}:${lang || ""}:${customPath || ""}:${baseUrl}`
+}
+
+const buildStructuredDataCacheKey = (
+  projectId: string,
+  baseUrl?: string,
+  limit?: number,
+  offset?: number
+) => {
+  return `seo:structured:${projectId}:${baseUrl || ""}:${limit || 0}:${offset || 0}`
+}
 
 const seoRoutes: FastifyPluginAsync = async (fastify) => {
   // Get SEO metadata for a specific article
@@ -205,12 +238,27 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
     }
   }, async (request, reply) => {
     const { baseUrl, format = "xml", lang, customPath } = request.query as { baseUrl: string, format?: "xml" | "json", lang?: string, customPath?: string }
+    const projectId = request.apiKey?.projectId
 
     if (!request.apiKey) {
       return reply.status(401 as any).send({ error: "API key required" })
     }
 
     try {
+      // Try cache first
+      if (redis && projectId) {
+        const cacheKey = buildSitemapCacheKey(projectId, baseUrl, format, lang, customPath)
+        const cached = await redis.get(cacheKey)
+        if (cached) {
+          fastify.log.debug(`SEO sitemap cache hit for project ${projectId}`)
+          if (format === "xml") {
+            reply.type("application/xml")
+            return reply.send(cached)
+          }
+          return reply.send(JSON.parse(typeof cached === "string" ? cached : JSON.stringify(cached)))
+        }
+      }
+
       // Get project from API key
       const project = await prisma.project.findUnique({
         where: { id: request.apiKey.projectId }
@@ -237,6 +285,10 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
 
       if (format === "xml") {
         const sitemap = generateSitemap(articles, project, baseUrl, lang, customPath)
+        if (redis && projectId) {
+          const cacheKey = buildSitemapCacheKey(projectId, baseUrl, format, lang, customPath)
+          redis.setex(cacheKey, SEO_CACHE_TTL, typeof sitemap === "string" ? sitemap : JSON.stringify(sitemap)).catch(() => {})
+        }
         reply.type("application/xml")
         return reply.send(sitemap)
       } else {
@@ -265,6 +317,11 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
           generatedAt: new Date().toISOString()
         }
 
+        if (redis && projectId) {
+          const cacheKey = buildSitemapCacheKey(projectId, baseUrl, format, lang, customPath)
+          redis.setex(cacheKey, SEO_CACHE_TTL, JSON.stringify(response)).catch(() => {})
+        }
+
         return reply.send(response)
       }
     } catch (error) {
@@ -289,12 +346,24 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
     }
   }, async (request, reply) => {
     const { baseUrl, limit = 20, lang, customPath } = request.query as { baseUrl: string, limit?: number, lang?: string, customPath?: string }
+    const projectId = request.apiKey?.projectId
 
     if (!request.apiKey) {
       return reply.status(401 as any).send({ error: "API key required" })
     }
 
     try {
+      // Try cache first
+      if (redis && projectId) {
+        const cacheKey = buildRssCacheKey(projectId, baseUrl, limit, lang, customPath)
+        const cached = await redis.get(cacheKey)
+        if (cached) {
+          fastify.log.debug(`SEO RSS cache hit for project ${projectId}`)
+          reply.type("application/rss+xml")
+          return reply.send(typeof cached === "string" ? cached : JSON.stringify(cached))
+        }
+      }
+
       // Get project from API key
       const project = await prisma.project.findUnique({
         where: { id: request.apiKey.projectId }
@@ -323,6 +392,10 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
       const rss = generateRSSFeed(articles, project, baseUrl, lang, customPath)
       
       reply.type("application/rss+xml")
+      if (redis && projectId) {
+        const cacheKey = buildRssCacheKey(projectId, baseUrl, limit, lang, customPath)
+        redis.setex(cacheKey, SEO_CACHE_TTL, typeof rss === "string" ? rss : JSON.stringify(rss)).catch(() => {})
+      }
       return reply.send(rss)
     } catch (error) {
       fastify.log.error(error, "Failed to generate RSS feed")
@@ -336,18 +409,31 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
       querystring: {
         type: "object",
         properties: {
-          baseUrl: { type: "string", format: "uri" }
+          baseUrl: { type: "string", format: "uri" },
+          limit: { type: "number", minimum: 1, maximum: 500 },
+          offset: { type: "number", minimum: 0 }
         }
       }
     }
   }, async (request, reply) => {
-    const { baseUrl } = request.query as { baseUrl?: string }
+    const { baseUrl, limit = 200, offset = 0 } = request.query as { baseUrl?: string, limit?: number, offset?: number }
+    const projectId = request.apiKey?.projectId
 
     if (!request.apiKey) {
       return reply.status(401 as any).send({ error: "API key required" })
     }
 
     try {
+      // Try cache first
+      if (redis && projectId) {
+        const cacheKey = buildStructuredDataCacheKey(projectId, baseUrl, limit, offset)
+        const cached = await redis.get(cacheKey)
+        if (cached) {
+          fastify.log.debug(`SEO structured-data cache hit for project ${projectId}`)
+          return reply.send(JSON.parse(typeof cached === "string" ? cached : JSON.stringify(cached)))
+        }
+      }
+
       // Get project from API key
       const project = await prisma.project.findUnique({
         where: { id: request.apiKey.projectId }
@@ -357,7 +443,7 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
         return reply.status(404 as any).send({ error: "Project not found" })
       }
 
-      // Get published articles
+      // Get published articles (paginés pour éviter de charger des milliers d'entrées d'un coup)
       const articles = await prisma.article.findMany({
         where: {
           projectId: project.id,
@@ -366,7 +452,9 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
         },
         orderBy: {
           publishedAt: "desc"
-        }
+        },
+        skip: offset,
+        take: limit
       })
 
       const structuredData = articles.map(article => {
@@ -377,14 +465,21 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
         }
       })
 
-      return reply.send({
+      const responsePayload = {
         project: {
           name: project.name,
           slug: project.slug
         },
         articles: structuredData,
         generatedAt: new Date().toISOString()
-      })
+      }
+
+      if (redis && projectId) {
+        const cacheKey = buildStructuredDataCacheKey(projectId, baseUrl, limit, offset)
+        redis.setex(cacheKey, SEO_CACHE_TTL, JSON.stringify(responsePayload)).catch(() => {})
+      }
+
+      return reply.send(responsePayload)
     } catch (error) {
       fastify.log.error(error, "Failed to get structured data")
       return reply.status(500 as any).send({ error: "Internal server error" })

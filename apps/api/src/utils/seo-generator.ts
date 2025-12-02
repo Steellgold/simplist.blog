@@ -6,14 +6,15 @@ export const generateSeoMetadata = (article: any, project: any, baseUrl?: string
   const isVariant = variant !== article
   
   const title = variant.title
-  const description = variant.excerpt || `${variant.content.substring(0, 160)}...`
+  const summarySource = (variant.content || "").substring(0, 4000)
+  const description = variant.excerpt || `${summarySource.substring(0, 160)}...`
   const canonicalUrl = baseUrl ? `${baseUrl}/${project.slug}/${article.slug}${isVariant ? `?lang=${lang}` : ''}` : undefined
   const ogImage = variant.coverImage || article.coverImage || undefined
   const publishedTime = article.publishedAt ? new Date(article.publishedAt).toISOString() : undefined
   const modifiedTime = new Date(variant.updatedAt || article.updatedAt).toISOString()
 
-  // Generate keywords from variant content
-  const keywords = generateKeywords(title, variant.content)
+  // Generate keywords from variant content (tronqué)
+  const keywords = generateKeywords(title, summarySource)
 
   // Generate structured data for articles
   const structuredData = generateArticleStructuredData(variant, project, canonicalUrl, lang)
@@ -77,11 +78,12 @@ export const generateKeywords = (title: string, content: string, maxKeywords = 1
 }
 
 export const generateArticleStructuredData = (article: any, project: any, url?: string, lang?: string) => {
+  const summarySource = (article.content || "").substring(0, 4000)
   return {
     "@context": "https://schema.org",
     "@type": "Article",
     headline: article.title,
-    description: article.excerpt || `${article.content.substring(0, 160)}...`,
+    description: article.excerpt || `${summarySource.substring(0, 160)}...`,
     image: article.coverImage || undefined,
     author: {
       "@type": "Organization",
