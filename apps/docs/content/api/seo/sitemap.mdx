@@ -1,0 +1,335 @@
+---
+title: Sitemap Generation
+description: Generate XML or JSON sitemaps for search engines
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+
+# Sitemap Generation
+
+Generate sitemaps in XML or JSON format for search engine crawlers and custom implementations.
+
+```http
+GET /v1/seo/sitemap
+```
+
+## Query Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `baseUrl` | string | **Yes** | Base URL for your blog |
+| `format` | string | No | Format: `xml` or `json` (default: `xml`) |
+| `lang` | string | No | Filter by language code |
+| `customPath` | string | No | Custom URL path pattern |
+
+## Example Request
+
+<Tabs items={['cURL', 'JavaScript', 'TypeScript']}>
+<Tab value="cURL">
+```bash
+# XML Sitemap
+curl "https://api.simplist.blog/v1/seo/sitemap?baseUrl=https://myblog.com&format=xml" \
+  -H "X-API-Key: your_api_key"
+
+# JSON Sitemap
+curl "https://api.simplist.blog/v1/seo/sitemap?baseUrl=https://myblog.com&format=json" \
+  -H "X-API-Key: your_api_key"
+```
+</Tab>
+<Tab value="JavaScript">
+```javascript
+// Fetch XML sitemap
+const response = await fetch(
+  'https://api.simplist.blog/v1/seo/sitemap?baseUrl=https://myblog.com&format=xml',
+  { headers: { 'X-API-Key': process.env.SIMPLIST_API_KEY } }
+);
+
+const xml = await response.text();
+console.log(xml);
+```
+</Tab>
+<Tab value="TypeScript">
+```typescript
+interface SitemapEntry {
+  url: string;
+  lastModified: string;
+  changeFrequency: 'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never';
+  priority: number;
+}
+
+interface JSONSitemap {
+  entries: SitemapEntry[];
+  generatedAt: string;
+}
+
+const response = await fetch(
+  'https://api.simplist.blog/v1/seo/sitemap?baseUrl=https://myblog.com&format=json',
+  { headers: { 'X-API-Key': process.env.SIMPLIST_API_KEY as string } }
+);
+
+const sitemap: JSONSitemap = await response.json();
+```
+</Tab>
+</Tabs>
+
+## XML Response
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://myblog.com/my-blog</loc>
+    <lastmod>2024-01-31T12:00:00.000Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://myblog.com/my-blog/getting-started</loc>
+    <lastmod>2024-01-20T14:45:00.000Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://myblog.com/my-blog/advanced-guide</loc>
+    <lastmod>2024-01-18T09:30:00.000Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+</urlset>
+```
+
+## JSON Response
+
+```json
+{
+  "entries": [
+    {
+      "url": "https://myblog.com/my-blog",
+      "lastModified": "2024-01-31T12:00:00.000Z",
+      "changeFrequency": "daily",
+      "priority": 1.0
+    },
+    {
+      "url": "https://myblog.com/my-blog/getting-started",
+      "lastModified": "2024-01-20T14:45:00.000Z",
+      "changeFrequency": "weekly",
+      "priority": 0.8
+    },
+    {
+      "url": "https://myblog.com/my-blog/advanced-guide",
+      "lastModified": "2024-01-18T09:30:00.000Z",
+      "changeFrequency": "weekly",
+      "priority": 0.8
+    }
+  ],
+  "generatedAt": "2024-01-31T12:00:00.000Z"
+}
+```
+
+## Custom URL Paths
+
+Customize the URL structure for your articles:
+
+```bash
+# Default: uses project slug
+# URLs: https://myblog.com/my-blog/article-slug
+curl "https://api.simplist.blog/v1/seo/sitemap?baseUrl=https://myblog.com&format=xml"
+
+# Custom path with {slug} placeholder
+# URLs: https://myblog.com/blog/article-slug
+curl "https://api.simplist.blog/v1/seo/sitemap?baseUrl=https://myblog.com&customPath=blog/{slug}&format=xml"
+
+# Another example
+# URLs: https://myblog.com/articles/article-slug
+curl "https://api.simplist.blog/v1/seo/sitemap?baseUrl=https://myblog.com&customPath=articles/{slug}&format=xml"
+```
+
+<Callout type="info">
+Use `{slug}` as a placeholder in `customPath`. It will be replaced with each article's slug.
+</Callout>
+
+## Filter by Language
+
+Generate sitemap for specific language variants:
+
+```bash
+curl "https://api.simplist.blog/v1/seo/sitemap?baseUrl=https://myblog.com&lang=fr&format=xml" \
+  -H "X-API-Key: your_api_key"
+```
+
+## Submit to Search Engines
+
+### Google Search Console
+
+1. Go to [Google Search Console](https://search.google.com/search-console)
+2. Select your property
+3. Navigate to **Sitemaps**
+4. Add sitemap URL:
+   ```
+   https://api.simplist.blog/v1/seo/sitemap?baseUrl=https://myblog.com&format=xml
+   ```
+
+### Bing Webmaster Tools
+
+1. Go to [Bing Webmaster Tools](https://www.bing.com/webmasters)
+2. Navigate to **Sitemaps**
+3. Submit your sitemap URL
+
+### robots.txt
+
+Add to your `robots.txt`:
+
+```txt
+User-agent: *
+Allow: /
+
+Sitemap: https://api.simplist.blog/v1/seo/sitemap?baseUrl=https://myblog.com&format=xml
+```
+
+## Next.js Sitemap Route
+
+Create a sitemap route in Next.js:
+
+```typescript
+// app/sitemap.xml/route.ts
+import { NextResponse } from 'next/server';
+
+export async function GET() {
+  const response = await fetch(
+    `https://api.simplist.blog/v1/seo/sitemap?baseUrl=${process.env.NEXT_PUBLIC_BASE_URL}&format=xml`,
+    {
+      headers: {
+        'X-API-Key': process.env.SIMPLIST_API_KEY!,
+      },
+      next: { revalidate: 3600 }, // Revalidate every hour
+    }
+  );
+
+  const xml = await response.text();
+
+  return new NextResponse(xml, {
+    headers: {
+      'Content-Type': 'application/xml',
+      'Cache-Control': 'public, max-age=3600, s-maxage=3600',
+    },
+  });
+}
+```
+
+Then your sitemap will be available at: `https://myblog.com/sitemap.xml`
+
+## Dynamic Sitemap Updates
+
+Sitemaps automatically include:
+- All published articles
+- Latest update timestamps
+- Project index page
+
+Changes to articles are reflected immediately (after 5-minute cache expires).
+
+## Sitemap Fields
+
+### URL
+
+Full absolute URL to the page:
+```
+https://myblog.com/my-blog/article-slug
+```
+
+### Last Modified
+
+ISO 8601 timestamp of last update:
+```
+2024-01-20T14:45:00.000Z
+```
+
+### Change Frequency
+
+How often the page changes:
+- **daily** - Project index
+- **weekly** - Articles (default)
+
+### Priority
+
+Relative priority (0.0 to 1.0):
+- **1.0** - Project index (highest)
+- **0.8** - Articles
+
+## Error Responses
+
+### 400 Bad Request - Missing Base URL
+
+```json
+{
+  "error": {
+    "code": "BAD_REQUEST",
+    "message": "baseUrl is required"
+  }
+}
+```
+
+### 401 Unauthorized
+
+```json
+{
+  "error": {
+    "code": "UNAUTHORIZED",
+    "message": "Invalid API key"
+  }
+}
+```
+
+## Caching
+
+Sitemaps are cached for **5 minutes** to ensure fast response times. Cache is invalidated when articles are updated.
+
+## Best Practices
+
+### 1. Use Absolute URLs
+
+Always provide `baseUrl`:
+
+```typescript
+// Good
+const url = 'https://api.simplist.blog/v1/seo/sitemap?baseUrl=https://myblog.com';
+
+// Bad - missing baseUrl
+const url = 'https://api.simplist.blog/v1/seo/sitemap';
+```
+
+### 2. Submit to Multiple Search Engines
+
+Don't just submit to Google:
+- Google Search Console
+- Bing Webmaster Tools
+- Yandex Webmaster
+- Seznam (Czech)
+
+### 3. Monitor in Search Console
+
+Check for errors in Google Search Console:
+- Coverage issues
+- Indexing status
+- Last crawl date
+
+### 4. Update robots.txt
+
+Always reference your sitemap in `robots.txt`.
+
+## Rate Limiting
+
+This endpoint counts towards your [API quota](/api/rate-limiting):
+
+- **STARTER**: 1,000 calls/month
+- **PRO**: 500,000 calls/month
+
+<Callout type="info">
+Consider caching the sitemap response in your application to reduce API calls.
+</Callout>
+
+## Next Steps
+
+- Generate [RSS feeds](/api/seo/rss) for content syndication
+- Get [article SEO metadata](/api/seo/article)
+- Fetch [structured data](/api/seo/structured-data)

@@ -1,0 +1,497 @@
+---
+title: Get Analytics Statistics
+description: Retrieve aggregated analytics data for your project
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+
+# Get Analytics Statistics
+
+Retrieve aggregated analytics statistics for your project, including views, visitors, top articles, and geographic data.
+
+```http
+GET /v1/analytics/stats
+```
+
+<Callout type="warn">
+This endpoint requires an API key with **read** permission.
+</Callout>
+
+## Query Parameters
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `days` | number | `30` | Number of days to include in stats |
+
+## Example Request
+
+<Tabs items={['cURL', 'JavaScript', 'TypeScript']}>
+<Tab value="cURL">
+```bash
+curl "https://api.simplist.blog/v1/analytics/stats?days=30" \
+  -H "X-API-Key: your_api_key"
+```
+</Tab>
+<Tab value="JavaScript">
+```javascript
+const response = await fetch(
+  'https://api.simplist.blog/v1/analytics/stats?days=30',
+  {
+    headers: {
+      'X-API-Key': process.env.SIMPLIST_API_KEY
+    }
+  }
+);
+
+const stats = await response.json();
+console.log(`Total views: ${stats.summary.totalViews}`);
+console.log(`Unique visitors: ${stats.summary.uniqueVisitors}`);
+```
+</Tab>
+<Tab value="TypeScript">
+```typescript
+interface AnalyticsStats {
+  period: {
+    days: number;
+    startDate: string;
+    endDate: string;
+  };
+  summary: {
+    totalViews: number;
+    uniqueVisitors: number;
+    avgViewsPerVisitor: number;
+  };
+  requestSource: {
+    sdk: {
+      count: number;
+      percentage: number;
+    };
+    direct: {
+      count: number;
+      percentage: number;
+    };
+  };
+  topArticles: Array<{
+    articleId: string;
+    title: string;
+    slug: string;
+    views: number;
+  }>;
+  topCountries: Array<{
+    country: string;
+    views: number;
+  }>;
+}
+
+const response = await fetch(
+  'https://api.simplist.blog/v1/analytics/stats?days=30',
+  {
+    headers: {
+      'X-API-Key': process.env.SIMPLIST_API_KEY as string
+    }
+  }
+);
+
+const stats: AnalyticsStats = await response.json();
+```
+</Tab>
+</Tabs>
+
+## Response
+
+```json
+{
+  "period": {
+    "days": 30,
+    "startDate": "2024-01-01T00:00:00.000Z",
+    "endDate": "2024-01-31T23:59:59.999Z"
+  },
+  "summary": {
+    "totalViews": 15847,
+    "uniqueVisitors": 3421,
+    "avgViewsPerVisitor": 4.63
+  },
+  "requestSource": {
+    "sdk": {
+      "count": 12678,
+      "percentage": 80
+    },
+    "direct": {
+      "count": 3169,
+      "percentage": 20
+    }
+  },
+  "topArticles": [
+    {
+      "articleId": "clx1234567890",
+      "title": "Getting Started with Simplist",
+      "slug": "getting-started",
+      "views": 2847
+    },
+    {
+      "articleId": "clx0987654321",
+      "title": "Advanced Analytics Guide",
+      "slug": "advanced-analytics",
+      "views": 1923
+    }
+  ],
+  "topCountries": [
+    {
+      "country": "United States",
+      "views": 6542
+    },
+    {
+      "country": "United Kingdom",
+      "views": 2134
+    },
+    {
+      "country": "France",
+      "views": 1876
+    }
+  ]
+}
+```
+
+## Response Fields
+
+### Period
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `days` | number | Number of days included |
+| `startDate` | string | Start date (ISO 8601) |
+| `endDate` | string | End date (ISO 8601) |
+
+### Summary
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `totalViews` | number | Total page views in period |
+| `uniqueVisitors` | number | Unique visitors (deduplicated) |
+| `avgViewsPerVisitor` | number | Average views per visitor |
+
+### Request Source
+
+Breakdown of traffic by source:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `sdk.count` | number | Views from SDK |
+| `sdk.percentage` | number | Percentage from SDK (0-100) |
+| `direct.count` | number | Views from direct implementation |
+| `direct.percentage` | number | Percentage from direct (0-100) |
+
+### Top Articles
+
+Array of most viewed articles (max 10):
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `articleId` | string | Article ID |
+| `title` | string | Article title |
+| `slug` | string | Article slug |
+| `views` | number | Number of views |
+
+### Top Countries
+
+Array of countries with most views (max 10):
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `country` | string | Country name |
+| `views` | number | Number of views from this country |
+
+## Use Cases
+
+### Analytics Dashboard
+
+Build a comprehensive analytics dashboard:
+
+```typescript
+async function getAnalyticsDashboard(days: number = 30) {
+  const response = await fetch(
+    `https://api.simplist.blog/v1/analytics/stats?days=${days}`,
+    { headers: { 'X-API-Key': apiKey } }
+  );
+
+  const stats = await response.json();
+
+  return {
+    overview: {
+      totalViews: stats.summary.totalViews,
+      uniqueVisitors: stats.summary.uniqueVisitors,
+      avgViewsPerVisitor: stats.summary.avgViewsPerVisitor
+    },
+    topArticles: stats.topArticles.slice(0, 5),
+    topCountries: stats.topCountries.slice(0, 5),
+    trafficSources: {
+      sdk: stats.requestSource.sdk,
+      direct: stats.requestSource.direct
+    }
+  };
+}
+```
+
+### Compare Time Periods
+
+Compare current period to previous:
+
+```typescript
+async function comparePerformance() {
+  // Current 30 days
+  const current = await fetch(
+    'https://api.simplist.blog/v1/analytics/stats?days=30',
+    { headers: { 'X-API-Key': apiKey } }
+  ).then(r => r.json());
+
+  // Previous 30 days (you'll need to implement this logic)
+  // This is a simplified example
+  const previous = await getPreviousPeriodStats(30);
+
+  const viewsChange = ((current.summary.totalViews - previous.summary.totalViews) / previous.summary.totalViews) * 100;
+  const visitorsChange = ((current.summary.uniqueVisitors - previous.summary.uniqueVisitors) / previous.summary.uniqueVisitors) * 100;
+
+  return {
+    views: {
+      current: current.summary.totalViews,
+      previous: previous.summary.totalViews,
+      change: viewsChange
+    },
+    visitors: {
+      current: current.summary.uniqueVisitors,
+      previous: previous.summary.uniqueVisitors,
+      change: visitorsChange
+    }
+  };
+}
+```
+
+### Track Content Performance
+
+Identify your best performing content:
+
+```typescript
+async function getTopPerformers() {
+  const response = await fetch(
+    'https://api.simplist.blog/v1/analytics/stats?days=7',
+    { headers: { 'X-API-Key': apiKey } }
+  );
+
+  const stats = await response.json();
+
+  return stats.topArticles.map((article, index) => ({
+    rank: index + 1,
+    title: article.title,
+    slug: article.slug,
+    views: article.views,
+    url: `https://myblog.com/articles/${article.slug}`
+  }));
+}
+```
+
+### Geographic Insights
+
+Analyze your audience location:
+
+```typescript
+async function getGeographicDistribution() {
+  const response = await fetch(
+    'https://api.simplist.blog/v1/analytics/stats?days=30',
+    { headers: { 'X-API-Key': apiKey } }
+  );
+
+  const stats = await response.json();
+
+  const total = stats.summary.totalViews;
+
+  return stats.topCountries.map(country => ({
+    country: country.country,
+    views: country.views,
+    percentage: ((country.views / total) * 100).toFixed(1)
+  }));
+}
+```
+
+### Traffic Source Analysis
+
+Understand how users access your content:
+
+```typescript
+async function analyzeTrafficSources() {
+  const response = await fetch(
+    'https://api.simplist.blog/v1/analytics/stats?days=30',
+    { headers: { 'X-API-Key': apiKey } }
+  );
+
+  const stats = await response.json();
+
+  return {
+    sdk: {
+      count: stats.requestSource.sdk.count,
+      percentage: `${stats.requestSource.sdk.percentage}%`,
+      description: 'Traffic from SDK implementation'
+    },
+    direct: {
+      count: stats.requestSource.direct.count,
+      percentage: `${stats.requestSource.direct.percentage}%`,
+      description: 'Traffic from custom tracking'
+    }
+  };
+}
+```
+
+## Visualization Examples
+
+### React Component
+
+```tsx
+import { useEffect, useState } from 'react';
+
+function AnalyticsDashboard() {
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchStats() {
+      const response = await fetch(
+        'https://api.simplist.blog/v1/analytics/stats?days=30',
+        { headers: { 'X-API-Key': process.env.SIMPLIST_API_KEY } }
+      );
+
+      const data = await response.json();
+      setStats(data);
+      setLoading(false);
+    }
+
+    fetchStats();
+  }, []);
+
+  if (loading) return <div>Loading...</div>;
+
+  return (
+    <div className="dashboard">
+      <div className="stats-grid">
+        <div className="stat-card">
+          <h3>Total Views</h3>
+          <p className="stat-value">{stats.summary.totalViews.toLocaleString()}</p>
+        </div>
+
+        <div className="stat-card">
+          <h3>Unique Visitors</h3>
+          <p className="stat-value">{stats.summary.uniqueVisitors.toLocaleString()}</p>
+        </div>
+
+        <div className="stat-card">
+          <h3>Avg Views/Visitor</h3>
+          <p className="stat-value">{stats.summary.avgViewsPerVisitor.toFixed(2)}</p>
+        </div>
+      </div>
+
+      <div className="top-articles">
+        <h2>Top Articles</h2>
+        <ul>
+          {stats.topArticles.map(article => (
+            <li key={article.articleId}>
+              <span>{article.title}</span>
+              <span>{article.views} views</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="top-countries">
+        <h2>Top Countries</h2>
+        <ul>
+          {stats.topCountries.map(country => (
+            <li key={country.country}>
+              <span>{country.country}</span>
+              <span>{country.views} views</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
+```
+
+## Error Responses
+
+### 403 Forbidden - Insufficient Permissions
+
+```json
+{
+  "error": {
+    "code": "FORBIDDEN",
+    "message": "API key does not have read permissions"
+  }
+}
+```
+
+<Callout type="warn">
+Make sure your API key has the **read** permission to access analytics statistics.
+</Callout>
+
+### 401 Unauthorized
+
+```json
+{
+  "error": {
+    "code": "UNAUTHORIZED",
+    "message": "Invalid API key"
+  }
+}
+```
+
+### 500 Internal Server Error
+
+```json
+{
+  "error": {
+    "code": "INTERNAL_ERROR",
+    "message": "Failed to fetch analytics stats"
+  }
+}
+```
+
+## Caching
+
+Consider caching stats responses to reduce API calls:
+
+```typescript
+const cache = new Map<string, { data: any; timestamp: number }>();
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+async function getCachedStats(days: number = 30) {
+  const cacheKey = `stats_${days}`;
+  const cached = cache.get(cacheKey);
+
+  if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+    return cached.data;
+  }
+
+  const response = await fetch(
+    `https://api.simplist.blog/v1/analytics/stats?days=${days}`,
+    { headers: { 'X-API-Key': apiKey } }
+  );
+
+  const data = await response.json();
+  cache.set(cacheKey, { data, timestamp: Date.now() });
+
+  return data;
+}
+```
+
+## Rate Limiting
+
+This endpoint counts towards your [API quota](/api/rate-limiting):
+
+- **STARTER**: 1,000 calls/month
+- **PRO**: 500,000 calls/month
+
+## Next Steps
+
+- Learn about [tracking page views](/api/analytics/track)
+- [Update engagement metrics](/api/analytics/update)
+- Use the [SDK](/sdk) for simplified analytics

@@ -1,0 +1,408 @@
+---
+title: TypeScript Support
+description: Full TypeScript support with complete type definitions
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# TypeScript Support
+
+The Simplist SDK is written in TypeScript and provides complete type definitions for all methods and responses.
+
+## Installation
+
+Types are included automatically:
+
+```bash
+pnpm add @simplist.blog/sdk
+```
+
+No additional `@types` package needed!
+
+## Type Imports
+
+Import types alongside the client:
+
+```typescript
+import {
+  SimplistClient,
+  type Article,
+  type ArticleVariant,
+  type ProjectInfo,
+  type AnalyticsStats,
+} from '@simplist.blog/sdk';
+```
+
+## Available Types
+
+### Client Types
+
+```typescript
+import type {
+  SimplistClient,
+  SimplistClientOptions,
+  SimplistApiError,
+} from '@simplist.blog/sdk';
+
+const options: SimplistClientOptions = {
+  apiKey: 'your_api_key',
+  timeout: 10000,
+};
+
+const client: SimplistClient = new SimplistClient(options);
+```
+
+### Article Types
+
+```typescript
+import type {
+  Article,
+  ArticleVariant,
+  ArticleListItem,
+  ArticleListParams,
+} from '@simplist.blog/sdk';
+
+const article: Article = await client.articles.get('slug');
+
+const variant: ArticleVariant | undefined = article.variants?.find(
+  (v) => v.lang === 'fr'
+);
+
+const params: ArticleListParams = {
+  published: true,
+  limit: 10,
+  sort: 'publishedAt',
+  order: 'desc',
+};
+```
+
+### Project Types
+
+```typescript
+import type {
+  Project,
+  ProjectInfo,
+  ProjectStats,
+} from '@simplist.blog/sdk';
+
+const { data }: { data: Project } = await client.project.get();
+
+const info: ProjectInfo = data.project;
+const stats: ProjectStats = data.stats;
+```
+
+### Analytics Types
+
+```typescript
+import type {
+  PageViewData,
+  PageViewResponse,
+  PageEvent,
+  AnalyticsStats,
+} from '@simplist.blog/sdk';
+
+const viewData: PageViewData = {
+  articleSlug: 'my-article',
+  visitorId: 'visitor_123',
+  sessionId: 'session_456',
+  pageUrl: 'https://myblog.com/articles/my-article',
+};
+
+const response: PageViewResponse = await client.analytics.track(viewData);
+
+const stats: AnalyticsStats = await client.analytics.getStats({ days: 30 });
+```
+
+### SEO Types
+
+```typescript
+import type {
+  SeoMetadata,
+  ArticleWithSeo,
+  SitemapEntry,
+  Sitemap,
+  StructuredDataResponse,
+} from '@simplist.blog/sdk';
+
+const article: ArticleWithSeo = await client.seo.getArticle(
+  'slug',
+  'https://myblog.com'
+);
+
+const seo: SeoMetadata = article.seo;
+
+const sitemap: Sitemap = await client.seo.getSitemap(
+  'https://myblog.com',
+  'json'
+);
+
+const entries: SitemapEntry[] = sitemap.entries;
+```
+
+### API Response Types
+
+```typescript
+import type { ApiResponse, ApiError } from '@simplist.blog/sdk';
+
+const response: ApiResponse<Article[]> = await client.articles.list();
+
+const data: Article[] = response.data;
+const meta = response.meta;
+```
+
+## Type Guards
+
+### Check for Variants
+
+```typescript
+function hasVariants(article: Article): article is Article & {
+  variants: ArticleVariant[];
+} {
+  return article.variants !== undefined && article.variants.length > 0;
+}
+
+const article = await client.articles.get('slug');
+
+if (hasVariants(article)) {
+  // TypeScript knows variants exists here
+  const french = article.variants.find((v) => v.lang === 'fr');
+}
+```
+
+### Check for API Errors
+
+```typescript
+import { SimplistApiError } from '@simplist.blog/sdk';
+
+try {
+  const article = await client.articles.get('slug');
+} catch (error) {
+  if (error instanceof SimplistApiError) {
+    // TypeScript knows error properties
+    console.error(`API Error (${error.status}): ${error.message}`);
+    console.error('Code:', error.code);
+  } else {
+    console.error('Unexpected error:', error);
+  }
+}
+```
+
+## Generic Types
+
+The SDK uses generics for flexible typing:
+
+```typescript
+// ApiResponse<T> wraps all API responses
+type ApiResponse<T> = {
+  data: T;
+  meta?: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+};
+
+// Example usage
+const articles: ApiResponse<Article[]> = await client.articles.list();
+const article: ApiResponse<Article> = await client.articles.get('slug');
+```
+
+## Utility Types
+
+### Extract Variant Type
+
+```typescript
+type FrenchVariant = Extract<ArticleVariant, { lang: 'fr' }>;
+
+function getFrenchVariant(article: Article): FrenchVariant | undefined {
+  return article.variants?.find((v) => v.lang === 'fr') as
+    | FrenchVariant
+    | undefined;
+}
+```
+
+### Partial Updates
+
+```typescript
+type PartialPageView = Partial<PageViewData>;
+
+const update: PartialPageView = {
+  timeOnPage: 120,
+  scrollDepth: 75,
+};
+```
+
+## Language Types
+
+The SDK includes language utilities:
+
+```typescript
+import {
+  Language,
+  type LanguageCode,
+  isValidLanguageCode,
+  getAllLanguageCodes,
+  POPULAR_LANGUAGES,
+} from '@simplist.blog/sdk';
+
+const code: LanguageCode = 'fr';
+
+if (isValidLanguageCode('fr')) {
+  console.log('Valid language code');
+}
+
+const allLanguages: LanguageCode[] = getAllLanguageCodes();
+const popular: LanguageCode[] = POPULAR_LANGUAGES;
+```
+
+## Variant Helpers
+
+Type-safe variant helpers:
+
+```typescript
+import {
+  getVariantOrDefault,
+  getBestMatchingVariant,
+  hasVariant,
+} from '@simplist.blog/sdk';
+
+const article: Article = await client.articles.get('slug');
+
+// Get variant or fallback to default
+const content = getVariantOrDefault(article, 'fr');
+
+// Get best matching variant for user
+const userLang = 'fr-FR';
+const bestMatch = getBestMatchingVariant(article, userLang);
+
+// Check if variant exists
+if (hasVariant(article, 'fr')) {
+  console.log('French variant available');
+}
+```
+
+## Type Inference
+
+TypeScript automatically infers types:
+
+```typescript
+// Inferred as Article
+const article = await client.articles.get('slug');
+
+// Inferred as Article[]
+const articles = (await client.articles.list()).data;
+
+// Inferred as ProjectInfo
+const project = (await client.project.get()).data.project;
+
+// Inferred as AnalyticsStats
+const stats = await client.analytics.getStats({ days: 30 });
+```
+
+## Strict Mode
+
+Enable strict mode for maximum type safety:
+
+```json
+// tsconfig.json
+{
+  "compilerOptions": {
+    "strict": true,
+    "strictNullChecks": true,
+    "noImplicitAny": true
+  }
+}
+```
+
+The SDK is fully compatible with strict mode.
+
+## Type Narrowing
+
+TypeScript narrows types based on conditionals:
+
+```typescript
+const article = await client.articles.get('slug');
+
+if (article.variants && article.variants.length > 0) {
+  // TypeScript knows variants is defined and non-empty
+  const firstVariant = article.variants[0];
+  console.log(firstVariant.lang);
+}
+
+if (article.coverImage) {
+  // TypeScript knows coverImage is string, not null
+  console.log(article.coverImage.toUpperCase());
+}
+```
+
+## Example: Typed Component
+
+```typescript
+import { SimplistClient, type Article } from '@simplist.blog/sdk';
+import { useEffect, useState } from 'react';
+
+const client = new SimplistClient();
+
+interface ArticleCardProps {
+  article: Article;
+}
+
+function ArticleCard({ article }: ArticleCardProps) {
+  return (
+    <article>
+      <h2>{article.title}</h2>
+      <p>{article.excerpt}</p>
+      <span>{article.readTimeMinutes} min read</span>
+    </article>
+  );
+}
+
+function ArticleList() {
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    async function fetchArticles() {
+      try {
+        const { data } = await client.articles.list({ limit: 10 });
+        setArticles(data);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchArticles();
+  }, []);
+
+  if (loading) return <div>Loading...</div>;
+
+  return (
+    <div>
+      {articles.map((article) => (
+        <ArticleCard key={article.id} article={article} />
+      ))}
+    </div>
+  );
+}
+```
+
+## VSCode IntelliSense
+
+The SDK provides full IntelliSense support:
+
+- Auto-completion for all methods
+- Parameter hints
+- Return type information
+- Inline documentation
+- Type checking
+
+<Callout type="info">
+Hover over any method or type in VSCode to see full documentation.
+</Callout>
+
+## Next Steps
+
+- Learn about [error handling](/sdk/advanced/error-handling)
+- Explore [configuration options](/sdk/configuration)
+- Check [API reference](/api) for endpoint details

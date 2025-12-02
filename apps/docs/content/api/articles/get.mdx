@@ -1,0 +1,389 @@
+---
+title: Get Article
+description: Fetch a single article by slug
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+
+# Get Article
+
+Fetch a single article by its slug, including full content and multi-language variants.
+
+```http
+GET /v1/articles/:slug
+```
+
+## Path Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `slug` | string | Yes | Article URL slug |
+
+## Query Parameters
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `includeSeo` | boolean | `false` | Include SEO metadata in response |
+| `baseUrl` | string | - | Base URL for SEO metadata generation |
+
+## Example Request
+
+<Tabs items={['cURL', 'JavaScript', 'TypeScript']}>
+<Tab value="cURL">
+```bash
+curl "https://api.simplist.blog/v1/articles/getting-started" \
+  -H "X-API-Key: your_api_key"
+```
+</Tab>
+<Tab value="JavaScript">
+```javascript
+const slug = 'getting-started';
+
+const response = await fetch(
+  `https://api.simplist.blog/v1/articles/${slug}`,
+  {
+    headers: {
+      'X-API-Key': process.env.SIMPLIST_API_KEY
+    }
+  }
+);
+
+const { data: article } = await response.json();
+console.log(article.title);
+```
+</Tab>
+<Tab value="TypeScript">
+```typescript
+interface ArticleVariant {
+  id: string;
+  lang: string;
+  title: string;
+  excerpt: string | null;
+  content: string;
+  coverImage: string | null;
+  wordCount: number;
+  characterCount: number;
+  lineCount: number;
+  readTimeMinutes: number;
+}
+
+interface Article {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  content: string;
+  coverImage: string | null;
+  published: boolean;
+  status: string;
+  viewCount: number;
+  wordCount: number;
+  readTimeMinutes: number;
+  publishedAt: string | null;
+  variants: ArticleVariant[];
+}
+
+const response = await fetch(
+  `https://api.simplist.blog/v1/articles/${slug}`,
+  {
+    headers: {
+      'X-API-Key': process.env.SIMPLIST_API_KEY as string
+    }
+  }
+);
+
+const { data }: { data: Article } = await response.json();
+```
+</Tab>
+</Tabs>
+
+## Response
+
+```json
+{
+  "data": {
+    "id": "clx1234567890",
+    "title": "Getting Started with Simplist",
+    "slug": "getting-started",
+    "excerpt": "Learn how to build a blog with Simplist in minutes",
+    "content": "# Getting Started\n\nThis is the full article content in Markdown...",
+    "coverImage": "https://cdn.simplist.blog/images/cover.jpg",
+    "published": true,
+    "status": "published",
+    "viewCount": 1247,
+    "wordCount": 1523,
+    "characterCount": 9876,
+    "lineCount": 142,
+    "readTimeMinutes": 6,
+    "createdAt": "2024-01-15T10:30:00.000Z",
+    "updatedAt": "2024-01-20T14:45:00.000Z",
+    "publishedAt": "2024-01-15T12:00:00.000Z",
+    "author": {
+      "name": "John Doe",
+      "firstName": "John",
+      "lastName": "Doe",
+      "image": "https://cdn.simplist.blog/avatars/john.jpg"
+    },
+    "lastUpdatedBy": {
+      "name": "Jane Smith",
+      "firstName": "Jane",
+      "lastName": "Smith",
+      "image": "https://cdn.simplist.blog/avatars/jane.jpg"
+    },
+    "variants": [
+      {
+        "id": "clx9876543210",
+        "lang": "fr",
+        "title": "Démarrer avec Simplist",
+        "excerpt": "Apprenez à créer un blog avec Simplist en quelques minutes",
+        "content": "# Démarrer\n\nCeci est le contenu complet en français...",
+        "coverImage": "https://cdn.simplist.blog/images/cover-fr.jpg",
+        "wordCount": 1456,
+        "characterCount": 9234,
+        "lineCount": 138,
+        "readTimeMinutes": 6
+      }
+    ]
+  }
+}
+```
+
+## Including SEO Metadata
+
+Request SEO metadata with the article:
+
+<Tabs items={['cURL', 'JavaScript']}>
+<Tab value="cURL">
+```bash
+curl "https://api.simplist.blog/v1/articles/getting-started?includeSeo=true&baseUrl=https://myblog.com" \
+  -H "X-API-Key: your_api_key"
+```
+</Tab>
+<Tab value="JavaScript">
+```javascript
+const response = await fetch(
+  `https://api.simplist.blog/v1/articles/${slug}?includeSeo=true&baseUrl=https://myblog.com`,
+  { headers: { 'X-API-Key': apiKey } }
+);
+
+const { data } = await response.json();
+
+// Use SEO metadata
+const { seo } = data;
+console.log(seo.title); // Page title
+console.log(seo.openGraph); // Open Graph tags
+console.log(seo.twitter); // Twitter Card tags
+```
+</Tab>
+</Tabs>
+
+### SEO Metadata Response
+
+```json
+{
+  "data": {
+    "id": "clx1234567890",
+    "title": "Getting Started with Simplist",
+    // ... article fields ...
+    "seo": {
+      "title": "Getting Started with Simplist",
+      "description": "Learn how to build a blog with Simplist in minutes",
+      "canonical": "https://myblog.com/blog/getting-started",
+      "openGraph": {
+        "title": "Getting Started with Simplist",
+        "description": "Learn how to build a blog with Simplist in minutes",
+        "type": "article",
+        "url": "https://myblog.com/blog/getting-started",
+        "image": "https://cdn.simplist.blog/images/cover.jpg",
+        "siteName": "My Blog"
+      },
+      "twitter": {
+        "card": "summary_large_image",
+        "title": "Getting Started with Simplist",
+        "description": "Learn how to build a blog with Simplist in minutes",
+        "image": "https://cdn.simplist.blog/images/cover.jpg"
+      },
+      "structuredData": {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "Getting Started with Simplist",
+        "description": "Learn how to build a blog with Simplist in minutes",
+        "image": "https://cdn.simplist.blog/images/cover.jpg",
+        "datePublished": "2024-01-15T12:00:00.000Z",
+        "dateModified": "2024-01-20T14:45:00.000Z",
+        "author": {
+          "@type": "Person",
+          "name": "John Doe"
+        }
+      }
+    }
+  }
+}
+```
+
+<Callout type="info">
+The `baseUrl` parameter is required when `includeSeo=true` to generate absolute URLs for SEO metadata.
+</Callout>
+
+## Working with Variants
+
+Multi-language variants are included in the response for PRO projects:
+
+```typescript
+const { data: article } = await response.json();
+
+// Get French variant
+const frenchVariant = article.variants.find(v => v.lang === 'fr');
+
+if (frenchVariant) {
+  console.log(frenchVariant.title); // French title
+  console.log(frenchVariant.content); // French content
+}
+
+// List all available languages
+const languages = article.variants.map(v => v.lang);
+console.log('Available in:', ['en', ...languages]);
+```
+
+<Callout type="info">
+Variants are a **PRO** feature. STARTER projects will have an empty `variants` array.
+</Callout>
+
+## Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Unique identifier |
+| `title` | string | Article title |
+| `slug` | string | URL-friendly slug |
+| `excerpt` | string \| null | Short summary |
+| `content` | string | Full Markdown content |
+| `coverImage` | string \| null | Cover image URL |
+| `published` | boolean | Published status |
+| `status` | string | `draft`, `published`, or `scheduled` |
+| `viewCount` | number | Total page views |
+| `wordCount` | number | Word count |
+| `characterCount` | number | Character count |
+| `lineCount` | number | Line count |
+| `readTimeMinutes` | number | Estimated reading time |
+| `createdAt` | string | ISO 8601 timestamp |
+| `updatedAt` | string | ISO 8601 timestamp |
+| `publishedAt` | string \| null | ISO 8601 timestamp |
+| `author` | object \| null | Author information |
+| `lastUpdatedBy` | object \| null | Last editor information |
+| `variants` | array | Multi-language variants |
+
+## Error Responses
+
+### 404 Not Found
+
+Article doesn't exist or is not published:
+
+```json
+{
+  "error": {
+    "code": "NOT_FOUND",
+    "message": "Article not found or not published"
+  }
+}
+```
+
+<Callout type="warn">
+Only **published** articles are accessible via the public API. Draft and scheduled articles return a 404 error.
+</Callout>
+
+### 401 Unauthorized
+
+```json
+{
+  "error": {
+    "code": "UNAUTHORIZED",
+    "message": "Invalid API key"
+  }
+}
+```
+
+### 500 Internal Server Error
+
+```json
+{
+  "error": {
+    "code": "INTERNAL_ERROR",
+    "message": "Failed to fetch article"
+  }
+}
+```
+
+## Caching
+
+Individual articles are cached for **5 minutes** by slug. Cache is automatically invalidated when the article is updated or deleted.
+
+## Use Cases
+
+### Display Article Page
+
+```typescript
+async function getArticlePage(slug: string) {
+  const response = await fetch(
+    `https://api.simplist.blog/v1/articles/${slug}`,
+    { headers: { 'X-API-Key': apiKey } }
+  );
+
+  if (response.status === 404) {
+    return null; // Article not found
+  }
+
+  const { data: article } = await response.json();
+  return article;
+}
+```
+
+### Render Markdown Content
+
+```typescript
+import { marked } from 'marked';
+
+const { data: article } = await response.json();
+
+// Convert Markdown to HTML
+const htmlContent = marked(article.content);
+```
+
+### Multi-Language Support
+
+```typescript
+function getArticleContent(article: Article, lang: string = 'en') {
+  if (lang === 'en') {
+    return {
+      title: article.title,
+      content: article.content,
+      excerpt: article.excerpt
+    };
+  }
+
+  const variant = article.variants.find(v => v.lang === lang);
+
+  return variant ? {
+    title: variant.title,
+    content: variant.content,
+    excerpt: variant.excerpt
+  } : null;
+}
+
+// Usage
+const content = getArticleContent(article, 'fr');
+```
+
+## Rate Limiting
+
+This endpoint counts towards your [API quota](/api/rate-limiting):
+
+- **STARTER**: 1,000 calls/month
+- **PRO**: 500,000 calls/month
+
+## Next Steps
+
+- [List articles](/api/articles/list) to build a blog feed
+- [Track analytics](/api/analytics) for this article
+- [Generate SEO metadata](/api/seo) programmatically

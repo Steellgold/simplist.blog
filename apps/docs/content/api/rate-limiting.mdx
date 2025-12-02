@@ -1,0 +1,225 @@
+---
+title: Rate Limiting
+description: Understanding API rate limits and quota management
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Rate Limiting
+
+The Simplist API implements rate limiting to ensure fair usage and maintain service quality. Rate limits are applied per API key and based on your subscription tier.
+
+## Rate Limit Tiers
+
+API call limits are determined by your project's subscription:
+
+| Tier | Monthly API Calls | Reset Period |
+|------|-------------------|--------------|
+| **STARTER** | 1,000 calls | Monthly |
+| **PRO** | 500,000 calls | Monthly |
+
+<Callout type="info">
+Rate limits are tracked per project, not per API key. All API keys within a project share the same quota.
+</Callout>
+
+## Rate Limit Headers
+
+Every API response includes headers with rate limit information:
+
+```http
+X-RateLimit-Limit: 1000
+X-RateLimit-Remaining: 847
+X-RateLimit-Reset: 1706745600
+```
+
+| Header | Description |
+|--------|-------------|
+| `X-RateLimit-Limit` | Maximum number of requests allowed per month |
+| `X-RateLimit-Remaining` | Number of requests remaining in current period |
+| `X-RateLimit-Reset` | Unix timestamp when the rate limit resets |
+
+## Checking Your Quota
+
+You can monitor your API usage in multiple ways:
+
+### 1. Response Headers
+
+Check the rate limit headers in every API response:
+
+```typescript
+const response = await fetch('https://api.simplist.blog/v1/articles', {
+  headers: { 'X-API-Key': apiKey }
+});
+
+const remaining = response.headers.get('X-RateLimit-Remaining');
+const reset = response.headers.get('X-RateLimit-Reset');
+
+console.log(`${remaining} requests remaining`);
+console.log(`Resets at ${new Date(Number(reset) * 1000)}`);
+```
+
+### 2. Project Dashboard
+
+View detailed usage statistics in your project dashboard:
+- Total API calls this month
+- Remaining quota
+- Usage trends over time
+- API calls by endpoint
+
+### 3. Project API
+
+Fetch usage data programmatically:
+
+```bash
+curl https://api.simplist.blog/v1/project \
+  -H "X-API-Key: your_api_key"
+```
+
+```json title="Response"
+{
+  "name": "My Blog",
+  "monthlyApiCalls": 153,
+  "apiCallsResetAt": "2024-02-01T00:00:00.000Z",
+  "subscriptionTier": "PRO"
+}
+```
+
+## Rate Limit Exceeded
+
+When you exceed your rate limit, the API returns a `429 Too Many Requests` error:
+
+```json
+{
+  "error": {
+    "code": "RATE_LIMIT_EXCEEDED",
+    "message": "Monthly API call quota exceeded. Upgrade to PRO for higher limits.",
+    "resetAt": "2024-02-01T00:00:00.000Z"
+  }
+}
+```
+
+<Callout type="warn">
+Once your quota is exceeded, all API requests will be rejected until the next reset period or until you upgrade your subscription.
+</Callout>
+
+## Best Practices
+
+### 1. Implement Exponential Backoff
+
+When rate limited, wait before retrying:
+
+```typescript
+async function fetchWithRetry(url: string, apiKey: string, maxRetries = 3) {
+  for (let i = 0; i < maxRetries; i++) {
+    const response = await fetch(url, {
+      headers: { 'X-API-Key': apiKey }
+    });
+
+    if (response.status === 429) {
+      const resetAt = response.headers.get('X-RateLimit-Reset');
+      const waitTime = Number(resetAt) * 1000 - Date.now();
+
+      console.log(`Rate limited. Waiting ${waitTime}ms...`);
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+      continue;
+    }
+
+    return response;
+  }
+
+  throw new Error('Max retries exceeded');
+}
+```
+
+### 2. Cache Responses
+
+Reduce API calls by caching responses:
+
+```typescript
+const cache = new Map();
+
+async function getCachedArticles(apiKey: string) {
+  const cacheKey = 'articles';
+  const cached = cache.get(cacheKey);
+
+  if (cached && Date.now() - cached.timestamp < 5 * 60 * 1000) {
+    return cached.data; // Return if cached less than 5 minutes ago
+  }
+
+  const response = await fetch('https://api.simplist.blog/v1/articles', {
+    headers: { 'X-API-Key': apiKey }
+  });
+
+  const data = await response.json();
+  cache.set(cacheKey, { data, timestamp: Date.now() });
+
+  return data;
+}
+```
+
+### 3. Monitor Usage Proactively
+
+Set up alerts when approaching your quota:
+
+```typescript
+function checkQuotaWarning(remaining: number, limit: number) {
+  const usagePercent = ((limit - remaining) / limit) * 100;
+
+  if (usagePercent >= 90) {
+    console.warn(`Warning: ${usagePercent.toFixed(1)}% of quota used`);
+  }
+}
+```
+
+### 4. Use the SDK
+
+The [@simplist.blog/sdk](/sdk) includes built-in retry logic and rate limit handling:
+
+```typescript
+import { SimplistClient } from '@simplist.blog/sdk';
+
+const client = new SimplistClient({
+  apiKey: process.env.SIMPLIST_API_KEY,
+  retries: 3 // Automatic retry with exponential backoff
+});
+```
+
+## Upgrading Limits
+
+Need higher limits? Upgrade to PRO:
+
+- **500x more API calls** (1,000 → 500,000 per month)
+- Priority support
+- Advanced analytics
+- Unlimited articles and API keys
+
+[Upgrade to PRO](https://app.simplist.blog) in your project settings.
+
+## Quota Reset
+
+Rate limits reset on the first day of each month at 00:00:00 UTC.
+
+The exact reset time is included in:
+- `X-RateLimit-Reset` response header
+- `apiCallsResetAt` field in Project API response
+- Project dashboard
+
+<Callout type="info">
+Upgrading your subscription immediately increases your quota. You don't need to wait for the next reset period.
+</Callout>
+
+## IP-Based Rate Limiting
+
+In addition to quota limits, the API implements IP-based rate limiting to prevent abuse:
+
+- **100 requests per minute** per IP address
+- Applies to all tiers
+- Temporary throttling for burst traffic
+
+This protects against accidental loops and ensures service availability for all users.
+
+## Next Steps
+
+- Learn about [Error Handling](/api/errors)
+- Explore the [Articles API](/api/articles)
+- Use the [SDK](/sdk) for automatic retry logic

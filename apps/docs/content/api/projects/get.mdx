@@ -1,0 +1,302 @@
+---
+title: Get Project
+description: Fetch project information and statistics
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+
+# Get Project
+
+Fetch information about your project along with content statistics.
+
+```http
+GET /v1/project
+```
+
+<Callout type="info">
+No parameters required. The project is automatically determined from your API key.
+</Callout>
+
+## Example Request
+
+<Tabs items={['cURL', 'JavaScript', 'TypeScript']}>
+<Tab value="cURL">
+```bash
+curl https://api.simplist.blog/v1/project \
+  -H "X-API-Key: your_api_key"
+```
+</Tab>
+<Tab value="JavaScript">
+```javascript
+const response = await fetch('https://api.simplist.blog/v1/project', {
+  headers: {
+    'X-API-Key': process.env.SIMPLIST_API_KEY
+  }
+});
+
+const { data } = await response.json();
+console.log(`Project: ${data.project.name}`);
+console.log(`Published Articles: ${data.stats.publishedArticles}`);
+```
+</Tab>
+<Tab value="TypeScript">
+```typescript
+interface Project {
+  id: string;
+  name: string;
+  slug: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface ProjectStats {
+  totalArticles: number;
+  publishedArticles: number;
+  totalViews: number;
+}
+
+interface ProjectResponse {
+  data: {
+    project: Project;
+    stats: ProjectStats;
+  };
+}
+
+const response = await fetch('https://api.simplist.blog/v1/project', {
+  headers: {
+    'X-API-Key': process.env.SIMPLIST_API_KEY as string
+  }
+});
+
+const result: ProjectResponse = await response.json();
+```
+</Tab>
+</Tabs>
+
+## Response
+
+```json
+{
+  "data": {
+    "project": {
+      "id": "clx1234567890",
+      "name": "My Blog",
+      "slug": "my-blog",
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-15T10:30:00.000Z"
+    },
+    "stats": {
+      "totalArticles": 42,
+      "publishedArticles": 35,
+      "totalViews": 15847
+    }
+  }
+}
+```
+
+## Response Fields
+
+### Project Object
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Unique project identifier |
+| `name` | string | Project display name |
+| `slug` | string | URL-friendly slug |
+| `createdAt` | string | Project creation date (ISO 8601) |
+| `updatedAt` | string | Last project update (ISO 8601) |
+
+### Stats Object
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `totalArticles` | number | Total articles (excluding deleted ones) |
+| `publishedArticles` | number | Number of published articles |
+| `totalViews` | number | Sum of all article view counts |
+
+## Use Cases
+
+### Project Dashboard
+
+Display key project metrics:
+
+```typescript
+async function getProjectDashboard() {
+  const response = await fetch('https://api.simplist.blog/v1/project', {
+    headers: { 'X-API-Key': apiKey }
+  });
+
+  const { data } = await response.json();
+
+  return {
+    name: data.project.name,
+    metrics: {
+      total: data.stats.totalArticles,
+      published: data.stats.publishedArticles,
+      drafts: data.stats.totalArticles - data.stats.publishedArticles,
+      views: data.stats.totalViews
+    }
+  };
+}
+```
+
+### Health Check
+
+Verify API connectivity and project access:
+
+```typescript
+async function checkApiHealth(apiKey: string) {
+  try {
+    const response = await fetch('https://api.simplist.blog/v1/project', {
+      headers: { 'X-API-Key': apiKey }
+    });
+
+    if (!response.ok) {
+      return { healthy: false, error: 'API request failed' };
+    }
+
+    const { data } = await response.json();
+
+    return {
+      healthy: true,
+      project: data.project.name,
+      articlesCount: data.stats.totalArticles
+    };
+  } catch (error) {
+    return { healthy: false, error: 'Network error' };
+  }
+}
+```
+
+### Content Progress Tracker
+
+Monitor article publication progress:
+
+```typescript
+function getPublicationProgress(data: ProjectResponse['data']) {
+  const { totalArticles, publishedArticles } = data.stats;
+  const drafts = totalArticles - publishedArticles;
+
+  return {
+    published: publishedArticles,
+    drafts,
+    percentage: totalArticles > 0
+      ? ((publishedArticles / totalArticles) * 100).toFixed(1)
+      : '0'
+  };
+}
+
+// Usage
+const { data } = await response.json();
+const progress = getPublicationProgress(data);
+
+console.log(`${progress.percentage}% of articles published`);
+console.log(`${progress.drafts} drafts remaining`);
+```
+
+### Average Views Per Article
+
+Calculate engagement metrics:
+
+```typescript
+async function getAverageViews() {
+  const response = await fetch('https://api.simplist.blog/v1/project', {
+    headers: { 'X-API-Key': apiKey }
+  });
+
+  const { data } = await response.json();
+  const { totalViews, publishedArticles } = data.stats;
+
+  if (publishedArticles === 0) {
+    return 0;
+  }
+
+  return Math.round(totalViews / publishedArticles);
+}
+```
+
+## Error Responses
+
+### 404 Not Found
+
+Project doesn't exist (should not happen with valid API key):
+
+```json
+{
+  "error": {
+    "code": "NOT_FOUND",
+    "message": "Project not found"
+  }
+}
+```
+
+### 401 Unauthorized
+
+Invalid or missing API key:
+
+```json
+{
+  "error": {
+    "code": "UNAUTHORIZED",
+    "message": "Invalid API key"
+  }
+}
+```
+
+### 500 Internal Server Error
+
+Server error:
+
+```json
+{
+  "error": {
+    "code": "INTERNAL_ERROR",
+    "message": "Failed to fetch project information"
+  }
+}
+```
+
+## Rate Limiting
+
+This endpoint counts towards your [API quota](/api/rate-limiting):
+
+- **STARTER**: 1,000 calls/month
+- **PRO**: 500,000 calls/month
+
+<Callout type="info">
+This is a lightweight endpoint ideal for health checks and monitoring without consuming much quota.
+</Callout>
+
+## Caching
+
+Project data changes infrequently, so consider caching the response:
+
+```typescript
+let cachedProject: ProjectResponse['data'] | null = null;
+let cacheTime = 0;
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+async function getCachedProject() {
+  if (cachedProject && Date.now() - cacheTime < CACHE_DURATION) {
+    return cachedProject;
+  }
+
+  const response = await fetch('https://api.simplist.blog/v1/project', {
+    headers: { 'X-API-Key': apiKey }
+  });
+
+  const { data } = await response.json();
+
+  cachedProject = data;
+  cacheTime = Date.now();
+
+  return data;
+}
+```
+
+## Next Steps
+
+- Fetch [your articles](/api/articles) to display on your blog
+- Track engagement with the [Analytics API](/api/analytics)
+- Learn about [Error Handling](/api/errors)

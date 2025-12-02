@@ -1,0 +1,255 @@
+---
+title: SEO API
+description: Generate SEO metadata, sitemaps, and RSS feeds
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Card, Cards } from 'fumadocs-ui/components/card';
+
+# SEO API
+
+The SEO API provides tools to generate search engine optimization metadata, sitemaps, and RSS feeds for your blog. Improve your discoverability and social media sharing with comprehensive SEO features.
+
+## Endpoints
+
+<Cards>
+  <Card
+    title="Article SEO"
+    description="GET /v1/seo/article/:slug - Get article with SEO metadata"
+    href="/api/seo/article"
+  />
+  <Card
+    title="Sitemap"
+    description="GET /v1/seo/sitemap - Generate XML or JSON sitemap"
+    href="/api/seo/sitemap"
+  />
+  <Card
+    title="RSS Feed"
+    description="GET /v1/seo/rss - Generate RSS feed"
+    href="/api/seo/rss"
+  />
+  <Card
+    title="Structured Data"
+    description="GET /v1/seo/structured-data - Get Schema.org data"
+    href="/api/seo/structured-data"
+  />
+</Cards>
+
+## SEO Features
+
+### Meta Tags
+
+Automatically generated meta tags for:
+- **Title** and **Description**
+- **Canonical URLs**
+- **Open Graph** for social sharing
+- **Twitter Cards** for Twitter
+- **Author information**
+
+### Structured Data
+
+Schema.org JSON-LD for:
+- **Article** schema
+- **BreadcrumbList** schema
+- **Author** schema
+- Publication dates and updates
+
+### Sitemaps
+
+Generate sitemaps in:
+- **XML format** for search engines
+- **JSON format** for custom implementations
+- Multi-language support
+- Custom URL paths
+
+### RSS Feeds
+
+Standard RSS 2.0 feeds with:
+- Latest articles
+- Multi-language support
+- Custom article limits
+- Automatic caching
+
+## Common Use Cases
+
+### Generate Complete SEO Metadata
+
+Fetch article with all SEO tags:
+
+```typescript
+const response = await fetch(
+  'https://api.simplist.blog/v1/seo/article/my-article?baseUrl=https://myblog.com',
+  { headers: { 'X-API-Key': apiKey } }
+);
+
+const { seo } = await response.json();
+
+// Use in your HTML head
+const metaTags = `
+  <title>${seo.title}</title>
+  <meta name="description" content="${seo.description}" />
+  <link rel="canonical" href="${seo.canonical}" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="${seo.openGraph.title}" />
+  <meta property="og:description" content="${seo.openGraph.description}" />
+  <meta property="og:image" content="${seo.openGraph.image}" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="${seo.twitter.card}" />
+  <meta name="twitter:title" content="${seo.twitter.title}" />
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+    ${JSON.stringify(seo.structuredData)}
+  </script>
+`;
+```
+
+### Submit Sitemap to Search Engines
+
+Generate and submit your sitemap:
+
+```bash
+# Generate XML sitemap
+curl "https://api.simplist.blog/v1/seo/sitemap?baseUrl=https://myblog.com&format=xml" \
+  -H "X-API-Key: your_api_key" > sitemap.xml
+
+# Submit to Google Search Console
+# Add sitemap URL: https://api.simplist.blog/v1/seo/sitemap?baseUrl=https://myblog.com&format=xml
+```
+
+### Add RSS Feed to Your Blog
+
+```html
+<!-- Add to your HTML head -->
+<link
+  rel="alternate"
+  type="application/rss+xml"
+  title="My Blog RSS Feed"
+  href="https://api.simplist.blog/v1/seo/rss?baseUrl=https://myblog.com"
+/>
+```
+
+### Multi-Language SEO
+
+Get SEO metadata for specific language variant:
+
+```typescript
+const response = await fetch(
+  'https://api.simplist.blog/v1/seo/article/my-article/fr?baseUrl=https://myblog.com',
+  { headers: { 'X-API-Key': apiKey } }
+);
+
+const { seo } = await response.json();
+// SEO metadata for French variant
+```
+
+## Caching
+
+All SEO endpoints are cached for **5 minutes** using Redis to ensure fast response times:
+
+- Article SEO metadata
+- Sitemaps (XML and JSON)
+- RSS feeds
+- Structured data
+
+<Callout type="info">
+Cache is automatically invalidated when articles are created, updated, or deleted.
+</Callout>
+
+## Next.js Integration
+
+Perfect for Next.js metadata API:
+
+```typescript
+// app/articles/[slug]/page.tsx
+import { Metadata } from 'next';
+
+export async function generateMetadata({ params }): Promise<Metadata> {
+  const response = await fetch(
+    `https://api.simplist.blog/v1/seo/article/${params.slug}?baseUrl=https://myblog.com`,
+    { headers: { 'X-API-Key': process.env.SIMPLIST_API_KEY! } }
+  );
+
+  const { seo } = await response.json();
+
+  return {
+    title: seo.title,
+    description: seo.description,
+    openGraph: {
+      title: seo.openGraph.title,
+      description: seo.openGraph.description,
+      images: [seo.openGraph.image],
+      type: 'article',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: seo.twitter.title,
+      description: seo.twitter.description,
+      images: [seo.twitter.image],
+    },
+  };
+}
+```
+
+## SEO Best Practices
+
+### 1. Always Provide Base URL
+
+```typescript
+// Good - absolute URLs
+const url = 'https://api.simplist.blog/v1/seo/article/my-article?baseUrl=https://myblog.com';
+
+// Bad - missing base URL
+const url = 'https://api.simplist.blog/v1/seo/article/my-article';
+```
+
+### 2. Use Custom Paths for Flexibility
+
+```typescript
+// Custom blog path
+const sitemap = await fetch(
+  'https://api.simplist.blog/v1/seo/sitemap?baseUrl=https://myblog.com&customPath=blog/{slug}',
+  { headers: { 'X-API-Key': apiKey } }
+);
+```
+
+### 3. Submit Sitemaps to Search Engines
+
+Add your sitemap to:
+- Google Search Console
+- Bing Webmaster Tools
+- robots.txt file
+
+### 4. Validate Structured Data
+
+Use Google's Rich Results Test to validate structured data:
+```
+https://search.google.com/test/rich-results
+```
+
+## Next Steps
+
+<Cards>
+  <Card
+    title="Article SEO"
+    description="Generate SEO metadata for articles"
+    href="/api/seo/article"
+  />
+  <Card
+    title="Sitemap"
+    description="Create XML/JSON sitemaps"
+    href="/api/seo/sitemap"
+  />
+  <Card
+    title="RSS Feed"
+    description="Generate RSS feeds"
+    href="/api/seo/rss"
+  />
+  <Card
+    title="Structured Data"
+    description="Get Schema.org markup"
+    href="/api/seo/structured-data"
+  />
+</Cards>

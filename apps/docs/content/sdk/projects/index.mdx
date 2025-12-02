@@ -1,0 +1,304 @@
+---
+title: Projects Resource
+description: Get project information and statistics
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Tabs, Tab } from 'fumadocs-ui/components/tabs';
+
+# Projects Resource
+
+The Projects resource provides methods to fetch information about your project.
+
+## Available Methods
+
+```typescript
+import { SimplistClient } from '@simplist.blog/sdk';
+
+const client = new SimplistClient();
+
+// Get full project info and stats
+const { data } = await client.project.get();
+console.log(data.project.name);
+console.log(data.stats.totalArticles);
+```
+
+<Callout type="info">
+The project is automatically determined from your API key. Each API key belongs to a specific project.
+</Callout>
+
+## get()
+
+Fetch complete project information including statistics.
+
+```typescript
+async get(): Promise<ApiResponse<Project>>
+```
+
+### Example
+
+<Tabs items={['TypeScript', 'JavaScript']}>
+<Tab value="TypeScript">
+```typescript
+const { data } = await client.project.get();
+
+// Project information
+console.log('Project:', data.project.name);
+console.log('Slug:', data.project.slug);
+console.log('Created:', new Date(data.project.createdAt));
+
+// Statistics
+console.log('\nStatistics:');
+console.log(`- Total articles: ${data.stats.totalArticles}`);
+console.log(`- Published: ${data.stats.publishedArticles}`);
+console.log(`- Total views: ${data.stats.totalViews}`);
+```
+</Tab>
+<Tab value="JavaScript">
+```javascript
+const { data } = await client.project.get();
+
+console.log('Project:', data.project.name);
+console.log('Total articles:', data.stats.totalArticles);
+console.log('Total views:', data.stats.totalViews);
+```
+</Tab>
+</Tabs>
+
+### Response
+
+```typescript
+{
+  data: {
+    project: {
+      id: string;
+      name: string;
+      slug: string;
+      createdAt: string;
+      updatedAt: string;
+    };
+    stats: {
+      totalArticles: number;
+      publishedArticles: number;
+      totalViews: number;
+    };
+  }
+}
+```
+
+## Common Use Cases
+
+### Display Project Dashboard
+
+```typescript
+async function getProjectDashboard() {
+  const { data } = await client.project.get();
+
+  return {
+    name: data.project.name,
+    metrics: {
+      articles: data.stats.totalArticles,
+      published: data.stats.publishedArticles,
+      drafts: data.stats.totalArticles - data.stats.publishedArticles,
+      views: data.stats.totalViews,
+    },
+  };
+}
+
+const dashboard = await getProjectDashboard();
+console.log(`${dashboard.name}: ${dashboard.metrics.published} published articles`);
+```
+
+### Calculate Engagement
+
+```typescript
+async function getEngagementMetrics() {
+  const { data } = await client.project.get();
+
+  const avgViewsPerArticle = data.stats.publishedArticles > 0
+    ? Math.round(data.stats.totalViews / data.stats.publishedArticles)
+    : 0;
+
+  return {
+    totalArticles: data.stats.totalArticles,
+    publishedArticles: data.stats.publishedArticles,
+    totalViews: data.stats.totalViews,
+    avgViewsPerArticle,
+    publishRate: ((data.stats.publishedArticles / data.stats.totalArticles) * 100).toFixed(1) + '%',
+  };
+}
+```
+
+### Health Check
+
+```typescript
+async function checkApiHealth(): Promise<boolean> {
+  try {
+    await client.project.get();
+    return true;
+  } catch (error) {
+    console.error('API health check failed:', error);
+    return false;
+  }
+}
+
+if (await checkApiHealth()) {
+  console.log('✓ API is healthy');
+} else {
+  console.log('✗ API is down');
+}
+```
+
+### Project Info Component (React)
+
+```typescript
+import { SimplistClient } from '@simplist.blog/sdk';
+import { useEffect, useState } from 'react';
+
+const client = new SimplistClient();
+
+function ProjectStats() {
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchStats() {
+      try {
+        const { data } = await client.project.get();
+        setStats(data.stats);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchStats();
+  }, []);
+
+  if (loading) return <div>Loading...</div>;
+
+  return (
+    <div className="grid grid-cols-3 gap-4">
+      <div>
+        <h3>Total Articles</h3>
+        <p className="text-2xl">{stats.totalArticles}</p>
+      </div>
+      <div>
+        <h3>Published</h3>
+        <p className="text-2xl">{stats.publishedArticles}</p>
+      </div>
+      <div>
+        <h3>Total Views</h3>
+        <p className="text-2xl">{stats.totalViews.toLocaleString()}</p>
+      </div>
+    </div>
+  );
+}
+```
+
+### Next.js Server Component
+
+```typescript
+// app/dashboard/page.tsx
+import { SimplistClient } from '@simplist.blog/sdk';
+
+const client = new SimplistClient();
+
+export default async function DashboardPage() {
+  const { data } = await client.project.get();
+
+  return (
+    <div>
+      <h1>{data.project.name}</h1>
+
+      <div className="stats">
+        <div>
+          <span>Articles</span>
+          <strong>{data.stats.totalArticles}</strong>
+        </div>
+        <div>
+          <span>Published</span>
+          <strong>{data.stats.publishedArticles}</strong>
+        </div>
+        <div>
+          <span>Views</span>
+          <strong>{data.stats.totalViews}</strong>
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+
+## Caching
+
+Since project data changes infrequently, consider caching:
+
+```typescript
+let projectCache: { data: any; timestamp: number } | null = null;
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+async function getCachedProject() {
+  if (projectCache && Date.now() - projectCache.timestamp < CACHE_DURATION) {
+    return projectCache.data;
+  }
+
+  const { data } = await client.project.get();
+  projectCache = { data, timestamp: Date.now() };
+
+  return data;
+}
+```
+
+## Error Handling
+
+```typescript
+import { SimplistApiError } from '@simplist.blog/sdk';
+
+try {
+  const { data } = await client.project.get();
+  console.log(data.project.name);
+} catch (error) {
+  if (error instanceof SimplistApiError) {
+    if (error.status === 401) {
+      console.error('Invalid API key');
+    } else if (error.status === 404) {
+      console.error('Project not found');
+    } else {
+      console.error(`API Error: ${error.message}`);
+    }
+  } else {
+    console.error('Network error:', error);
+  }
+}
+```
+
+## Type Definitions
+
+```typescript
+import type {
+  Project,
+  ProjectInfo,
+  ProjectStats,
+} from '@simplist.blog/sdk';
+
+const { data }: { data: Project } = await client.project.get();
+const info: ProjectInfo = data.project;
+const stats: ProjectStats = data.stats;
+```
+
+## Rate Limiting
+
+This endpoint is lightweight and counts towards your API quota:
+
+- **STARTER**: 1,000 calls/month
+- **PRO**: 500,000 calls/month
+
+<Callout type="info">
+Use this endpoint sparingly. Cache the results when possible to reduce API calls.
+</Callout>
+
+## Next Steps
+
+- Fetch [articles](/sdk/articles) for your project
+- Track [analytics](/sdk/analytics) for engagement data
+- Generate [SEO](/sdk/seo) metadata

@@ -1,0 +1,114 @@
+---
+title: Caching Strategies
+description: Optimize API calls with client-side caching
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Caching Strategies
+
+Reduce API calls and improve performance with smart caching.
+
+## Why Cache?
+
+- **Reduce API calls** - Stay within your quota
+- **Faster responses** - Instant data for repeat requests
+- **Better UX** - No loading delays for cached data
+
+## Simple In-Memory Cache
+
+```typescript
+const cache = new Map<string, { data: any; timestamp: number }>();
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+async function getCachedArticles() {
+  const cacheKey = 'articles_list';
+  const cached = cache.get(cacheKey);
+
+  if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+    return cached.data;
+  }
+
+  const { data } = await client.articles.list({ limit: 10 });
+  cache.set(cacheKey, { data, timestamp: Date.now() });
+
+  return data;
+}
+```
+
+## React Query Integration
+
+```typescript
+import { useQuery } from '@tanstack/react-query';
+import { SimplistClient } from '@simplist.blog/sdk';
+
+const client = new SimplistClient();
+
+function useArticles() {
+  return useQuery({
+    queryKey: ['articles'],
+    queryFn: () => client.articles.list({ limit: 10 }).then(r => r.data),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+}
+```
+
+## Next.js Caching
+
+```typescript
+// Server Component with revalidation
+export const revalidate = 300; // 5 minutes
+
+export default async function ArticlesPage() {
+  const { data } = await client.articles.list({ limit: 10 });
+
+  return <div>{/* Render articles */}</div>;
+}
+```
+
+## localStorage Cache
+
+```typescript
+function getCachedData<T>(key: string): T | null {
+  const cached = localStorage.getItem(key);
+  if (!cached) return null;
+
+  const { data, timestamp } = JSON.parse(cached);
+  if (Date.now() - timestamp > 5 * 60 * 1000) return null;
+
+  return data;
+}
+
+function setCachedData<T>(key: string, data: T): void {
+  localStorage.setItem(key, JSON.stringify({
+    data,
+    timestamp: Date.now()
+  }));
+}
+```
+
+## Cache Invalidation
+
+```typescript
+function invalidateArticleCache() {
+  cache.delete('articles_list');
+  localStorage.removeItem('articles_list');
+}
+
+// Invalidate after mutation
+async function createArticle(data: any) {
+  await api.createArticle(data);
+  invalidateArticleCache();
+}
+```
+
+## Best Practices
+
+1. **Cache frequently accessed data** (articles list, project info)
+2. **Short TTL** (5-10 minutes) for dynamic content
+3. **Longer TTL** (1 hour+) for static data (project info)
+4. **Invalidate on mutations** (create, update, delete)
+
+<Callout type="info">
+The API already caches responses server-side for 5 minutes. Client caching further improves performance.
+</Callout>

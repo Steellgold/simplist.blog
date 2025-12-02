@@ -1,0 +1,114 @@
+---
+title: Automatic Retries
+description: Configure automatic retry behavior for failed requests
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Automatic Retries
+
+The SDK automatically retries failed requests with exponential backoff.
+
+## Default Behavior
+
+```typescript
+const client = new SimplistClient({
+  apiKey: process.env.SIMPLIST_API_KEY,
+  retries: 3,        // Retry up to 3 times
+  retryDelay: 1000,  // Wait 1 second between retries
+});
+```
+
+## What Gets Retried?
+
+**Automatic retry:**
+- Network errors (timeout, connection lost)
+- 5xx server errors (500, 502, 503)
+- 429 rate limit errors
+
+**No retry:**
+- 4xx client errors (400, 404) except 429
+- 401 unauthorized
+- 403 forbidden
+
+## Custom Retry Configuration
+
+### No Retries
+
+```typescript
+const client = new SimplistClient({
+  apiKey: process.env.SIMPLIST_API_KEY,
+  retries: 0,  // Disable retries
+});
+```
+
+### More Retries
+
+```typescript
+const client = new SimplistClient({
+  apiKey: process.env.SIMPLIST_API_KEY,
+  retries: 5,         // Retry 5 times
+  retryDelay: 2000,   // Wait 2 seconds
+});
+```
+
+## Exponential Backoff
+
+The SDK uses exponential backoff:
+
+```
+Attempt 1: Wait 1s
+Attempt 2: Wait 2s
+Attempt 3: Wait 4s
+Attempt 4: Wait 8s
+```
+
+## Environment-Specific
+
+### Development
+
+```typescript
+const client = new SimplistClient({
+  retries: 1,  // Fast failure for debugging
+});
+```
+
+### Production
+
+```typescript
+const client = new SimplistClient({
+  retries: 3,  // Resilient to transient errors
+});
+```
+
+### Testing
+
+```typescript
+const client = new SimplistClient({
+  retries: 0,  // No retries in tests
+  timeout: 5000,
+});
+```
+
+## Monitoring Retries
+
+```typescript
+async function fetchWithLogging() {
+  try {
+    const { data } = await client.articles.get('slug');
+    return data;
+  } catch (error) {
+    console.error('Failed after retries:', error);
+    throw error;
+  }
+}
+```
+
+<Callout type="info">
+The SDK handles retries automatically. You don't need to implement retry logic yourself.
+</Callout>
+
+## Next Steps
+
+- Learn about [error handling](/sdk/advanced/error-handling)
+- Configure [caching](/sdk/advanced/caching)

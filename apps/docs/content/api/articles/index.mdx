@@ -1,0 +1,211 @@
+---
+title: Articles API
+description: Fetch and manage your blog articles programmatically
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Card, Cards } from 'fumadocs-ui/components/card';
+
+# Articles API
+
+The Articles API allows you to fetch your blog articles programmatically. All article endpoints require authentication and automatically filter results based on your project.
+
+<Callout type="info">
+Only **published** articles are returned by default. Draft and scheduled articles are excluded from public API responses.
+</Callout>
+
+## Endpoints
+
+<Cards>
+  <Card
+    title="List Articles"
+    description="GET /v1/articles - Fetch paginated list of articles"
+    href="/api/articles/list"
+  />
+  <Card
+    title="Get Article"
+    description="GET /v1/articles/:slug - Fetch single article by slug"
+    href="/api/articles/get"
+  />
+</Cards>
+
+## Article Object
+
+```json
+{
+  "id": "clx1234567890",
+  "title": "Getting Started with Simplist",
+  "slug": "getting-started-with-simplist",
+  "excerpt": "Learn how to build a blog with Simplist in minutes",
+  "content": "Full markdown content...",
+  "coverImage": "https://cdn.simplist.blog/images/cover.jpg",
+  "published": true,
+  "status": "published",
+  "viewCount": 1247,
+  "wordCount": 1523,
+  "characterCount": 9876,
+  "lineCount": 142,
+  "readTimeMinutes": 6,
+  "createdAt": "2024-01-15T10:30:00.000Z",
+  "updatedAt": "2024-01-20T14:45:00.000Z",
+  "publishedAt": "2024-01-15T12:00:00.000Z",
+  "author": {
+    "name": "John Doe",
+    "firstName": "John",
+    "lastName": "Doe",
+    "image": "https://cdn.simplist.blog/avatars/john.jpg"
+  },
+  "lastUpdatedBy": {
+    "name": "Jane Smith",
+    "firstName": "Jane",
+    "lastName": "Smith",
+    "image": "https://cdn.simplist.blog/avatars/jane.jpg"
+  },
+  "variants": [
+    {
+      "id": "clx9876543210",
+      "lang": "fr",
+      "title": "Démarrer avec Simplist",
+      "excerpt": "Apprenez à créer un blog avec Simplist en quelques minutes",
+      "content": "Contenu complet en français...",
+      "coverImage": "https://cdn.simplist.blog/images/cover-fr.jpg",
+      "wordCount": 1456,
+      "characterCount": 9234,
+      "lineCount": 138,
+      "readTimeMinutes": 6
+    }
+  ]
+}
+```
+
+### Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Unique article identifier |
+| `title` | string | Article title |
+| `slug` | string | URL-friendly slug (unique per project) |
+| `excerpt` | string \| null | Short article summary |
+| `content` | string | Full article content in Markdown |
+| `coverImage` | string \| null | Cover image URL |
+| `published` | boolean | Published status |
+| `status` | string | Article status: `draft`, `published`, `scheduled` |
+| `viewCount` | number | Total page views |
+| `wordCount` | number | Word count |
+| `characterCount` | number | Character count |
+| `lineCount` | number | Line count |
+| `readTimeMinutes` | number | Estimated reading time |
+| `createdAt` | string | Creation timestamp (ISO 8601) |
+| `updatedAt` | string | Last update timestamp (ISO 8601) |
+| `publishedAt` | string \| null | Publication timestamp (ISO 8601) |
+| `author` | object \| null | Article author information |
+| `lastUpdatedBy` | object \| null | Last editor information |
+| `variants` | array | Multi-language variants (PRO feature) |
+
+### Article Variants
+
+For PRO projects, articles can have multiple language variants:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Variant identifier |
+| `lang` | string | Language code (ISO 639-1) |
+| `title` | string | Translated title |
+| `excerpt` | string \| null | Translated excerpt |
+| `content` | string | Translated content |
+| `coverImage` | string \| null | Variant-specific cover image (PRO) |
+| `wordCount` | number | Variant word count |
+| `characterCount` | number | Variant character count |
+| `lineCount` | number | Variant line count |
+| `readTimeMinutes` | number | Variant reading time |
+
+<Callout type="info">
+Multi-language variants are a **PRO** feature. STARTER projects can only have articles without variants.
+</Callout>
+
+## Common Use Cases
+
+### Build a Blog Feed
+
+Fetch latest articles for your blog homepage:
+
+```typescript
+const response = await fetch(
+  'https://api.simplist.blog/v1/articles?published=true&sort=publishedAt&order=desc&limit=10',
+  { headers: { 'X-API-Key': apiKey } }
+);
+
+const { data: articles } = await response.json();
+```
+
+### Search Articles
+
+Search across title, excerpt, and content:
+
+```typescript
+const response = await fetch(
+  'https://api.simplist.blog/v1/articles?search=typescript&published=true',
+  { headers: { 'X-API-Key': apiKey } }
+);
+
+const { data: results } = await response.json();
+```
+
+### Display Article Page
+
+Fetch full article content with variants:
+
+```typescript
+const response = await fetch(
+  `https://api.simplist.blog/v1/articles/${slug}`,
+  { headers: { 'X-API-Key': apiKey } }
+);
+
+const { data: article } = await response.json();
+
+// Access variants
+const frenchVariant = article.variants.find(v => v.lang === 'fr');
+```
+
+### Generate SEO Metadata
+
+Fetch article with SEO data:
+
+```typescript
+const response = await fetch(
+  `https://api.simplist.blog/v1/articles/${slug}?includeSeo=true&baseUrl=https://myblog.com`,
+  { headers: { 'X-API-Key': apiKey } }
+);
+
+const { data } = await response.json();
+const seoMetadata = data.seo; // Meta tags, Open Graph, Twitter Card
+```
+
+## Caching
+
+The Articles API implements Redis caching for better performance:
+
+- **Individual articles**: Cached by slug
+- **Article lists**: Cached by query parameters
+- **Cache TTL**: 5 minutes
+
+Caching is transparent and automatic. You don't need to do anything special.
+
+<Callout type="info">
+Cache is automatically invalidated when articles are created, updated, or deleted.
+</Callout>
+
+## Next Steps
+
+<Cards>
+  <Card
+    title="List Articles"
+    description="Fetch paginated list of articles"
+    href="/api/articles/list"
+  />
+  <Card
+    title="Get Article"
+    description="Fetch single article by slug"
+    href="/api/articles/get"
+  />
+</Cards>

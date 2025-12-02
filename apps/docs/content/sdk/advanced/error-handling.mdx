@@ -1,0 +1,149 @@
+---
+title: Error Handling
+description: Handle API errors gracefully in your application
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+# Error Handling
+
+Learn how to handle errors from the Simplist SDK effectively.
+
+## SimplistApiError
+
+The SDK throws `SimplistApiError` for all API-related errors:
+
+```typescript
+import { SimplistClient, SimplistApiError } from '@simplist.blog/sdk';
+
+const client = new SimplistClient();
+
+try {
+  const { data } = await client.articles.get('non-existent');
+} catch (error) {
+  if (error instanceof SimplistApiError) {
+    console.error('API Error:', error.message);
+    console.error('Status Code:', error.status);
+    console.error('Error Code:', error.code);
+  }
+}
+```
+
+## Error Properties
+
+```typescript
+class SimplistApiError extends Error {
+  status: number;      // HTTP status code (404, 401, etc.)
+  code?: string;       // API error code
+  details?: any;       // Additional error details
+}
+```
+
+## Common Errors
+
+### 401 Unauthorized
+
+```typescript
+if (error.status === 401) {
+  console.error('Invalid API key');
+  // Redirect to login or show error
+}
+```
+
+### 404 Not Found
+
+```typescript
+if (error.status === 404) {
+  console.error('Resource not found');
+  // Show 404 page
+}
+```
+
+### 429 Rate Limit
+
+```typescript
+if (error.status === 429) {
+  console.error('Rate limit exceeded');
+  // Show upgrade prompt or retry later
+}
+```
+
+## Best Practices
+
+### Always Use Try/Catch
+
+```typescript
+async function fetchArticle(slug: string) {
+  try {
+    const { data } = await client.articles.get(slug);
+    return data;
+  } catch (error) {
+    if (error instanceof SimplistApiError) {
+      // Handle API errors
+      return null;
+    }
+    // Handle other errors
+    throw error;
+  }
+}
+```
+
+### Create Error Handler
+
+```typescript
+function handleApiError(error: unknown): void {
+  if (!(error instanceof SimplistApiError)) {
+    console.error('Unexpected error:', error);
+    return;
+  }
+
+  switch (error.status) {
+    case 401:
+      console.error('Authentication failed');
+      break;
+    case 404:
+      console.error('Not found');
+      break;
+    case 429:
+      console.error('Too many requests');
+      break;
+    default:
+      console.error(`API error: ${error.message}`);
+  }
+}
+```
+
+### React Error Boundary
+
+```typescript
+function ArticleView({ slug }: { slug: string }) {
+  const [article, setArticle] = useState(null);
+  const [error, setError] = useState<SimplistApiError | null>(null);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const { data } = await client.articles.get(slug);
+        setArticle(data);
+      } catch (err) {
+        if (err instanceof SimplistApiError) {
+          setError(err);
+        }
+      }
+    }
+    load();
+  }, [slug]);
+
+  if (error) {
+    if (error.status === 404) return <div>Article not found</div>;
+    return <div>Error: {error.message}</div>;
+  }
+
+  return article ? <div>{article.title}</div> : <div>Loading...</div>;
+}
+```
+
+## Next Steps
+
+- Learn about [retries](/sdk/advanced/retries)
+- Configure [caching](/sdk/advanced/caching)
