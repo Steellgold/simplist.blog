@@ -737,7 +737,6 @@ export const getAnalyticsApiKey = async (projectId: string) => {
   const apiKey = await prisma.apiKey.findFirst({
     where: {
       projectId: projectId,
-      type: "public",
       permissions: {
         has: "analytics",
       },
