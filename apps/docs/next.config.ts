@@ -1,18 +1,7 @@
-import { createMDX } from 'fumadocs-mdx/next';
-import { NextConfig } from 'next';
+import type { NextConfig } from "next";
 
-const withMDX = createMDX();
+const nextConfig: NextConfig = {
+  transpilePackages: ["@simplist/ui"],
+}
 
-const config: NextConfig = {
-  reactStrictMode: true,
-  rewrites: async () => {
-    return [
-      {
-        source: '/:path*.mdx',
-        destination: '/llms.mdx/:path*',
-      },
-    ];
-  },
-};
-
-export default withMDX(config);
+export default nextConfig;

@@ -12,6 +12,7 @@ export type {
   Article,
   ArticleVariant,
   ArticleListItem,
+  Author,
   Project,
   ProjectStats,
   ProjectInfo,
