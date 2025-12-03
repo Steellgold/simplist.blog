@@ -45,37 +45,37 @@ const components = {
   
   ...Object.fromEntries(Object.entries(LucideIcons).map(([key, value]) => [key, value as React.ComponentType<any>])),
   
-  h1: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
+  h1: (props: any) => (
     <h1 className="mb-6 text-4xl font-bold" {...props} />
   ),
-  h2: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
+  h2: (props: any) => (
     <h2 className="mb-4 mt-8 text-2xl font-semibold" {...props} />
   ),
-  h3: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
+  h3: (props: any) => (
     <h3 className="mb-3 mt-6 text-xl font-semibold" {...props} />
   ),
-  p: (props: React.HTMLAttributes<HTMLParagraphElement>) => (
+  p: (props: any) => (
     <p className="mb-4" {...props} />
   ),
-  ul: (props: React.HTMLAttributes<HTMLUListElement>) => (
+  ul: (props: any) => (
     <ul className="mb-4 list-inside list-disc space-y-1" {...props} />
   ),
-  ol: (props: React.HTMLAttributes<HTMLOListElement>) => (
+  ol: (props: any) => (
     <ol className="mb-4 list-inside list-decimal space-y-1" {...props} />
   ),
-  li: (props: React.HTMLAttributes<HTMLLIElement>) => (
+  li: (props: any) => (
     <li {...props} />
   ),
-  code: (props: React.HTMLAttributes<HTMLElement>) => (
+  code: (props: any) => (
     <code className="rounded bg-muted px-1.5 py-0.5 text-sm font-mono" {...props} />
   ),
-  pre: (props: React.HTMLAttributes<HTMLPreElement>) => (
+  pre: (props: any) => (
     <pre className="mb-4 overflow-x-auto rounded-lg bg-muted p-4" {...props} />
   ),
-  blockquote: (props: React.HTMLAttributes<HTMLQuoteElement>) => (
+  blockquote: (props: any) => (
     <blockquote className="mb-4 border-l-4 border-muted-foreground pl-4 italic" {...props} />
   ),
-  a: (props: React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
+  a: (props: any) => (
     <a className="text-primary underline hover:text-primary/80" {...props} />
   ),
 }
