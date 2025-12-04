@@ -1,3 +1,4 @@
+import { ApiPath } from "@/components/api-route"
 import { BlockLink } from "@/components/block-link"
 import { CopyMarkdown } from "@/components/copy-markdown"
 import { EditOnGitHub } from "@/components/edit-on-github"
@@ -26,23 +27,24 @@ const components = {
   CardContent,
   CardFooter,
   CardAction,
-  
+
   Button,
-  
+
   Badge,
-  
+
   Alert,
   AlertTitle,
   AlertDescription,
-  
+
   Input,
-  
+
   Separator,
   Skeleton,
   Spinner,
-  
+
   BlockLink,
-  
+  ApiPath,
+
   ...Object.fromEntries(Object.entries(LucideIcons).map(([key, value]) => [key, value as React.ComponentType<any>])),
   
   h1: (props: any) => (
