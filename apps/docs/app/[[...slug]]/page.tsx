@@ -1,9 +1,16 @@
 import { ApiPath } from "@/components/api-route"
+import { ApiConfigButton } from "@/components/api-config-button"
 import { BlockLink } from "@/components/block-link"
+import { CodeBlock } from "@/components/code-block"
+import { InstallationTabs } from "@/components/installation-tabs"
 import { CopyMarkdown } from "@/components/copy-markdown"
 import { EditOnGitHub } from "@/components/edit-on-github"
+import { EnvVars } from "@/components/env-vars"
+import { HeadingAnchor } from "@/components/heading-anchor"
 import { OpenIn } from "@/components/open-in"
 import { PageNavigation } from "@/components/page-navigation"
+import { TableOfContents, TocHeading } from "@/components/table-of-contents"
+import { TestableApiProvider } from "@/components/testable-api-provider"
 import { Alert, AlertDescription, AlertTitle } from "@simplist/ui/components/alert"
 import { Badge } from "@simplist/ui/components/badge"
 import { Button } from "@simplist/ui/components/button"
@@ -13,13 +20,66 @@ import { Separator } from "@simplist/ui/components/separator"
 import { Skeleton } from "@simplist/ui/components/skeleton"
 import { Spinner } from "@simplist/ui/components/spinner"
 import { readFile } from "fs/promises"
-import * as LucideIcons from "lucide-react"
 import type { Metadata } from "next"
 import { MDXRemote } from "next-mdx-remote/rsc"
 import { join } from "path"
-import { FC } from "react"
+import { ComponentType, FC } from "react"
+import { ButtonGroup } from "@simplist/ui/components/button-group"
+import { textToId, generateUniqueId } from "@/lib/utils"
+import Link from "next/link"
 
-const components = {
+const createHeadingComponents = (headings: TocHeading[]): Record<string, ComponentType<any>> => {
+  const textToIdMap = new Map<string, string[]>()
+  
+  headings.forEach(({ text, id }) => {
+    const existing = textToIdMap.get(text) || []
+    existing.push(id)
+    textToIdMap.set(text, existing)
+  })
+
+  const usageCount = new Map<string, number>()
+
+  const getIdForText = (text: string): string => {
+    const ids = textToIdMap.get(text)
+    if (!ids || ids.length === 0) {
+      return textToId(text)
+    }
+
+    const currentCount = usageCount.get(text) || 0
+    const id = ids[currentCount] || ids[0]
+    usageCount.set(text, currentCount + 1)
+    
+    return id
+  }
+
+  return {
+    h1: (props: any) => {
+      const id = props.children ? getIdForText(String(props.children)) : undefined
+      return <HeadingAnchor id={id} level={1} className="mb-6 text-4xl font-bold" {...props} />
+    },
+    h2: (props: any) => {
+      const id = props.children ? getIdForText(String(props.children)) : undefined
+      return <HeadingAnchor id={id} level={2} className="mb-4 mt-8 text-2xl font-semibold" {...props} />
+    },
+    h3: (props: any) => {
+      const id = props.children ? getIdForText(String(props.children)) : undefined
+      return <HeadingAnchor id={id} level={3} className="mb-3 mt-6 text-xl font-semibold" {...props} />
+    },
+  }
+}
+
+const createSeparatedComponent = <T,>(Component: ComponentType<T>, displayName: string): ComponentType<T> => {
+  const WrappedComponent = (props: any) => (
+    <div className="[&+div[data-component]]:mt-6 mb-2" data-component={displayName}>
+      <Component {...props} />
+    </div>
+  )
+
+  WrappedComponent.displayName = `Separated(${displayName})`
+  return WrappedComponent
+}
+
+const staticComponents = {
   Card,
   CardHeader,
   CardTitle,
@@ -27,35 +87,20 @@ const components = {
   CardContent,
   CardFooter,
   CardAction,
-
   Button,
-
   Badge,
-
   Alert,
   AlertTitle,
   AlertDescription,
-
   Input,
-
   Separator,
   Skeleton,
   Spinner,
-
   BlockLink,
-  ApiPath,
-
-  ...Object.fromEntries(Object.entries(LucideIcons).map(([key, value]) => [key, value as React.ComponentType<any>])),
-  
-  h1: (props: any) => (
-    <h1 className="mb-6 text-4xl font-bold" {...props} />
-  ),
-  h2: (props: any) => (
-    <h2 className="mb-4 mt-8 text-2xl font-semibold" {...props} />
-  ),
-  h3: (props: any) => (
-    <h3 className="mb-3 mt-6 text-xl font-semibold" {...props} />
-  ),
+  ApiPath: createSeparatedComponent(ApiPath, "ApiPath"),
+  CodeBlock: createSeparatedComponent(CodeBlock, "CodeBlock"),
+  InstallationTabs: createSeparatedComponent(InstallationTabs, "InstallationTabs"),
+  EnvVars: createSeparatedComponent(EnvVars, "EnvVars"),
   p: (props: any) => (
     <p className="mb-4" {...props} />
   ),
@@ -78,17 +123,17 @@ const components = {
     <blockquote className="mb-4 border-l-4 border-muted-foreground pl-4 italic" {...props} />
   ),
   a: (props: any) => (
-    <a className="text-primary underline hover:text-primary/80" {...props} />
+    <Link className="text-primary underline hover:text-primary/80" {...props} />
   ),
 }
 
-interface PageProps {
+type PageProps = {
   params: Promise<{
     slug?: string[]
   }>
 }
 
-async function readMdxFile(slug: string[]): Promise<string> {
+const readMdxFile = async (slug: string[]): Promise<string> => {
   const possiblePaths = [
     join(process.cwd(), "apps", "docs", "content", ...slug) + ".mdx",
     join(process.cwd(), "content", ...slug) + ".mdx",
@@ -106,7 +151,7 @@ async function readMdxFile(slug: string[]): Promise<string> {
   return ""
 }
 
-async function getMdxContent(slug: string[]) {
+const getMdxContent = async (slug: string[]) => {
   const rawContent = await readMdxFile(slug)
   
   const frontmatterRegex = /^---\s*\n([\s\S]*?)\n---\s*\n([\s\S]*)$/
@@ -119,7 +164,7 @@ async function getMdxContent(slug: string[]) {
   return rawContent
 }
 
-async function getMdxFrontmatter(slug: string[]): Promise<{ category?: string; title?: string }> {
+const getMdxFrontmatter = async (slug: string[]): Promise<{ category?: string; title?: string }> => {
   const rawContent = await readMdxFile(slug)
   
   const frontmatterRegex = /^---\s*\n([\s\S]*?)\n---\s*\n/
@@ -131,15 +176,15 @@ async function getMdxFrontmatter(slug: string[]): Promise<{ category?: string; t
     const titleMatch = frontmatter.match(/title:\s*(.+)/i)
     
     return {
-      category: categoryMatch ? categoryMatch[1].replace(/^["']|["']$/g, "").trim() : undefined,
-      title: titleMatch ? titleMatch[1].replace(/^["']|["']$/g, "").trim() : undefined,
+      category: categoryMatch ? categoryMatch[1].replace(/^[""]|[""]$/g, "").trim() : undefined,
+      title: titleMatch ? titleMatch[1].replace(/^[""]|[""]$/g, "").trim() : undefined,
     }
   }
   
   return {}
 }
 
-async function getMdxMetadata(slug: string[]): Promise<Metadata> {
+const getMdxMetadata = async (slug: string[]): Promise<Metadata> => {
   const rawContent = await readMdxFile(slug)
 
   const frontmatterRegex = /^---\s*\n([\s\S]*?)\n---\s*\n/
@@ -153,8 +198,8 @@ async function getMdxMetadata(slug: string[]): Promise<Metadata> {
     const titleMatch = frontmatter.match(/title:\s*(.+)/i)
     const descMatch = frontmatter.match(/description:\s*(.+)/i)
 
-    if (titleMatch) title = titleMatch[1].replace(/^["']|["']$/g, "").trim()
-    if (descMatch) description = descMatch[1].replace(/^["']|["']$/g, "").trim()
+    if (titleMatch) title = titleMatch[1].replace(/^[""]|[""]$/g, "").trim()
+    if (descMatch) description = descMatch[1].replace(/^[""]|[""]$/g, "").trim()
   } else {
     const h1Match = rawContent.match(/^#\s+(.+)$/m)
     if (h1Match) title = h1Match[1]
@@ -166,7 +211,24 @@ async function getMdxMetadata(slug: string[]): Promise<Metadata> {
   }
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+const extractHeadings = (content: string): TocHeading[] => {
+  const headingRegex = /^(#{1,2})\s+(.+)$/gm
+  const headings: TocHeading[] = []
+  const usedIds = new Set<string>()
+  let match
+
+  while ((match = headingRegex.exec(content)) !== null) {
+    const level = match[1].length as 1 | 2
+    const text = match[2].trim()
+    const id = generateUniqueId(text, usedIds)
+
+    headings.push({ id, text, level })
+  }
+
+  return headings
+}
+
+export const generateMetadata = async ({ params }: PageProps): Promise<Metadata> => {
   const { slug = [] } = await params
   const contentPath = slug.length === 0 ? ["index"] : slug
   return getMdxMetadata(contentPath)
@@ -179,39 +241,59 @@ const ContentPage: FC<PageProps> = async ({ params }) => {
 
   const rawContent = await readMdxFile(contentPath)
   const content = await getMdxContent(contentPath)
+  
+  const headings = extractHeadings(content)
+  
+  const headingComponents = createHeadingComponents(headings)
+  
+  const components = {
+    ...staticComponents,
+    ...headingComponents,
+  }
 
   const frontmatter = await getMdxFrontmatter(contentPath) ?? {}
 
   const currentHref = contentPath.length === 0 || (contentPath.length === 1 && contentPath[0] === "index") ? "/" : `/${contentPath.join("/")}`
 
   const githubPath = contentPath.join("/")
-  const githubUrl = `https://github.com/Steellgold/simplist/tree/docs/apps/docs/content/${githubPath}.mdx`
+  const githubUrl = `https://github.com/Steellgold/simplist.blog/tree/docs/apps/docs/content/${githubPath}.mdx`
   const markdownUrl = `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3002"}${currentHref}.mdx`
 
   return (
-    <main className="mx-auto max-w-3xl">
-      <div className="mb-6 flex items-center justify-end gap-2">
-        <CopyMarkdown content={rawContent} />
-        <OpenIn githubUrl={githubUrl} markdownUrl={markdownUrl} />
+    <TestableApiProvider>
+      <div className="flex justify-center items-start gap-8 w-full min-h-screen container mx-auto px-4 overflow-x-hidden">
+        <main className="flex-1 max-w-3xl w-full min-w-0 overflow-x-hidden">
+          <div className="mb-6 flex items-center justify-end gap-2 flex-wrap">
+            <ApiConfigButton />
+            <ButtonGroup>
+              <CopyMarkdown content={rawContent} />
+              <OpenIn githubUrl={githubUrl} markdownUrl={markdownUrl} />
+            </ButtonGroup>
+          </div>
+
+          {frontmatter.category && (
+            <Badge variant="secondary" className="mb-4">
+              {frontmatter.category}
+            </Badge>
+          )}
+
+          <div className="max-w-full overflow-x-hidden">
+            <MDXRemote
+              source={content}
+              components={components}
+            />
+          </div>
+
+          <div className="mt-8 py-4 flex flex-row items-center justify-between border-t ">
+            <EditOnGitHub githubUrl={githubUrl} />
+          </div>
+
+          <PageNavigation currentHref={currentHref} />
+        </main>
+
+        <TableOfContents headings={headings} />
       </div>
-
-      {frontmatter.category && (
-        <Badge variant="secondary" className="mb-4">
-          {frontmatter.category}
-        </Badge>
-      )}
-
-      <MDXRemote
-        source={content}
-        components={components}
-      />
-
-      <div className="mt-8 py-4 flex flex-row items-center justify-between">
-        <EditOnGitHub githubUrl={githubUrl} />
-      </div>
-
-      <PageNavigation currentHref={currentHref} />
-    </main>
+    </TestableApiProvider>
   )
 }
 

@@ -2,101 +2,148 @@
 
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@simplist/ui/components/input-group"
 import { Eye, EyeOff, RefreshCcw } from "lucide-react"
-import { forwardRef, useState } from "react"
+import { FC, forwardRef, useState } from "react"
 
-interface PasswordInputProps extends React.ComponentPropsWithoutRef<"input"> {
-  id?: string
-  placeholder?: string;
-  showGenerator?: boolean;
+type UsePasswordInputProps = {
+  value?: string | number | readonly string[]
+  onChange?: React.ChangeEventHandler<HTMLInputElement>
 }
 
-export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(({
-  id,
-  placeholder = "••••••••",
-  showGenerator = false,
-  value,
-  onChange,
-  disabled,
-  ...props
-}, ref) => {
-  const [showPassword, setShowPassword] = useState(false);
-  const [localValue, setLocalValue] = useState<string>("");
+const usePasswordInput = ({ value, onChange }: UsePasswordInputProps) => {
+  const [showPassword, setShowPassword] = useState(false)
+  const [localValue, setLocalValue] = useState<string>("")
 
-  const currentValue = localValue || value || "";
+  const currentValue = localValue || value || ""
+
+  const toggleVisibility = () => setShowPassword((prev) => !prev)
 
   const generate = (length: number = 12) => {
-    const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    const lower = "abcdefghijklmnopqrstuvwxyz";
-    const numbers = "0123456789";
-    const special = "!@#$%^&*()-_=+[]{}|;:,.<>?/";
-    const allChars = upper + lower + numbers + special;
+    const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    const lower = "abcdefghijklmnopqrstuvwxyz"
+    const numbers = "0123456789"
+    const special = "!@#$%^&*()-_=+[]{}|;:,.<>?/"
+    const allChars = upper + lower + numbers + special
 
-    let password = "";
-    password += upper[Math.floor(Math.random() * upper.length)];
-    password += lower[Math.floor(Math.random() * lower.length)];
-    password += numbers[Math.floor(Math.random() * numbers.length)];
-    password += special[Math.floor(Math.random() * special.length)];
+    let password = ""
+    password += upper[Math.floor(Math.random() * upper.length)]
+    password += lower[Math.floor(Math.random() * lower.length)]
+    password += numbers[Math.floor(Math.random() * numbers.length)]
+    password += special[Math.floor(Math.random() * special.length)]
 
     for (let i = 4; i < length; i++) {
-      password += allChars[Math.floor(Math.random() * allChars.length)];
+      password += allChars[Math.floor(Math.random() * allChars.length)]
     }
 
-    password = password.split('').sort(() => 0.5 - Math.random()).join('');
+    password = password.split("").sort(() => 0.5 - Math.random()).join("")
 
-    setLocalValue(password);
+    setLocalValue(password)
 
-    // Notifier le parent du changement via onChange
     if (onChange) {
       const syntheticEvent = {
-        target: { value: password }
-      } as React.ChangeEvent<HTMLInputElement>;
-      onChange(syntheticEvent);
+        target: { value: password },
+      } as React.ChangeEvent<HTMLInputElement>
+      onChange(syntheticEvent)
     }
 
-    setShowPassword(true);
+    setShowPassword(true)
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLocalValue(e.target.value);
-    if (onChange) {
-      onChange(e);
-    }
+    setLocalValue(e.target.value)
+    onChange?.(e)
   }
-  
-  return (
-    <InputGroup>
-      <InputGroupInput
-        id={id}
-        ref={ref}
-        type={showPassword ? "text" : "password"}
-        placeholder={placeholder}
-        value={currentValue}
-        onChange={handleChange}
-        disabled={disabled}
-        {...props}
-      />
 
-      <InputGroupAddon align="inline-end">
+  return {
+    showPassword,
+    currentValue,
+    toggleVisibility,
+    generate,
+    handleChange,
+  }
+}
+
+type PasswordInputBaseProps = Omit<React.ComponentPropsWithoutRef<"input">, "type"> & {
+  placeholder?: string
+  showGenerator?: boolean
+}
+
+type PasswordActionsProps = {
+  showPassword: boolean
+  showGenerator: boolean
+  disabled?: boolean
+  onToggleVisibility: () => void
+  onGenerate: () => void
+}
+
+const PasswordActions: FC<PasswordActionsProps> = ({
+  showPassword,
+  showGenerator,
+  disabled,
+  onToggleVisibility,
+  onGenerate,
+}: PasswordActionsProps) => {
+  return (
+    <InputGroupAddon align="inline-end">
+      <InputGroupButton
+        onClick={onToggleVisibility}
+        size="icon-xs"
+        type="button"
+        disabled={disabled}
+      >
+        {showPassword ? <EyeOff /> : <Eye />}
+      </InputGroupButton>
+
+      {showGenerator && (
         <InputGroupButton
-          onClick={() => setShowPassword(!showPassword)}
-          size={"icon-xs"}
+          onClick={onGenerate}
+          size="icon-xs"
           type="button"
           disabled={disabled}
         >
-          {showPassword ? <EyeOff /> : <Eye />}
+          <RefreshCcw />
         </InputGroupButton>
+      )}
+    </InputGroupAddon>
+  )
+}
 
-        {showGenerator && (
-          <InputGroupButton
-            onClick={() => generate()}
-            size={"icon-xs"}
-            type="button"
-            disabled={disabled}
-          >
-            <RefreshCcw />
-          </InputGroupButton>
-        )}
-      </InputGroupAddon>
+export const InputGroupPasswordInput = forwardRef<HTMLInputElement, PasswordInputBaseProps>(
+  ({ placeholder = "••••••••", showGenerator = false, value, onChange, disabled, ...props }, ref) => {
+    const { showPassword, currentValue, toggleVisibility, generate, handleChange } = usePasswordInput({
+      value,
+      onChange,
+    })
+
+    return (
+      <>
+        <InputGroupInput
+          ref={ref}
+          type={showPassword ? "text" : "password"}
+          placeholder={placeholder}
+          value={currentValue}
+          onChange={handleChange}
+          disabled={disabled}
+          {...props}
+        />
+
+        <PasswordActions
+          showPassword={showPassword}
+          showGenerator={showGenerator}
+          disabled={disabled}
+          onToggleVisibility={toggleVisibility}
+          onGenerate={generate}
+        />
+      </>
+    )
+  }
+)
+
+InputGroupPasswordInput.displayName = "InputGroupPasswordInput"
+
+export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputBaseProps>((props, ref) => {
+  return (
+    <InputGroup>
+      <InputGroupPasswordInput ref={ref} {...props} />
     </InputGroup>
   )
 })

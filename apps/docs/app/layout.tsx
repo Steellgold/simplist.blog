@@ -28,13 +28,13 @@ const RootLayout: FC<PropsWithChildren> = ({ children }) => {
           <SidebarProvider>
             <DocsSidebar />
 
-            <SidebarInset>
+            <SidebarInset className="overflow-x-hidden">
               <div className="flex h-14 items-center justify-between border-b px-4 lg:h-16">
                 <SidebarTrigger />
                 <ThemeSwitcher />
               </div>
 
-              <main className="flex-1 overflow-auto p-8 pt-16">{children}</main>
+              <main className="p-4 sm:p-8 pt-16 overflow-x-hidden max-w-full">{children}</main>
             </SidebarInset>
             <SearchCommand />
           </SidebarProvider>
