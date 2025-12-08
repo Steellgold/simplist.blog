@@ -4,7 +4,7 @@ import { FC, useState } from "react"
 import { Card } from "@simplist/ui/components/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@simplist/ui/components/tabs"
 import { cn } from "@/lib/utils"
-import { CodeBlockClient } from "./code-block-client"
+import { CopyButton } from "./copy"
 import { languages } from "@/lib/languages"
 
 type HighlightedTab = {
@@ -44,7 +44,7 @@ export const CodeBlockTabsClient: FC<CodeBlockTabsClientProps> = ({ tabs, classN
               </span>
             )}
 
-            <CodeBlockClient code={activeTabData.code} />
+            <CopyButton content={activeTabData.code} />
           </div>
         </div>
 

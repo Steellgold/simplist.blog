@@ -27,6 +27,7 @@ import { ComponentType, FC } from "react"
 import { ButtonGroup } from "@simplist/ui/components/button-group"
 import { textToId, generateUniqueId } from "@/lib/utils"
 import Link from "next/link"
+import { StepContent, Step, Steps } from "@/components/steps"
 
 const createHeadingComponents = (headings: TocHeading[]): Record<string, ComponentType<any>> => {
   const textToIdMap = new Map<string, string[]>()
@@ -101,6 +102,9 @@ const staticComponents = {
   CodeBlock: createSeparatedComponent(CodeBlock, "CodeBlock"),
   InstallationTabs: createSeparatedComponent(InstallationTabs, "InstallationTabs"),
   EnvVars: createSeparatedComponent(EnvVars, "EnvVars"),
+  Steps: createSeparatedComponent(Steps, "Steps"),
+  Step: createSeparatedComponent(Step, "Step"),
+  StepContent: createSeparatedComponent(StepContent, "StepContent"),
   p: (props: any) => (
     <p className="mb-4" {...props} />
   ),
@@ -284,7 +288,7 @@ const ContentPage: FC<PageProps> = async ({ params }) => {
             />
           </div>
 
-          <div className="mt-8 py-4 flex flex-row items-center justify-between border-t ">
+          <div className="mt-8 py-4 flex flex-row items-center justify-between border-t">
             <EditOnGitHub githubUrl={githubUrl} />
           </div>
 

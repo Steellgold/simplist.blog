@@ -31,7 +31,7 @@ const EnvVarsTable: FC<Pick<EnvVarsProps, "variables">> = ({ variables }: Pick<E
   }
 
   return (
-    <div className="rounded-lg border overflow-hidden overflow-x-auto">
+    <div className="w-full rounded-lg border">
       <Table>
         <TableHeader>
           <TableRow className="bg-muted/50 hover:bg-muted/50">
@@ -41,6 +41,7 @@ const EnvVarsTable: FC<Pick<EnvVarsProps, "variables">> = ({ variables }: Pick<E
             <TableHead className="font-medium whitespace-nowrap">Description</TableHead>
           </TableRow>
         </TableHeader>
+
         <TableBody>
           {variables.map((variable) => (
             <TableRow key={variable.name}>
@@ -54,11 +55,7 @@ const EnvVarsTable: FC<Pick<EnvVarsProps, "variables">> = ({ variables }: Pick<E
                         size="icon-xs"
                         onClick={() => handleCopy(variable.name)}
                       >
-                        {copiedVar === variable.name ? (
-                          <Check className="size-3 text-emerald-500" />
-                        ) : (
-                          <Copy className="size-3" />
-                        )}
+                        {copiedVar === variable.name ? <Check /> : <Copy />}
                         <span className="sr-only">Copy variable name</span>
                       </Button>
                     </TooltipTrigger>
@@ -69,12 +66,14 @@ const EnvVarsTable: FC<Pick<EnvVarsProps, "variables">> = ({ variables }: Pick<E
                   </Tooltip>
                 </div>
               </TableCell>
+
               <TableCell className="whitespace-nowrap">
                 {variable.required
                   ? <span className="text-xs text-destructive font-medium">Required</span>
                   : <span className="text-xs text-muted-foreground font-medium">Optional</span>
                 }
               </TableCell>
+
               <TableCell className="font-mono text-sm whitespace-nowrap">
                 {variable.default ? (
                   <code className="bg-muted px-1.5 py-0.5 rounded text-xs">
@@ -96,7 +95,13 @@ const EnvVarsTable: FC<Pick<EnvVarsProps, "variables">> = ({ variables }: Pick<E
 }
 
 export const EnvVars: FC<EnvVarsProps> = ({ variables, title, className }) => {
-  if (!title) return <EnvVarsTable variables={variables} />
+  if (!title) {
+    return (
+      <TooltipProvider delayDuration={300}>
+        <EnvVarsTable variables={variables} />
+      </TooltipProvider>
+    )
+  }
 
   return (
     <TooltipProvider delayDuration={300}>

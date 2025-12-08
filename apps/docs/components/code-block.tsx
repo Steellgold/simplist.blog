@@ -2,7 +2,7 @@ import { FC } from "react"
 import { Card } from "@simplist/ui/components/card"
 import { cn } from "@/lib/utils"
 import { highlightCode } from "@/lib/shiki"
-import { CodeBlockClient } from "./code-block-client"
+import { CopyButton } from "./copy"
 import { CodeBlockTabsClient } from "./code-block-tabs-client"
 import { BundledLanguage } from "shiki"
 import { languages } from "@/lib/languages"
@@ -17,13 +17,14 @@ type CodeTab = {
 type CodeBlockProps = {
   tabs?: CodeTab[]
   language?: string
-  code?: string
   filename?: string
   className?: string
-}
+} & React.ComponentProps<"pre">
 
-export const CodeBlock: FC<CodeBlockProps> = async ({ tabs, language, code, filename, className }) => {
-  const isSingleMode = !tabs && language && code
+export const CodeBlock: FC<CodeBlockProps> = async ({ tabs, language, filename, className, children }) => {
+  const isSingleMode = !tabs && language && children
+
+  const code = children?.toString().trim()
 
   if (isSingleMode && language && code) {
     const highlighted = await highlightCode(code, language as BundledLanguage)
@@ -33,17 +34,14 @@ export const CodeBlock: FC<CodeBlockProps> = async ({ tabs, language, code, file
     return (
       <Card className={cn("overflow-hidden p-0 max-w-full", className)}>
         <div className="flex items-center justify-between bg-muted/50 px-4 py-2 border-b min-w-0">
-          <div className="flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
+          <div className="flex items-center gap-2 overflow-hidden">
             {lang && languages.find(l => l.value === lang)?.icon}
-
-            {currentFilename && (
-              <span className="text-xs text-muted-foreground font-mono truncate">
-                {currentFilename}
-              </span>
-            )}
+            <code className="text-muted-foreground text-sm truncate">
+              {filename}
+            </code>
           </div>
 
-          <CodeBlockClient code={code} />
+          <CopyButton content={code} />
         </div>
 
         <div className="overflow-x-auto max-w-full -mt-2.5">
