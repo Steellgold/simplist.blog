@@ -31,6 +31,11 @@ export async function highlightCode(code: string, language: BundledLanguage): Pr
 
   return highlighter.codeToHtml(code, {
     lang: language,
-    theme: "github-dark-default"
+    themes: {
+      light: "github-light-default",
+      dark: "github-dark-default"
+    },
+    defaultColor: "light-dark()",
+    rootStyle: "background-color: transparent;",
   })
 }
