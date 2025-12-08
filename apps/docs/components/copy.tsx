@@ -1,19 +1,19 @@
 "use client"
 
 import { FC, useState } from "react"
-import { Copy, Check } from "lucide-react"
+import { CopyIcon, CheckIcon } from "lucide-react"
 import { Button } from "@simplist/ui/components/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@simplist/ui/components/tooltip"
 
-type CodeBlockClientProps = {
-  code: string
+type CopyButtonProps = {
+  content: string
 }
 
-export const CodeBlockClient: FC<CodeBlockClientProps> = ({ code }: CodeBlockClientProps) => {
+export const CopyButton: FC<CopyButtonProps> = ({ content }: CopyButtonProps) => {
   const [copied, setCopied] = useState(false)
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(code)
+    await navigator.clipboard.writeText(content)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -23,18 +23,17 @@ export const CodeBlockClient: FC<CodeBlockClientProps> = ({ code }: CodeBlockCli
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
-            variant="outline"
-            size="icon-sm"
+            variant="ghost"
+            size="icon-xs"
             onClick={handleCopy}
-            className="flex-shrink-0"
           >
-            {copied ? <Check /> : <Copy />}
-            <span className="sr-only">Copy code</span>
+            {copied ? <CheckIcon className="size-3.5" /> : <CopyIcon className="size-3.5" />}
+            <span className="sr-only">Copy to clipboard</span>
           </Button>
         </TooltipTrigger>
 
         <TooltipContent side="top">
-          {copied ? "Copied!" : "Copy code"}
+          {copied ? "Copied!" : "Copy to clipboard"}
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
