@@ -28,6 +28,7 @@ import { ButtonGroup } from "@simplist/ui/components/button-group"
 import { textToId, generateUniqueId } from "@/lib/utils"
 import Link from "next/link"
 import { StepContent, Step, Steps } from "@/components/steps"
+import { TypeTable, ApiMethodTable, ErrorTable, LanguageTable } from "@/components/type-table"
 
 const createHeadingComponents = (headings: TocHeading[]): Record<string, ComponentType<any>> => {
   const textToIdMap = new Map<string, string[]>()
@@ -102,6 +103,10 @@ const staticComponents = {
   CodeBlock: createSeparatedComponent(CodeBlock, "CodeBlock"),
   InstallationTabs: createSeparatedComponent(InstallationTabs, "InstallationTabs"),
   EnvVars: createSeparatedComponent(EnvVars, "EnvVars"),
+  TypeTable: createSeparatedComponent(TypeTable, "TypeTable"),
+  ApiMethodTable: createSeparatedComponent(ApiMethodTable, "ApiMethodTable"),
+  ErrorTable: createSeparatedComponent(ErrorTable, "ErrorTable"),
+  LanguageTable: createSeparatedComponent(LanguageTable, "LanguageTable"),
   Steps: createSeparatedComponent(Steps, "Steps"),
   Step: createSeparatedComponent(Step, "Step"),
   StepContent: createSeparatedComponent(StepContent, "StepContent"),

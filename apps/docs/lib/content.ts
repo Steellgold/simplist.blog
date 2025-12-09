@@ -84,18 +84,18 @@ async function walkContentDir(dir = ""): Promise<DocNavItem[]> {
   }
 
   return items.sort((a, b) => {
-    const categoryA = a.category || ""
-    const categoryB = b.category || ""
-    if (categoryA !== categoryB) {
-      return categoryA.localeCompare(categoryB)
-    }
-    
     const orderA = a.order ?? Infinity
     const orderB = b.order ?? Infinity
     if (orderA !== orderB) {
       return orderA - orderB
     }
-    
+
+    const categoryA = a.category || ""
+    const categoryB = b.category || ""
+    if (categoryA !== categoryB) {
+      return categoryA.localeCompare(categoryB)
+    }
+
     return a.title.localeCompare(b.title)
   })
 }

@@ -1,0 +1,524 @@
+---
+title: Error Handling
+description: Handle API errors, timeouts, and retries in the Simplist SDK
+category: Advanced
+order: 6
+---
+
+# Error Handling
+
+The Simplist SDK provides robust error handling with automatic retries, detailed error information, and timeout management.
+
+## Error Types
+
+### SimplistApiError
+
+All API errors are thrown as `SimplistApiError` instances with detailed information:
+
+<CodeBlock language="typescript" filename="error-structure.ts">
+  {`
+  class SimplistApiError extends Error {
+    statusCode: number     // HTTP status code
+    error: string          // Error type
+    details?: any          // Additional error details
+    message: string        // Human-readable error message
+  }
+  `}
+</CodeBlock>
+
+## Basic Error Handling
+
+Wrap SDK calls in try-catch blocks:
+
+<CodeBlock language="typescript" filename="basic-error-handling.ts">
+  {`
+  import { SimplistClient, SimplistApiError } from '@simplist.blog/sdk'
+
+  const client = new SimplistClient()
+
+  try {
+    const response = await client.articles.get('article-slug')
+    console.log(response.data)
+  } catch (error) {
+    if (error instanceof SimplistApiError) {
+      console.error(\`API Error [\${error.statusCode}]: \${error.message}\`)
+      console.error('Error type:', error.error)
+      console.error('Details:', error.details)
+    } else {
+      console.error('Unexpected error:', error)
+    }
+  }
+  `}
+</CodeBlock>
+
+## HTTP Status Codes
+
+### Common Status Codes
+
+<ErrorTable
+  title="HTTP Status Codes"
+  errors={[
+    { status: "400", error: "Bad Request", solution: "Check request parameters" },
+    { status: "401", error: "Unauthorized", solution: "Verify your API key" },
+    { status: "403", error: "Forbidden", solution: "Check API key permissions" },
+    { status: "404", error: "Not Found", solution: "Verify the slug or ID" },
+    { status: "429", error: "Too Many Requests", solution: "Wait before retrying" },
+    { status: "500", error: "Internal Server Error", solution: "Retry with backoff" },
+    { status: "503", error: "Service Unavailable", solution: "Retry later" }
+  ]}
+/>
+
+### Error Handling by Status
+
+<CodeBlock language="typescript" filename="handle-by-status.ts">
+  {`
+  import { SimplistClient, SimplistApiError } from '@simplist.blog/sdk'
+
+  const client = new SimplistClient()
+
+  async function getArticle(slug: string) {
+    try {
+      const response = await client.articles.get(slug)
+      return response.data
+    } catch (error) {
+      if (error instanceof SimplistApiError) {
+        switch (error.statusCode) {
+          case 404:
+            console.error('Article not found')
+            return null
+
+          case 401:
+            console.error('Authentication failed - check your API key')
+            throw error
+
+          case 429:
+            console.error('Rate limit exceeded - waiting before retry')
+            await new Promise(resolve => setTimeout(resolve, 5000))
+            return getArticle(slug) // Retry after delay
+
+          case 500:
+          case 503:
+            console.error('Server error - will retry automatically')
+            throw error
+
+          default:
+            console.error(\`Unexpected error: \${error.message}\`)
+            throw error
+        }
+      }
+
+      throw error
+    }
+  }
+  `}
+</CodeBlock>
+
+## Automatic Retries
+
+The SDK automatically retries failed requests with **exponential backoff**.
+
+### Default Retry Configuration
+
+<TypeTable
+  title="Retry Configuration"
+  properties={[
+    { name: "retries", type: "number", description: "Number of retry attempts", defaultValue: "3" },
+    { name: "retryDelay", type: "number", description: "Initial delay (ms)", defaultValue: "1000" },
+    { name: "timeout", type: "number", description: "Request timeout (ms)", defaultValue: "10000" }
+  ]}
+/>
+
+### Retry Behavior
+
+- **Retries on**: Network errors, timeouts, 5xx server errors
+- **No retries on**: 4xx client errors (bad request, auth, not found)
+- **Backoff**: Exponential (1s, 2s, 4s, 8s...)
+
+### Custom Retry Configuration
+
+<CodeBlock language="typescript" filename="custom-retries.ts">
+  {`
+  import { SimplistClient } from '@simplist.blog/sdk'
+
+  const client = new SimplistClient({
+    apiKey: process.env.SIMPLIST_API_KEY,
+    retries: 5,           // Retry up to 5 times
+    retryDelay: 2000,     // Start with 2 second delay
+    timeout: 15000        // 15 second timeout
+  })
+
+  // Retries: 2s, 4s, 8s, 16s, 32s
+  `}
+</CodeBlock>
+
+### Disable Retries
+
+<CodeBlock language="typescript" filename="no-retries.ts">
+  {`
+  const client = new SimplistClient({
+    apiKey: process.env.SIMPLIST_API_KEY,
+    retries: 0  // No retries
+  })
+  `}
+</CodeBlock>
+
+## Timeout Handling
+
+Requests that exceed the timeout are automatically cancelled:
+
+<CodeBlock language="typescript" filename="timeout-handling.ts">
+  {`
+  import { SimplistClient } from '@simplist.blog/sdk'
+
+  const client = new SimplistClient({
+    apiKey: process.env.SIMPLIST_API_KEY,
+    timeout: 5000  // 5 second timeout
+  })
+
+  try {
+    const response = await client.articles.get('article-slug')
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      console.error('Request timed out after 5 seconds')
+    }
+  }
+  `}
+</CodeBlock>
+
+## Validation Errors
+
+The SDK validates configuration on initialization:
+
+### Missing API Key
+
+<CodeBlock language="typescript" filename="missing-api-key.ts">
+  {`
+  try {
+    const client = new SimplistClient()  // No API key provided
+  } catch (error) {
+    // Error: API key is required. Provide it via options.apiKey
+    // or set SIMPLIST_API_KEY environment variable.
+  }
+  `}
+</CodeBlock>
+
+### Invalid API Key Format
+
+<CodeBlock language="typescript" filename="invalid-api-key.ts">
+  {`
+  try {
+    const client = new SimplistClient({
+      apiKey: 'invalid-key'
+    })
+  } catch (error) {
+    // Error: Invalid API key format. API key should contain
+    // an underscore (e.g., "prj_your_api_key_here")
+  }
+  `}
+</CodeBlock>
+
+## Network Errors
+
+Handle network connectivity issues:
+
+<CodeBlock language="typescript" filename="network-errors.ts">
+  {`
+  import { SimplistClient, SimplistApiError } from '@simplist.blog/sdk'
+
+  const client = new SimplistClient()
+
+  async function fetchWithNetworkHandling(slug: string) {
+    try {
+      const response = await client.articles.get(slug)
+      return response.data
+    } catch (error) {
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        console.error('Network error - check internet connection')
+        return null
+      }
+
+      if (error instanceof SimplistApiError) {
+        console.error(\`API error: \${error.message}\`)
+        return null
+      }
+
+      console.error('Unknown error:', error)
+      return null
+    }
+  }
+  `}
+</CodeBlock>
+
+## Graceful Degradation
+
+Provide fallback content when API calls fail:
+
+<CodeBlock language="typescript" filename="graceful-degradation.tsx">
+  {`
+  import { SimplistClient, SimplistApiError } from '@simplist.blog/sdk'
+  import { Suspense } from 'react'
+
+  const client = new SimplistClient()
+
+  export default async function ArticleList() {
+    try {
+      const response = await client.articles.latest(10)
+      const articles = response.data
+
+      return (
+        <div>
+          {articles.map(article => (
+            <article key={article.id}>
+              <h2>{article.title}</h2>
+              <p>{article.excerpt}</p>
+            </article>
+          ))}
+        </div>
+      )
+    } catch (error) {
+      if (error instanceof SimplistApiError) {
+        // Log error for monitoring
+        console.error('Failed to fetch articles:', error)
+
+        // Show fallback UI
+        return (
+          <div className="error">
+            <h2>Unable to load articles</h2>
+            <p>Please try again later.</p>
+          </div>
+        )
+      }
+
+      throw error
+    }
+  }
+  `}
+</CodeBlock>
+
+## Error Monitoring
+
+Integrate with error tracking services:
+
+<CodeBlock language="typescript" filename="error-monitoring.ts">
+  {`
+  import { SimplistClient, SimplistApiError } from '@simplist.blog/sdk'
+  import * as Sentry from '@sentry/nextjs'
+
+  const client = new SimplistClient()
+
+  async function fetchArticleWithMonitoring(slug: string) {
+    try {
+      const response = await client.articles.get(slug)
+      return response.data
+    } catch (error) {
+      // Log to error tracking service
+      if (error instanceof SimplistApiError) {
+        Sentry.captureException(error, {
+          contexts: {
+            api: {
+              endpoint: 'articles.get',
+              slug,
+              statusCode: error.statusCode
+            }
+          }
+        })
+      } else {
+        Sentry.captureException(error)
+      }
+
+      throw error
+    }
+  }
+  `}
+</CodeBlock>
+
+## Testing API Connection
+
+Use the `ping()` method to test connectivity:
+
+<CodeBlock language="typescript" filename="ping.ts">
+  {`
+  import { SimplistClient, SimplistApiError } from '@simplist.blog/sdk'
+
+  const client = new SimplistClient()
+
+  async function testConnection() {
+    try {
+      const response = await client.ping()
+      console.log('API connection successful')
+      console.log('Status:', response.status)
+      console.log('Timestamp:', response.timestamp)
+      return true
+    } catch (error) {
+      if (error instanceof SimplistApiError) {
+        console.error(\`Connection failed: \${error.message}\`)
+      }
+      return false
+    }
+  }
+
+  // Check before making other requests
+  if (await testConnection()) {
+    // Proceed with API calls
+  }
+  `}
+</CodeBlock>
+
+## Complete Error Handling Example
+
+Here's a production-ready example with comprehensive error handling:
+
+<CodeBlock language="typescript" filename="production-example.ts">
+  {`
+  import { SimplistClient, SimplistApiError } from '@simplist.blog/sdk'
+  import * as Sentry from '@sentry/nextjs'
+
+  const client = new SimplistClient({
+    apiKey: process.env.SIMPLIST_API_KEY,
+    retries: 3,
+    retryDelay: 1000,
+    timeout: 10000
+  })
+
+  export async function getArticle(slug: string) {
+    try {
+      const response = await client.articles.get(slug)
+      return {
+        data: response.data,
+        error: null
+      }
+    } catch (error) {
+      // Handle SimplistApiError
+      if (error instanceof SimplistApiError) {
+        Sentry.captureException(error, {
+          contexts: {
+            api: {
+              endpoint: 'articles.get',
+              slug,
+              statusCode: error.statusCode,
+              errorType: error.error
+            }
+          }
+        })
+
+        return {
+          data: null,
+          error: {
+            message: error.message,
+            statusCode: error.statusCode,
+            type: error.error
+          }
+        }
+      }
+
+      // Handle network errors
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        Sentry.captureMessage('Network error fetching article', {
+          level: 'warning',
+          extra: { slug }
+        })
+
+        return {
+          data: null,
+          error: {
+            message: 'Network error - please check your connection',
+            statusCode: 0,
+            type: 'NetworkError'
+          }
+        }
+      }
+
+      // Handle unknown errors
+      Sentry.captureException(error)
+
+      return {
+        data: null,
+        error: {
+          message: 'An unexpected error occurred',
+          statusCode: 0,
+          type: 'UnknownError'
+        }
+      }
+    }
+  }
+
+  // Usage in Next.js
+  export default async function ArticlePage({ params }: {
+    params: { slug: string }
+  }) {
+    const { data: article, error } = await getArticle(params.slug)
+
+    if (error) {
+      if (error.statusCode === 404) {
+        return <div>Article not found</div>
+      }
+
+      return (
+        <div>
+          <h1>Error loading article</h1>
+          <p>{error.message}</p>
+        </div>
+      )
+    }
+
+    return (
+      <article>
+        <h1>{article.title}</h1>
+        <div dangerouslySetInnerHTML={{ __html: article.content }} />
+      </article>
+    )
+  }
+  `}
+</CodeBlock>
+
+## Best Practices
+
+### 1. Always Use Try-Catch
+
+Wrap all SDK calls in try-catch blocks to handle potential errors.
+
+### 2. Check Error Type
+
+Use `instanceof SimplistApiError` to distinguish API errors from network errors.
+
+### 3. Handle 404s Gracefully
+
+Return null or show "not found" UI instead of crashing.
+
+### 4. Log Errors
+
+Send errors to monitoring services for debugging and alerting.
+
+### 5. Provide Fallbacks
+
+Show user-friendly error messages and fallback UI.
+
+### 6. Retry Strategically
+
+Let the SDK handle automatic retries for transient errors.
+
+### 7. Test Error Paths
+
+Test how your app behaves when API calls fail.
+
+## Next Steps
+
+<BlockLink
+  items={[
+    {
+      title: "Complete Examples",
+      href: "/examples",
+      description: "Production-ready integration examples"
+    },
+    {
+      title: "FAQ",
+      href: "/faq",
+      description: "Common questions and solutions"
+    },
+    {
+      title: "Articles API",
+      href: "/articles",
+      description: "Learn about the Articles API"
+    }
+  ]}
+/>

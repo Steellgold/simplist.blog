@@ -13,7 +13,7 @@ export const GET = async (request: Request) => {
     const results = await searchDocs(query)
     return NextResponse.json(results)
   } catch (error) {
-    console.error("Erreur lors de la recherche:", error)
+    console.error("Error during search:", error)
     return NextResponse.json([], { status: 500 })
   }
 }

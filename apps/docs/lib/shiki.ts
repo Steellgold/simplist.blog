@@ -1,10 +1,12 @@
 import { createHighlighter, Highlighter, BundledLanguage } from "shiki"
 
-let highlighter: Highlighter | null = null
+const globalForHighlighter = globalThis as unknown as {
+  highlighter: Highlighter | undefined
+}
 
 export async function getHighlighter() {
-  if (!highlighter) {
-    highlighter = await createHighlighter({
+  if (!globalForHighlighter.highlighter) {
+    globalForHighlighter.highlighter = await createHighlighter({
       themes: ["github-dark-default", "github-light-default"],
       langs: [
         "typescript",
@@ -23,7 +25,17 @@ export async function getHighlighter() {
     })
   }
 
-  return highlighter
+  return globalForHighlighter.highlighter
+}
+
+/**
+ * Dispose of the highlighter instance (useful for cleanup in tests or when needed)
+ */
+export function disposeHighlighter() {
+  if (globalForHighlighter.highlighter) {
+    globalForHighlighter.highlighter.dispose()
+    globalForHighlighter.highlighter = undefined
+  }
 }
 
 export async function highlightCode(code: string, language: BundledLanguage): Promise<string> {
