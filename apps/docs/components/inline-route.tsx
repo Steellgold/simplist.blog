@@ -68,7 +68,7 @@ export function InlineRouteLink({ method, path, href, className }: InlineRouteLi
       href={href}
       className={cn(
         "inline-flex items-center gap-1.5 rounded-md border px-1.5 py-0.5 text-sm font-mono align-middle",
-        "transition-all duration-150 hover:brightness-110 hover:scale-[1.02]",
+        "transition-all duration-150 hover:brightness-110",
         "focus:outline-none focus:ring-2 focus:ring-offset-1",
         styles.bg,
         styles.border,
