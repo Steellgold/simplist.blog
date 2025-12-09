@@ -92,32 +92,33 @@ export const TableOfContents: FC<TableOfContentsProps> = ({ headings }) => {
     <>
       {/* Desktop */}
       <aside className="hidden lg:block w-56 shrink-0">
-        <div className="fixed top-24 right-8 w-64 max-h-[calc(100vh-8rem)] overflow-y-auto bg-card/45 p-4 rounded-lg">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="bg-muted p-1.5 rounded-md">
-              <LineSquiggle className="size-3" />
-            </div>
-            <h3 className="text-sm font-semibold">On This Page</h3>
-          </div>
+        <Card className="fixed top-24 right-8 w-64 max-h-[calc(100vh-8rem)] overflow-y-auto p-[2.5px] rounded-2xl">
+          <Card className="overflow-hidden p-0">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="bg-muted p-1.5 rounded-md">
+                  <LineSquiggle className="size-3" />
+                </div>
 
-          <nav className="space-y-1">
-            {headings.map((heading) => (
-              <Link
-                key={heading.id}
-                href={`#${heading.id}`}
-                className={cn(
-                  "block text-sm py-1 transition-colors",
-                  heading.level === 2 && "pl-3",
-                  activeId === heading.id
-                    ? "text-primary font-medium"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                {heading.text}
-              </Link>
-            ))}
-          </nav>
-        </div>
+                <h3 className="text-sm font-semibold">On This Page</h3>
+              </div>
+
+              <div className="space-y-1">
+                {headings.map((heading) => (
+                  <Link key={heading.id} href={`#${heading.id}`} className={cn(
+                    "block text-sm py-1 transition-colors",
+                    heading.level === 2 && "pl-3",
+                    activeId === heading.id
+                      ? "text-primary font-medium"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}>
+                    {heading.text}
+                  </Link>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </Card>
       </aside>
 
       {/* Mobile */}

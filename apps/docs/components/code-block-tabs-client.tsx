@@ -31,20 +31,21 @@ export const CodeBlockTabsClient: FC<CodeBlockTabsClientProps> = ({ tabs, classN
           <div className="flex items-center justify-between bg-muted/50 px-2 py-2 border-b gap-2 min-w-0">
             <TabsList className="bg-transparent overflow-x-auto flex-shrink min-w-0">
               {tabs.map((tab) => (
-                <TabsTrigger key={tab.label} value={tab.label} className="flex-shrink-0">
+                <TabsTrigger
+                  key={tab.label}
+                  value={tab.label}
+                  className="flex-shrink-0"
+                  title={tab.filename || tab.label}
+                >
                   {languages.find(l => l.value === tab.language)?.icon}
-                  {tab.label}
+                  <span className="inline-block align-middle">
+                    {tab.label}
+                  </span>
                 </TabsTrigger>
               ))}
             </TabsList>
 
             <div className="flex items-center gap-2 flex-shrink-0 min-w-0">
-              {activeTabData.filename && (
-                <span className="text-xs text-muted-foreground font-mono hidden sm:inline truncate max-w-[150px]">
-                  {activeTabData.filename}
-                </span>
-              )}
-
               <CopyButton content={activeTabData.code} />
             </div>
           </div>
