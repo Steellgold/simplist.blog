@@ -134,27 +134,29 @@ export const TableOfContents: FC<TableOfContentsProps> = ({ headings }) => {
               onClick={() => setIsOpen(false)}
             />
 
-            <Card className="absolute bottom-12 right-0 w-64 max-h-96 overflow-auto">
-              <CardContent className="space-y-2">
-                <h3 className="text-sm font-semibold mb-2">On This Page</h3>
+            <Card className="absolute bottom-12 right-0 w-64 p-[2.5px] rounded-2xl max-h-96">
+              <Card className="overflow-auto">
+                <CardContent className="space-y-2 p-4">
+                  <h3 className="text-sm font-semibold mb-2">On This Page</h3>
 
-                {headings.map((heading) => (
-                  <Link
-                    key={heading.id}
-                    href={`#${heading.id}`}
-                    onClick={() => setIsOpen(false)}
-                    className={cn(
-                      "block text-sm py-1 border-l-2",
-                      heading.level === 2 && "pl-4",
-                      activeId === heading.id
-                        ? "text-primary font-medium border-primary"
-                        : "text-muted-foreground hover:text-foreground border-transparent"
-                    )}
-                  >
-                    {heading.text}
-                  </Link>
-                ))}
-              </CardContent>
+                  {headings.map((heading) => (
+                    <Link
+                      key={heading.id}
+                      href={`#${heading.id}`}
+                      onClick={() => setIsOpen(false)}
+                      className={cn(
+                        "block text-sm py-1 border-l-2",
+                        heading.level === 2 && "pl-4",
+                        activeId === heading.id
+                          ? "text-primary font-medium border-primary"
+                          : "text-muted-foreground hover:text-foreground border-transparent"
+                      )}
+                    >
+                      {heading.text}
+                    </Link>
+                  ))}
+                </CardContent>
+              </Card>
             </Card>
           </>
         )}

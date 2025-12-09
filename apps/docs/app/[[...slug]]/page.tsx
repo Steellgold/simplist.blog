@@ -2,6 +2,7 @@ import { ApiPath } from "@/components/api-route"
 import { ApiConfigButton } from "@/components/api-config-button"
 import { BlockLink } from "@/components/block-link"
 import { CodeBlock } from "@/components/code-block"
+import { InlineRoute, InlineRouteLink } from "@/components/inline-route"
 import { InstallationTabs } from "@/components/installation-tabs"
 import { CopyMarkdown } from "@/components/copy-markdown"
 import { EditOnGitHub } from "@/components/edit-on-github"
@@ -19,6 +20,7 @@ import { Input } from "@simplist/ui/components/input"
 import { Separator } from "@simplist/ui/components/separator"
 import { Skeleton } from "@simplist/ui/components/skeleton"
 import { Spinner } from "@simplist/ui/components/spinner"
+import { existsSync } from "fs"
 import { readFile } from "fs/promises"
 import type { Metadata } from "next"
 import { MDXRemote } from "next-mdx-remote/rsc"
@@ -29,6 +31,8 @@ import { textToId, generateUniqueId } from "@/lib/utils"
 import Link from "next/link"
 import { StepContent, Step, Steps } from "@/components/steps"
 import { TypeTable, ApiMethodTable, ErrorTable, LanguageTable } from "@/components/type-table"
+import { CurlCommand } from "@/components/curl-command"
+import { MethodSignature } from "@/components/method-signature"
 
 const createHeadingComponents = (headings: TocHeading[]): Record<string, ComponentType<any>> => {
   const textToIdMap = new Map<string, string[]>()
@@ -110,6 +114,10 @@ const staticComponents = {
   Steps: createSeparatedComponent(Steps, "Steps"),
   Step: createSeparatedComponent(Step, "Step"),
   StepContent: createSeparatedComponent(StepContent, "StepContent"),
+  CurlCommand: createSeparatedComponent(CurlCommand, "CurlCommand"),
+  MethodSignature: createSeparatedComponent(MethodSignature, "MethodSignature"),
+  InlineRoute,
+  InlineRouteLink,
   p: (props: any) => (
     <p className="mb-4" {...props} />
   ),
@@ -142,21 +150,33 @@ type PageProps = {
   }>
 }
 
+const CONTENT_ROOTS = [
+  join(process.cwd(), "apps", "docs", "content"),
+  join(process.cwd(), "content"),
+]
+
+const buildPossiblePaths = (slug: string[]): string[] => {
+  const slugPath = join(...slug)
+  return CONTENT_ROOTS.flatMap((root) => [
+    join(root, `${slugPath}.mdx`),
+    join(root, slugPath, "index.mdx"),
+  ])
+}
+
 const readMdxFile = async (slug: string[]): Promise<string> => {
-  const possiblePaths = [
-    join(process.cwd(), "apps", "docs", "content", ...slug) + ".mdx",
-    join(process.cwd(), "content", ...slug) + ".mdx",
-  ]
-  
+  const possiblePaths = buildPossiblePaths(slug)
+
   for (const contentPath of possiblePaths) {
+    if (!existsSync(contentPath)) continue
+
     try {
       const content = await readFile(contentPath, "utf-8")
       return content
-    } catch (error) {
+    } catch {
       continue
     }
   }
-  
+
   return ""
 }
 

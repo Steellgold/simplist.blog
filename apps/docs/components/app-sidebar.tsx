@@ -1,10 +1,11 @@
 "use client"
 
 import * as LucideIcons from "lucide-react"
-import { GalleryVerticalEnd } from "lucide-react"
+import { ChevronsUpDown } from "lucide-react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 
+import { HttpMethodIcon } from "@/components/api-route-icons"
 import { SearchButton } from "@/components/search-button"
 import {
   Sidebar,
@@ -17,6 +18,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@simplist/ui/components/sidebar"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@simplist/ui/components/dropdown-menu"
+import { Package, Globe, Check } from "lucide-react"
 
 export type SidebarItem = {
   title: string
@@ -31,8 +34,31 @@ type Props = {
   items: SidebarItem[]
 }
 
+type Mode = 'sdk' | 'api'
+
 export const AppSidebar = ({ items }: Props) => {
   const pathname = usePathname()
+  const router = useRouter()
+  const httpMethodIcons = new Set(["GET", "POST", "PUT", "PATCH", "DELETE"])
+
+  const getCurrentMode = (): Mode => {
+    if (pathname.startsWith('/api')) return 'api'
+    return 'sdk'
+  }
+
+  const toggleMode = (mode: Mode) => {
+    router.push(mode === 'sdk' ? '/sdk' : '/api')
+  }
+
+  const currentMode = getCurrentMode()
+
+  const filteredItems = items.filter(item => {
+    if (currentMode === 'api' as Mode) {
+      return item.href.startsWith('/api')
+    } else {
+      return !item.href.startsWith('/api')
+    }
+  })
 
   return (
     <Sidebar variant="inset" collapsible="icon">
@@ -40,16 +66,57 @@ export const AppSidebar = ({ items }: Props) => {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link href="/">
-                <div className="bg-primary text-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                  <GalleryVerticalEnd className="size-4" />
-                </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <SidebarMenuButton
+                    size="lg"
+                    className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground border"
+                  >
+                    <div className="bg-sidebar-accent text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+                      {currentMode === 'sdk' && (
+                        <Package />
+                      )}
 
-                <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-semibold">Docs</span>
-                  <span className="">v1.0.0</span>
-                </div>
-              </Link>
+                      {currentMode === 'api' && (
+                        <Globe />
+                      )}
+                    </div>
+
+                    <div className="flex flex-col gap-0.5 leading-none">
+                      <span className="font-medium">
+                        {
+                          currentMode === 'sdk'
+                            ? 'SDK Docs'
+                              : currentMode === 'api'
+                                ? 'REST API'
+                                  : 'Documentation'
+                        }
+                      </span>
+
+                      <span className="text-xs text-muted-foreground">
+                        {currentMode === 'sdk' ? 'Client Library' : 'Endpoints'}
+                      </span>
+                    </div>
+                    <ChevronsUpDown className="ml-auto" />
+                  </SidebarMenuButton>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  className="w-(--radix-dropdown-menu-trigger-width)"
+                  align="start"
+                >
+                  <DropdownMenuItem onClick={() => toggleMode('sdk')}>
+                    <Package />
+                    <span>SDK Docs</span>
+                    {currentMode === 'sdk' && <Check className="ml-auto" />}
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem onClick={() => toggleMode('api')}>
+                    <Globe />
+                    <span>REST API</span>
+                    {currentMode === 'api' && <Check className="ml-auto" />}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -59,7 +126,7 @@ export const AppSidebar = ({ items }: Props) => {
 
       <SidebarContent>
         {(() => {
-          const groupedItems = items.reduce((acc, item) => {
+          const groupedItems = filteredItems.reduce((acc, item) => {
             const category = item.category || ""
             if (!acc[category]) acc[category] = []
             acc[category].push(item)
@@ -78,12 +145,14 @@ export const AppSidebar = ({ items }: Props) => {
                         : null
 
                     const isActive = pathname === item.href
+                    const isHttpMethodIcon = item.icon && httpMethodIcons.has(item.icon)
 
                     return (
                       <SidebarMenuItem key={item.href}>
                         <SidebarMenuButton asChild isActive={isActive}>
                           <Link href={item.href} className="flex items-center gap-2">
-                            {Icon && <Icon className="size-4" />}
+                            {isHttpMethodIcon && <HttpMethodIcon method={item.icon as any} size="sm" />}
+                            {!isHttpMethodIcon && Icon && <Icon className="size-4" />}
                             <span>{item.title}</span>
                           </Link>
                         </SidebarMenuButton>

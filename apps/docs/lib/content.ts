@@ -15,6 +15,10 @@ function getContentRoot(): string {
   const possibleRoots = [
     path.join(process.cwd(), "apps", "docs", "content"),
     path.join(process.cwd(), "content"),
+
+    path.join(process.cwd(), "apps", "docs", "content", "api"),
+    path.join(process.cwd(), "apps", "docs", "content", "sdk"),
+    path.join(process.cwd(), "apps", "docs", "content", "examples"),
   ]
   
   for (const root of possibleRoots) {

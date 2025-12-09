@@ -1,19 +1,19 @@
 "use client"
 
 import { FC, useState } from "react"
-import { Copy, Check } from "lucide-react"
-import { Button } from "@simplist/ui/components/button"
 import { Card } from "@simplist/ui/components/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@simplist/ui/components/tabs"
-import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@simplist/ui/components/tooltip"
+import { TooltipProvider } from "@simplist/ui/components/tooltip"
 import { cn } from "@/lib/utils"
 import { NPM, PnpmDark, Bun, Yarn, PnpmLight } from "@ridemountainpig/svgl-react"
 import { IconThemed } from "@simplist/ui/components/icon-themed"
+import { CopyButton } from "./copy"
 
 type PackageManagerKey = "npm" | "pnpm" | "yarn" | "bun"
 
 type InstallationTabsProps = {
-  commands: Record<PackageManagerKey, string>
+  commands?: Partial<Record<PackageManagerKey, string>>
+  packages?: string[]
   className?: string
 }
 
@@ -30,59 +30,51 @@ const managers: Manager[] = [
   { key: "bun", label: "bun", icon: <Bun className="size-3" /> }
 ]
 
-export const InstallationTabs: FC<InstallationTabsProps> = ({ commands, className }) => {
-  const [copied, setCopied] = useState<boolean>(false)
+export const InstallationTabs: FC<InstallationTabsProps> = ({ commands, packages, className }) => {
   const [activeTab, setActiveTab] = useState<PackageManagerKey>("pnpm")
 
-  const handleCopy = async (text: string) => {
-    await navigator.clipboard.writeText(text)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+  const effectivePackages = (packages?.length ? packages : ["@simplist.blog/sdk"]).join(" ")
+
+  // Build safe defaults and let explicit commands override them per manager.
+  const resolvedCommands: Record<PackageManagerKey, string> = {
+    npm: `npm install ${effectivePackages}`,
+    pnpm: `pnpm add ${effectivePackages}`,
+    yarn: `yarn add ${effectivePackages}`,
+    bun: `bun add ${effectivePackages}`,
+    ...commands
   }
 
   return (
     <TooltipProvider delayDuration={300}>
-      <Card className={cn("overflow-hidden p-0 max-w-full", className)}>
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as PackageManagerKey)} defaultValue="pnpm">
-          <div className="flex items-center justify-between bg-muted/50 px-2 py-2 border-b gap-2 min-w-0">
-            <TabsList className="bg-transparent overflow-x-auto flex-shrink min-w-0">
-              {managers.map((manager) => (
-                <TabsTrigger key={manager.key} value={manager.key} className="flex-shrink-0">
-                  {manager.icon}
-                  {manager.label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
+      <Card className="p-[2.5px] rounded-2xl">
+        <Card className={cn("overflow-hidden p-0 max-w-full", className)}>
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as PackageManagerKey)} defaultValue="pnpm">
+            <div className="flex items-center justify-between bg-muted/50 px-2 py-2 border-b">
+              <TabsList className="bg-transparent overflow-x-auto flex-shrink min-w-0">
+                {managers.map((manager) => (
+                  <TabsTrigger key={manager.key} value={manager.key} className="flex-shrink-0">
+                    {manager.icon}
+                    {manager.label}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
 
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="icon-sm"
-                  onClick={() => handleCopy(commands[activeTab])}
-                  className="flex-shrink-0"
-                >
-                  {copied ? <Check /> : <Copy />}
-                  <span className="sr-only">Copy command</span>
-                </Button>
-              </TooltipTrigger>
-
-              <TooltipContent side="top">
-                {copied ? "Copied!" : "Copy command"}
-              </TooltipContent>
-            </Tooltip>
-          </div>
-
-          {managers.map((manager) => (
-            <TabsContent key={manager.key} value={manager.key} className="-mt-2.5">
-              <div className="py-3 px-4 bg-background overflow-x-auto">
-                <code className="text-sm text-foreground whitespace-nowrap">
-                  {commands[manager.key]}
-                </code>
+              <div className="pr-2">
+                <CopyButton content={resolvedCommands[activeTab]} />
               </div>
-            </TabsContent>
-          ))}
-        </Tabs>
+            </div>
+
+            {managers.map((manager) => (
+              <TabsContent key={manager.key} value={manager.key} className="-mt-2.5">
+                <div className="py-3 px-4 overflow-x-auto">
+                  <code className="text-sm text-foreground whitespace-nowrap">
+                    {resolvedCommands[manager.key]}
+                  </code>
+                </div>
+              </TabsContent>
+            ))}
+          </Tabs>
+        </Card>
       </Card>
     </TooltipProvider>
   )

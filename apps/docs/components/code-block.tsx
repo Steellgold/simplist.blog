@@ -28,7 +28,6 @@ export const CodeBlock: FC<CodeBlockProps> = async ({ tabs, language, filename, 
 
   if (isSingleMode && language && code) {
     const highlighted = await highlightCode(code, language as BundledLanguage)
-    const currentFilename = filename
     const lang = language
 
     return (
@@ -37,6 +36,7 @@ export const CodeBlock: FC<CodeBlockProps> = async ({ tabs, language, filename, 
           <div className="flex items-center justify-between bg-muted/50 px-4 py-2 border-b min-w-0">
             <div className="flex items-center gap-2 overflow-hidden">
               {lang && languages.find(l => l.value === lang)?.icon}
+
               <code className="text-muted-foreground text-sm truncate">
                 {filename}
               </code>

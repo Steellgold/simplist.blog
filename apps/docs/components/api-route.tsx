@@ -466,41 +466,43 @@ export const ApiPath: FC<ApiPathProps> = ({ method, path, baseUrl, parameters, t
 
   return (
     <TooltipProvider delayDuration={300}>
-      <Card className={cn("overflow-hidden p-0 max-w-full", className)}>
-        {hasParameters ? (
-          <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-            <CollapsibleTrigger asChild>
-              <div className="flex items-center gap-3 bg-muted/50 px-4 py-3 font-mono text-sm cursor-pointer hover:bg-muted/70 transition-colors min-w-0 w-full">
-                <ChevronDown
-                  className={cn(
-                    "size-4 text-muted-foreground transition-transform duration-200 flex-shrink-0",
-                    isOpen && "rotate-180"
-                  )}
-                />
+      <Card className="p-[2.5px] rounded-2xl">
+        <Card className={cn("overflow-hidden p-0 max-w-full", className)}>
+          {hasParameters ? (
+            <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+              <CollapsibleTrigger asChild>
+                <div className="flex items-center gap-3 bg-muted/50 px-4 py-3 font-mono text-sm cursor-pointer hover:bg-muted/70 transition-colors min-w-0 w-full">
+                  <ChevronDown
+                    className={cn(
+                      "size-4 text-muted-foreground transition-transform duration-200 flex-shrink-0",
+                      isOpen && "rotate-180"
+                    )}
+                  />
+                  {headerContent}
+                </div>
+              </CollapsibleTrigger>
+
+              <CollapsibleContent>
+                <CardContent className="border-t p-4 space-y-4">
+                  <ParametersTable parameters={parameters} />
+                  {expandableContent}
+                </CardContent>
+              </CollapsibleContent>
+            </Collapsible>
+          ) : (
+            <>
+              <div className="flex items-center gap-3 bg-muted/50 px-4 py-3 font-mono text-sm min-w-0 w-full">
                 {headerContent}
               </div>
-            </CollapsibleTrigger>
 
-            <CollapsibleContent>
-              <CardContent className="border-t p-4 space-y-4">
-                <ParametersTable parameters={parameters} />
-                {expandableContent}
-              </CardContent>
-            </CollapsibleContent>
-          </Collapsible>
-        ) : (
-          <>
-            <div className="flex items-center gap-3 bg-muted/50 px-4 py-3 font-mono text-sm min-w-0 w-full">
-              {headerContent}
-            </div>
-
-            {showExpandableContent && (
-              <CardContent className="px-4 pb-4">
-                {expandableContent}
-              </CardContent>
-            )}
-          </>
-        )}
+              {showExpandableContent && (
+                <CardContent className="px-4 pb-4">
+                  {expandableContent}
+                </CardContent>
+              )}
+            </>
+          )}
+        </Card>
       </Card>
 
       <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>

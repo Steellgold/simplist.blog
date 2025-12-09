@@ -21,6 +21,8 @@ export async function getHighlighter() {
         "html",
         "css",
         "python",
+        "xml",
+        "http"
       ]
     })
   }

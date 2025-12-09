@@ -1,11 +1,10 @@
 "use client"
 
 import { FC, useState } from "react"
-import { Copy, Check } from "lucide-react"
-import { Button } from "@simplist/ui/components/button"
 import { Card, CardContent } from "@simplist/ui/components/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@simplist/ui/components/table"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@simplist/ui/components/tooltip"
+import { TooltipProvider } from "@simplist/ui/components/tooltip"
+import { CopyButton } from "./copy"
 import { cn } from "@/lib/utils"
 
 type EnvVar = {
@@ -22,13 +21,6 @@ type EnvVarsProps = {
 }
 
 const EnvVarsTable: FC<Pick<EnvVarsProps, "variables">> = ({ variables }: Pick<EnvVarsProps, "variables">) => {
-  const [copiedVar, setCopiedVar] = useState<string | null>(null)
-
-  const handleCopy = async (name: string) => {
-    await navigator.clipboard.writeText(name)
-    setCopiedVar(name)
-    setTimeout(() => setCopiedVar(null), 2000)
-  }
 
   return (
     <div className="w-full rounded-lg border">
@@ -48,22 +40,8 @@ const EnvVarsTable: FC<Pick<EnvVarsProps, "variables">> = ({ variables }: Pick<E
               <TableCell className="font-mono font-medium whitespace-nowrap">
                 <div className="flex items-center gap-1">
                   <span>{variable.name}</span>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon-xs"
-                        onClick={() => handleCopy(variable.name)}
-                      >
-                        {copiedVar === variable.name ? <Check /> : <Copy />}
-                        <span className="sr-only">Copy variable name</span>
-                      </Button>
-                    </TooltipTrigger>
 
-                    <TooltipContent side="top">
-                      {copiedVar === variable.name ? "Copied!" : "Copy variable name"}
-                    </TooltipContent>
-                  </Tooltip>
+                  <CopyButton content={variable.name} />
                 </div>
               </TableCell>
 
@@ -83,6 +61,7 @@ const EnvVarsTable: FC<Pick<EnvVarsProps, "variables">> = ({ variables }: Pick<E
                   <span className="text-muted-foreground">—</span>
                 )}
               </TableCell>
+
               <TableCell className="text-muted-foreground min-w-[200px]">
                 {variable.description || "—"}
               </TableCell>
@@ -98,23 +77,31 @@ export const EnvVars: FC<EnvVarsProps> = ({ variables, title, className }) => {
   if (!title) {
     return (
       <TooltipProvider delayDuration={300}>
-        <EnvVarsTable variables={variables} />
+        <Card className="p-[2.5px] rounded-2xl">
+          <Card className={cn("overflow-hidden p-0", className)}>
+            <CardContent className="p-0">
+              <EnvVarsTable variables={variables} />
+            </CardContent>
+          </Card>
+        </Card>
       </TooltipProvider>
     )
   }
 
   return (
     <TooltipProvider delayDuration={300}>
-      <Card className={cn("overflow-hidden p-0", className)}>
-        <CardContent className="p-4 space-y-4">
-          {title && (
-            <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              {title}
-            </h4>
-          )}
+      <Card className="p-[2.5px] rounded-2xl">
+        <Card className={cn("overflow-hidden p-0", className)}>
+          <CardContent className="p-4 space-y-4">
+            {title && (
+              <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                {title}
+              </h4>
+            )}
 
-          <EnvVarsTable variables={variables} />
-        </CardContent>
+            <EnvVarsTable variables={variables} />
+          </CardContent>
+        </Card>
       </Card>
     </TooltipProvider>
   )
