@@ -33,6 +33,7 @@ import { StepContent, Step, Steps } from "@/components/steps"
 import { TypeTable, ApiMethodTable, ErrorTable, LanguageTable } from "@/components/type-table"
 import { CurlCommand } from "@/components/curl-command"
 import { MethodSignature } from "@/components/method-signature"
+import { Faq } from "@/components/faq"
 
 const createHeadingComponents = (headings: TocHeading[]): Record<string, ComponentType<any>> => {
   const textToIdMap = new Map<string, string[]>()
@@ -116,6 +117,7 @@ const staticComponents = {
   StepContent: createSeparatedComponent(StepContent, "StepContent"),
   CurlCommand: createSeparatedComponent(CurlCommand, "CurlCommand"),
   MethodSignature: createSeparatedComponent(MethodSignature, "MethodSignature"),
+  Faq: createSeparatedComponent(Faq, "Faq"),
   InlineRoute,
   InlineRouteLink,
   p: (props: any) => (

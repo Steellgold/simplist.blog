@@ -20,6 +20,7 @@ import {
 } from "@simplist/ui/components/sidebar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@simplist/ui/components/dropdown-menu"
 import { Package, Globe, Check } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 export type SidebarItem = {
   title: string
@@ -72,9 +73,13 @@ export const AppSidebar = ({ items }: Props) => {
                     size="lg"
                     className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                   >
-                    <div className="bg-sidebar-accent text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                      {currentMode === 'sdk' && <Package />}
-                      {currentMode === 'api' && <Globe />}
+                    <div className={cn(
+                      "flex aspect-square size-8 items-center justify-center rounded-lg",
+                      currentMode === 'sdk' && 'bg-border text-foreground',
+                      currentMode === 'api' && 'bg-border text-foreground'
+                    )}>
+                      {currentMode === 'sdk' && <Package size={20} />}
+                      {currentMode === 'api' && <Globe size={20} />}
                     </div>
 
                     <div className="flex flex-col gap-0.5 leading-none">
