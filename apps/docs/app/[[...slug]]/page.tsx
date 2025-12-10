@@ -229,6 +229,10 @@ const getMdxMetadata = async (slug: string[]): Promise<Metadata> => {
 
     if (titleMatch) title = titleMatch[1].replace(/^[""]|[""]$/g, "").trim()
     if (descMatch) description = descMatch[1].replace(/^[""]|[""]$/g, "").trim()
+
+    if (title.includes("/") && title.includes(":")) {
+      title = description
+    }
   } else {
     const h1Match = rawContent.match(/^#\s+(.+)$/m)
     if (h1Match) title = h1Match[1]

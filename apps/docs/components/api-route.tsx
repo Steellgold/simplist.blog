@@ -2,7 +2,7 @@
 
 import { useState, useEffect, FC } from "react"
 import { cn } from "@simplist/ui/lib/utils"
-import { Copy, Check, ChevronDown, Play, Key, Loader2, AlertTriangle } from "lucide-react"
+import { Copy, Check, ChevronDown, Play, Key, AlertTriangle } from "lucide-react"
 import { Badge } from "@simplist/ui/components/badge"
 import { Button } from "@simplist/ui/components/button"
 import { Card, CardContent } from "@simplist/ui/components/card"
@@ -20,6 +20,7 @@ import {
   AlertDialogTitle
 } from "@simplist/ui/components/alert-dialog"
 import { Textarea } from "@simplist/ui/components/textarea"
+import { Input } from "@simplist/ui/components/input"
 import { useApiKeyStore } from "@/lib/api-key-store"
 import { useTestableApi } from "./testable-api-provider"
 import { Spinner } from "@simplist/ui/components/spinner"
@@ -278,9 +279,15 @@ const ResponseDisplay: FC<ResponseDisplayProps> = ({ response }) => {
 
 type ParametersTableProps = {
   parameters: ApiParameter[]
+  testable?: boolean
+  hasApiKey?: boolean
+  values?: Record<string, string>
+  onChange?: (name: string, value: string) => void
 }
 
-const ParametersTable: FC<ParametersTableProps> = ({ parameters }) => {
+const ParametersTable: FC<ParametersTableProps> = ({ parameters, testable = false, hasApiKey = false, values = {}, onChange }) => {
+  const showInputs = testable && hasApiKey && onChange
+
   return (
     <div className="space-y-3">
       <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -294,7 +301,7 @@ const ParametersTable: FC<ParametersTableProps> = ({ parameters }) => {
               <TableHead className="font-medium whitespace-nowrap">Name</TableHead>
               <TableHead className="font-medium whitespace-nowrap">Type</TableHead>
               <TableHead className="font-medium whitespace-nowrap">Required</TableHead>
-              <TableHead className="font-medium">Description</TableHead>
+              <TableHead className="font-medium">{showInputs ? "Value" : "Description"}</TableHead>
             </TableRow>
           </TableHeader>
 
@@ -320,8 +327,18 @@ const ParametersTable: FC<ParametersTableProps> = ({ parameters }) => {
                     </span>
                   )}
                 </TableCell>
-                <TableCell className="text-muted-foreground">
-                  {param.description || "—"}
+                <TableCell>
+                  {showInputs ? (
+                    <Input
+                      id={param.name}
+                      value={values[param.name] || ''}
+                      onChange={(e) => onChange(param.name, e.target.value)}
+                      placeholder={param.description || `Enter ${param.name}`}
+                      className="font-mono text-sm"
+                    />
+                  ) : (
+                    <span className="text-muted-foreground">{param.description || "—"}</span>
+                  )}
                 </TableCell>
               </TableRow>
             ))}
@@ -340,10 +357,23 @@ export const ApiPath: FC<ApiPathProps> = ({ method, path, baseUrl, parameters, t
   const [response, setResponse] = useState<ApiResponse | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [requestBody, setRequestBody] = useState<string>('{}')
+  const [parameterValues, setParameterValues] = useState<Record<string, string>>({})
 
   const { apiKey } = useApiKeyStore()
   const { setHasTestableApi } = useTestableApi()
-  const fullUrl = baseUrl ? `${baseUrl}${path}` : path
+
+  const buildUrl = () => {
+    let builtPath = path
+    if (parameters && parameters.length > 0) {
+      parameters.forEach((param) => {
+        const value = parameterValues[param.name] || `:${param.name}`
+        builtPath = builtPath.replace(`:${param.name}`, value)
+      })
+    }
+    return baseUrl ? `${baseUrl}${builtPath}` : builtPath
+  }
+
+  const fullUrl = buildUrl()
   const methodVariant = methodVariants[method]
   const needsBody = ["POST", "PUT", "PATCH"].includes(method)
   const hasParameters = parameters && parameters.length > 0
@@ -351,6 +381,10 @@ export const ApiPath: FC<ApiPathProps> = ({ method, path, baseUrl, parameters, t
   useEffect(() => {
     if (testable) setHasTestableApi(true)
   }, [testable, setHasTestableApi])
+
+  const handleParameterChange = (name: string, value: string) => {
+    setParameterValues(prev => ({ ...prev, [name]: value }))
+  }
 
   const handleCopy = async (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -462,7 +496,7 @@ export const ApiPath: FC<ApiPathProps> = ({ method, path, baseUrl, parameters, t
     </>
   )
 
-  const showExpandableContent = (testable && needsBody) || error || response
+  const showExpandableContent = (testable && (needsBody || hasParameters)) || error || response
 
   return (
     <TooltipProvider delayDuration={300}>
@@ -484,7 +518,13 @@ export const ApiPath: FC<ApiPathProps> = ({ method, path, baseUrl, parameters, t
 
               <CollapsibleContent>
                 <CardContent className="border-t p-4 space-y-4">
-                  <ParametersTable parameters={parameters} />
+                  <ParametersTable
+                    parameters={parameters}
+                    testable={testable}
+                    hasApiKey={!!apiKey}
+                    values={parameterValues}
+                    onChange={handleParameterChange}
+                  />
                   {expandableContent}
                 </CardContent>
               </CollapsibleContent>
