@@ -12,17 +12,16 @@
     "db:deploy": "pnpm --filter @simplist/db run db:deploy",
     "db:studio": "pnpm --filter @simplist/db run db:studio",
     "db:build": "pnpm --filter @simplist/db run build",
-
     "api:build": "pnpm --filter @simplist/db --filter @simplist/api --filter @simplist/eslint-config --filter @simplist/typescript-config --filter api run build",
     "api:dev": "pnpm --filter api run dev",
-    "api:start": "pnpm --filter api run start" 
+    "api:start": "pnpm --filter api run start"
   },
   "devDependencies": {
     "@simplist/eslint-config": "workspace:*",
     "@simplist/typescript-config": "workspace:*",
-    "prettier": "^3.6.2",
-    "turbo": "^2.5.6",
-    "typescript": "5.7.3"
+    "prettier": "^3.7.4",
+    "turbo": "^2.6.3",
+    "typescript": "5.9.3"
   },
   "packageManager": "pnpm@10.4.1",
   "engines": {
