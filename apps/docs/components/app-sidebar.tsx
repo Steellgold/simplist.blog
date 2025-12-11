@@ -35,7 +35,7 @@ type Props = {
   items: SidebarItem[]
 }
 
-type Mode = 'sdk' | 'api'
+type Mode = "sdk" | "api"
 
 export const AppSidebar = ({ items }: Props) => {
   const pathname = usePathname()
@@ -43,21 +43,21 @@ export const AppSidebar = ({ items }: Props) => {
   const httpMethodIcons = new Set(["GET", "POST", "PUT", "PATCH", "DELETE"])
 
   const getCurrentMode = (): Mode => {
-    if (pathname.startsWith('/api')) return 'api'
-    return 'sdk'
+    if (pathname.startsWith("/api")) return "api"
+    return "sdk"
   }
 
   const toggleMode = (mode: Mode) => {
-    router.push(mode === 'sdk' ? '/sdk' : '/api')
+    router.push(mode === "sdk" ? "/" : "/api/index")
   }
 
   const currentMode = getCurrentMode()
 
   const filteredItems = items.filter(item => {
-    if (currentMode === 'api' as Mode) {
-      return item.href.startsWith('/api')
+    if (currentMode === "api" as Mode) {
+      return item.href.startsWith("/api")
     } else {
-      return !item.href.startsWith('/api')
+      return !item.href.startsWith("/api")
     }
   })
 
@@ -75,46 +75,47 @@ export const AppSidebar = ({ items }: Props) => {
                   >
                     <div className={cn(
                       "flex aspect-square size-8 items-center justify-center rounded-lg",
-                      currentMode === 'sdk' && 'bg-border text-foreground',
-                      currentMode === 'api' && 'bg-border text-foreground'
+                      currentMode === "sdk" && "bg-border text-foreground",
+                      currentMode === "api" && "bg-border text-foreground"
                     )}>
-                      {currentMode === 'sdk' && <Package size={20} />}
-                      {currentMode === 'api' && <Globe size={20} />}
+                      {currentMode === "sdk" && <Package size={20} />}
+                      {currentMode === "api" && <Globe size={20} />}
                     </div>
 
                     <div className="flex flex-col gap-0.5 leading-none">
                       <span className="font-medium">
                         {
-                          currentMode === 'sdk'
-                            ? 'SDK Docs'
-                              : currentMode === 'api'
-                                ? 'REST API'
-                                  : 'Documentation'
+                          currentMode === "sdk"
+                            ? "SDK Docs"
+                              : currentMode === "api"
+                                ? "REST API"
+                                  : ""
                         }
                       </span>
 
                       <span className="text-xs text-muted-foreground">
-                        {currentMode === 'sdk' ? 'Client Library' : 'Endpoints'}
+                        {currentMode === "sdk" ? "Client Library" : "Endpoints"}
                       </span>
                     </div>
 
                     <ChevronsUpDown className="ml-auto" />
                   </SidebarMenuButton>
                 </DropdownMenuTrigger>
+
                 <DropdownMenuContent
                   className="w-(--radix-dropdown-menu-trigger-width)"
                   align="start"
                 >
-                  <DropdownMenuItem onClick={() => toggleMode('sdk')}>
+                  <DropdownMenuItem onClick={() => toggleMode("sdk")}>
                     <Package />
                     <span>SDK Docs</span>
-                    {currentMode === 'sdk' && <Check className="ml-auto" />}
+                    {currentMode === "sdk" && <Check className="ml-auto" />}
                   </DropdownMenuItem>
 
-                  <DropdownMenuItem onClick={() => toggleMode('api')}>
+                  <DropdownMenuItem onClick={() => toggleMode("api")}>
                     <Globe />
                     <span>REST API</span>
-                    {currentMode === 'api' && <Check className="ml-auto" />}
+                    {currentMode === "api" && <Check className="ml-auto" />}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
