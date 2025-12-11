@@ -9,7 +9,6 @@ export type ApiKey = {
   id: string
   name: string
   key: string
-  type: string
   permissions: string[]
   lastUsedAt: Date | null
   expiresAt: Date | null

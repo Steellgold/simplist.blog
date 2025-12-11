@@ -1,0 +1,119 @@
+---
+title: /v1/project
+description: Get project information and statistics
+category: REST API
+order: 53
+icon: GET
+---
+
+# /v1/project
+
+Retrieve complete project information including metadata and statistics.
+
+## Endpoint
+
+<ApiPath
+  method="GET"
+  path="/v1/project"
+  baseUrl="https://api.simplist.blog"
+  testable={true}
+  requiresAuth={true}
+/>
+
+## Response
+
+Returns a `ProjectInfo` object containing both project metadata and statistics.
+
+<TypeTable
+  title="ProjectInfo"
+  properties={[
+    { name: "project", type: "Project", description: "Project metadata", required: true },
+    { name: "stats", type: "ProjectStats", description: "Project statistics", required: true }
+  ]}
+/>
+
+### Project
+
+<TypeTable
+  title="Project"
+  properties={[
+    { name: "id", type: "string", description: "Unique project identifier", required: true },
+    { name: "name", type: "string", description: "Project name", required: true },
+    { name: "slug", type: "string", description: "URL-friendly identifier", required: true },
+    { name: "createdAt", type: "string", description: "ISO 8601 creation timestamp", required: true },
+    { name: "updatedAt", type: "string", description: "ISO 8601 last update", required: true }
+  ]}
+/>
+
+### ProjectStats
+
+<TypeTable
+  title="ProjectStats"
+  properties={[
+    { name: "totalArticles", type: "number", description: "Total article count", required: true },
+    { name: "publishedArticles", type: "number", description: "Published article count", required: true },
+    { name: "totalViews", type: "number", description: "Total views across all articles", required: true },
+    { name: "storageUsed", type: "string", description: "Storage used (e.g., '1.2 MB')", required: true },
+    { name: "storageLimit", type: "string", description: "Storage limit (e.g., '100 MB')", required: true }
+  ]}
+/>
+
+## Example Request
+
+<CurlCommand
+  method="GET"
+  url="https://api.simplist.blog/v1/project"
+  headers={{
+    'X-API-Key': 'YOUR_API_KEY',
+    'Content-Type': 'application/json'
+  }}
+/>
+
+## Example Response
+
+<CodeBlock language="json">
+{`
+
+  {
+    "data": {
+      "project": {
+        "id": "prj_abc123",
+        "name": "My Blog",
+        "slug": "my-blog",
+        "createdAt": "2024-01-15T10:30:00Z",
+        "updatedAt": "2025-12-09T08:15:00Z"
+      },
+      "stats": {
+        "totalArticles": 42,
+        "publishedArticles": 35,
+        "totalViews": 15473,
+        "storageUsed": "1.2 MB",
+        "storageLimit": "100 MB"
+      }
+    }
+  }
+
+`}
+</CodeBlock>
+
+## Use Cases
+
+- **Dashboard**: Display project statistics
+- **Monitoring**: Track storage usage and article count
+- **Analytics**: Show total views and publication rate
+- **Health checks**: Verify project status
+
+## SDK Equivalent
+
+<CodeBlock language="typescript">
+{`
+
+  const { data } = await client.project.get()
+
+  console.log(data.project.name)        // "My Blog"
+  console.log(data.stats.totalArticles) // 42
+
+`}
+</CodeBlock>
+
+See [Project API](/sdk/project) for SDK documentation.

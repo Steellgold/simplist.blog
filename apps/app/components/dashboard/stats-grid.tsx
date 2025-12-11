@@ -6,7 +6,6 @@ interface StatsGridProps {
   publishedArticles: number;
   totalViews: number;
   activeApiKeys: number;
-  apiKeyLimit: number;
   storageUsed: number;
   storageLimit: number;
 }
@@ -15,7 +14,6 @@ export const StatsGrid = ({
   publishedArticles,
   totalViews,
   activeApiKeys,
-  apiKeyLimit,
   storageUsed,
   storageLimit,
 }: StatsGridProps) => {
@@ -73,7 +71,7 @@ export const StatsGrid = ({
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
-            {activeApiKeys} / {apiKeyLimit === -1 ? "∞" : apiKeyLimit}
+            {activeApiKeys}
           </div>
           <p className="text-xs text-muted-foreground mt-1">
             {activeApiKeys === 0 ? "No keys created" : "active keys"}

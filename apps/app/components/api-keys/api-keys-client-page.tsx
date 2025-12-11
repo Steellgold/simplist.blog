@@ -7,7 +7,7 @@ import type { ApiKey } from "@simplist/db/types"
 
 type ApiKeySelect = Pick<
   ApiKey,
-  "id" | "name" | "key" | "type" | "permissions" | "lastUsedAt" | "expiresAt" | "status" | "createdAt"
+  "id" | "name" | "key" | "permissions" | "lastUsedAt" | "expiresAt" | "status" | "createdAt"
 >
 
 type ApiKeysClientPageProps = {

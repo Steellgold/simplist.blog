@@ -1,13 +1,217 @@
 ---
-title: Hello World
-description: Your first document
+title: Introduction
+description: Learn how to install and configure the Simplist SDK
+category: Get Started
+order: 1
 ---
 
-Welcome to the docs! You can start writing documents in `/content/docs`.
+# Getting Started
 
-## What is Next?
+Simplist is a headless CMS for blogs. The TypeScript SDK provides a typed and fast way to manage articles, analytics and SEO, while the REST API remains available for direct integrations.
 
-<Cards>
-  <Card title="Learn more about Next.js" href="https://nextjs.org/docs" />
-  <Card title="Learn more about Fumadocs" href="https://fumadocs.dev" />
-</Cards>
+## What this page covers
+
+- Install and configure the SDK (and env variables)
+- Understand the main modules: Articles, Project, Analytics, SEO, Multilingual
+- See quick examples of reading content and configuration
+- Access configuration options and response format
+
+## Main SDK modules
+
+- **[Articles](/sdk/articles)** — Retrieve, filter and search articles
+- **[Project](/sdk/project)** — Project information and statistics
+- **[Analytics](/sdk/analytics)** — Track views and get stats
+- **[SEO](/sdk/seo)** — Generate sitemap, RSS, structured data
+- **[Multilingual](/sdk/multilingual)** — Manage language variants
+
+## Installation & Setup
+
+<Steps>
+  <Step
+    title="Install the SDK"
+    description="Add Simplist to your project with your preferred package manager."
+  >
+    <StepContent>
+      <InstallationTabs
+        commands={{
+          npm: "npm install @simplist.blog/sdk",
+          pnpm: "pnpm add @simplist.blog/sdk",
+          yarn: "yarn add @simplist.blog/sdk",
+          bun: "bun add @simplist.blog/sdk"
+        }}
+      />
+    </StepContent>
+  </Step>
+
+  <Step
+    title="Get your API key"
+    description="Create a project and get your API key from your dashboard at simplist.blog."
+  />
+
+  <Step
+    title="Configure the environment"
+    description="Add your API key to your .env file. This variable will be automatically used by the SDK."
+  >
+    <StepContent>
+      <EnvVars
+        variables={[
+          {
+            name: "SIMPLIST_API_KEY",
+            description: "Your Simplist project API key",
+            required: true
+          }
+        ]}
+      />
+    </StepContent>
+  </Step>
+
+  <Step
+    title="Initialize the client"
+    description="Create a new instance of the SimplistClient to start fetching articles."
+  >
+
+    <StepContent>
+      <CodeBlock language="typescript">
+{`
+  import { SimplistClient } from '@simplist.blog/sdk'
+
+  const client = new SimplistClient({
+    apiKey: process.env.SIMPLIST_API_KEY
+  })
+`}
+      </CodeBlock>
+    </StepContent>
+  </Step>
+</Steps>
+
+
+### Direct Configuration
+
+Alternatively, pass the API key directly when creating the client:
+
+<CodeBlock language="typescript" filename="client.ts">
+  {`
+  import { SimplistClient } from '@simplist.blog/sdk'
+
+  const client = new SimplistClient({
+    apiKey: 'prj_your_api_key'
+  })
+  `}
+</CodeBlock>
+
+## Basic Usage
+
+### Fetch Latest Articles
+
+<CodeBlock language="typescript" filename="client.ts">
+  {`
+  import { SimplistClient } from '@simplist.blog/sdk'
+
+  const client = new SimplistClient({
+    apiKey: process.env.SIMPLIST_API_KEY
+  })
+
+  const response = await client.articles.latest(10)
+
+  if (response.success) {
+    console.log(response.data)
+  }
+  `}
+</CodeBlock>
+
+### Get a Specific Article
+
+<CodeBlock language="typescript" filename="client.ts">
+  {`
+  const response = await client.articles.get('article-slug')
+
+  if (response.success) {
+    const article = response.data
+    console.log(article.title)
+    console.log(article.content)
+  }
+  `}
+</CodeBlock>
+
+### List All Published Articles
+
+<CodeBlock language="typescript" filename="client.ts">
+  {`
+  const response = await client.articles.published({
+    page: 1,
+    limit: 20
+  })
+
+  if (response.success) {
+    const articles = response.data
+    articles.forEach(article => {
+      console.log(article.title)
+    })
+  }
+  `}
+</CodeBlock>
+
+## Configuration Options
+
+<CodeBlock language="typescript" filename="client.ts">
+  {`
+  const client = new SimplistClient({
+    apiKey: 'prj_your_api_key',           // Required
+    baseUrl: 'https://api.simplist.blog', // Optional, default shown
+    path: 'blog',                         // Optional, URL prefix for articles
+    timeout: 10000,                       // Optional, request timeout in ms
+    retries: 3,                           // Optional, number of retries
+    retryDelay: 1000                      // Optional, delay between retries in ms
+  })
+  `}
+</CodeBlock>
+
+## Response Format
+
+All SDK methods return this format:
+
+<CodeBlock language="json">
+{`
+  {
+    success: boolean
+    data?: any          // Present if success is true
+    error?: {           // Present if success is false
+      message: string
+      status?: number
+    }
+    meta?: {            // Present for list endpoints
+      page: number
+      limit: number
+      total: number
+      totalPages: number
+    }
+  }
+`}
+</CodeBlock>
+
+## Next Steps
+
+- [Articles API](/sdk/articles) - Fetch and filter articles
+- [Analytics](/sdk/analytics) - Track page views
+- [SEO](/sdk/seo) - Generate sitemaps and RSS feeds
+- [Multilingual](/sdk/multilingual) - Handle translations
+
+## Frequently Asked Questions
+
+<Faq
+  title="Quick Help"
+  items={[
+    {
+      question: "Do I need an API key to use the SDK?",
+      answer: "Yes, you need an API key from your Simplist dashboard. Set it as SIMPLIST_API_KEY environment variable or pass it directly when creating the client."
+    },
+    {
+      question: "Can I use the SDK in both server and client components?",
+      answer: "The SDK is designed for server-side use (Next.js Server Components, API routes, Node.js). For client-side tracking, use the Analytics API directly or create a server action wrapper."
+    },
+    {
+      question: "What's the difference between the SDK and REST API?",
+      answer: "The SDK provides a typed TypeScript interface with automatic error handling and retries. The REST API gives you direct HTTP access for any language or platform. Use the SDK for TypeScript/JavaScript projects for better DX."
+    }
+  ]}
+/>
