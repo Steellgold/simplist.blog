@@ -1,0 +1,394 @@
+---
+title: Multilingual API
+description: Handle translated content with 80+ languages support
+category: SDK Reference
+order: 16
+icon: Languages
+---
+
+# Multilingual API
+
+Simplist provides comprehensive multilingual support with **80+ languages**, automatic browser language detection, and smart content variant management.
+
+## Supported Languages
+
+Simplist supports 80+ languages including:
+
+- **Popular**: English, French, Spanish, German, Italian, Portuguese, Russian
+- **Asian**: Japanese, Korean, Chinese (Simplified/Traditional), Thai, Vietnamese
+- **Middle Eastern**: Arabic, Hebrew, Persian
+- **And many more**...
+
+See the complete list in the [Language enum](#language-enum).
+
+## Helper Functions
+
+### detectUserLanguage()
+
+Automatically detect the user's preferred language from browser settings.
+
+<MethodSignature
+  name="detectUserLanguage"
+  parameters={[]}
+  returnType="LanguageCode"
+/>
+
+<CodeBlock language="typescript">
+{`
+  import { detectUserLanguage } from '@simplist.blog/sdk'
+
+  const userLang = detectUserLanguage()
+  console.log(userLang) // 'en', 'fr', 'es', etc.
+`}
+</CodeBlock>
+
+### getVariantOrDefault()
+
+Get a specific language variant or fall back to the default.
+
+<MethodSignature
+  name="getVariantOrDefault"
+  parameters={[
+    { name: "article", type: "Article", required: true },
+    { name: "lang", type: "LanguageCode", required: true },
+    { name: "fallbackLang", type: "LanguageCode", optional: true }
+  ]}
+  returnType="ArticleVariant | Article"
+/>
+
+<CodeBlock language="typescript">
+{`
+  import { getVariantOrDefault } from '@simplist.blog/sdk'
+
+  const frenchVersion = getVariantOrDefault(article, 'fr', 'en')
+  console.log(frenchVersion.title)
+`}
+</CodeBlock>
+
+### getBestMatchingVariant()
+
+Get the best matching variant based on user's language preference.
+
+<MethodSignature
+  name="getBestMatchingVariant"
+  parameters={[
+    { name: "article", type: "Article", required: true },
+    { name: "defaultLang", type: "LanguageCode", optional: true }
+  ]}
+  returnType="ArticleVariant | Article"
+/>
+
+<CodeBlock language="typescript">
+{`
+  import { getBestMatchingVariant } from '@simplist.blog/sdk'
+
+  // Automatically uses browser language
+  const localizedArticle = getBestMatchingVariant(article)
+  console.log(localizedArticle.title) // Title in user's language
+`}
+</CodeBlock>
+
+### hasVariant()
+
+Check if an article has a translation in a specific language.
+
+<MethodSignature
+  name="hasVariant"
+  parameters={[
+    { name: "article", type: "Article", required: true },
+    { name: "lang", type: "LanguageCode", required: true }
+  ]}
+  returnType="boolean"
+/>
+
+<CodeBlock language="typescript">
+{`
+  import { hasVariant } from '@simplist.blog/sdk'
+
+  if (hasVariant(article, 'fr')) {
+    console.log('French version available!')
+  }
+`}
+</CodeBlock>
+
+### getAllLanguages()
+
+Get all available languages for an article.
+
+<MethodSignature
+  name="getAllLanguages"
+  parameters={[
+    { name: "article", type: "Article", required: true }
+  ]}
+  returnType="LanguageCode[]"
+/>
+
+<CodeBlock language="typescript">
+{`
+  import { getAllLanguages } from '@simplist.blog/sdk'
+
+  const languages = getAllLanguages(article)
+  console.log(languages) // ['en', 'fr', 'es', 'de']
+`}
+</CodeBlock>
+
+### isMultilingual()
+
+Check if an article has any translations.
+
+<MethodSignature
+  name="isMultilingual"
+  parameters={[
+    { name: "article", type: "Article", required: true }
+  ]}
+  returnType="boolean"
+/>
+
+<CodeBlock language="typescript">
+{`
+  import { isMultilingual } from '@simplist.blog/sdk'
+
+  if (isMultilingual(article)) {
+    console.log('This article has translations')
+  }
+`}
+</CodeBlock>
+
+## VariantSelector Class
+
+The `VariantSelector` class provides a consistent way to manage article variants across your application.
+
+<MethodSignature
+  name="new VariantSelector"
+  parameters={[
+    { name: "options", type: "{ defaultLanguage?: LanguageCode, userLanguage?: LanguageCode }", optional: true }
+  ]}
+  returnType="VariantSelector"
+/>
+
+### Methods
+
+<ApiMethodTable
+  methods={[
+    { method: "getContent", description: "Get article content in preferred language", returns: "string" },
+    { method: "getTitle", description: "Get article title in preferred language", returns: "string" },
+    { method: "getExcerpt", description: "Get article excerpt in preferred language", returns: "string | null" },
+    { method: "getFullContent", description: "Get complete article variant", returns: "ArticleVariant | Article" },
+    { method: "getCoverImage", description: "Get cover image for variant", returns: "string | null" },
+    { method: "getSelectedLanguage", description: "Get the selected language for article", returns: "LanguageCode" },
+    { method: "setUserLanguage", description: "Update user language preference", returns: "void" },
+    { method: "setDefaultLanguage", description: "Update default fallback language", returns: "void" }
+  ]}
+/>
+
+### Example
+
+<CodeBlock language="tsx">
+{`
+  import { VariantSelector } from '@simplist.blog/sdk'
+
+  const selector = new VariantSelector({
+    defaultLanguage: 'en',
+    userLanguage: 'fr'
+  })
+
+  // Get localized content
+  const title = selector.getTitle(article)
+  const content = selector.getContent(article)
+  const excerpt = selector.getExcerpt(article)
+
+  // Get full variant
+  const variant = selector.getFullContent(article)
+  console.log(variant.lang)        // 'fr'
+  console.log(variant.wordCount)   // Word count for French version
+
+  // Change language dynamically
+  selector.setUserLanguage('es')
+  const spanishTitle = selector.getTitle(article)
+`}
+</CodeBlock>
+
+## Complete Example
+
+### Language Switcher Component
+
+<CodeBlock language="tsx">
+{`
+  'use client'
+
+  import { getAllLanguages, VariantSelector } from '@simplist.blog/sdk'
+  import { useState } from 'react'
+  import type { Article } from '@simplist.blog/sdk'
+
+  export function LanguageSwitcher({ article }: { article: Article }) {
+    const availableLanguages = getAllLanguages(article)
+    const [selectedLang, setSelectedLang] = useState('en')
+
+    const selector = new VariantSelector({
+      defaultLanguage: 'en',
+      userLanguage: selectedLang
+    })
+
+    const handleLanguageChange = (lang: string) => {
+      setSelectedLang(lang)
+      selector.setUserLanguage(lang as any)
+    }
+
+    return (
+      <div>
+        <select value={selectedLang} onChange={(e) => handleLanguageChange(e.target.value)}>
+          {availableLanguages.map(lang => (
+            <option key={lang} value={lang}>
+              {lang.toUpperCase()}
+            </option>
+          ))}
+        </select>
+
+        <article>
+          <h1>{selector.getTitle(article)}</h1>
+          <p>{selector.getExcerpt(article)}</p>
+          <div dangerouslySetInnerHTML={{ __html: selector.getContent(article) }} />
+        </article>
+      </div>
+    )
+  }
+`}
+</CodeBlock>
+
+### Server Component with Auto-Detection
+
+<CodeBlock language="tsx">
+{`
+  import { SimplistClient, getBestMatchingVariant } from '@simplist.blog/sdk'
+  import { headers } from 'next/headers'
+
+  export default async function ArticlePage({
+    params
+  }: {
+    params: { slug: string }
+  }) {
+    // Uses SIMPLIST_API_KEY from environment variables
+    const client = new SimplistClient()
+    const { data: article } = await client.articles.get(params.slug)
+
+    // Get user's language from Accept-Language header
+    const headersList = headers()
+    const acceptLanguage = headersList.get('accept-language')
+    const userLang = acceptLanguage?.split(',')[0]?.split('-')[0] || 'en'
+
+    // Get best matching variant
+    const variant = getBestMatchingVariant(article)
+
+    return (
+      <article lang={variant.lang}>
+        <h1>{variant.title}</h1>
+        <p>{variant.excerpt}</p>
+        <div dangerouslySetInnerHTML={{ __html: variant.content }} />
+
+        {/* Show available translations */}
+        <div className="translations">
+          <h3>Available in:</h3>
+          {getAllLanguages(article).map(lang => (
+            <a key={lang} href={\`/\${lang}/\${article.slug}\`}>
+              {lang.toUpperCase()}
+            </a>
+          ))}
+        </div>
+      </article>
+    )
+  }
+`}
+</CodeBlock>
+
+## ArticleVariant Type
+
+<TypeTable
+  title="ArticleVariant"
+  properties={[
+    { name: "lang", type: "LanguageCode", description: "Language code", required: true },
+    { name: "title", type: "string", description: "Translated title", required: true },
+    { name: "excerpt", type: "string | null", description: "Translated excerpt" },
+    { name: "content", type: "string", description: "Translated content (Markdown)", required: true },
+    { name: "coverImage", type: "string | null", description: "Cover image for this variant" },
+    { name: "wordCount", type: "number", description: "Word count", required: true },
+    { name: "characterCount", type: "number", description: "Character count", required: true },
+    { name: "readTimeMinutes", type: "number", description: "Reading time estimate", required: true },
+    { name: "createdAt", type: "string", description: "Variant creation date", required: true },
+    { name: "updatedAt", type: "string", description: "Last update date", required: true }
+  ]}
+/>
+
+## Language Enum
+
+<CodeBlock language="typescript">
+{`
+  import { Language } from '@simplist.blog/sdk'
+
+  // Popular languages
+  Language.ENGLISH       // 'en'
+  Language.FRENCH        // 'fr'
+  Language.SPANISH       // 'es'
+  Language.GERMAN        // 'de'
+  Language.ITALIAN       // 'it'
+  Language.PORTUGUESE    // 'pt'
+  Language.RUSSIAN       // 'ru'
+  Language.JAPANESE      // 'ja'
+  Language.KOREAN        // 'ko'
+  Language.CHINESE       // 'zh'
+  Language.ARABIC        // 'ar'
+  Language.HINDI         // 'hi'
+
+  // And 68+ more languages...
+`}
+</CodeBlock>
+
+## SEO Considerations
+
+- **hreflang tags**: Add alternate language links for SEO
+- **Language attribute**: Set `<html lang="...">` for each variant
+- **Sitemap**: Include all language variants in sitemap
+- **URL structure**: Use language prefix (e.g., `/fr/article-slug`)
+
+<CodeBlock language="typescript">
+{`
+  // Generate hreflang tags
+  import { getAllLanguages } from '@simplist.blog/sdk'
+
+  export function generateHreflangTags(article: Article, baseUrl: string) {
+    const languages = getAllLanguages(article)
+
+    return languages.map(lang => ({
+      rel: 'alternate',
+      hrefLang: lang,
+      href: \`\${baseUrl}/\${lang}/\${article.slug}\`
+    }))
+  }
+`}
+</CodeBlock>
+
+## Best Practices
+
+- **Fallback language**: Always set a default/fallback language (usually English)
+- **User preference**: Remember user's language choice in localStorage/cookies
+- **Auto-detection**: Use browser language for initial selection
+- **Translation indicators**: Show which languages are available
+
+## Frequently Asked Questions
+
+<Faq
+  title="Quick Help"
+  items={[
+    {
+      question: "How do I detect the user's preferred language?",
+      answer: "Use detectUserLanguage() which checks the Accept-Language header. In Next.js, access it via headers().get('accept-language'). Always provide a fallback language."
+    },
+    {
+      question: "What happens if a variant doesn't exist?",
+      answer: "getVariantOrDefault() automatically falls back to the default language if the requested variant doesn't exist. This ensures users always see content."
+    },
+    {
+      question: "Can I have different slugs for each language?",
+      answer: "No, all language variants share the same slug. Use the slug for routing and serve different content based on the user's language preference."
+    }
+  ]}
+/>

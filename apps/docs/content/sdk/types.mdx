@@ -1,0 +1,341 @@
+---
+title: TypeScript Types
+description: Complete TypeScript type definitions for the Simplist SDK
+category: SDK Reference
+order: 19
+icon: Braces
+---
+
+# TypeScript Types
+
+Complete reference for all TypeScript types exported by the Simplist SDK.
+
+## Core Types
+
+### Article
+
+Complete article object with all content and metadata.
+
+<TypeTable
+  title="Article"
+  properties={[
+    { name: "id", type: "string", description: "Unique article identifier", required: true },
+    { name: "title", type: "string", description: "Article title", required: true },
+    { name: "slug", type: "string", description: "URL-friendly identifier", required: true },
+    { name: "content", type: "string", description: "Full article content (Markdown)", required: true },
+    { name: "excerpt", type: "string | null", description: "Short summary" },
+    { name: "coverImage", type: "string | null", description: "Cover image URL" },
+    { name: "published", type: "boolean", description: "Publication status", required: true },
+    { name: "status", type: "string", description: "Article status", required: true },
+    { name: "viewCount", type: "number", description: "Number of views", required: true },
+    { name: "wordCount", type: "number", description: "Word count", required: true },
+    { name: "characterCount", type: "number", description: "Character count", required: true },
+    { name: "lineCount", type: "number", description: "Line count", required: true },
+    { name: "readTimeMinutes", type: "number", description: "Estimated reading time", required: true },
+    { name: "author", type: "Author", description: "Article author", required: true },
+    { name: "lastUpdatedBy", type: "Author | null", description: "Last editor" },
+    { name: "createdAt", type: "string", description: "ISO 8601 creation date", required: true },
+    { name: "updatedAt", type: "string", description: "ISO 8601 last update", required: true },
+    { name: "publishedAt", type: "string | null", description: "ISO 8601 publication date" },
+    { name: "variants", type: "Record<LanguageCode, ArticleVariant>", description: "Translations" }
+  ]}
+/>
+
+### ArticleListItem
+
+Article without full content (used in lists).
+
+<CodeBlock language="typescript">
+{`
+  type ArticleListItem = Omit<Article, 'content'>
+`}
+</CodeBlock>
+
+### Author
+
+<TypeTable
+  title="Author"
+  properties={[
+    { name: "name", type: "string", description: "Display name", required: true },
+    { name: "firstName", type: "string | null", description: "First name" },
+    { name: "lastName", type: "string | null", description: "Last name" },
+    { name: "image", type: "string | null", description: "Profile image URL" }
+  ]}
+/>
+
+## Request/Response Types
+
+### `ApiResponse<T>`
+
+Standard API response wrapper.
+
+<TypeTable
+  title="ApiResponse<T>"
+  properties={[
+    { name: "data", type: "T", description: "Response data", required: true },
+    { name: "meta", type: "PaginationMeta", description: "Pagination metadata (for lists)" }
+  ]}
+/>
+
+### PaginationMeta
+
+<TypeTable
+  title="PaginationMeta"
+  properties={[
+    { name: "page", type: "number", description: "Current page number", required: true },
+    { name: "limit", type: "number", description: "Items per page", required: true },
+    { name: "total", type: "number", description: "Total items", required: true },
+    { name: "totalPages", type: "number", description: "Total pages", required: true }
+  ]}
+/>
+
+### ApiError
+
+<TypeTable
+  title="ApiError"
+  properties={[
+    { name: "error", type: "string", description: "Error type", required: true },
+    { name: "message", type: "string", description: "Error message", required: true },
+    { name: "statusCode", type: "number", description: "HTTP status code", required: true },
+    { name: "details", type: "any", description: "Additional error details" }
+  ]}
+/>
+
+### ArticleListParams
+
+Parameters for listing/filtering articles.
+
+<TypeTable
+  title="ArticleListParams"
+  properties={[
+    { name: "page", type: "number", description: "Page number", defaultValue: "1" },
+    { name: "limit", type: "number", description: "Items per page", defaultValue: "10" },
+    { name: "sort", type: "'createdAt' | 'updatedAt' | 'title'", description: "Sort field", defaultValue: "createdAt" },
+    { name: "order", type: "'asc' | 'desc'", description: "Sort direction", defaultValue: "desc" },
+    { name: "published", type: "boolean", description: "Filter by published status" },
+    { name: "search", type: "string", description: "Search query" },
+    { name: "status", type: "'draft' | 'published'", description: "Filter by status" }
+  ]}
+/>
+
+## Project Types
+
+### Project
+
+<TypeTable
+  title="Project"
+  properties={[
+    { name: "id", type: "string", description: "Project ID", required: true },
+    { name: "name", type: "string", description: "Project name", required: true },
+    { name: "slug", type: "string", description: "Project slug", required: true },
+    { name: "createdAt", type: "string", description: "Creation date", required: true },
+    { name: "updatedAt", type: "string", description: "Last update", required: true }
+  ]}
+/>
+
+### ProjectStats
+
+<TypeTable
+  title="ProjectStats"
+  properties={[
+    { name: "totalArticles", type: "number", required: true },
+    { name: "publishedArticles", type: "number", required: true },
+    { name: "totalViews", type: "number", required: true },
+    { name: "storageUsed", type: "string", required: true },
+    { name: "storageLimit", type: "string", required: true }
+  ]}
+/>
+
+### ProjectInfo
+
+<CodeBlock language="typescript">
+{`
+  interface ProjectInfo {
+    project: Project
+    stats: ProjectStats
+  }
+`}
+</CodeBlock>
+
+## Analytics Types
+
+### PageViewData
+
+Data for tracking a page view.
+
+<TypeTable
+  title="PageViewData"
+  properties={[
+    { name: "slug", type: "string", description: "Article slug", required: true },
+    { name: "sessionId", type: "string", description: "User session ID" },
+    { name: "pageUrl", type: "string", description: "Full page URL" },
+    { name: "pageTitle", type: "string", description: "Page title" },
+    { name: "referrer", type: "string", description: "Referrer URL" },
+    { name: "utmSource", type: "string", description: "UTM source" },
+    { name: "utmMedium", type: "string", description: "UTM medium" },
+    { name: "utmCampaign", type: "string", description: "UTM campaign" },
+    { name: "utmTerm", type: "string", description: "UTM term" },
+    { name: "utmContent", type: "string", description: "UTM content" },
+    { name: "screenWidth", type: "number", description: "Screen width in pixels" },
+    { name: "screenHeight", type: "number", description: "Screen height in pixels" },
+    { name: "timeOnPage", type: "number", description: "Time spent in seconds" },
+    { name: "scrollDepth", type: "number", description: "Scroll depth percentage (0-100)" },
+    { name: "exitPosition", type: "number", description: "Exit scroll position percentage" },
+    { name: "bounced", type: "boolean", description: "Whether user bounced" },
+    { name: "events", type: "PageEvent[]", description: "Custom events" },
+    { name: "fetchGeo", type: "boolean", description: "Fetch geolocation data" }
+  ]}
+/>
+
+### PageEvent
+
+<TypeTable
+  title="PageEvent"
+  properties={[
+    { name: "type", type: "string", description: "Event type (e.g., 'click', 'share')", required: true },
+    { name: "data", type: "Record<string, any>", description: "Event data" },
+    { name: "position", type: "number", description: "Scroll position when event occurred" },
+    { name: "element", type: "string", description: "Element identifier" },
+    { name: "timestamp", type: "string", description: "ISO 8601 timestamp" },
+    { name: "timeOffset", type: "number", description: "Time offset in milliseconds" }
+  ]}
+/>
+
+### PageViewResponse
+
+<TypeTable
+  title="PageViewResponse"
+  properties={[
+    { name: "id", type: "string", description: "Page view ID", required: true },
+    { name: "success", type: "boolean", description: "Whether tracking was successful", required: true }
+  ]}
+/>
+
+## SEO Types
+
+### SeoMetadata
+
+<TypeTable
+  title="SeoMetadata"
+  properties={[
+    { name: "metaTitle", type: "string", required: true },
+    { name: "metaDescription", type: "string", required: true },
+    { name: "ogTitle", type: "string" },
+    { name: "ogDescription", type: "string" },
+    { name: "ogImage", type: "string" },
+    { name: "ogType", type: "string", required: true },
+    { name: "twitterTitle", type: "string" },
+    { name: "twitterDescription", type: "string" },
+    { name: "twitterImage", type: "string" },
+    { name: "twitterCard", type: "'summary' | 'summary_large_image'", required: true },
+    { name: "canonicalUrl", type: "string" },
+    { name: "structuredData", type: "Record<string, any>" },
+    { name: "keywords", type: "string[]" },
+    { name: "language", type: "string", required: true },
+    { name: "author", type: "string" },
+    { name: "publishedTime", type: "string" },
+    { name: "modifiedTime", type: "string" },
+    { name: "readingTime", type: "number" }
+  ]}
+/>
+
+### ArticleWithSeo
+
+<CodeBlock language="typescript">
+{`
+  interface ArticleWithSeo extends Article {
+    seo: SeoMetadata
+    project: {
+      name: string
+      slug: string
+      description: string
+    }
+  }
+`}
+</CodeBlock>
+
+## Multilingual Types
+
+### LanguageCode
+
+<CodeBlock language="typescript">
+{`
+  type LanguageCode = 'en' | 'fr' | 'es' | 'de' | 'it' | 'pt' | 'ru' | 'ja' | 'ko' | 'zh' | /* ... 70+ more */
+`}
+</CodeBlock>
+
+See [Multilingual API](/sdk/multilingual) for all supported languages.
+
+### ArticleVariant
+
+Translation variant of an article.
+
+<TypeTable
+  title="ArticleVariant"
+  properties={[
+    { name: "lang", type: "LanguageCode", required: true },
+    { name: "title", type: "string", required: true },
+    { name: "excerpt", type: "string | null" },
+    { name: "content", type: "string", required: true },
+    { name: "coverImage", type: "string | null" },
+    { name: "wordCount", type: "number", required: true },
+    { name: "characterCount", type: "number", required: true },
+    { name: "lineCount", type: "number", required: true },
+    { name: "readTimeMinutes", type: "number", required: true },
+    { name: "createdAt", type: "string", required: true },
+    { name: "updatedAt", type: "string", required: true }
+  ]}
+/>
+
+## Usage Example
+
+<CodeBlock language="typescript">
+{`
+  import type {
+    SimplistClient,
+    Article,
+    ArticleListParams,
+    ApiResponse,
+    PageViewData,
+    SeoMetadata
+  } from '@simplist.blog/sdk'
+
+  // Type-safe parameters
+  const params: ArticleListParams = {
+    page: 1,
+    limit: 10,
+    sort: 'createdAt',
+    order: 'desc',
+    published: true
+  }
+
+  // Type-safe response
+  const response: ApiResponse<Article[]> = await client.articles.list(params)
+
+  // Access with full type safety
+  response.data.forEach((article: Article) => {
+    console.log(article.title)
+    console.log(article.readTimeMinutes)
+  })
+`}
+</CodeBlock>
+
+## Frequently Asked Questions
+
+<Faq
+  title="Quick Help"
+  items={[
+    {
+      question: "Do I need to import types explicitly?",
+      answer: "No, TypeScript will automatically infer types from SDK methods. Import types only when you need them for custom functions or component props."
+    },
+    {
+      question: "Are all types exported from the SDK?",
+      answer: "Yes, all types are exported from '@simplist.blog/sdk'. You can import them with: import type { Article, ApiResponse } from '@simplist.blog/sdk'."
+    },
+    {
+      question: "How do I extend SDK types for custom fields?",
+      answer: "Use TypeScript's intersection types or declaration merging. Example: type CustomArticle = Article & { customField: string }. This maintains type safety while adding your custom properties."
+    }
+  ]}
+/>

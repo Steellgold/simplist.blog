@@ -1,0 +1,249 @@
+---
+title: Project API
+description: Get project information and statistics
+category: SDK Reference
+order: 12
+icon: FolderCog
+---
+
+# Project API
+
+Retrieve information about your Simplist project, including metadata and statistics.
+
+## Quick Reference
+
+<ApiMethodTable
+  methods={[
+    { method: "get", description: "Get complete project info and statistics", returns: "ProjectInfo" },
+    { method: "getInfo", description: "Get project metadata only", returns: "Project" },
+    { method: "getStats", description: "Get project statistics only", returns: "ProjectStats" }
+  ]}
+/>
+
+## get()
+
+Get complete project information including both metadata and statistics.
+
+<MethodSignature
+  name="client.project.get"
+  parameters={[]}
+  returnType="Promise<ApiResponse<ProjectInfo>>"
+  async={true}
+/>
+
+### Response
+
+<TypeTable
+  title="ProjectInfo"
+  properties={[
+    { name: "project", type: "Project", description: "Project metadata", required: true },
+    { name: "stats", type: "ProjectStats", description: "Project statistics", required: true }
+  ]}
+/>
+
+<TypeTable
+  title="Project"
+  properties={[
+    { name: "id", type: "string", description: "Unique project identifier", required: true },
+    { name: "name", type: "string", description: "Project name", required: true },
+    { name: "slug", type: "string", description: "URL-friendly project identifier", required: true },
+    { name: "createdAt", type: "string", description: "ISO 8601 creation timestamp", required: true },
+    { name: "updatedAt", type: "string", description: "ISO 8601 last update timestamp", required: true }
+  ]}
+/>
+
+<TypeTable
+  title="ProjectStats"
+  properties={[
+    { name: "totalArticles", type: "number", description: "Total number of articles", required: true },
+    { name: "publishedArticles", type: "number", description: "Number of published articles", required: true },
+    { name: "totalViews", type: "number", description: "Total page views across all articles", required: true },
+    { name: "storageUsed", type: "string", description: "Storage used (e.g., '1.2 MB')", required: true },
+    { name: "storageLimit", type: "string", description: "Storage limit (e.g., '100 MB')", required: true }
+  ]}
+/>
+
+### Example
+
+<CodeBlock language="typescript">
+{`
+  const response = await client.project.get()
+
+  console.log(response.data.project.name)
+  // "My Blog"
+
+  console.log(response.data.stats.totalArticles)
+  // 42
+
+  console.log(response.data.stats.publishedArticles)
+  // 35
+
+  console.log(response.data.stats.totalViews)
+  // 15473
+`}
+</CodeBlock>
+
+## getInfo()
+
+Get only project metadata without statistics. Useful when you don't need stats and want a faster response.
+
+<MethodSignature
+  name="client.project.getInfo"
+  parameters={[]}
+  returnType="Promise<Project>"
+  async={true}
+/>
+
+### Example
+
+<CodeBlock language="typescript">
+{`
+  const project = await client.project.getInfo()
+
+  console.log(project.name)        // "My Blog"
+  console.log(project.slug)        // "my-blog"
+  console.log(project.createdAt)   // "2024-01-15T10:30:00Z"
+`}
+</CodeBlock>
+
+## getStats()
+
+Get only project statistics without metadata. Useful for dashboards and monitoring.
+
+<MethodSignature
+  name="client.project.getStats"
+  parameters={[]}
+  returnType="Promise<ProjectStats>"
+  async={true}
+/>
+
+### Example
+
+<CodeBlock language="typescript">
+{`
+  const stats = await client.project.getStats()
+
+  console.log(\`Total articles: \${stats.totalArticles}\`)
+  console.log(\`Published: \${stats.publishedArticles}\`)
+  console.log(\`Total views: \${stats.totalViews.toLocaleString()}\`)
+  console.log(\`Storage: \${stats.storageUsed} / \${stats.storageLimit}\`)
+`}
+</CodeBlock>
+
+## Complete Example
+
+### Dashboard Component
+
+<CodeBlock language="tsx">
+{`
+  import { SimplistClient } from '@simplist.blog/sdk'
+
+  export async function Dashboard() {
+    // Uses SIMPLIST_API_KEY from environment variables
+    const client = new SimplistClient()
+
+    // Get all project info at once
+    const { data } = await client.project.get()
+
+    return (
+      <div className="dashboard">
+        <h1>{data.project.name}</h1>
+
+        <div className="stats-grid">
+          <StatCard
+            title="Total Articles"
+            value={data.stats.totalArticles}
+            subtitle={\`\${data.stats.publishedArticles} published\`}
+          />
+
+          <StatCard
+            title="Total Views"
+            value={data.stats.totalViews.toLocaleString()}
+          />
+
+          <StatCard
+            title="Storage"
+            value={data.stats.storageUsed}
+            subtitle={\`of \${data.stats.storageLimit}\`}
+          />
+        </div>
+
+        <p className="text-muted">
+          Project created on {new Date(data.project.createdAt).toLocaleDateString()}
+        </p>
+      </div>
+    )
+  }
+`}
+</CodeBlock>
+
+### Monitoring Script
+
+<CodeBlock language="tsx">
+{`
+  import { SimplistClient } from '@simplist.blog/sdk'
+
+  async function checkProjectHealth() {
+    const client = new SimplistClient()
+
+    try {
+      const stats = await client.project.getStats()
+
+      // Check storage usage
+      const used = parseFloat(stats.storageUsed)
+      const limit = parseFloat(stats.storageLimit)
+      const usagePercent = (used / limit) * 100
+
+      if (usagePercent > 80) {
+        console.warn(\`⚠️  Storage usage at \${usagePercent.toFixed(1)}%\`\)
+      }
+
+      // Check publication rate
+      const publicationRate = (stats.publishedArticles / stats.totalArticles) * 100
+      console.log(\`✓ Publication rate: \${publicationRate.toFixed(1)}%\`\)
+
+      // Log metrics
+      console.log(\`✓ Total views: \${stats.totalViews}\`)
+      console.log(\`✓ Published articles: \${stats.publishedArticles}\`)
+
+    } catch (error) {
+      console.error(\`✗ Health check failed: \${error}\`)
+    }
+  }
+
+  // Run every hour
+  setInterval(checkProjectHealth, 60 * 60 * 1000)
+`}
+</CodeBlock>
+
+## HTTP Endpoint
+
+This SDK method uses the following API endpoint: <InlineRouteLink method="GET" path="/v1/project" href="/api/get-project" />
+
+<ApiPath
+  method="GET"
+  baseUrl="https://api.simplist.blog"
+  path="/v1/project"
+  testable={true}
+  requiresAuth={true}
+/>
+
+## Frequently Asked Questions
+
+<Faq
+  title="Quick Help"
+  items={[
+    {
+      question: "How often should I fetch project info?",
+      answer: "Project info changes rarely. Cache it on the server side or fetch it once per deployment. Only call it when you need updated stats or project metadata."
+    },
+    {
+      question: "Can I get project stats without fetching the full project?",
+      answer: "No, the get() method returns both project info and stats together. This is by design to minimize API calls. If you only need stats, cache the project data."
+    },
+    {
+      question: "What's included in storage metrics?",
+      answer: "Storage metrics include total bytes used by article content, images, and metadata. The limit depends on your plan. Use this to show storage usage in dashboards."
+    }
+  ]}
+/>

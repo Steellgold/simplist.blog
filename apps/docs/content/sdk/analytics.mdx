@@ -1,0 +1,362 @@
+---
+title: Analytics API
+description: Track page views and get analytics data with the Simplist SDK
+category: SDK Reference
+order: 14
+icon: BarChart3
+---
+
+# Analytics API
+
+Simplist provides server-side analytics that are privacy-friendly, adblocker-proof, and GDPR compliant. Track page views, engagement metrics, and get detailed insights.
+
+## Quick Reference
+
+<ApiMethodTable
+  methods={[
+    { method: "track", description: "Track a new page view", returns: "Promise<PageViewResponse>" },
+    { method: "update", description: "Update an existing page view", returns: "Promise<{ success: boolean }>" },
+    { method: "getStats", description: "Get analytics statistics", returns: "Promise<ApiResponse<AnalyticsStats>>" }
+  ]}
+/>
+
+## track()
+
+Initialize tracking for a new page view. Call this when a user lands on an article page.
+
+<MethodSignature
+  name="client.analytics.track"
+  parameters={[
+    { name: "data", type: "PageViewData", required: true }
+  ]}
+  returnType="Promise<PageViewResponse>"
+  async={true}
+/>
+
+### Parameters
+
+<TypeTable
+  title="PageViewData"
+  properties={[
+    { name: "slug", type: "string", description: "Article slug (required)", required: true },
+    { name: "sessionId", type: "string", description: "Unique session identifier" },
+    { name: "pageUrl", type: "string", description: "Full page URL" },
+    { name: "pageTitle", type: "string", description: "Page title" },
+    { name: "referrer", type: "string", description: "Referrer URL" },
+    { name: "utmSource", type: "string", description: "UTM source" },
+    { name: "utmMedium", type: "string", description: "UTM medium" },
+    { name: "utmCampaign", type: "string", description: "UTM campaign" },
+    { name: "screenWidth", type: "number", description: "Screen width in pixels" },
+    { name: "screenHeight", type: "number", description: "Screen height in pixels" },
+    { name: "timeOnPage", type: "number", description: "Time spent in seconds" },
+    { name: "scrollDepth", type: "number", description: "Scroll depth (0-100%)" },
+    { name: "exitPosition", type: "number", description: "Exit position (0-100%)" },
+    { name: "bounced", type: "boolean", description: "Whether user bounced" },
+    { name: "events", type: "PageEvent[]", description: "Custom events" },
+    { name: "fetchGeo", type: "boolean", description: "Fetch geolocation from IP" }
+  ]}
+/>
+
+### Response
+
+<TypeTable
+  title="PageViewResponse"
+  properties={[
+    { name: "id", type: "string", description: "Page view ID for updates", required: true },
+    { name: "success", type: "boolean", description: "Whether tracking succeeded", required: true }
+  ]}
+/>
+
+### Example
+
+<CodeBlock language="typescript">
+{`
+  const response = await client.analytics.track({
+    slug: 'getting-started',
+    sessionId: generateSessionId(), // Your session ID logic
+    pageUrl: 'https://myblog.com/blog/getting-started',
+    pageTitle: 'Getting Started',
+    referrer: document.referrer,
+    screenWidth: window.innerWidth,
+    screenHeight: window.innerHeight,
+    timeOnPage: 0,
+    scrollDepth: 0,
+    fetchGeo: true
+  })
+
+  // Store the ID for later updates
+  const { pageViewId, visitorId, sessionId } = response
+`}
+</CodeBlock>
+
+## update()
+
+Update an existing page view with engagement metrics. Call this periodically or when the user leaves.
+
+<MethodSignature
+  name="client.analytics.update"
+  parameters={[
+    { name: "pageViewId", type: "string", required: true },
+    { name: "data", type: "Partial<PageViewData>", required: true }
+  ]}
+  returnType="Promise<{ success: boolean }>"
+  async={true}
+/>
+
+### Example
+
+<CodeBlock language="typescript">
+{`
+  // Update every 30 seconds
+  setInterval(async () => {
+    await client.analytics.update(pageViewId, {
+      timeOnPage: getTimeOnPage(),
+      scrollDepth: getScrollDepth(),
+      events: getCustomEvents()
+    })
+  }, 30000)
+
+  // Final update on page unload
+  window.addEventListener('beforeunload', async () => {
+    await client.analytics.update(pageViewId, {
+      timeOnPage: getTimeOnPage(),
+      scrollDepth: getScrollDepth(),
+      exitPosition: getScrollDepth(),
+      bounced: getTimeOnPage() < 5
+    })
+  })
+`}
+</CodeBlock>
+
+## getStats()
+
+Retrieve analytics statistics for your project.
+
+<MethodSignature
+  name="client.analytics.getStats"
+  parameters={[
+    { name: "options", type: "{ days?: number }", optional: true }
+  ]}
+  returnType="Promise<ApiResponse<AnalyticsStats>>"
+  async={true}
+/>
+
+### Parameters
+
+<TypeTable
+  properties={[
+    { name: "days", type: "number", description: "Number of days to include", defaultValue: "30" }
+  ]}
+/>
+
+### Response
+
+<TypeTable
+  title="AnalyticsStats"
+  properties={[
+    { name: "period", type: "{ days: number, startDate: string, endDate: string }", required: true },
+    { name: "summary", type: "{ totalViews: number, uniqueVisitors: number, avgViewsPerVisitor: number }", required: true },
+    { name: "requestSource", type: "{ sdk: number, direct: number }", description: "Percentage breakdown" },
+    { name: "topArticles", type: "Array<{ articleId: string, title: string, slug: string, views: number }>", required: true },
+    { name: "topCountries", type: "Array<{ country: string, views: number }>", required: true }
+  ]}
+/>
+
+### Example
+
+<CodeBlock language="tsx">
+{`
+  const { data: stats } = await client.analytics.getStats({ days: 7 })
+
+  console.log(\`Period: \${stats.period.days} days\`)
+  console.log(\`Total views: \${stats.summary.totalViews}\`)
+  console.log(\`Unique visitors: \${stats.summary.uniqueVisitors}\`)
+  console.log(\`Avg views per visitor: \${stats.summary.avgViewsPerVisitor.toFixed(2)}\`)
+
+  console.log('\nTop 5 Articles:')
+  stats.topArticles.slice(0, 5).forEach((article, i) => {
+    console.log(\`\${i + 1}. \${article.title} (\${article.views} views)\`)
+  })
+
+  console.log('\nTop Countries:')
+  stats.topCountries.forEach(country => {
+    console.log(\`- \${country.country}: \${country.views} views\`)
+  })
+`}
+</CodeBlock>
+
+## Custom Events
+
+Track custom events like button clicks, video plays, or form submissions.
+
+<TypeTable
+  title="PageEvent"
+  properties={[
+    { name: "type", type: "string", description: "Event type (e.g., 'click', 'video_play')", required: true },
+    { name: "data", type: "Record<string, any>", description: "Event-specific data" },
+    { name: "position", type: "number", description: "Scroll position when event occurred" },
+    { name: "element", type: "string", description: "Element identifier" },
+    { name: "timeOffset", type: "number", description: "Time since page load (ms)" }
+  ]}
+/>
+
+### Example
+
+<CodeBlock language="typescript">
+{`
+  const events: PageEvent[] = [
+    {
+      type: 'button_click',
+      element: 'cta-button',
+      position: 45,
+      timeOffset: 15000,
+      data: { buttonText: 'Get Started' }
+    },
+    {
+      type: 'video_play',
+      element: 'intro-video',
+      position: 30,
+      timeOffset: 8000,
+      data: { videoId: 'intro-123', duration: 120 }
+    },
+    {
+      type: 'link_click',
+      element: 'external-link',
+      data: { href: 'https://example.com', text: 'Learn more' }
+    }
+  ]
+
+  await client.analytics.track({
+    slug: 'my-article',
+    events
+  })
+`}
+</CodeBlock>
+
+## Complete Example
+
+### Next.js App Router
+
+<CodeBlock language="tsx">
+{`
+  'use client'
+
+  import { SimplistClient } from '@simplist.blog/sdk'
+  import { useEffect, useState } from 'react'
+  import { v4 as uuid } from 'uuid'
+
+  export function AnalyticsTracker({ slug }: { slug: string }) {
+    const [pageViewId, setPageViewId] = useState<string | null>(null)
+    const [startTime] = useState(Date.now())
+
+    useEffect(() => {
+      // Uses SIMPLIST_API_KEY from environment variables
+      const client = new SimplistClient()
+
+      // Get or create session ID
+      const getSessionId = () => {
+        let sessionId = sessionStorage.getItem('simplist_session')
+        if (!sessionId) {
+          sessionId = uuid()
+          sessionStorage.setItem('simplist_session', sessionId)
+        }
+        return sessionId
+      }
+
+      // Initial tracking
+      const initTracking = async () => {
+        const response = await client.analytics.track({
+          slug,
+          sessionId: getSessionId(),
+          pageUrl: window.location.href,
+          pageTitle: document.title,
+          referrer: document.referrer,
+          screenWidth: window.innerWidth,
+          screenHeight: window.innerHeight,
+          timeOnPage: 0,
+          scrollDepth: 0,
+          fetchGeo: true
+        })
+
+        setPageViewId(response.id)
+      }
+
+      initTracking()
+
+      // Update metrics every 30 seconds
+      const updateInterval = setInterval(async () => {
+        if (!pageViewId) return
+
+        const timeOnPage = Math.floor((Date.now() - startTime) / 1000)
+        const scrollDepth = Math.round(
+          (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100
+        )
+
+        await client.analytics.update(pageViewId, {
+          timeOnPage,
+          scrollDepth
+        })
+      }, 30000)
+
+      // Final update on unmount
+      return () => {
+        clearInterval(updateInterval)
+
+        if (pageViewId) {
+          const timeOnPage = Math.floor((Date.now() - startTime) / 1000)
+          const scrollDepth = Math.round(
+            (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100
+          )
+
+          client.analytics.update(pageViewId, {
+            timeOnPage,
+            scrollDepth,
+            exitPosition: scrollDepth,
+            bounced: timeOnPage < 5
+          })
+        }
+      }
+    }, [slug, pageViewId, startTime])
+
+    return null
+  }
+`}
+</CodeBlock>
+
+## HTTP Endpoints
+
+These SDK methods use the following API endpoints:
+
+- `track()` → <InlineRouteLink method="POST" path="/v1/analytics/track" href="/api/post-track" />
+- `update()` → <InlineRouteLink method="PUT" path="/v1/analytics/track/:id" href="/api/put-track" />
+- `getStats()` → <InlineRouteLink method="GET" path="/v1/analytics/stats" href="/api/get-stats" />
+
+See the [REST API documentation](/api) for direct HTTP access.
+
+## Privacy & GDPR
+
+- **No cookies**: All tracking is server-side
+- **Anonymous**: No personal data collected
+- **IP-based geolocation**: Optional and anonymized
+- **GDPR compliant**: Data retention policies in place
+- **Adblocker-proof**: Server-side tracking works everywhere
+
+## Frequently Asked Questions
+
+<Faq
+  title="Quick Help"
+  items={[
+    {
+      question: "How do I track analytics in client components?",
+      answer: "Use useEffect to call track() on mount, or create a Server Action wrapper. The SDK is server-side only, but you can send data from the client to a server endpoint that calls the SDK."
+    },
+    {
+      question: "Should I call update() for every page view?",
+      answer: "Only call update() when the user leaves the page to send final metrics (time on page, scroll depth). Call track() once on page load to create the initial pageview."
+    },
+    {
+      question: "Does analytics work without JavaScript?",
+      answer: "Yes! Server-side tracking in Next.js Server Components works without client JavaScript. Analytics are captured during SSR, making them reliable and ad-blocker-proof."
+    }
+  ]}
+/>
