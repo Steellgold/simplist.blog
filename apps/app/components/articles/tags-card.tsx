@@ -1,9 +1,9 @@
 "use client";
 
 import { type Tag } from "@simplist/db";
-import { ArticleTagsInput } from "@simplist/ui/components/article-tags-input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@simplist/ui/components/card";
 import { FC } from "react";
+import { ArticleTagsInput } from "./article-tags-input";
 
 type ArticleTagsCardProps = {
   tags: Tag[];

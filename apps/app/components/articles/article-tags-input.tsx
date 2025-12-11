@@ -1,16 +1,16 @@
 "use client"
 
 import { type Color, type Tag } from "@simplist/db";
+import { ColorSelector } from "@simplist/ui/components/color-selector";
+import { DialogTrigger } from "@simplist/ui/components/dialog";
+import { IconPicker } from "@simplist/ui/components/icon-picker";
+import { IconRender } from "@simplist/ui/components/icon-renderer";
 import type { ColorsEnumType } from "@simplist/ui/lib/color";
 import { getTagColorClasses } from "@simplist/ui/lib/color";
 import type { IconsEnumType } from "@simplist/ui/lib/icons.enum";
 import { cn } from "@simplist/ui/lib/utils";
 import { X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ColorSelector } from "./color-selector";
-import { DialogTrigger } from "./dialog";
-import { IconPicker } from "./icon-picker";
-import { IconRender } from "./icon-renderer";
 
 interface ArticleTagsInputProps {
   value: Tag[]

@@ -2,7 +2,7 @@
 
 import { type Color } from "@simplist/db";
 import { useState } from "react";
-import { Button } from "./button";
+import { Button } from "@simplist/ui/components/button";
 import {
   Dialog,
   DialogContent,
@@ -10,12 +10,12 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "./dialog";
-import { IconPicker } from "./icon-picker";
-import { Label } from "./label";
+} from "@simplist/ui/components/dialog";
+import { IconPicker } from "@simplist/ui/components/icon-picker";
+import { Label } from "@simplist/ui/components/label";
 import { cn } from "@simplist/ui/lib/utils";
 import type { IconsEnumType } from "@simplist/ui/lib/icons.enum";
-import { IconRender } from "./icon-renderer";
+import { IconRender } from "@simplist/ui/components/icon-renderer";
 
 // Available colors with preview
 const AVAILABLE_COLORS: { value: Color; label: string; colorClass: string }[] = [
