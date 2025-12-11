@@ -2,7 +2,7 @@
 title: Error Handling
 description: Handle API errors, timeouts, and retries in the Simplist SDK
 category: Advanced
-order: 6
+order: 24
 ---
 
 # Error Handling
@@ -16,14 +16,14 @@ The Simplist SDK provides robust error handling with automatic retries, detailed
 All API errors are thrown as `SimplistApiError` instances with detailed information:
 
 <CodeBlock language="typescript" filename="error-structure.ts">
-  {`
+{`
   class SimplistApiError extends Error {
     statusCode: number     // HTTP status code
     error: string          // Error type
     details?: any          // Additional error details
     message: string        // Human-readable error message
   }
-  `}
+`}
 </CodeBlock>
 
 ## Basic Error Handling
@@ -31,9 +31,10 @@ All API errors are thrown as `SimplistApiError` instances with detailed informat
 Wrap SDK calls in try-catch blocks:
 
 <CodeBlock language="typescript" filename="basic-error-handling.ts">
-  {`
+{`
   import { SimplistClient, SimplistApiError } from '@simplist.blog/sdk'
 
+  // Uses SIMPLIST_API_KEY from environment variables
   const client = new SimplistClient()
 
   try {
@@ -48,7 +49,7 @@ Wrap SDK calls in try-catch blocks:
       console.error('Unexpected error:', error)
     }
   }
-  `}
+`}
 </CodeBlock>
 
 ## HTTP Status Codes
@@ -71,9 +72,10 @@ Wrap SDK calls in try-catch blocks:
 ### Error Handling by Status
 
 <CodeBlock language="typescript" filename="handle-by-status.ts">
-  {`
+{`
   import { SimplistClient, SimplistApiError } from '@simplist.blog/sdk'
 
+  // Uses SIMPLIST_API_KEY from environment variables
   const client = new SimplistClient()
 
   async function getArticle(slug: string) {
@@ -110,7 +112,7 @@ Wrap SDK calls in try-catch blocks:
       throw error
     }
   }
-  `}
+`}
 </CodeBlock>
 
 ## Automatic Retries
@@ -137,7 +139,7 @@ The SDK automatically retries failed requests with **exponential backoff**.
 ### Custom Retry Configuration
 
 <CodeBlock language="typescript" filename="custom-retries.ts">
-  {`
+{`
   import { SimplistClient } from '@simplist.blog/sdk'
 
   const client = new SimplistClient({
@@ -148,18 +150,18 @@ The SDK automatically retries failed requests with **exponential backoff**.
   })
 
   // Retries: 2s, 4s, 8s, 16s, 32s
-  `}
+`}
 </CodeBlock>
 
 ### Disable Retries
 
 <CodeBlock language="typescript" filename="no-retries.ts">
-  {`
+{`
   const client = new SimplistClient({
     apiKey: process.env.SIMPLIST_API_KEY,
     retries: 0  // No retries
   })
-  `}
+`}
 </CodeBlock>
 
 ## Timeout Handling
@@ -167,7 +169,7 @@ The SDK automatically retries failed requests with **exponential backoff**.
 Requests that exceed the timeout are automatically cancelled:
 
 <CodeBlock language="typescript" filename="timeout-handling.ts">
-  {`
+{`
   import { SimplistClient } from '@simplist.blog/sdk'
 
   const client = new SimplistClient({
@@ -182,7 +184,7 @@ Requests that exceed the timeout are automatically cancelled:
       console.error('Request timed out after 5 seconds')
     }
   }
-  `}
+`}
 </CodeBlock>
 
 ## Validation Errors
@@ -192,20 +194,20 @@ The SDK validates configuration on initialization:
 ### Missing API Key
 
 <CodeBlock language="typescript" filename="missing-api-key.ts">
-  {`
+{`
   try {
     const client = new SimplistClient()  // No API key provided
   } catch (error) {
     // Error: API key is required. Provide it via options.apiKey
     // or set SIMPLIST_API_KEY environment variable.
   }
-  `}
+`}
 </CodeBlock>
 
 ### Invalid API Key Format
 
 <CodeBlock language="typescript" filename="invalid-api-key.ts">
-  {`
+{`
   try {
     const client = new SimplistClient({
       apiKey: 'invalid-key'
@@ -214,7 +216,7 @@ The SDK validates configuration on initialization:
     // Error: Invalid API key format. API key should contain
     // an underscore (e.g., "prj_your_api_key_here")
   }
-  `}
+`}
 </CodeBlock>
 
 ## Network Errors
@@ -222,9 +224,10 @@ The SDK validates configuration on initialization:
 Handle network connectivity issues:
 
 <CodeBlock language="typescript" filename="network-errors.ts">
-  {`
+{`
   import { SimplistClient, SimplistApiError } from '@simplist.blog/sdk'
 
+  // Uses SIMPLIST_API_KEY from environment variables
   const client = new SimplistClient()
 
   async function fetchWithNetworkHandling(slug: string) {
@@ -246,18 +249,19 @@ Handle network connectivity issues:
       return null
     }
   }
-  `}
+`}
 </CodeBlock>
 
 ## Graceful Degradation
 
 Provide fallback content when API calls fail:
 
-<CodeBlock language="typescript" filename="graceful-degradation.tsx">
-  {`
+<CodeBlock language="tsx" filename="graceful-degradation.tsx">
+{`
   import { SimplistClient, SimplistApiError } from '@simplist.blog/sdk'
   import { Suspense } from 'react'
 
+  // Uses SIMPLIST_API_KEY from environment variables
   const client = new SimplistClient()
 
   export default async function ArticleList() {
@@ -292,7 +296,7 @@ Provide fallback content when API calls fail:
       throw error
     }
   }
-  `}
+`}
 </CodeBlock>
 
 ## Error Monitoring
@@ -300,10 +304,11 @@ Provide fallback content when API calls fail:
 Integrate with error tracking services:
 
 <CodeBlock language="typescript" filename="error-monitoring.ts">
-  {`
+{`
   import { SimplistClient, SimplistApiError } from '@simplist.blog/sdk'
   import * as Sentry from '@sentry/nextjs'
 
+  // Uses SIMPLIST_API_KEY from environment variables
   const client = new SimplistClient()
 
   async function fetchArticleWithMonitoring(slug: string) {
@@ -329,7 +334,7 @@ Integrate with error tracking services:
       throw error
     }
   }
-  `}
+`}
 </CodeBlock>
 
 ## Testing API Connection
@@ -337,9 +342,10 @@ Integrate with error tracking services:
 Use the `ping()` method to test connectivity:
 
 <CodeBlock language="typescript" filename="ping.ts">
-  {`
+{`
   import { SimplistClient, SimplistApiError } from '@simplist.blog/sdk'
 
+  // Uses SIMPLIST_API_KEY from environment variables
   const client = new SimplistClient()
 
   async function testConnection() {
@@ -361,15 +367,15 @@ Use the `ping()` method to test connectivity:
   if (await testConnection()) {
     // Proceed with API calls
   }
-  `}
+`}
 </CodeBlock>
 
 ## Complete Error Handling Example
 
 Here's a production-ready example with comprehensive error handling:
 
-<CodeBlock language="typescript" filename="production-example.ts">
-  {`
+<CodeBlock language="tsx" filename="production-example.ts">
+{`
   import { SimplistClient, SimplistApiError } from '@simplist.blog/sdk'
   import * as Sentry from '@sentry/nextjs'
 
@@ -468,7 +474,7 @@ Here's a production-ready example with comprehensive error handling:
       </article>
     )
   }
-  `}
+`}
 </CodeBlock>
 
 ## Best Practices
@@ -507,18 +513,33 @@ Test how your app behaves when API calls fail.
   items={[
     {
       title: "Complete Examples",
-      href: "/examples",
+      href: "/examples/articles",
       description: "Production-ready integration examples"
     },
     {
-      title: "FAQ",
-      href: "/faq",
-      description: "Common questions and solutions"
+      title: "Articles API",
+      href: "/sdk/articles",
+      description: "Learn about the Articles API"
+    }
+  ]}
+/>
+
+## Frequently Asked Questions
+
+<Faq
+  title="Quick Help"
+  items={[
+    {
+      question: "Should I catch errors for every SDK call?",
+      answer: "Yes, wrap all SDK calls in try-catch blocks. The SDK throws SimplistApiError for API errors and standard errors for network issues. Always handle both types for robust error handling."
     },
     {
-      title: "Articles API",
-      href: "/articles",
-      description: "Learn about the Articles API"
+      question: "How do automatic retries work?",
+      answer: "The SDK automatically retries failed requests with exponential backoff (default: 3 retries starting at 1s delay). It only retries on network errors, timeouts, and 5xx server errors. 4xx client errors are not retried."
+    },
+    {
+      question: "What's the recommended way to handle 404 errors?",
+      answer: "For 404 errors, return null or a fallback value instead of throwing. This allows your app to gracefully handle missing content without crashing. Use notFound() in Next.js for proper 404 pages."
     }
   ]}
 />

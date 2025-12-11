@@ -7,7 +7,22 @@ order: 1
 
 # Getting Started
 
-Simplist is a headless CMS for blogs. It provides an SDK and REST API to manage articles, track analytics, and handle SEO.
+Simplist is a headless CMS for blogs. The TypeScript SDK provides a typed and fast way to manage articles, analytics and SEO, while the REST API remains available for direct integrations.
+
+## What this page covers
+
+- Install and configure the SDK (and env variables)
+- Understand the main modules: Articles, Project, Analytics, SEO, Multilingual
+- See quick examples of reading content and configuration
+- Access configuration options and response format
+
+## Main SDK modules
+
+- **[Articles](/sdk/articles)** — Retrieve, filter and search articles
+- **[Project](/sdk/project)** — Project information and statistics
+- **[Analytics](/sdk/analytics)** — Track views and get stats
+- **[SEO](/sdk/seo)** — Generate sitemap, RSS, structured data
+- **[Multilingual](/sdk/multilingual)** — Manage language variants
 
 ## Installation & Setup
 
@@ -57,7 +72,7 @@ Simplist is a headless CMS for blogs. It provides an SDK and REST API to manage 
 
     <StepContent>
       <CodeBlock language="typescript">
-  {`
+{`
   import { SimplistClient } from '@simplist.blog/sdk'
 
   const client = new SimplistClient({
@@ -141,12 +156,12 @@ Alternatively, pass the API key directly when creating the client:
 <CodeBlock language="typescript" filename="client.ts">
   {`
   const client = new SimplistClient({
-    apiKey: 'prj_your_api_key',      // Required
+    apiKey: 'prj_your_api_key',           // Required
     baseUrl: 'https://api.simplist.blog', // Optional, default shown
-    path: 'blog',                     // Optional, URL prefix for articles
-    timeout: 10000,                   // Optional, request timeout in ms
-    retries: 3,                       // Optional, number of retries
-    retryDelay: 1000                  // Optional, delay between retries in ms
+    path: 'blog',                         // Optional, URL prefix for articles
+    timeout: 10000,                       // Optional, request timeout in ms
+    retries: 3,                           // Optional, number of retries
+    retryDelay: 1000                      // Optional, delay between retries in ms
   })
   `}
 </CodeBlock>
@@ -155,8 +170,8 @@ Alternatively, pass the API key directly when creating the client:
 
 All SDK methods return this format:
 
-<CodeBlock language="typescript" filename="client.ts">
-  {`
+<CodeBlock language="json">
+{`
   {
     success: boolean
     data?: any          // Present if success is true
@@ -171,12 +186,32 @@ All SDK methods return this format:
       totalPages: number
     }
   }
-  `}
+`}
 </CodeBlock>
 
 ## Next Steps
 
-- [Articles API](/articles) - Fetch and filter articles
-- [Analytics](/analytics) - Track page views
-- [SEO](/seo) - Generate sitemaps and RSS feeds
-- [Multilingual](/multilingual) - Handle translations
+- [Articles API](/sdk/articles) - Fetch and filter articles
+- [Analytics](/sdk/analytics) - Track page views
+- [SEO](/sdk/seo) - Generate sitemaps and RSS feeds
+- [Multilingual](/sdk/multilingual) - Handle translations
+
+## Frequently Asked Questions
+
+<Faq
+  title="Quick Help"
+  items={[
+    {
+      question: "Do I need an API key to use the SDK?",
+      answer: "Yes, you need an API key from your Simplist dashboard. Set it as SIMPLIST_API_KEY environment variable or pass it directly when creating the client."
+    },
+    {
+      question: "Can I use the SDK in both server and client components?",
+      answer: "The SDK is designed for server-side use (Next.js Server Components, API routes, Node.js). For client-side tracking, use the Analytics API directly or create a server action wrapper."
+    },
+    {
+      question: "What's the difference between the SDK and REST API?",
+      answer: "The SDK provides a typed TypeScript interface with automatic error handling and retries. The REST API gives you direct HTTP access for any language or platform. Use the SDK for TypeScript/JavaScript projects for better DX."
+    }
+  ]}
+/>
