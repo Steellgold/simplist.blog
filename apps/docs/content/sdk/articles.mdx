@@ -48,7 +48,8 @@ Retrieve a paginated list of articles with filtering and sorting options.
     { name: "order", type: "'asc' | 'desc'", description: "Sort direction", defaultValue: "desc" },
     { name: "published", type: "boolean", description: "Filter by published status" },
     { name: "search", type: "string", description: "Search in title and content" },
-    { name: "status", type: "'draft' | 'published'", description: "Filter by status" }
+    { name: "status", type: "'draft' | 'published'", description: "Filter by status" },
+    { name: "optionalFields", type: "ArticleOptionalFields", description: "Request optional tag fields (color, icon)" }
   ]}
 />
 
@@ -57,6 +58,7 @@ Retrieve a paginated list of articles with filtering and sorting options.
 <CodeBlock language="tsx">
 {`
 
+  // Basic list
   const { data, meta } = await client.articles.list({
     page: 1,
     limit: 20,
@@ -70,6 +72,21 @@ Retrieve a paginated list of articles with filtering and sorting options.
 
   data.forEach(article => {
     console.log(\`- \${article.title} (\${article.readTimeMinutes}min read)\`)
+    console.log(\`  Tags: \${article.tags.map(t => t.name).join(', ')}\`)
+  })
+
+  // With optional tag fields (color and icon)
+  const { data: articlesWithTags } = await client.articles.list({
+    optionalFields: {
+      tagColor: true,  // Include hex color codes
+      tagIcon: true    // Include icon names
+    }
+  })
+
+  articlesWithTags.forEach(article => {
+    article.tags.forEach(tag => {
+      console.log(\`Tag: \${tag.name}, Color: \${tag.color}, Icon: \${tag.icon}\`)
+    })
   })
 `}
 </CodeBlock>
@@ -81,7 +98,8 @@ Retrieve a single article by its slug, including full content.
 <MethodSignature
   name="client.articles.get"
   parameters={[
-    { name: "slug", type: "string", required: true }
+    { name: "slug", type: "string", required: true },
+    { name: "options", type: "{ optionalFields?: ArticleOptionalFields }", optional: true }
   ]}
   returnType="Promise<ApiResponse<Article>>"
   async={true}
@@ -89,16 +107,46 @@ Retrieve a single article by its slug, including full content.
 
 ### Example
 
-<CodeBlock language="typescript">
-{`
-  const { data: article } = await client.articles.get('getting-started')
+<CodeBlock
+  tabs={[
+    {
+      label: "Tag Names",
+      language: "typescript",
+      code: `const { data: article } = await client.articles.get('getting-started')
 
-  console.log(article.title)
-  console.log(article.content)  // Full Markdown content
-  console.log(article.author.name)
-  console.log(article.viewCount)
-`}
-</CodeBlock>
+console.log(article.title)
+console.log(article.content)  // Full Markdown content
+console.log(article.author.name)
+console.log(article.viewCount)
+
+// Tags names are always included
+console.log(article.tags.map(t => t.name))
+// Output: ['JavaScript', 'TypeScript', 'React']`
+    },
+    {
+      label: "Tags with Infos",
+      language: "typescript",
+      code: `const { data: article } = await client.articles.get('getting-started', {
+  optionalFields: {
+    tagColor: true,  // Include hex color
+    tagIcon: true    // Include icon name
+  }
+})
+
+console.log(article.title)
+console.log(article.content)
+
+// Tags with color and icon
+article.tags.forEach(tag => {
+  console.log(\`\${tag.name}: \${tag.color} (\${tag.icon})\`)
+})
+// Output:
+// JavaScript: #EAB308 (code)
+// TypeScript: #3B82F6 (code)
+// React: #06B6D4 (component)`
+    }
+  ]}
+/>
 
 ## search()
 
