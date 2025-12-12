@@ -41,6 +41,13 @@ export interface Author {
   image: string | null
 }
 
+// Tag type
+export interface Tag {
+  name: string
+  color?: string | null // Hex color code (e.g., "#EF4444")
+  icon?: string | null
+}
+
 // Article types
 export interface Article {
   id: string
@@ -61,6 +68,7 @@ export interface Article {
   createdAt: string
   updatedAt: string
   publishedAt: string | null
+  tags: Tag[]
   variants?: Record<LanguageCode, ArticleVariant>
 }
 
@@ -88,6 +96,12 @@ export interface ProjectInfo {
   stats: ProjectStats
 }
 
+// Optional fields configuration
+export type ArticleOptionalFields = {
+  tagColor?: boolean
+  tagIcon?: boolean
+}
+
 // Query parameters
 export interface ArticleListParams {
   page?: number
@@ -97,4 +111,5 @@ export interface ArticleListParams {
   published?: boolean
   search?: string
   status?: 'draft' | 'published'
+  optionalFields?: ArticleOptionalFields
 }

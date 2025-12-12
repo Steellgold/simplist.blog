@@ -3,8 +3,9 @@ import type {
   ApiResponse,
   Article,
   ArticleListItem,
-  ArticleListParams
-} from '../types/api.js'
+  ArticleListParams,
+  ArticleOptionalFields
+} from '../types/api'
 
 export class ArticlesResource {
   constructor(private http: HttpClient) {}
@@ -19,8 +20,8 @@ export class ArticlesResource {
   /**
    * Get a single article by slug
    */
-  async get(slug: string): Promise<ApiResponse<Article>> {
-    return this.http.get<ApiResponse<Article>>(`/v1/articles/${encodeURIComponent(slug)}`)
+  async get(slug: string, options?: { optionalFields?: ArticleOptionalFields }): Promise<ApiResponse<Article>> {
+    return this.http.get<ApiResponse<Article>>(`/v1/articles/${encodeURIComponent(slug)}`, options)
   }
 
   /**

@@ -115,11 +115,22 @@ export class HttpClient {
 
   async get<T>(path: string, params?: Record<string, any>): Promise<T> {
     const searchParams = new URLSearchParams()
-    
+
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
-          searchParams.append(key, String(value))
+          // Handle optionalFields object specially
+          if (key === 'optionalFields' && typeof value === 'object') {
+            const fields = Object.entries(value)
+              .filter(([_, v]) => v === true)
+              .map(([k]) => k)
+              .join(',')
+            if (fields) {
+              searchParams.append(key, fields)
+            }
+          } else {
+            searchParams.append(key, String(value))
+          }
         }
       })
     }

@@ -1,3 +1,5 @@
+import { getColorHex } from './color-mapper'
+
 // Helper to convert date to ISO string (handles both Date objects and strings from cache)
 export const toISOString = (date: any): string | null => {
   if (!date) return null
@@ -28,6 +30,15 @@ export const formatArticle = (article: any) => {
   // Format variants as key-value map if present
   if (article.variants && Array.isArray(article.variants)) {
     formatted.variants = formatVariants(article.variants)
+  }
+
+  // Format tags if present - convert color enum to hex
+  if (article.tags && Array.isArray(article.tags)) {
+    formatted.tags = article.tags.map((tag: any) => ({
+      name: tag.name,
+      ...(tag.color !== undefined ? { color: getColorHex(tag.color) } : {}),
+      ...(tag.icon !== undefined ? { icon: tag.icon } : {})
+    }))
   }
 
   return formatted

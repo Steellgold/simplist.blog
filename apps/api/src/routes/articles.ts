@@ -24,6 +24,12 @@ const articlesRoutes: FastifyPluginAsync = async (fastify) => {
     const status = query.status
     const projectId = request.apiKey!.projectId
 
+    // Parse optional fields from query string (e.g., ?optionalFields=tagColor,tagIcon)
+    const optionalFieldsParam = query.optionalFields as string | undefined
+    const optionalFields = optionalFieldsParam
+      ? optionalFieldsParam.split(',').reduce((acc, field) => ({ ...acc, [field]: true }), {})
+      : {}
+
     try {
       // Create cache key parameters
       const cacheParams = { page, limit, sort, order, published, search, status }
@@ -111,6 +117,13 @@ const articlesRoutes: FastifyPluginAsync = async (fastify) => {
               lastName: true,
               image: true
             }
+          },
+          tags: {
+            select: {
+              name: true,
+              ...(optionalFields.tagColor ? { color: true } : {}),
+              ...(optionalFields.tagIcon ? { icon: true } : {})
+            }
           }
         },
         orderBy: { [sort]: order },
@@ -152,14 +165,22 @@ const articlesRoutes: FastifyPluginAsync = async (fastify) => {
         type: "object",
         properties: {
           includeSeo: { type: "boolean" },
-          baseUrl: { type: "string", format: "uri" }
+          baseUrl: { type: "string", format: "uri" },
+          optionalFields: { type: "string" }
         }
       }
     }
   }, async (request, reply) => {
     const { slug } = request.params as { slug: string }
-    const { includeSeo = false, baseUrl } = request.query as { includeSeo?: boolean, baseUrl?: string }
+    const query = request.query as any
+    const { includeSeo = false, baseUrl } = query
     const projectId = request.apiKey!.projectId
+
+    // Parse optional fields from query string (e.g., ?optionalFields=tagColor,tagIcon)
+    const optionalFieldsParam = query.optionalFields as string | undefined
+    const optionalFields = optionalFieldsParam
+      ? optionalFieldsParam.split(',').reduce((acc, field) => ({ ...acc, [field]: true }), {})
+      : {}
 
     try {
       // Try to get from cache first
@@ -210,6 +231,13 @@ const articlesRoutes: FastifyPluginAsync = async (fastify) => {
               firstName: true,
               lastName: true,
               image: true
+            }
+          },
+          tags: {
+            select: {
+              name: true,
+              ...(optionalFields.tagColor ? { color: true } : {}),
+              ...(optionalFields.tagIcon ? { icon: true } : {})
             }
           },
           ...(includeSeo ? { project: true } : {})
