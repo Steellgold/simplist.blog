@@ -111,5 +111,5 @@ export const getDocsNavItems = async (): Promise<DocNavItem[]> => {
 
 export const getPageImage = (slug: string[]) => ({
   segments: [...slug, "image.png"],
-  url: `/og/${[...slug, "image.png"].join("/")}`,
+  url: `/api/og/${[...slug, "image.png"].join("/")}`,
 })
