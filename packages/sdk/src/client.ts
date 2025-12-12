@@ -1,8 +1,8 @@
-import { AnalyticsResource } from './resources/analytics.js'
-import { ArticlesResource } from './resources/articles.js'
-import { ProjectsResource } from './resources/projects.js'
-import { SeoResource } from './resources/seo.js'
-import { HttpClient, HttpClientOptions } from './utils/http.js'
+import { AnalyticsResource } from './resources/analytics'
+import { ArticlesResource } from './resources/articles'
+import { ProjectsResource } from './resources/projects'
+import { SeoResource } from './resources/seo'
+import { HttpClient, HttpClientOptions } from './utils/http'
 
 export interface SimplistClientOptions {
   /**

@@ -1,4 +1,4 @@
-import { ApiError } from '../types/api.js'
+import { ApiError } from '../types/api'
 
 export class SimplistApiError extends Error {
   public readonly statusCode: number

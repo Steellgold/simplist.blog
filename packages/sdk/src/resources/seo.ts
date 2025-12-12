@@ -1,4 +1,4 @@
-import { HttpClient } from '../utils/http.js'
+import { HttpClient } from '../utils/http'
 
 export interface SeoMetadata {
   metaTitle: string
