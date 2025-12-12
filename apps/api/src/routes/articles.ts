@@ -11,6 +11,15 @@ import { generateSeoMetadata } from "../utils/seo-generator"
 
 const { prisma } = db
 
+const parseOptionalFields = (param?: string): Record<string, boolean> => {
+  if (!param) return {}
+  return param.split(",").reduce<Record<string, boolean>>((acc, field) => {
+    const trimmed = field.trim()
+    if (trimmed) acc[trimmed] = true
+    return acc
+  }, {})
+}
+
 const articlesRoutes: FastifyPluginAsync = async (fastify) => {
   // GET /articles - List articles with pagination
   fastify.get("/articles", async (request, reply) => {
@@ -26,9 +35,7 @@ const articlesRoutes: FastifyPluginAsync = async (fastify) => {
 
     // Parse optional fields from query string (e.g., ?optionalFields=tagColor,tagIcon)
     const optionalFieldsParam = query.optionalFields as string | undefined
-    const optionalFields = optionalFieldsParam
-      ? optionalFieldsParam.split(',').reduce((acc, field) => ({ ...acc, [field]: true }), {})
-      : {}
+    const optionalFields = parseOptionalFields(optionalFieldsParam)
 
     try {
       // Create cache key parameters
@@ -178,9 +185,7 @@ const articlesRoutes: FastifyPluginAsync = async (fastify) => {
 
     // Parse optional fields from query string (e.g., ?optionalFields=tagColor,tagIcon)
     const optionalFieldsParam = query.optionalFields as string | undefined
-    const optionalFields = optionalFieldsParam
-      ? optionalFieldsParam.split(',').reduce((acc, field) => ({ ...acc, [field]: true }), {})
-      : {}
+    const optionalFields = parseOptionalFields(optionalFieldsParam)
 
     try {
       // Try to get from cache first
