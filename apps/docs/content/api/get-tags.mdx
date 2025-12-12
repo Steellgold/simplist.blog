@@ -87,20 +87,7 @@ Returns an array of `TagListItem` objects with metadata about total count.
 
 ## SDK Equivalent
 
-<CodeBlock language="typescript">
-{`
-  const { data: tags, meta } = await client.tags.list()
-
-  console.log(\`Total tags: \${meta.total}\`)
-
-  tags.forEach(tag => {
-    console.log(\`- \${tag.name}: \${tag.articleCount} articles\`)
-    if (tag.color) {
-      console.log(\`  Color: \${tag.color}\`)
-    }
-  })
-`}
-</CodeBlock>
+If you're using TypeScript/JavaScript, you can use the SDK instead: [client.tags.list()](/sdk/tags#list)
 
 ## Related Endpoints
 

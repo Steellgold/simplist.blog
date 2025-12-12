@@ -97,18 +97,7 @@ curl -X GET "https://api.simplist.blog/v1/tags/Machine%20Learning" \\
 
 ## SDK Equivalent
 
-<CodeBlock language="typescript">
-{`
-  const { data: tag } = await client.tags.get('JavaScript')
-
-  console.log(\`Tag: \${tag.name}\`)
-  console.log(\`Articles: \${tag.articleCount}\`)
-  console.log(\`Color: \${tag.color}\`)
-
-  // With special characters (automatic URL encoding)
-  const { data: mlTag } = await client.tags.get('Machine Learning')
-`}
-</CodeBlock>
+If you're using TypeScript/JavaScript, you can use the SDK instead: [client.tags.get()](/sdk/tags#get)
 
 ## Related Endpoints
 

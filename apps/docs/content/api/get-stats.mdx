@@ -109,15 +109,4 @@ Retrieve comprehensive analytics statistics for your project, including total vi
 
 ## SDK Equivalent
 
-<CodeBlock language="typescript">
-{`
-
-  const { data: stats } = await client.analytics.getStats({ days: 7 })
-
-  console.log(\`Total views: \${stats.summary.totalViews}\`)
-  console.log(\`Unique visitors: \${stats.summary.uniqueVisitors}\`)
-
-`}
-</CodeBlock>
-
-See [Analytics API](/sdk/analytics) for SDK documentation.
+If you're using TypeScript/JavaScript, you can use the SDK instead: [client.analytics.getStats()](/sdk/analytics)

@@ -116,17 +116,4 @@ Add the structured data to each article page's `<head>`:
 
 ## SDK Equivalent
 
-<CodeBlock language="typescript">
-{`
-
-  const { data } = await client.seo.getStructuredData('https://myblog.com')
-
-  data.articles.forEach(article => {
-    console.log(article.slug)
-    console.log(JSON.stringify(article.structuredData))
-  })
-
-`}
-</CodeBlock>
-
-See [SEO API](/sdk/seo) for SDK documentation.
+If you're using TypeScript/JavaScript, you can use the SDK instead: [client.seo.getStructuredData()](/sdk/seo)

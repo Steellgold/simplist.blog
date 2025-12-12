@@ -139,22 +139,7 @@ Create a new page view tracking entry for an article.
 
 ## SDK Equivalent
 
-<CodeBlock language="typescript">
-{`
-
-  const response = await client.analytics.track({
-    slug: 'getting-started',
-    sessionId: 'sess_abc123',
-    pageUrl: 'https://myblog.com/blog/getting-started',
-    fetchGeo: true
-  })
-
-  console.log(response.id) // 'pv_xyz789'
-
-`}
-</CodeBlock>
-
-See [Analytics API](/sdk/analytics) for SDK documentation.
+If you're using TypeScript/JavaScript, you can use the SDK instead: [client.analytics.track()](/sdk/analytics)
 
 ## Notes
 

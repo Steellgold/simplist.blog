@@ -105,15 +105,4 @@ Returns a `ProjectInfo` object containing both project metadata and statistics.
 
 ## SDK Equivalent
 
-<CodeBlock language="typescript">
-{`
-
-  const { data } = await client.project.get()
-
-  console.log(data.project.name)        // "My Blog"
-  console.log(data.stats.totalArticles) // 42
-
-`}
-</CodeBlock>
-
-See [Project API](/sdk/project) for SDK documentation.
+If you're using TypeScript/JavaScript, you can use the SDK instead: [client.project.get()](/sdk/project)

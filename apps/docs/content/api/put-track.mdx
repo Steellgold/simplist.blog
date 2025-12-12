@@ -155,17 +155,4 @@ window.addEventListener('beforeunload', async () => {
 
 ## SDK Equivalent
 
-<CodeBlock language="typescript">
-{`
-
-  await client.analytics.update(pageViewId, {
-    timeOnPage: 125,
-    scrollDepth: 85,
-    exitPosition: 85,
-    bounced: false
-  })
-
-`}
-</CodeBlock>
-
-See [Analytics API](/sdk/analytics) for SDK documentation.
+If you're using TypeScript/JavaScript, you can use the SDK instead: [client.analytics.update()](/sdk/analytics)

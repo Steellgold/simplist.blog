@@ -152,41 +152,7 @@ curl -X GET "https://api.simplist.blog/v1/articles?tags=JavaScript,TypeScript&ta
 
 ## SDK Equivalent
 
-If you're using TypeScript/JavaScript, you can use the [SDK method](/sdk/articles):
-
-<CodeBlock language="typescript">
-{`
-  // Basic list
-  const { data, meta } = await client.articles.list({
-    page: 1,
-    limit: 5,
-    published: true
-  })
-
-  // Filter by tags (OR logic)
-  const { data: jsArticles } = await client.articles.list({
-    tags: ['JavaScript', 'TypeScript']
-  })
-
-  // Filter by all tags (AND logic)
-  const { data: tutorials } = await client.articles.list({
-    tagsAll: ['Tutorial', 'JavaScript']
-  })
-
-  // Exclude tags
-  const { data: beginnerArticles } = await client.articles.list({
-    excludeTags: ['Advanced', 'Deprecated']
-  })
-
-  // Complex filter
-  const { data: filtered } = await client.articles.list({
-    tags: ['JavaScript', 'TypeScript'],
-    tagsAll: ['Tutorial'],
-    excludeTags: ['Advanced'],
-    published: true
-  })
-`}
-</CodeBlock>
+If you're using TypeScript/JavaScript, you can use the SDK instead: [client.articles.list()](/sdk/articles#list)
 
 ## Related Endpoints
 
