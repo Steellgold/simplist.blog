@@ -25,7 +25,10 @@ Retrieve a list of articles from your Simplist project with pagination, filterin
     { name: "order", type: "string", required: false, description: "Sort order: asc | desc (default: desc)" },
     { name: "published", type: "boolean", required: false, description: "Filter by published status" },
     { name: "search", type: "string", required: false, description: "Search query for title/content" },
-    { name: "status", type: "string", required: false, description: "Filter by status: draft | published" }
+    { name: "status", type: "string", required: false, description: "Filter by status: draft | published" },
+    { name: "tags", type: "string[]", required: false, description: "Filter by tags (OR logic: at least one)" },
+    { name: "tagsAll", type: "string[]", required: false, description: "Filter by tags (AND logic: all required)" },
+    { name: "excludeTags", type: "string[]", required: false, description: "Exclude articles with these tags" }
   ]}
 />
 
@@ -39,7 +42,10 @@ Retrieve a list of articles from your Simplist project with pagination, filterin
     { name: "order", type: "string", description: "Sort direction (asc or desc)", defaultValue: "desc" },
     { name: "published", type: "boolean", description: "Filter by published status" },
     { name: "search", type: "string", description: "Search in title and content" },
-    { name: "status", type: "string", description: "Filter by article status" }
+    { name: "status", type: "string", description: "Filter by article status" },
+    { name: "tags", type: "string[]", description: "Filter articles with at least one of these tags (OR logic)" },
+    { name: "tagsAll", type: "string[]", description: "Filter articles with all of these tags (AND logic)" },
+    { name: "excludeTags", type: "string[]", description: "Exclude articles with any of these tags" }
   ]}
 />
 
@@ -100,18 +106,90 @@ Returns an array of `ArticleListItem` objects (articles without full content).
 `}
 </CodeBlock>
 
+## Filtering by Tags
+
+You can filter articles by tags using three different parameters:
+
+### Filter by Tags (OR Logic)
+
+Get articles with at least one of the specified tags:
+
+<CodeBlock language="bash">
+{`# Articles tagged with JavaScript OR TypeScript
+curl -X GET "https://api.simplist.blog/v1/articles?tags=JavaScript,TypeScript" \\
+  -H "X-API-Key: YOUR_API_KEY"`}
+</CodeBlock>
+
+### Filter by All Tags (AND Logic)
+
+Get articles that have all specified tags:
+
+<CodeBlock language="bash">
+{`# Articles tagged with BOTH Tutorial AND JavaScript
+curl -X GET "https://api.simplist.blog/v1/articles?tagsAll=Tutorial,JavaScript" \\
+  -H "X-API-Key: YOUR_API_KEY"`}
+</CodeBlock>
+
+### Exclude Tags
+
+Get articles that don't have specific tags:
+
+<CodeBlock language="bash">
+{`# Articles without Advanced or Deprecated tags
+curl -X GET "https://api.simplist.blog/v1/articles?excludeTags=Advanced,Deprecated" \\
+  -H "X-API-Key: YOUR_API_KEY"`}
+</CodeBlock>
+
+### Combining Tag Filters
+
+You can combine multiple tag filters for complex queries:
+
+<CodeBlock language="bash">
+{`# Articles about JavaScript OR TypeScript, that are tutorials, but not advanced
+curl -X GET "https://api.simplist.blog/v1/articles?tags=JavaScript,TypeScript&tagsAll=Tutorial&excludeTags=Advanced" \\
+  -H "X-API-Key: YOUR_API_KEY"`}
+</CodeBlock>
+
 ## SDK Equivalent
 
 If you're using TypeScript/JavaScript, you can use the [SDK method](/sdk/articles):
 
 <CodeBlock language="typescript">
 {`
-
+  // Basic list
   const { data, meta } = await client.articles.list({
     page: 1,
     limit: 5,
     published: true
   })
 
+  // Filter by tags (OR logic)
+  const { data: jsArticles } = await client.articles.list({
+    tags: ['JavaScript', 'TypeScript']
+  })
+
+  // Filter by all tags (AND logic)
+  const { data: tutorials } = await client.articles.list({
+    tagsAll: ['Tutorial', 'JavaScript']
+  })
+
+  // Exclude tags
+  const { data: beginnerArticles } = await client.articles.list({
+    excludeTags: ['Advanced', 'Deprecated']
+  })
+
+  // Complex filter
+  const { data: filtered } = await client.articles.list({
+    tags: ['JavaScript', 'TypeScript'],
+    tagsAll: ['Tutorial'],
+    excludeTags: ['Advanced'],
+    published: true
+  })
 `}
 </CodeBlock>
+
+## Related Endpoints
+
+- <InlineRouteLink method="GET" path="/v1/tags" href="/api/get-tags" /> - List all available tags
+- <InlineRouteLink method="GET" path="/v1/tags/:name" href="/api/get-tag" /> - Get a specific tag
+- <InlineRouteLink method="GET" path="/v1/articles/:slug" href="/api/get-article" /> - Get a single article
