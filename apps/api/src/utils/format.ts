@@ -75,3 +75,16 @@ export const formatProject = (project: any) => {
     updatedAt: project.updatedAt.toISOString()
   }
 }
+
+// Format tag for API response - convert Color enum to hex
+export const formatTag = (tag: any) => {
+  return {
+    id: tag.id,
+    name: tag.name,
+    icon: tag.icon,
+    color: tag.color ? getColorHex(tag.color) : null,
+    articleCount: tag._count?.articles || 0,
+    createdAt: toISOString(tag.createdAt),
+    updatedAt: toISOString(tag.updatedAt)
+  }
+}

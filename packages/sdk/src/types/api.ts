@@ -48,6 +48,17 @@ export interface Tag {
   icon?: string | null
 }
 
+// Tag list item with article count
+export interface TagListItem {
+  id: string
+  name: string
+  icon: string | null
+  color: string | null // Hex color code
+  articleCount: number
+  createdAt: string
+  updatedAt: string
+}
+
 // Article types
 export interface Article {
   id: string
@@ -112,4 +123,8 @@ export interface ArticleListParams {
   search?: string
   status?: 'draft' | 'published'
   optionalFields?: ArticleOptionalFields
+  // Tag filters
+  tags?: string[]        // OR logic: at least one tag
+  tagsAll?: string[]     // AND logic: all tags required
+  excludeTags?: string[] // Exclude articles with these tags
 }

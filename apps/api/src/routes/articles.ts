@@ -37,9 +37,14 @@ const articlesRoutes: FastifyPluginAsync = async (fastify) => {
     const optionalFieldsParam = query.optionalFields as string | undefined
     const optionalFields = parseOptionalFields(optionalFieldsParam)
 
+    // Parse tag filters
+    const tags = query.tags ? (Array.isArray(query.tags) ? query.tags : query.tags.split(',')) : undefined
+    const tagsAll = query.tagsAll ? (Array.isArray(query.tagsAll) ? query.tagsAll : query.tagsAll.split(',')) : undefined
+    const excludeTags = query.excludeTags ? (Array.isArray(query.excludeTags) ? query.excludeTags : query.excludeTags.split(',')) : undefined
+
     try {
       // Create cache key parameters
-      const cacheParams = { page, limit, sort, order, published, search, status }
+      const cacheParams = { page, limit, sort, order, published, search, status, tags, tagsAll, excludeTags }
       
       // Try to get from cache first
       const cachedArticles = await getCachedArticlesList(projectId, cacheParams)
@@ -85,6 +90,27 @@ const articlesRoutes: FastifyPluginAsync = async (fastify) => {
           { excerpt: { contains: search, mode: "insensitive" } },
           { content: { contains: search, mode: "insensitive" } }
         ]
+      }
+
+      // Filter by tags (OR logic - at least one tag)
+      if (tags && tags.length > 0) {
+        where.tags = { some: { name: { in: tags } } }
+      }
+
+      // Filter by tagsAll (AND logic - all tags required)
+      if (tagsAll && tagsAll.length > 0) {
+        where.AND = tagsAll.map((tagName: string) => ({
+          tags: { some: { name: tagName } }
+        }))
+      }
+
+      // Exclude tags
+      if (excludeTags && excludeTags.length > 0) {
+        if (where.tags) {
+          where.tags = { ...where.tags, none: { name: { in: excludeTags } } }
+        } else {
+          where.tags = { none: { name: { in: excludeTags } } }
+        }
       }
 
       // Get total count for pagination

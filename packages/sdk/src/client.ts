@@ -2,6 +2,7 @@ import { AnalyticsResource } from './resources/analytics'
 import { ArticlesResource } from './resources/articles'
 import { ProjectsResource } from './resources/projects'
 import { SeoResource } from './resources/seo'
+import { TagsResource } from './resources/tags'
 import { HttpClient, HttpClientOptions } from './utils/http'
 
 export interface SimplistClientOptions {
@@ -82,8 +83,9 @@ export interface SimplistClientOptions {
 export class SimplistClient {
   private http: HttpClient
   private path?: string
-  
+
   public readonly articles: ArticlesResource
+  public readonly tags: TagsResource
   public readonly project: ProjectsResource
   public readonly analytics: AnalyticsResource
   public readonly seo: SeoResource
@@ -113,8 +115,9 @@ export class SimplistClient {
 
     this.http = new HttpClient(httpOptions)
     this.path = options.path
-    
+
     this.articles = new ArticlesResource(this.http)
+    this.tags = new TagsResource(this.http)
     this.project = new ProjectsResource(this.http)
     this.analytics = new AnalyticsResource(this.http)
     this.seo = new SeoResource(this.http, this.path)
