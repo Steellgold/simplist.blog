@@ -246,13 +246,14 @@ const getMdxMetadata = async (slug: string[]): Promise<Metadata> => {
   return {
     title: `${title} | Simplist Documentation`,
     description,
+    keywords: ["simplist", "documentation", "api", "sdk", "rest", "content", "management", "blog"],
     openGraph: {
       title: `${title} | Simplist Documentation`,
       description,
-      images: getPageImage(slug).url,
+      images: getPageImage(slug).url
     },
     twitter: {
-      card: 'summary_large_image',
+      card: "summary_large_image",
       title: `${title} | Simplist Documentation`,
       description,
       images: getPageImage(slug).url,

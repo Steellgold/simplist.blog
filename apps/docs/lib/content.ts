@@ -109,7 +109,10 @@ export const getDocsNavItems = async (): Promise<DocNavItem[]> => {
   )
 }
 
-export const getPageImage = (slug: string[]) => ({
-  segments: [...slug, "image.png"],
-  url: `/og/${[...slug, "image.png"].join("/")}`,
-})
+export const getPageImage = (slug: string[]) => {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://docs.simplist.blog'
+  return {
+    segments: [...slug, "image.png"],
+    url: `${baseUrl}/og/${[...slug, "image.png"].join("/")}`,
+  }
+}
