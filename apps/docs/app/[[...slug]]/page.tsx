@@ -35,6 +35,7 @@ import { CurlCommand } from "@/components/curl-command"
 import { MethodSignature } from "@/components/method-signature"
 import { Faq } from "@/components/faq"
 import { FootNotes } from "@/components/footnotes"
+import { getPageImage } from "@/lib/content"
 
 const createHeadingComponents = (headings: TocHeading[]): Record<string, ComponentType<any>> => {
   const textToIdMap = new Map<string, string[]>()
@@ -245,6 +246,17 @@ const getMdxMetadata = async (slug: string[]): Promise<Metadata> => {
   return {
     title: `${title} | Simplist Documentation`,
     description,
+    openGraph: {
+      title: `${title} | Simplist Documentation`,
+      description,
+      images: getPageImage(slug).url,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${title} | Simplist Documentation`,
+      description,
+      images: getPageImage(slug).url,
+    },
   }
 }
 

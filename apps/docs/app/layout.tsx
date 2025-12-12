@@ -13,6 +13,7 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "Simplist Docs",
   description: "Documentation for Simplist",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://docs.simplist.blog'),
 }
 
 const RootLayout: FC<PropsWithChildren> = ({ children }) => {
