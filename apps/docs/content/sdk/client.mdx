@@ -27,6 +27,7 @@ The main client for interacting with the Simplist API.
   properties={[
     { name: "apiKey", type: "string", description: "API key for authentication (auto-detected from SIMPLIST_API_KEY env var)", required: false },
     { name: "baseUrl", type: "string", description: "Base URL for the API", defaultValue: "https://api.simplist.blog" },
+    { name: "apiVersion", type: "string", description: "API version to use (e.g., '1', '2'). Automatically adds /v{version}/ prefix to all requests", defaultValue: "1" },
     { name: "path", type: "string", description: "Global path for article URLs (e.g., 'blog', 'articles')" },
     { name: "timeout", type: "number", description: "Request timeout in milliseconds", defaultValue: "10000" },
     { name: "retries", type: "number", description: "Number of retry attempts for failed requests", defaultValue: "3" },
@@ -42,9 +43,16 @@ The main client for interacting with the Simplist API.
 
   const client = new SimplistClient({
     apiKey: process.env.SIMPLIST_API_KEY,
-    path: 'blog',  // Articles will be at yoursite.com/blog/article-slug
+    apiVersion: '1',  // Use API v1 (default)
+    path: 'blog',     // Articles will be at yoursite.com/blog/article-slug
     timeout: 5000,
     retries: 2
+  })
+
+  // Or for future v2 API
+  const v2Client = new SimplistClient({
+    apiKey: process.env.SIMPLIST_API_KEY,
+    apiVersion: '2'  // Use API v2
   })
 `}
 </CodeBlock>

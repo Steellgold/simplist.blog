@@ -118,8 +118,8 @@ export class SeoResource {
     if (baseUrl) params.set('baseUrl', baseUrl)
     
     const query = params.toString()
-    const url = `/v1/seo/article/${articleSlug}${query ? `?${query}` : ''}`
-    
+    const url = `/seo/article/${articleSlug}${query ? `?${query}` : ''}`
+
     return this.http.get(url) as Promise<ArticleWithSeo>
   }
 
@@ -177,7 +177,7 @@ export class SeoResource {
       params.set('customPath', `${normalizedPath}{slug}`)
     }
     
-    const response = await this.http.get(`/v1/seo/sitemap?${params}`, {
+    const response = await this.http.get(`/seo/sitemap?${params}`, {
       headers: format === 'xml' ? { Accept: 'application/xml' } : undefined
     })
     
@@ -236,7 +236,7 @@ export class SeoResource {
       params.set('customPath', `${normalizedPath}{slug}`)
     }
     
-    return this.http.get(`/v1/seo/rss?${params}`) as Promise<string>
+    return this.http.get(`/seo/rss?${params}`) as Promise<string>
   }
 
   /**
@@ -270,8 +270,8 @@ export class SeoResource {
     if (baseUrl) params.set('baseUrl', baseUrl)
     
     const query = params.toString()
-    const url = `/v1/seo/structured-data${query ? `?${query}` : ''}`
-    
+    const url = `/seo/structured-data${query ? `?${query}` : ''}`
+
     return this.http.get(url) as Promise<StructuredDataResponse>
   }
 

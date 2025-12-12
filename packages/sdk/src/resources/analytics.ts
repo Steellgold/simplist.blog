@@ -95,7 +95,7 @@ export class AnalyticsResource {
    * ```
    */
   async track(data: PageViewData): Promise<PageViewResponse> {
-    return this.http.post('/v1/analytics/track', data)
+    return this.http.post('/analytics/track', data)
   }
 
   /**
@@ -122,7 +122,7 @@ export class AnalyticsResource {
     bounced?: boolean
     events?: PageEvent[]
   }): Promise<{ success: boolean }> {
-    return this.http.put(`/v1/analytics/track/${pageViewId}`, data)
+    return this.http.put(`/analytics/track/${pageViewId}`, data)
   }
 
   /**
@@ -147,8 +147,8 @@ export class AnalyticsResource {
     }
     
     const query = params.toString()
-    const url = query ? `/v1/analytics/stats?${query}` : '/v1/analytics/stats'
-    
+    const url = query ? `/analytics/stats?${query}` : '/analytics/stats'
+
     return this.http.get(url)
   }
 }

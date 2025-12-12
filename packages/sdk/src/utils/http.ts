@@ -17,6 +17,7 @@ export class SimplistApiError extends Error {
 export interface HttpClientOptions {
   baseUrl: string
   apiKey: string
+  apiVersion?: string
   timeout?: number
   retries?: number
   retryDelay?: number
@@ -25,6 +26,7 @@ export interface HttpClientOptions {
 export class HttpClient {
   private baseUrl: string
   private apiKey: string
+  private apiVersion: string
   private timeout: number
   private retries: number
   private retryDelay: number
@@ -32,6 +34,7 @@ export class HttpClient {
   constructor(options: HttpClientOptions) {
     this.baseUrl = options.baseUrl.replace(/\/$/, '') // Remove trailing slash
     this.apiKey = options.apiKey
+    this.apiVersion = options.apiVersion || '1'
     this.timeout = options.timeout || 10000
     this.retries = options.retries || 3
     this.retryDelay = options.retryDelay || 1000
@@ -45,7 +48,8 @@ export class HttpClient {
     path: string,
     options: RequestInit = {}
   ): Promise<T> {
-    const url = `${this.baseUrl}${path}`
+    const versionedPath = path.startsWith('/v') ? path : `/v${this.apiVersion}${path}`
+    const url = `${this.baseUrl}${versionedPath}`
 
     const config: RequestInit = {
       ...options,

@@ -9,27 +9,34 @@ export interface SimplistClientOptions {
    * API key for authentication (optional if SIMPLIST_API_KEY env var is set)
    */
   apiKey?: string
-  
+
   /**
    * Base URL for the API (default: https://api.simplist.blog)
    */
   baseUrl?: string
-  
+
+  /**
+   * API version to use (default: '1')
+   * This will be used as /v{apiVersion}/ prefix for all requests
+   * @example '1' -> /v1/articles, '2' -> /v2/articles
+   */
+  apiVersion?: string
+
   /**
    * Article path for SEO URLs (e.g., "blog", "articles", "posts") - auto-adds trailing slash
    */
   path?: string
-  
+
   /**
    * Request timeout in milliseconds (default: 10000)
    */
   timeout?: number
-  
+
   /**
    * Number of retries for failed requests (default: 3)
    */
   retries?: number
-  
+
   /**
    * Delay between retries in milliseconds (default: 1000)
    */
@@ -98,6 +105,7 @@ export class SimplistClient {
     const httpOptions: HttpClientOptions = {
       baseUrl: options.baseUrl || 'https://api.simplist.blog',
       apiKey: apiKey,
+      apiVersion: options.apiVersion || '1',
       timeout: options.timeout,
       retries: options.retries,
       retryDelay: options.retryDelay

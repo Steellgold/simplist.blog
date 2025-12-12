@@ -8,7 +8,7 @@ export class ProjectsResource {
    * Get project information and statistics
    */
   async get(): Promise<ApiResponse<ProjectInfo>> {
-    return this.http.get<ApiResponse<ProjectInfo>>('/v1/project')
+    return this.http.get<ApiResponse<ProjectInfo>>('/project')
   }
 
   /**

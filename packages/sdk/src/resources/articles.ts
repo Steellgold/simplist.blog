@@ -14,14 +14,14 @@ export class ArticlesResource {
    * List articles with pagination and filtering
    */
   async list(params?: ArticleListParams): Promise<ApiResponse<ArticleListItem[]>> {
-    return this.http.get<ApiResponse<ArticleListItem[]>>('/v1/articles', params)
+    return this.http.get<ApiResponse<ArticleListItem[]>>('/articles', params)
   }
 
   /**
    * Get a single article by slug
    */
   async get(slug: string, options?: { optionalFields?: ArticleOptionalFields }): Promise<ApiResponse<Article>> {
-    return this.http.get<ApiResponse<Article>>(`/v1/articles/${encodeURIComponent(slug)}`, options)
+    return this.http.get<ApiResponse<Article>>(`/articles/${encodeURIComponent(slug)}`, options)
   }
 
   /**
