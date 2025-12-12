@@ -113,7 +113,7 @@ export const SearchCommand = () => {
               {results.map((result) => (
                 <CommandItem
                   key={result.href}
-                  value={`${result.title} ${result.description || ""}`}
+                  value={`${result.title} ${result.description || ""} ${result.matchContext || ""}`}
                   onSelect={() => handleSelect(result.href)}
                 >
                   <div className="flex items-center gap-2.5">
@@ -123,9 +123,13 @@ export const SearchCommand = () => {
 
                     <div className="flex flex-col">
                       <span className="font-medium">{result.title}</span>
-                      {result.description && (
+                      {result.matchContext ? (
+                        <span className="text-xs text-muted-foreground line-clamp-1">
+                          ...{result.matchContext}...
+                        </span>
+                      ) : result.description ? (
                         <span className="text-xs text-muted-foreground">{result.description}</span>
-                      )}
+                      ) : null}
                     </div>
                   </div>
                 </CommandItem>

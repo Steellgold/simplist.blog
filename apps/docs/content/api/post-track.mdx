@@ -141,9 +141,11 @@ Create a new page view tracking entry for an article.
 
 If you're using TypeScript/JavaScript, you can use the SDK instead: [client.analytics.track()](/sdk/analytics)
 
-## Notes
-
-- **Session ID**: Generate a unique ID per user session (e.g., UUID)
-- **Geolocation**: Only fetched if `fetchGeo: true` (based on IP address)
-- **Privacy**: All data is anonymized and GDPR compliant
-- **Update**: Use the returned `id` to update metrics with PUT request
+<FootNotes
+  notes={[
+    { label: "Session ID", content: "Generate a unique ID per user session (e.g., UUID)" },
+    { label: "Geolocation", content: "Only fetched if fetchGeo: true (based on IP address)" },
+    { label: "Privacy", content: "All data is anonymized and GDPR compliant" },
+    { label: "Update", content: "Use the returned id to update metrics with PUT request" }
+  ]}
+/>
