@@ -12,11 +12,14 @@ export type {
   Article,
   ArticleVariant,
   ArticleListItem,
+  ArticleListParams,
+  ArticleOptionalFields,
   Author,
+  Tag,
+  TagListItem,
   Project,
   ProjectStats,
-  ProjectInfo,
-  ArticleListParams
+  ProjectInfo
 } from './types/api'
 
 // Language types and utilities

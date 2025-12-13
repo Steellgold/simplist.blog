@@ -20,9 +20,9 @@ import { SimplistClient } from '@simplist.blog/sdk'
 // Method 1: Auto-detect API key from environment (recommended)
 const client = new SimplistClient() // Uses SIMPLIST_API_KEY env var
 
-// Method 2: With global path configuration (recommended)
+// Method 2: With configuration
 const client = new SimplistClient({
-  apiKey: 'sk_your_api_key_here', // Get this from your Simplist dashboard
+  apiKey: 'prj_your_api_key_here', // Get this from your Simplist dashboard
   path: 'blog' // All SEO URLs will use /blog/article-slug
 })
 
@@ -34,8 +34,8 @@ const response = await client.articles.get('my-article-slug')
 const article = response.data
 
 // Get project information
-const response = await client.project.get()
-const project = response.data
+const project_res = await client.project.get()
+const project = project_res.data
 
 // Track page views (analytics)
 await client.analytics.track({
@@ -63,7 +63,7 @@ Set the `SIMPLIST_API_KEY` environment variable:
 
 ```bash
 # .env
-SIMPLIST_API_KEY=sk_your_api_key_here
+SIMPLIST_API_KEY=prj_your_api_key_here
 ```
 
 ```typescript
@@ -75,15 +75,15 @@ const client = new SimplistClient()
 
 ```typescript
 const client = new SimplistClient({
-  apiKey: 'sk_your_api_key_here'
+  apiKey: 'prj_your_api_key_here'
 })
 ```
 
-### Method 3: With Global Path Configuration (Recommended)
+### Method 3: With Global Path Configuration
 
 ```typescript
 const client = new SimplistClient({
-  apiKey: 'sk_your_api_key_here',
+  apiKey: 'prj_your_api_key_here',
   path: 'blog' // All SEO URLs will use /blog/article-slug
 })
 
@@ -96,12 +96,9 @@ const rss = await client.seo.getRssFeed('https://myblog.com', 50)
 ### Getting an API Key
 
 1. Go to your Simplist dashboard
-2. Navigate to "API Keys"  
-3. Create a new API key
-4. Choose the appropriate type:
-   - **Secret Key (sk_)**: For server-side use (full access)
-   - **Public Key (pk_)**: For client-side use (analytics only)
-5. Copy the key
+2. Navigate to "API Keys"
+3. Create a new API key (prefixed with `prj_`)
+4. Copy the key
 
 ## API Reference
 
@@ -109,12 +106,13 @@ const rss = await client.seo.getRssFeed('https://myblog.com', 50)
 
 ```typescript
 const client = new SimplistClient({
-  apiKey: 'sk_xxx',           // Optional: Your API key (auto-detected from SIMPLIST_API_KEY if not provided)
+  apiKey: 'prj_xxx',          // Optional: Your API key (auto-detected from SIMPLIST_API_KEY if not provided)
   baseUrl: 'https://api.simplist.blog', // Optional: API base URL
-  path: 'blog',               // Optional: Global article path (e.g., "blog", "articles") - auto-adds trailing slash
+  apiVersion: '1',            // Optional: API version (default: '1')
+  path: 'blog',               // Optional: Global article path for SEO URLs
   timeout: 10000,             // Optional: Request timeout (ms)
   retries: 3,                 // Optional: Number of retries
-  retryDelay: 1000           // Optional: Delay between retries (ms)
+  retryDelay: 1000            // Optional: Delay between retries (ms)
 })
 ```
 
@@ -127,14 +125,61 @@ const client = new SimplistClient({
 const response = await client.articles.list({
   page: 1,
   limit: 20,
-  sort: 'createdAt',
-  order: 'desc',
+  sort: 'createdAt',       // 'createdAt' | 'updatedAt' | 'title'
+  order: 'desc',           // 'asc' | 'desc'
   published: true,
+  status: 'published',     // 'draft' | 'published'
   search: 'search term'
 })
 
 console.log(response.data) // Array of articles
-console.log(response.meta) // Pagination info
+console.log(response.meta) // Pagination info: { page, limit, total, totalPages }
+```
+
+#### Filter by Tags
+
+```typescript
+// Get articles with at least one of these tags (OR logic)
+const response = await client.articles.list({
+  tags: ['javascript', 'typescript']
+})
+
+// Get articles with ALL of these tags (AND logic)
+const response = await client.articles.list({
+  tagsAll: ['tutorial', 'beginner']
+})
+
+// Exclude articles with certain tags
+const response = await client.articles.list({
+  excludeTags: ['archived', 'draft']
+})
+
+// Combine filters
+const response = await client.articles.list({
+  tags: ['javascript'],
+  excludeTags: ['outdated'],
+  published: true
+})
+```
+
+#### Optional Fields
+
+```typescript
+// Include tag colors and icons in response
+const response = await client.articles.list({
+  optionalFields: {
+    tagColor: true,  // Include hex color codes for tags
+    tagIcon: true    // Include icon identifiers for tags
+  }
+})
+
+// Single article with optional fields
+const article = await client.articles.get('my-slug', {
+  optionalFields: {
+    tagColor: true,
+    tagIcon: true
+  }
+})
 ```
 
 #### Get Single Article
@@ -146,6 +191,10 @@ const article = response.data
 // Full article with content
 console.log(article.title)
 console.log(article.content)
+console.log(article.excerpt)
+console.log(article.coverImage)
+console.log(article.wordCount)
+console.log(article.readTimeMinutes)
 
 // Author information
 console.log(article.author.name)        // Author's full name
@@ -156,6 +205,19 @@ console.log(article.author.image)       // Author's profile picture URL (if set)
 // Last editor information (null if article was never updated)
 if (article.lastUpdatedBy) {
   console.log(article.lastUpdatedBy.name) // Last editor's name
+}
+
+// Tags
+article.tags.forEach(tag => {
+  console.log(tag.name)
+  console.log(tag.color)  // Hex color (if optionalFields.tagColor was true)
+  console.log(tag.icon)   // Icon identifier (if optionalFields.tagIcon was true)
+})
+
+// Variants (multilingual)
+if (article.variants) {
+  console.log(article.variants.fr?.title) // French title
+  console.log(article.variants.es?.content) // Spanish content
 }
 ```
 
@@ -177,6 +239,53 @@ console.log(latest.data) // Array of latest articles
 // Get popular articles (most viewed)
 const popular = await client.articles.popular(10)
 console.log(popular.data) // Array of popular articles
+
+// Generate RSS feed directly from articles
+const rssXml = await client.articles.rss({
+  hostname: 'https://myblog.com',
+  title: 'My Blog Feed',
+  description: 'Latest articles from my blog',
+  limit: 50
+})
+```
+
+### Tags
+
+#### List All Tags
+
+```typescript
+// Get all tags with article counts
+const response = await client.tags.list()
+console.log(response.data) // Array of tags
+
+response.data.forEach(tag => {
+  console.log(tag.name)          // Tag name
+  console.log(tag.color)         // Hex color code (e.g., "#EF4444")
+  console.log(tag.icon)          // Icon identifier
+  console.log(tag.articleCount)  // Number of articles with this tag
+})
+```
+
+#### Get Single Tag
+
+```typescript
+const response = await client.tags.get('javascript')
+const tag = response.data
+
+console.log(tag.name)          // 'javascript'
+console.log(tag.articleCount)  // Number of articles
+```
+
+#### Convenience Methods
+
+```typescript
+// Get just tag names
+const names = await client.tags.names()
+console.log(names) // ['javascript', 'typescript', 'react']
+
+// Get popular tags (sorted by article count)
+const popular = await client.tags.popular(5)
+console.log(popular) // Top 5 tags by article count
 ```
 
 ### Project
@@ -191,9 +300,16 @@ console.log(response.data.stats)   // Article stats
 
 // Get just project info
 const project = await client.project.getInfo()
+console.log(project.name)
+console.log(project.slug)
 
 // Get just stats
 const stats = await client.project.getStats()
+console.log(stats.totalArticles)
+console.log(stats.publishedArticles)
+console.log(stats.totalViews)
+console.log(stats.storageUsed)
+console.log(stats.storageLimit)
 ```
 
 ### Analytics
@@ -202,20 +318,19 @@ The SDK provides **server-side analytics tracking** which is more privacy-friend
 
 #### Why Server-side Analytics?
 
-**✅ Advantages:**
+**Advantages:**
 - **Never blocked** by adblockers
 - **Privacy-friendly** - No cookies or client tracking
 - **Better performance** - No additional JavaScript loaded
 - **SSR compatible** - Works with Next.js App Router
 - **More reliable** data collection
 
-**📊 vs Client-side Scripts:**
 | Feature | Server-side (SDK) | Client-side Script |
 |---------|------------------|-------------------|
-| Adblocker-proof | ✅ Yes | ❌ Often blocked |
-| Privacy compliance | ✅ GDPR-friendly | ⚠️ Requires consent |
-| Performance impact | ✅ None | ❌ Additional JS |
-| Data accuracy | ✅ Reliable | ⚠️ Can be inconsistent |
+| Adblocker-proof | Yes | Often blocked |
+| Privacy compliance | GDPR-friendly | Requires consent |
+| Performance impact | None | Additional JS |
+| Data accuracy | Reliable | Can be inconsistent |
 | Implementation | Manual | Automatic |
 
 #### Track Page Views
@@ -227,7 +342,20 @@ const result = await client.analytics.track({
   referrer: 'https://google.com',
   sessionId: 'session_123',
   pageUrl: 'https://example.com/article',
-  pageTitle: 'My Article'
+  pageTitle: 'My Article',
+  // UTM parameters
+  utmSource: 'twitter',
+  utmMedium: 'social',
+  utmCampaign: 'launch',
+  // Device info
+  screenWidth: 1920,
+  screenHeight: 1080,
+  // Initial engagement
+  timeOnPage: 0,
+  scrollDepth: 0,
+  bounced: true,
+  // Enable geo detection
+  fetchGeo: true
 })
 
 console.log(result.pageViewId) // Use this to update metrics later
@@ -249,10 +377,13 @@ await client.analytics.update(result.pageViewId, {
   ]
 })
 
-// Get analytics data
+// Get analytics data (requires API key with read permission)
 const stats = await client.analytics.getStats({ days: 7 })
+console.log(stats.period)                // { days, startDate, endDate }
 console.log(stats.summary.totalViews)
 console.log(stats.summary.uniqueVisitors)
+console.log(stats.summary.avgViewsPerVisitor)
+console.log(stats.requestSource)         // { sdk: {...}, direct: {...} }
 console.log(stats.topArticles)
 console.log(stats.topCountries)
 ```
@@ -262,15 +393,17 @@ console.log(stats.topCountries)
 **Next.js App Router:**
 ```tsx
 // app/articles/[slug]/page.tsx
+import { headers } from 'next/headers'
+
 export default async function ArticlePage({ params }) {
   const client = new SimplistClient()
-  
+
   // Track the page view server-side
   await client.analytics.track({
     slug: params.slug,
     referrer: headers().get('referer') || undefined
   })
-  
+
   const response = await client.articles.get(params.slug)
   return <ArticleComponent article={response.data} />
 }
@@ -286,7 +419,7 @@ function ArticlePage({ slug }) {
       referrer: document.referrer || undefined
     })
   }, [slug])
-  
+
   return <Article />
 }
 ```
@@ -300,7 +433,43 @@ function ArticlePage({ slug }) {
 const article = await client.seo.getArticle('article-slug', 'https://yourblog.com')
 
 console.log(article.seo.metaTitle)
+console.log(article.seo.metaDescription)
+console.log(article.seo.ogTitle)
+console.log(article.seo.ogDescription)
+console.log(article.seo.ogImage)
+console.log(article.seo.twitterCard)     // 'summary' | 'summary_large_image'
+console.log(article.seo.canonicalUrl)
 console.log(article.seo.structuredData)
+console.log(article.seo.keywords)
+console.log(article.seo.author)
+console.log(article.seo.publishedTime)
+console.log(article.seo.modifiedTime)
+console.log(article.seo.readingTime)
+
+// Use in Next.js metadata
+export async function generateMetadata({ params }) {
+  const { seo } = await client.seo.getArticle(params.slug, 'https://myblog.com')
+
+  return {
+    title: seo.metaTitle,
+    description: seo.metaDescription,
+    openGraph: {
+      title: seo.ogTitle,
+      description: seo.ogDescription,
+      images: seo.ogImage ? [seo.ogImage] : undefined,
+      type: seo.ogType
+    },
+    twitter: {
+      card: seo.twitterCard,
+      title: seo.twitterTitle,
+      description: seo.twitterDescription,
+      images: seo.twitterImage ? [seo.twitterImage] : undefined
+    },
+    alternates: {
+      canonical: seo.canonicalUrl
+    }
+  }
+}
 ```
 
 #### Generate Sitemap
@@ -312,8 +481,14 @@ const xmlSitemap = await client.seo.getSitemap('https://yourblog.com', 'xml')
 // Get XML sitemap with custom path (overrides global path)
 const xmlSitemap = await client.seo.getSitemap('https://yourblog.com', 'xml', 'articles')
 
-// Get JSON sitemap
+// Get JSON sitemap for programmatic access
 const jsonSitemap = await client.seo.getSitemap('https://yourblog.com', 'json')
+jsonSitemap.entries.forEach(entry => {
+  console.log(entry.url)
+  console.log(entry.lastModified)
+  console.log(entry.changeFrequency) // 'daily' | 'weekly' | etc.
+  console.log(entry.priority)
+})
 ```
 
 #### Generate RSS Feed
@@ -330,15 +505,36 @@ const rss = await client.seo.getRssFeed('https://yourblog.com', 20, 'blog')
 
 ```typescript
 const structuredData = await client.seo.getStructuredData('https://yourblog.com')
-```
 
+console.log(structuredData.project)    // Project info
+console.log(structuredData.articles)   // Array of articles with JSON-LD
+console.log(structuredData.generatedAt)
+
+// Use in Next.js page
+export default function ArticlePage({ article, structuredData }) {
+  const articleData = structuredData.articles.find(a => a.slug === article.slug)
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(articleData?.structuredData)
+        }}
+      />
+      <article>{article.content}</article>
+    </>
+  )
+}
+```
 
 ### Health Check
 
 ```typescript
 // Test API connection
 const health = await client.ping()
-console.log(health.status) // 'ok'
+console.log(health.status)    // 'ok'
+console.log(health.timestamp)
 ```
 
 ## Error Handling
@@ -405,7 +601,7 @@ import {
 const response = await client.articles.get('my-article')
 const article = response.data
 
-// Detect user's preferred language
+// Detect user's preferred language from browser
 const userLang = detectUserLanguage() // 'en', 'fr', etc.
 
 // Get the best matching variant for user's language
@@ -427,36 +623,40 @@ if (isMultilingual(article)) {
   console.log(`Article has ${getVariantCount(article)} language versions`)
 }
 
-// Get metadata about a variant
-const metadata = getVariantMetadata(article, 'fr')
-console.log(metadata.wordCount)
-console.log(metadata.readTimeMinutes)
+// Get metadata about variants
+const metadata = getVariantMetadata(article)
+console.log(metadata.languages)      // ['en', 'fr', 'es']
+console.log(metadata.count)          // 3
+console.log(metadata.isMultilingual) // true
+console.log(metadata.hasVariants)    // true
 ```
 
-### Variant Selector Component (React)
+### VariantSelector Class
 
-```tsx
+For more complex use cases, use the `VariantSelector` class:
+
+```typescript
 import { VariantSelector } from '@simplist.blog/sdk'
 
-function ArticlePage({ article }) {
-  const [selectedLang, setSelectedLang] = useState('en')
+// Create a selector with default configuration
+const selector = new VariantSelector({
+  defaultLanguage: 'en',
+  userLanguage: 'fr' // or auto-detect with detectUserLanguage()
+})
 
-  return (
-    <div>
-      <VariantSelector
-        article={article}
-        currentLanguage={selectedLang}
-        onLanguageChange={setSelectedLang}
-        className="language-switcher"
-      />
+// Get content in user's preferred language
+const content = selector.getContent(article)
+const title = selector.getTitle(article)
+const excerpt = selector.getExcerpt(article)
+const fullContent = selector.getFullContent(article)
+const coverImage = selector.getCoverImage(article)
 
-      <article>
-        <h1>{getVariantOrDefault(article, selectedLang).title}</h1>
-        <div>{getVariantOrDefault(article, selectedLang).content}</div>
-      </article>
-    </div>
-  )
-}
+// Get which language was selected
+const selectedLang = selector.getSelectedLanguage(article)
+
+// Update language preference dynamically
+selector.setUserLanguage('de')
+selector.setDefaultLanguage('es')
 ```
 
 ## TypeScript Support
@@ -465,20 +665,43 @@ The SDK is written in TypeScript and includes full type definitions:
 
 ```typescript
 import type {
+  // API types
+  ApiResponse,
+  ApiError,
+
+  // Article types
   Article,
   ArticleVariant,
   ArticleListItem,
+  ArticleListParams,
+  ArticleOptionalFields,
   Author,
+  Tag,
+  TagListItem,
+
+  // Project types
+  Project,
+  ProjectStats,
   ProjectInfo,
+
+  // Analytics types
   PageViewData,
   PageEvent,
-  SeoMetadata,
+  PageViewResponse,
   AnalyticsStats,
+
+  // SEO types
+  SeoMetadata,
+  ArticleWithSeo,
   Sitemap,
   SitemapEntry,
-  StructuredDataResponse
+  StructuredDataResponse,
+
+  // Language types
+  LanguageCode
 } from '@simplist.blog/sdk'
 
+// Example usage
 const articles: ArticleListItem[] = response.data
 const article: Article = singleResponse.data
 const analytics: AnalyticsStats = analyticsResponse
@@ -488,9 +711,6 @@ const author: Author = article.author
 console.log(author.name)
 console.log(author.firstName, author.lastName)
 console.log(author.image)
-
-// Last updated by (may be null if never updated)
-const lastEditor: Author | null = article.lastUpdatedBy
 
 // Variant types
 const variant: ArticleVariant = article.variants?.fr
@@ -508,9 +728,9 @@ The API has rate limits (100 requests per minute per API key). The SDK will auto
 // Next.js getStaticProps - API key auto-detected from environment
 export async function getStaticProps() {
   const client = new SimplistClient() // Uses SIMPLIST_API_KEY env var
-  
+
   const articles = await client.articles.published({ limit: 10 })
-  
+
   return {
     props: { articles: articles.data },
     revalidate: 60 // Revalidate every minute
@@ -530,7 +750,7 @@ const client = new SimplistClient({
 
 export async function GET() {
   const sitemap = await client.seo.getSitemap('https://myblog.com', 'xml')
-  
+
   return new Response(sitemap, {
     headers: {
       'Content-Type': 'application/xml',
@@ -541,7 +761,7 @@ export async function GET() {
 // app/rss.xml/route.ts - Uses global path configuration
 export async function GET() {
   const rss = await client.seo.getRssFeed('https://myblog.com', 50)
-  
+
   return new Response(rss, {
     headers: {
       'Content-Type': 'application/rss+xml',
@@ -560,19 +780,26 @@ const client = new SimplistClient() // Uses SIMPLIST_API_KEY env var
 
 function BlogWidget() {
   const [articles, setArticles] = useState([])
-  
+
   useEffect(() => {
     client.articles.latest(3).then(response => {
       setArticles(response.data)
     })
   }, [])
-  
+
   return (
     <div>
       {articles.map(article => (
         <article key={article.id}>
           <h3>{article.title}</h3>
           <p>{article.excerpt}</p>
+          <div>
+            {article.tags.map(tag => (
+              <span key={tag.name} style={{ color: tag.color }}>
+                {tag.name}
+              </span>
+            ))}
+          </div>
         </article>
       ))}
     </div>
@@ -586,7 +813,7 @@ The SDK automatically detects the API key from the environment:
 
 ```bash
 # Server-side (Node.js, Next.js API routes)
-SIMPLIST_API_KEY=sk_your_secret_key
+SIMPLIST_API_KEY=prj_your_api_key
 
 # Client-side (Browser)
 # Set via globalThis.SIMPLIST_API_KEY or pass directly to constructor
