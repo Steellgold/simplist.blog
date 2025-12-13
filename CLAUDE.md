@@ -6,21 +6,39 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Simplist is a headless CMS and content analytics platform for blogs and technical documentation. It's a multi-tenant SaaS application where users manage multiple projects, publish articles via an API-first architecture, and track analytics.
 
+**Key Technologies:**
+- Node.js >= 20
+- PNPM 10.4.1 (package manager)
+- TypeScript 5.9.3 (strict mode)
+- Turborepo (monorepo orchestration)
+
+---
+
 ## Monorepo Structure
 
-This is a pnpm workspace managed by Turbo with 4 main applications:
+This is a pnpm workspace managed by Turbo with 4 main applications and 6 shared packages:
 
-- **apps/app** (port 3000): Main SaaS dashboard for project management, article editing, analytics, and billing
-- **apps/web** (port 3001): Marketing/landing page website
-- **apps/api** (port 4000): Fastify REST API serving articles, analytics, and SEO metadata
-- **apps/docs** (port 3002): Documentation site built with Next.js + MDX
+### Applications
 
-Shared packages:
-- **packages/db**: Prisma ORM with PostgreSQL schema and migrations
-- **packages/ui**: Shared React components (Radix UI + shadcn/ui)
-- **packages/sdk**: Published TypeScript SDK for external integrations
-- **packages/limits**: Quota limit constants
-- **packages/eslint-config** and **packages/typescript-config**: Shared configs
+| App | Port | Purpose | Stack |
+|-----|------|---------|-------|
+| **apps/app** | 3000 (HTTPS) | Main SaaS dashboard | Next.js 16, React 19, Better-Auth, Stripe |
+| **apps/web** | 3001 (HTTPS) | Marketing website | Next.js 16, React 19, Motion |
+| **apps/api** | 4000 | REST API backend | Fastify 5.6, Zod, Cron |
+| **apps/docs** | 3002 | Documentation site | Next.js 16, MDX, Shiki |
+
+### Packages
+
+| Package | Purpose |
+|---------|---------|
+| **packages/db** | Prisma ORM with PostgreSQL schema, migrations, and Redis caching |
+| **packages/ui** | 84+ shared React components (Radix UI + shadcn/ui + Tailwind) |
+| **packages/sdk** | Published TypeScript SDK (`@simplist.blog/sdk` on npm) |
+| **packages/limits** | Subscription tier definitions and quota limits |
+| **packages/eslint-config** | Shared ESLint configurations |
+| **packages/typescript-config** | Shared TypeScript configurations |
+
+---
 
 ## Common Commands
 
@@ -80,78 +98,565 @@ pnpm format
 cd apps/api && pnpm test
 ```
 
-## Architecture & Key Patterns
+---
 
-### Authentication
-- Uses Better-Auth v1.4.6 with Prisma adapter
-- Supports email/password, GitHub OAuth, Google OAuth, passkeys (WebAuthn), and 2FA (TOTP)
-- Email verification and password reset via AWS SES
-- Configuration in `apps/app/lib/auth.tsx`
+## Architecture Deep Dive
 
-### Database Schema (Prisma)
-Located in `packages/db/prisma/schema.prisma`:
-- **Multi-tenant**: Users own Projects, each with own articles, tags, API keys, members
-- **Articles**: Support multi-language variants (ArticleVariant), tags, scheduled publishing, view tracking
-- **Analytics**: PageView and PageEvent models track visitor data (anonymized IP, geolocation, device, UTM parameters)
-- **RBAC**: Project members have customizable roles with permission arrays
-- **API Keys**: Project-scoped with quota limits (1,000 for STARTER, 500,000 for PRO)
-- **Subscriptions**: Stripe integration with STARTER/PRO tiers
+### apps/app - SaaS Dashboard
 
-### API Architecture
-- Fastify-based REST API with `/v1` prefix
-- Authentication via `x-api-key` header (not JWT)
-- Rate limiting and CORS configured
-- Quota tracking with monthly reset (30-day window)
-- Redis caching (Upstash) for API keys and analytics queries
+The main admin dashboard for managing projects, articles, billing, and analytics.
 
-### Frontend Stack
-- Next.js 16 with React 19
-- Tailwind CSS 4.1.17 for styling
-- shadcn/ui components (Radix UI primitives)
-- React Hook Form + Zod for form validation
-- TanStack React Table for data tables
-- Recharts for analytics visualization
+#### Directory Structure
+```
+apps/app/
+├── app/                          # Next.js App Router
+│   ├── [project-slug]/           # Dynamic project routes
+│   │   ├── analytics/            # Analytics dashboard (PRO only)
+│   │   ├── articles/             # Article CRUD
+│   │   │   ├── new/              # Create article
+│   │   │   └── [slug]/edit/      # Edit article
+│   │   ├── api-keys/             # API key management
+│   │   ├── tags/                 # Tag management
+│   │   └── settings/             # Project settings
+│   │       ├── billing/          # Subscription & invoices
+│   │       ├── members/          # Team management
+│   │       └── roles/            # Custom roles
+│   ├── account/                  # User account settings
+│   │   └── settings/security/    # 2FA, passkeys, password
+│   ├── auth/                     # Authentication pages
+│   │   ├── login/
+│   │   ├── register/
+│   │   ├── forgot-password/
+│   │   ├── reset-password/
+│   │   └── 2fa-verify/
+│   ├── api/                      # API routes
+│   │   ├── auth/[...all]/        # Better-auth handler
+│   │   ├── webhooks/stripe/      # Stripe webhooks
+│   │   └── uploads/              # Image uploads to R2
+│   ├── create-project/           # Project creation
+│   └── invitations/[token]/      # Accept team invitations
+├── components/                   # React components by domain
+│   ├── articles/                 # Article editor components
+│   │   ├── content-editor.tsx    # Rich text editor
+│   │   ├── schedule-picker.tsx   # Scheduled publishing
+│   │   ├── visibility-card.tsx   # Publish status
+│   │   ├── variant-card.tsx      # Multi-language variants
+│   │   └── article-tags-input.tsx
+│   ├── analytics/                # Analytics dashboard
+│   ├── api-keys/                 # API key management
+│   ├── billing/                  # Stripe billing UI
+│   ├── members/                  # Team management
+│   ├── roles/                    # Role management
+│   └── auth/                     # Auth forms
+├── lib/
+│   ├── actions/                  # Server Actions
+│   │   ├── articles.ts           # Article CRUD
+│   │   ├── projects.ts           # Project management
+│   │   ├── members.tsx           # Team invitations
+│   │   ├── api-keys.ts           # API key generation
+│   │   ├── tags.ts               # Tag management
+│   │   ├── analytics.ts          # Analytics queries
+│   │   └── roles.ts              # Role management
+│   ├── auth/                     # Authentication
+│   │   ├── auth.tsx              # Better-auth config
+│   │   ├── auth-client.ts        # Client-side auth
+│   │   ├── auth-helper.ts        # Session utilities
+│   │   └── permissions.ts        # RBAC permissions
+│   ├── stripe/                   # Stripe integration
+│   ├── subscription/             # Quota checking
+│   ├── validations/              # Zod schemas
+│   └── types/
+│       └── languages.ts          # 80+ language codes
+└── hooks/                        # React hooks
+    ├── use-variant-operations.ts # Multi-language CRUD
+    └── use-subscription-limits.ts
+```
 
-### File Storage
-- Cloudflare R2 (S3-compatible) for images and avatars
-- Configuration via R2_* environment variables
+#### Key Features
+- **Article Management**: Create, edit, schedule, soft-delete articles
+- **Multi-language Support**: 80+ languages with variant system
+- **Team Collaboration**: Invite members with custom roles (8 permissions)
+- **Billing**: Stripe subscription with STARTER/PRO tiers
+- **Analytics**: Page views, visitors, geographic data (PRO only)
+- **Authentication**: Email/password, GitHub, Google, 2FA, passkeys
 
-### Background Jobs
-- Cron library used for scheduled article publishing
-- Monthly API quota resets
+#### Permissions System
+```typescript
+// lib/auth/permissions.ts
+type Permission =
+  | 'canManageProject'
+  | 'canManageMembers'
+  | 'canManageRoles'
+  | 'canManageArticles'
+  | 'canManageApiKeys'
+  | 'canViewAnalytics'
+  | 'canManageBilling'
+  | 'canDeleteProject'
+```
 
-## Environment Variables
+---
 
-Required variables are defined in `.env.example`:
-- Database: `DATABASE_URL`
-- Auth: `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, OAuth credentials
-- Storage: R2 credentials (`R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, etc.)
-- Email: AWS SES credentials (`AWS_ACCESS_KEY_ID`, `SES_FROM_EMAIL`)
-- Cache: Upstash Redis credentials
-- Payments: Stripe keys and webhook secret
+### apps/api - Fastify REST API
 
-## Adding shadcn/ui Components
+The public API backend for article delivery, analytics tracking, and SEO generation.
 
-Run from repository root:
+#### Directory Structure
+```
+apps/api/src/
+├── server.ts                     # Main Fastify server
+├── routes/
+│   ├── articles.ts               # GET /v1/articles, /v1/articles/:slug
+│   ├── analytics.ts              # POST/PUT /v1/analytics/track, GET /v1/analytics/stats
+│   ├── projects.ts               # GET /v1/project
+│   ├── tags.ts                   # GET /v1/tags, /v1/tags/:name
+│   ├── seo.ts                    # GET /v1/seo/sitemap, /rss, /structured-data
+│   └── cron.ts                   # POST /cron/publish-scheduled
+├── plugins/
+│   ├── auth.ts                   # API key validation + quota tracking
+│   ├── analytics-auth.ts         # Analytics-specific auth
+│   ├── cors.ts                   # Global CORS
+│   ├── project-cors.ts           # Project-specific origins
+│   ├── rate-limit.ts             # 100 req/min per key
+│   ├── helmet.ts                 # Security headers
+│   └── compression.ts            # Gzip/Brotli
+├── schemas/                      # Zod validation
+├── services/
+│   └── scheduler.ts              # Cron job scheduler
+└── utils/
+    ├── article-cache.ts          # Redis caching with versioning
+    ├── bot-detection.ts          # Bot identification
+    └── seo-generator.ts          # SEO metadata generation
+```
+
+#### API Endpoints
+
+**Articles**
+- `GET /v1/articles` - List with pagination, filtering, sorting
+- `GET /v1/articles/:slug` - Single article with optional SEO
+
+**Analytics**
+- `POST /v1/analytics/track` - Track page view
+- `PUT /v1/analytics/track/:pageViewId` - Update engagement metrics
+- `GET /v1/analytics/stats` - Aggregated statistics (requires "read" permission)
+
+**SEO**
+- `GET /v1/seo/sitemap` - XML/JSON sitemap
+- `GET /v1/seo/rss` - RSS feed
+- `GET /v1/seo/structured-data` - JSON-LD schema
+- `GET /v1/seo/article/:slug` - Article SEO metadata
+
+**Tags**
+- `GET /v1/tags` - All tags with article counts
+- `GET /v1/tags/:name` - Single tag details
+
+**Project**
+- `GET /v1/project` - Project info and statistics
+
+#### Authentication
+- Header: `X-API-Key`
+- Keys prefixed with `prj_`
+- Cached in Redis for performance
+- Quota tracking: 1,000/month (STARTER), 500,000/month (PRO)
+
+#### Caching Strategy
+```typescript
+// Redis keys with versioning (5-min TTL)
+articles:version:{projectId}
+articles:list:{projectId}:v{version}:{params}
+articles:single:{projectId}:v{version}:{slug}
+seo:sitemap:{projectId}:{format}
+seo:rss:{projectId}:{limit}
+```
+
+---
+
+### apps/web - Marketing Website
+
+Public-facing landing page and pricing information.
+
+#### Directory Structure
+```
+apps/web/app/
+├── page.tsx                      # Home page
+├── pricing/page.tsx              # Interactive pricing page
+├── legal/
+│   ├── terms/page.tsx
+│   ├── privacy/page.tsx
+│   └── gdpr/page.tsx
+└── _sections/                    # Home page sections
+    ├── hero-section.tsx          # Value proposition + CTAs
+    ├── features-section.tsx      # 6 feature cards with animations
+    └── api-demo-section.tsx      # Code examples
+```
+
+#### Key Components
+- **Navbar**: Sticky header with links to Features, Pricing, Docs
+- **Footer**: Product links, legal pages, theme switcher
+- **Pricing**: Monthly/yearly toggle with animated price transitions
+
+---
+
+### apps/docs - Documentation Site
+
+Interactive documentation with SDK and REST API reference.
+
+#### Directory Structure
+```
+apps/docs/
+├── content/                      # MDX documentation
+│   ├── index.mdx                 # Getting started
+│   ├── sdk/                      # SDK documentation
+│   │   ├── articles.mdx
+│   │   ├── analytics.mdx
+│   │   ├── seo.mdx
+│   │   └── multilingual.mdx
+│   ├── api/                      # REST API reference
+│   │   ├── get-articles.mdx
+│   │   ├── post-track.mdx
+│   │   └── get-sitemap.mdx
+│   └── examples/                 # Usage examples
+├── app/
+│   ├── [[...slug]]/page.tsx      # Dynamic MDX rendering
+│   └── api/search/route.ts       # Full-text search
+├── components/                   # 30+ doc components
+│   ├── code-block.tsx            # Syntax highlighting (Shiki)
+│   ├── type-table.tsx            # Type definitions
+│   ├── api-route.tsx             # Endpoint display
+│   ├── installation-tabs.tsx     # npm/pnpm/yarn/bun
+│   └── search-command.tsx        # Cmd+K search
+└── lib/
+    └── search.ts                 # Search implementation
+```
+
+#### Features
+- **Dual-mode navigation**: Toggle between SDK and REST API docs
+- **Full-text search**: Cmd+K powered search across all content
+- **Code highlighting**: Shiki with language tabs
+- **Interactive examples**: Copy-paste curl commands
+
+---
+
+### packages/db - Database Layer
+
+Prisma ORM with PostgreSQL and Redis caching.
+
+#### Key Models (20 total)
+
+**User & Auth**
+```prisma
+model User {
+  id, name, email, emailVerified, image
+  sessions, accounts, projects, projectMembers
+  twofactors, passkeys  // 2FA and WebAuthn
+}
+```
+
+**Project & Content**
+```prisma
+model Project {
+  id, name, slug, icon, color, timezone, defaultLanguage
+  tier (STARTER/PRO), stripeCustomerId, stripeSubscriptionId
+  monthlyApiCalls, apiCallsResetAt  // Quota tracking
+  articles, tags, apiKeys, members, roles
+}
+
+model Article {
+  id, title, slug, content, excerpt, coverImage
+  status (draft/published/deleted/scheduled)
+  scheduledPublishAt, publishedAt
+  viewCount, wordCount, readTimeMinutes
+  author, lastUpdatedBy, tags, variants
+}
+
+model ArticleVariant {
+  lang (ISO 639-1), title, excerpt, content
+  wordCount, readTimeMinutes
+}
+
+model Tag {
+  name, color (Color enum), icon
+}
+```
+
+**Analytics**
+```prisma
+model PageView {
+  visitorId, sessionId
+  country, city, timezone
+  device, browser, os, screenWidth, screenHeight
+  referrer, utmSource, utmMedium, utmCampaign
+  timeOnPage, scrollDepth, bounced
+  requestSource (direct/sdk)
+}
+```
+
+**Team & Permissions**
+```prisma
+model ProjectMember {
+  userId, projectId, roleId
+}
+
+model ProjectRole {
+  name, isOwner, isDefault
+  canManageProject, canManageMembers, canManageRoles
+  canManageArticles, canManageApiKeys, canViewAnalytics
+  canManageBilling, canDeleteProject
+}
+```
+
+---
+
+### packages/ui - Component Library
+
+84+ React components based on Radix UI and Tailwind CSS.
+
+#### Component Categories
+- **Basic**: button, card, dialog, input, select, table, tabs, etc.
+- **Forms**: form, input-group, password-input, textarea
+- **Navigation**: sidebar, menubar, breadcrumb, pagination
+- **Feedback**: alert, toast (sonner), progress, skeleton
+- **Specialized**: color-selector, icon-picker, timezone-selector, calendar
+- **Animated Icons**: 17 animated icons (settings, chart-line, star, etc.)
+
+#### Usage
+```tsx
+import { Button } from "@simplist/ui/components/button"
+import { Card } from "@simplist/ui/components/card"
+import { useIsMobile } from "@simplist/ui/hooks/use-mobile"
+```
+
+#### Adding Components
 ```bash
 pnpm dlx shadcn@latest add button -c apps/web
 ```
 
-This places components in `packages/ui/src/components`.
+---
 
-Import components:
-```tsx
-import { Button } from "@simplist/ui/components/button"
+### packages/sdk - Public TypeScript SDK
+
+Published npm package for external API consumption.
+
+#### Installation
+```bash
+npm install @simplist.blog/sdk
 ```
+
+#### Usage
+```typescript
+import { SimplistClient } from '@simplist.blog/sdk'
+
+const client = new SimplistClient({
+  apiKey: 'prj_...',  // or SIMPLIST_API_KEY env var
+  baseUrl: 'https://api.simplist.blog',
+  apiVersion: '1'
+})
+
+// Articles
+const articles = await client.articles.list({ limit: 10 })
+const article = await client.articles.get('my-article-slug')
+
+// Analytics
+await client.analytics.track({
+  slug: 'my-article',
+  sessionId: 'unique-session-id',
+  pageUrl: 'https://example.com/blog/my-article'
+})
+
+// SEO
+const sitemap = await client.seo.getSitemap()
+const rss = await client.seo.getRssFeed()
+```
+
+#### Resources
+- `client.articles` - Article listing and retrieval
+- `client.tags` - Tag management
+- `client.project` - Project info and stats
+- `client.analytics` - Page view tracking and stats
+- `client.seo` - Sitemap, RSS, structured data
+
+---
+
+### packages/limits - Subscription Tiers
+
+Defines plan limits and features.
+
+#### Plans
+```typescript
+// STARTER (Free)
+{
+  maxArticles: 5,
+  maxStorageBytes: 50MB,
+  maxApiCallsPerMonth: 1000,
+  maxVariantsPerArticle: 0,
+  maxMembers: 1,
+  features: {
+    analytics: false,
+    postVariants: false,
+    scheduledPublishing: false
+  }
+}
+
+// PRO ($19/month or $14/month yearly)
+{
+  maxArticles: -1,  // Unlimited
+  maxStorageBytes: 1GB,
+  maxApiCallsPerMonth: 500000,
+  maxVariantsPerArticle: -1,  // Unlimited
+  maxMembers: 10,
+  features: {
+    analytics: true,
+    postVariants: true,
+    scheduledPublishing: true
+  }
+}
+```
+
+---
+
+## Authentication
+
+- **Provider**: Better-Auth v1.4.6 with Prisma adapter
+- **Methods**: Email/password, GitHub OAuth, Google OAuth, Passkeys (WebAuthn), 2FA (TOTP)
+- **Email**: AWS SES for verification and password reset
+- **Configuration**: `apps/app/lib/auth.tsx`
+
+---
+
+## External Integrations
+
+| Service | Purpose | Config Location |
+|---------|---------|-----------------|
+| PostgreSQL | Primary database | `DATABASE_URL` |
+| Upstash Redis | API key cache, analytics cache | `UPSTASH_REDIS_REST_*` |
+| Stripe | Subscriptions, billing | `STRIPE_*` |
+| Cloudflare R2 | Image storage (S3-compatible) | `R2_*` |
+| AWS SES | Email sending | `AWS_ACCESS_KEY_ID`, `SES_FROM_EMAIL` |
+| GitHub/Google | OAuth providers | `GITHUB_CLIENT_ID`, `GOOGLE_CLIENT_ID` |
+
+---
+
+## Environment Variables
+
+Required variables are defined in `.env.example`:
+
+```bash
+# Database
+DATABASE_URL="postgresql://..."
+
+# Authentication
+BETTER_AUTH_SECRET="..."
+BETTER_AUTH_URL="https://app.simplist.blog"
+GITHUB_CLIENT_ID="..."
+GITHUB_CLIENT_SECRET="..."
+GOOGLE_CLIENT_ID="..."
+GOOGLE_CLIENT_SECRET="..."
+
+# Storage (Cloudflare R2)
+R2_ACCOUNT_ID="..."
+R2_ACCESS_KEY_ID="..."
+R2_SECRET_ACCESS_KEY="..."
+R2_BUCKET_NAME="..."
+
+# Email (AWS SES)
+AWS_ACCESS_KEY_ID="..."
+AWS_SECRET_ACCESS_KEY="..."
+SES_FROM_EMAIL="..."
+
+# Cache (Upstash Redis)
+UPSTASH_REDIS_REST_URL="..."
+UPSTASH_REDIS_REST_TOKEN="..."
+
+# Payments (Stripe)
+STRIPE_SECRET_KEY="..."
+STRIPE_WEBHOOK_SECRET="..."
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="..."
+
+# API
+CRON_SECRET="..."  # For scheduled job authentication
+```
+
+---
 
 ## Testing Conventions
 
 Tests are located in `apps/api` and use Vitest. Run with `pnpm test` in the api directory.
 
+---
+
 ## Important Notes
 
 - The main dashboard (`apps/app`) runs on HTTPS by default in development (port 3000)
-- API authentication is header-based (`x-api-key`), not token-based
+- API authentication is header-based (`X-API-Key`), not token-based
 - All database changes should go through Prisma migrations, not direct schema edits
 - The SDK package is published to npm as `@simplist.blog/sdk`
 - TypeScript 5.9.3 is used across the entire monorepo with strict mode enabled
+- Multi-tenant: All data is scoped to projects, users can have multiple projects
+- Soft deletes: Articles use status field, not hard deletion
+- Rate limiting: 100 requests/minute per API key or IP
+
+---
+
+## Data Flow
+
+```
+User Request → Next.js App Router
+    ↓
+Server Action (lib/actions/*.ts)
+    ↓
+Permission Check (lib/auth/permissions.ts)
+    ↓
+Database Query (Prisma via @simplist/db)
+    ↓
+Cache Invalidation (revalidatePath)
+    ↓
+Response + Toast Notification
+```
+
+```
+API Request → Fastify Server
+    ↓
+Middleware (CORS, Rate Limit, Auth)
+    ↓
+API Key Validation + Quota Check
+    ↓
+Redis Cache Check
+    ↓
+Database Query (if cache miss)
+    ↓
+Response with caching
+```
+
+---
+
+## Architecture Diagram
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                         SIMPLIST.BLOG                           │
+├─────────────────────────────────────────────────────────────────┤
+│  APPS                                                           │
+│  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐ ┌─────────┐ │
+│  │   apps/app   │ │   apps/web   │ │   apps/api   │ │apps/docs│ │
+│  │   Dashboard  │ │   Marketing  │ │   REST API   │ │  Docs   │ │
+│  │   :3000      │ │   :3001      │ │   :4000      │ │  :3002  │ │
+│  └──────┬───────┘ └──────────────┘ └──────┬───────┘ └─────────┘ │
+│         │                                 │                     │
+├─────────┴─────────────────────────────────┴─────────────────────┤
+│  PACKAGES                                                       │
+│  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐             │
+│  │ packages/db  │ │ packages/ui  │ │ packages/sdk │             │
+│  │ Prisma+Redis │ │ 84+ React UI │ │ Public SDK   │             │
+│  └──────┬───────┘ └──────────────┘ └──────────────┘             │
+│         │                                                       │
+│  ┌──────┴───────┐                                               │
+│  │ packages/    │                                               │
+│  │ limits       │                                               │
+│  └──────────────┘                                               │
+├─────────────────────────────────────────────────────────────────┤
+│  EXTERNAL SERVICES                                              │
+│  ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌──────────────┐  │
+│  │ PostgreSQL │ │   Redis    │ │   Stripe   │ │ Cloudflare R2│  │
+│  │  Database  │ │   Cache    │ │  Payments  │ │   Storage    │  │
+│  └────────────┘ └────────────┘ └────────────┘ └──────────────┘  │
+└─────────────────────────────────────────────────────────────────┘
+```
