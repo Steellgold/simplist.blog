@@ -20,7 +20,7 @@ import { Input } from "@simplist/ui/components/input"
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@simplist/ui/components/input-group"
 import { toast } from "@simplist/ui/components/sonner"
 import { Spinner } from "@simplist/ui/components/spinner"
-import { ColorsEnumType } from "@simplist/ui/lib/color"
+import { c, ColorsEnumType } from "@simplist/ui/lib/color"
 import { i, IconsEnumType } from "@simplist/ui/lib/icons.enum"
 import { Camera, Palette, Plus, X } from "lucide-react"
 import { useRouter } from "next/navigation"
@@ -45,7 +45,7 @@ const SettingsPage = () => {
       name: currentProject?.name || "",
       slug: currentProject?.slug || "",
       icon: i(currentProject?.icon || "building-2"),
-      color: currentProject?.color || "CYAN",
+      color: c(currentProject?.color || "CYAN"),
       avatarUrl: currentProject?.avatarUrl || null,
       defaultLanguage: currentProject?.defaultLanguage || "en",
       allowedOrigins: currentProject?.allowedOrigins?.map((origin: string) => ({
@@ -74,45 +74,68 @@ const SettingsPage = () => {
     setSavingSection(section)
     const oldSlug = currentProject.slug
 
-    // Upload avatar if there's a pending file
-    let uploadedAvatarUrl = data.avatarUrl
-    if (pendingAvatarFile) {
-      try {
-        const formData = new FormData()
-        formData.append("file", pendingAvatarFile)
-        formData.append("projectId", currentProject.id)
-        formData.append("type", "avatar")
+    let payload: Parameters<typeof updateProjectSettings>[1] = {
+      name: currentProject.name,
+      slug: currentProject.slug,
+      icon: i(currentProject.icon),
+      color: currentProject.color,
+      avatarUrl: currentProject.avatarUrl,
+      defaultLanguage: currentProject.defaultLanguage,
+      allowedOrigins: currentProject.allowedOrigins?.map((origin: string) => ({
+        value: origin.replace("https://", "")
+      })) || []
+    }
 
-        const response = await fetch("/api/uploads", {
-          method: "POST",
-          body: formData,
-        })
+    switch (section) {
+      case "name":
+        payload.name = data.name
+        break
+      case "slug":
+        payload.slug = data.slug
+        break
+      case "icon-color":
+        // Pending file = Upload avatar
+        let uploadedAvatarUrl = data.avatarUrl
+        if (pendingAvatarFile) {
+          try {
+            const formData = new FormData()
+            formData.append("file", pendingAvatarFile)
+            formData.append("projectId", currentProject.id)
+            formData.append("type", "avatar")
 
-        if (!response.ok) {
-          const error = await response.json()
-          throw new Error(error.error || "Upload failed")
+            const response = await fetch("/api/uploads", {
+              method: "POST",
+              body: formData,
+            })
+
+            if (!response.ok) {
+              const error = await response.json()
+              throw new Error(error.error || "Upload failed")
+            }
+
+            const uploadData = await response.json()
+            uploadedAvatarUrl = uploadData.publicUrl
+            setPendingAvatarFile(null)
+          } catch (error) {
+            setSavingSection(null)
+            toast.error(error instanceof Error ? error.message : "Failed to upload avatar")
+            return
+          }
         }
-
-        const uploadData = await response.json()
-        uploadedAvatarUrl = uploadData.publicUrl
-        setPendingAvatarFile(null)
-      } catch (error) {
-        setSavingSection(null)
-        toast.error(error instanceof Error ? error.message : "Failed to upload avatar")
-        return
-      }
+        payload.icon = data.icon
+        payload.color = data.color
+        payload.avatarUrl = uploadedAvatarUrl
+        break
+      case "language":
+        payload.defaultLanguage = data.defaultLanguage
+        break
+      case "origins":
+        payload.allowedOrigins = data.allowedOrigins || []
+        break
     }
 
     toast.promise(
-      updateProjectSettings(currentProject.id, {
-        name: data.name,
-        slug: data.slug,
-        icon: data.icon,
-        color: data.color,
-        avatarUrl: uploadedAvatarUrl,
-        defaultLanguage: data.defaultLanguage,
-        allowedOrigins: data.allowedOrigins || []
-      }), {
+      updateProjectSettings(currentProject.id, payload), {
         loading: "Saving settings...",
         success: (project) => {
           setSavingSection(null)
@@ -160,7 +183,7 @@ const SettingsPage = () => {
         <Card className="pb-0">
           <CardHeader>
             <FieldLabel htmlFor="name" className="text-base font-medium">Project Name</FieldLabel>
-            <FieldDescription className="mt-1">The display name of your blog project.</FieldDescription>
+            <FieldDescription className="mt-1">The display name of your project.</FieldDescription>
           </CardHeader>
 
           <CardContent className="py-2.5">

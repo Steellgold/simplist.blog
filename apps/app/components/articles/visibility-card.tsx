@@ -1,6 +1,7 @@
 "use client";
 
 import { useSubscriptionLimits } from "@/hooks/use-subscription-limits";
+import { LanguageCode } from "@/lib/types/languages";
 import { Button } from "@simplist/ui/components/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@simplist/ui/components/card";
 import { Label } from "@simplist/ui/components/label";
@@ -9,7 +10,6 @@ import { Spinner } from "@simplist/ui/components/spinner";
 import Image from "next/image";
 import { ReactNode } from "react";
 import { ArticleSchedulePicker } from "./schedule-picker";
-import { LanguageCode } from "@/lib/types/languages";
 
 type ArticleStatus = "draft" | "published" | "scheduled";
 
