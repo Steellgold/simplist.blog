@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { getCurrentUser } from "../auth-helper"
 import { requirePermission } from "../auth/permissions"
-import { CreateProjectActionInput, createProjectSchema, RESERVED_SLUGS, UpdateProjectSettingsInput } from "../validations/project"
+import { CreateProjectActionInput, createProjectSchema, isReservedSlug, UpdateProjectSettingsInput } from "../validations/project"
 
 export const getUserProjects = async () => {
   const user = await getCurrentUser()
@@ -62,7 +62,7 @@ export const createProject = async (input: CreateProjectActionInput) => {
   const allowedOriginStrings = validatedData.allowedOrigins.map(origin => origin.value)
 
   // Check if slug is reserved
-  if (RESERVED_SLUGS.includes(input.slug as typeof RESERVED_SLUGS[number])) {
+  if (isReservedSlug(input.slug)) {
     throw new Error("This slug is reserved and cannot be used")
   }
 
@@ -230,7 +230,7 @@ export const updateProject = async (
     .replace(/^-+|-+$/g, "");
 
   // Check if slug is reserved
-  if (RESERVED_SLUGS.includes(baseSlug as typeof RESERVED_SLUGS[number])) {
+  if (isReservedSlug(baseSlug)) {
     throw new Error("This slug is reserved and cannot be used");
   }
 
@@ -283,7 +283,7 @@ export const updateProjectSettings = async (projectId: string, input: UpdateProj
   }
 
   // Check if slug is reserved
-  if (RESERVED_SLUGS.includes(input.slug as typeof RESERVED_SLUGS[number])) {
+  if (isReservedSlug(input.slug)) {
     throw new Error("This slug is reserved and cannot be used");
   }
 
@@ -320,6 +320,8 @@ export const updateProjectSettings = async (projectId: string, input: UpdateProj
       avatarUrl: input.avatarUrl ?? null,
       defaultLanguage: input.defaultLanguage,
       allowedOrigins: allowedOriginStrings,
+      baseUrl: input.baseUrl ?? null,
+      articleUrlPattern: input.articleUrlPattern,
     },
   });
 

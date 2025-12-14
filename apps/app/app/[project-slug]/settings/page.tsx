@@ -7,7 +7,6 @@ import { CompactLanguageSelector } from "@/components/ui/language-selector"
 import { MiniBadge } from "@/components/ui/mini-badge"
 import { useProject } from "@/hooks/use-project-context"
 import { updateProjectSettings } from "@/lib/actions/projects"
-import { type LanguageCode } from "@/lib/types/languages"
 import { UpdateProjectSettingsInput, updateProjectSettingsSchema } from "@/lib/validations/project"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@simplist/ui/components/button"
@@ -20,8 +19,8 @@ import { Input } from "@simplist/ui/components/input"
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@simplist/ui/components/input-group"
 import { toast } from "@simplist/ui/components/sonner"
 import { Spinner } from "@simplist/ui/components/spinner"
-import { c, ColorsEnumType } from "@simplist/ui/lib/color"
-import { i, IconsEnumType } from "@simplist/ui/lib/icons.enum"
+import { c } from "@simplist/ui/lib/color"
+import { i } from "@simplist/ui/lib/icons.enum"
 import { Camera, Palette, Plus, X } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
@@ -50,7 +49,9 @@ const SettingsPage = () => {
       defaultLanguage: currentProject?.defaultLanguage || "en",
       allowedOrigins: currentProject?.allowedOrigins?.map((origin: string) => ({
         value: origin.replace("https://", "")
-      })) || []
+      })) || [],
+      baseUrl: currentProject?.baseUrl || null,
+      articleUrlPattern: currentProject?.articleUrlPattern || "/blog/{slug}",
     },
   })
 
@@ -69,6 +70,7 @@ const SettingsPage = () => {
   const hasIconColorChanges = dirtyFields.icon || dirtyFields.color || dirtyFields.avatarUrl
   const hasLanguageChanges = dirtyFields.defaultLanguage
   const hasOriginsChanges = dirtyFields.allowedOrigins
+  const hasUrlChanges = dirtyFields.baseUrl || dirtyFields.articleUrlPattern
 
   const saveSettings = async (data: UpdateProjectSettingsInput, section: string) => {
     setSavingSection(section)
@@ -83,7 +85,9 @@ const SettingsPage = () => {
       defaultLanguage: currentProject.defaultLanguage,
       allowedOrigins: currentProject.allowedOrigins?.map((origin: string) => ({
         value: origin.replace("https://", "")
-      })) || []
+      })) || [],
+      baseUrl: currentProject.baseUrl || null,
+      articleUrlPattern: currentProject.articleUrlPattern || "/blog/{slug}",
     }
 
     switch (section) {
@@ -132,6 +136,10 @@ const SettingsPage = () => {
       case "origins":
         payload.allowedOrigins = data.allowedOrigins || []
         break
+      case "url":
+        payload.baseUrl = data.baseUrl ?? null
+        payload.articleUrlPattern = data.articleUrlPattern || "/blog/{slug}"
+        break
     }
 
     toast.promise(
@@ -151,7 +159,9 @@ const SettingsPage = () => {
             defaultLanguage: project.defaultLanguage,
             allowedOrigins: project.allowedOrigins?.map((origin: string) => ({
               value: origin.replace("https://", "")
-            })) || []
+            })) || [],
+            baseUrl: project.baseUrl || null,
+            articleUrlPattern: project.articleUrlPattern || "/blog/{slug}",
           })
 
           // If slug changed, redirect to new URL
@@ -282,7 +292,7 @@ const SettingsPage = () => {
                   <div className="flex gap-2 max-w-md">
                     <div>
                       <IconPicker
-                        value={watch("icon") as IconsEnumType}
+                        value={i(watch("icon") ?? "building-2")}
                         onValueChange={(value) => {
                           form.setValue("icon", value, { shouldDirty: true })
                         }}
@@ -293,7 +303,7 @@ const SettingsPage = () => {
                     </div>
 
                     <ColorSelector
-                      value={watch("color") as ColorsEnumType | null}
+                      value={watch("color") ? c(watch("color")!) : null}
                       onValueChange={(value) => {
                         form.setValue("color", value === null ? undefined : value, { shouldDirty: true })
                       }}
@@ -359,7 +369,7 @@ const SettingsPage = () => {
 
           <CardContent className="py-2.5">
             <CompactLanguageSelector
-              value={watch("defaultLanguage") as LanguageCode}
+              value={watch("defaultLanguage")}
               onValueChange={(value) => {
                 form.setValue("defaultLanguage", value, { shouldValidate: true, shouldDirty: true })
               }}
@@ -443,6 +453,67 @@ const SettingsPage = () => {
               onClick={handleSubmit((data) => saveSettings(data, "origins"))}
             >
               {savingSection === "origins" ? <><Spinner /> Saving...</> : "Save"}
+            </Button>
+          </CardFooter>
+        </Card>
+
+        <Card className="pb-0">
+          <CardHeader>
+            <FieldLabel className="text-base font-medium">Article URL</FieldLabel>
+            <FieldDescription className="mt-1">
+              Configure the base URL and pattern for article links in webhooks. Leave empty to use custom URLs in templates.
+            </FieldDescription>
+          </CardHeader>
+
+          <CardContent className="py-2.5">
+            <div className="space-y-4 max-w-md">
+              <div>
+                <FieldLabel htmlFor="baseUrl" className="text-sm mb-2">Base URL</FieldLabel>
+                <Input
+                  id="baseUrl"
+                  type="url"
+                  placeholder="https://monblog.com"
+                  {...register("baseUrl")}
+                  disabled={isDisabled}
+                />
+                <FieldDescription className="mt-1">
+                  The base URL of your blog (optional)
+                </FieldDescription>
+                {errors.baseUrl && <FieldError>{errors.baseUrl.message}</FieldError>}
+              </div>
+
+              <div>
+                <FieldLabel htmlFor="articleUrlPattern" className="text-sm mb-2">URL Pattern</FieldLabel>
+                <InputGroup>
+                  <InputGroupAddon>{watch("baseUrl") || "https://example.com"}</InputGroupAddon>
+                  <InputGroupInput
+                    id="articleUrlPattern"
+                    placeholder="/blog/{slug}"
+                    {...register("articleUrlPattern")}
+                    disabled={isDisabled}
+                  />
+                </InputGroup>
+                <FieldDescription className="mt-1">
+                  Pattern for article URLs. Must include {"{slug}"}. Examples: /blog/{"{slug}"}, /articles/{"{slug}"}
+                </FieldDescription>
+                {errors.articleUrlPattern && <FieldError>{errors.articleUrlPattern.message}</FieldError>}
+              </div>
+            </div>
+          </CardContent>
+
+          <CardFooter className="flex justify-between bg-muted/50 rounded-b-xl py-2.5 border-t">
+            <p className="text-sm text-muted-foreground">
+              {watch("baseUrl") && watch("articleUrlPattern")
+                ? `Articles will use: ${watch("baseUrl")}${watch("articleUrlPattern")}`
+                : "Configure to auto-generate article URLs in webhooks"}
+            </p>
+            <Button
+              type="button"
+              size="sm"
+              disabled={isDisabled || !hasUrlChanges}
+              onClick={handleSubmit((data) => saveSettings(data, "url"))}
+            >
+              {savingSection === "url" ? <><Spinner /> Saving...</> : "Save"}
             </Button>
           </CardFooter>
         </Card>
