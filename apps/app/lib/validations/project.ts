@@ -149,6 +149,13 @@ export const RESERVED_SLUGS = [
   "sw",
 ] as const;
 
+/**
+ * Check if a slug is in the reserved slugs list
+ */
+export const isReservedSlug = (slug: string): boolean => {
+  return (RESERVED_SLUGS as readonly string[]).includes(slug);
+};
+
 export const createProjectSchema = z.object({
   name: z
     .string()
@@ -218,7 +225,7 @@ export const updateProjectSettingsSchema = z.object({
     .max(100, "Project slug must be less than 100 characters")
     .regex(/^[a-z0-9-]+$/, "Slug can only contain lowercase letters, numbers, and hyphens")
     .refine(
-      (slug) => !RESERVED_SLUGS.includes(slug as typeof RESERVED_SLUGS[number]),
+      (slug) => !isReservedSlug(slug),
       "This slug is reserved and cannot be used"
     ),
   icon: IconsEnum.optional(),
@@ -267,6 +274,19 @@ export const updateProjectSettingsSchema = z.object({
             return url;
           })
       })
+    )
+    .optional(),
+  baseUrl: z
+    .url("Please enter a valid URL")
+    .optional()
+    .nullable(),
+  articleUrlPattern: z
+    .string()
+    .min(1, "URL pattern is required")
+    .max(200, "URL pattern must be less than 200 characters")
+    .refine(
+      (val) => val.includes("{slug}"),
+      "URL pattern must include {slug}"
     )
     .optional(),
 })
