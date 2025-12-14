@@ -1,26 +1,20 @@
 "use client"
 
 import { PageLayout } from "@/components/layout/page-layout"
-import { Button } from "@simplist/ui/components/button"
-import { MiniBadge } from "@/components/ui/mini-badge"
-import { Card, CardContent } from "@simplist/ui/components/card"
-import { Badge } from "@simplist/ui/components/badge"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from "@simplist/ui/components/dropdown-menu"
-import { toast } from "@simplist/ui/components/sonner"
-import { ConfirmDialog } from "@simplist/ui/components/confirm-dialog"
-import { deleteProjectRole } from "@/lib/actions/roles"
-import { Lock, MoreVertical, Pencil, Plus, SearchX, Trash2 } from "lucide-react"
-import { useState } from "react"
 import { CreateRoleDialog } from "@/components/roles/create-role-dialog"
 import { EditRoleDialog } from "@/components/roles/edit-role-dialog"
+import { MiniBadge } from "@/components/ui/mini-badge"
+import { deleteProjectRole } from "@/lib/actions/roles"
 import type { ProjectRole } from "@simplist/db"
+import { Badge } from "@simplist/ui/components/badge"
+import { Button } from "@simplist/ui/components/button"
+import { Card, CardContent } from "@simplist/ui/components/card"
+import { ConfirmDialog } from "@simplist/ui/components/confirm-dialog"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@simplist/ui/components/dropdown-menu"
 import { Empty, EmptyHeader, EmptyMedia } from "@simplist/ui/components/empty"
+import { toast } from "@simplist/ui/components/sonner"
+import { Lock, MoreVertical, Pencil, Plus, SearchX, Trash2 } from "lucide-react"
+import { useState } from "react"
 
 type RolesClientPageProps = {
   project: {
@@ -82,6 +76,7 @@ export const RolesClientPage = ({ project, roles: initialRoles }: RolesClientPag
     if (role.canManageRoles) permissions.push("Manage roles")
     if (role.canManageArticles) permissions.push("Manage articles")
     if (role.canManageApiKeys) permissions.push("Manage API keys")
+    if (role.canManageWebhooks) permissions.push("Manage webhooks")
     if (role.canViewAnalytics) permissions.push("View analytics")
     if (role.canManageBilling) permissions.push("Manage billing")
     if (role.canDeleteProject) permissions.push("Delete project")
