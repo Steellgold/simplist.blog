@@ -10,7 +10,6 @@ const BillingLoadingSkeleton = () => {
       description="Manage billing and subscription"
       centered="sm"
     >
-      {/* Current Plan Card Skeleton */}
       <Card>
         <CardContent>
           <FieldSet>
@@ -51,7 +50,6 @@ const BillingLoadingSkeleton = () => {
         </CardContent>
       </Card>
 
-      {/* Invoices Card Skeleton */}
       <Card>
         <CardContent>
           <div className="space-y-4">

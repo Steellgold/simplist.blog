@@ -11,15 +11,12 @@ const ArticlesLoading = () => {
       }
     >
       <div className="space-y-4">
-        {/* Search bar skeleton */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
           <Skeleton className="h-10 w-full sm:max-w-sm" />
         </div>
 
-        {/* Table skeleton */}
         <div className="rounded-md border overflow-hidden">
           <div className="overflow-x-auto">
-            {/* Header skeleton */}
             <div className="border-b p-4 flex items-center gap-4">
               <Skeleton className="h-5 w-5" />
               <Skeleton className="h-5 w-24" />
@@ -30,7 +27,6 @@ const ArticlesLoading = () => {
               <Skeleton className="h-5 w-10" />
             </div>
 
-            {/* Rows skeleton */}
             {Array.from({ length: 5 }).map((_, i) => (
               <div key={i} className="border-b p-4 flex items-center gap-4">
                 <Skeleton className="h-5 w-5" />
@@ -48,7 +44,6 @@ const ArticlesLoading = () => {
           </div>
         </div>
 
-        {/* Pagination skeleton */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
           <Skeleton className="h-4 w-32" />
           <div className="flex items-center space-x-2">
