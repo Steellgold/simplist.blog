@@ -4,9 +4,9 @@ import { assertR2ObjectIsImage, deleteBannerFromR2, getR2PublicUrl } from "@/lib
 import { getCurrentUser } from "@/lib/auth-helper"
 import { hasProjectAccess, requirePermission } from "@/lib/auth/permissions"
 import { checkArticleQuota, checkFeatureAccess, checkVariantQuota } from "@/lib/subscription/quota-check"
-import { type LanguageCode, isValidLanguageCode } from "@/lib/types/languages"
+import { isValidLanguageCode, type LanguageCode } from "@/lib/types/languages"
 import { generateSlug } from "@/lib/utils"
-import { prisma } from "@simplist/db"
+import { prisma, sendWebhookEvent, type WebhookEvent } from "@simplist/db"
 import { revalidatePath } from "next/cache"
 import { forbidden, notFound, redirect } from "next/navigation"
 
@@ -32,6 +32,86 @@ const calculateStats = (content: string) => {
     lineCount: lines,
     readTimeMinutes,
   };
+}
+
+const triggerArticleWebhook = async (
+  projectId: string,
+  event: WebhookEvent,
+  articleId: string
+) => {
+  try {
+    // Get article with all necessary data
+    const article = await prisma.article.findUnique({
+      where: { id: articleId },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        excerpt: true,
+        coverImage: true,
+        wordCount: true,
+        characterCount: true,
+        lineCount: true,
+        readTimeMinutes: true,
+        publishedAt: true,
+        author: {
+          select: {
+            name: true,
+          },
+        },
+        tags: {
+          select: {
+            name: true,
+          },
+        },
+        variants: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    })
+
+    if (!article) {
+      return
+    }
+
+  // Get project to build URL
+  const project = await prisma.project.findUnique({
+    where: { id: projectId },
+    select: { 
+      baseUrl: true, 
+      articleUrlPattern: true,
+    },
+  })
+
+  // Build URL if baseUrl is configured
+  let url: string | undefined
+  if (project?.baseUrl) {
+    const pattern = project.articleUrlPattern || "/blog/{slug}"
+    url = `${project.baseUrl}${pattern.replace("{slug}", article.slug)}`
+  }
+
+    await sendWebhookEvent(projectId, event, {
+      id: article.id,
+      title: article.title,
+      slug: article.slug,
+      excerpt: article.excerpt ?? undefined,
+      author: article.author?.name,
+      tags: article.tags.map(t => t.name),
+      publishedAt: article.publishedAt?.toISOString(),
+      url,
+      coverImage: article.coverImage ?? undefined,
+      wordCount: article.wordCount ?? undefined,
+      characterCount: article.characterCount ?? undefined,
+      lineCount: article.lineCount ?? undefined,
+      readTimeMinutes: article.readTimeMinutes ?? undefined,
+      variantCount: article.variants.length,
+    });
+  } catch (error) {
+    // Silently fail webhook triggers to not break the main operation
+    console.error("Failed to trigger webhook:", error);
+  }
 }
 
 export const createArticle = async (formData: {
@@ -180,6 +260,14 @@ export const createArticle = async (formData: {
   // Revalidate all relevant paths
   revalidatePath(`/${project.slug}`, "layout");
   revalidatePath(`/${project.slug}/articles`, "page");
+
+  // Webhook: published or scheduled
+  if (article.status === "published") {
+    triggerArticleWebhook(project.id, "article.published", article.id).catch(() => {});
+  } else if (article.status === "scheduled") {
+    triggerArticleWebhook(project.id, "article.scheduled", article.id).catch(() => {});
+  }
+
   return article;
 }
 
@@ -670,6 +758,17 @@ export const updateArticle = async (articleId: string, formData: {
 
   revalidatePath(`/${article.project.slug}`, "layout")
   revalidatePath(`/${article.project.slug}/articles`, "page")
+
+  // Trigger webhooks
+  const event: WebhookEvent =
+    updated.status === "published" && article.publishedAt === null
+      ? "article.published"
+      : updated.status === "scheduled"
+        ? "article.scheduled"
+        : "article.updated"
+
+  triggerArticleWebhook(article.project.id, event, updated.id).catch(() => {})
+
   return updated
 }
 
@@ -681,6 +780,9 @@ export const deleteArticle = async (articleId: string) => {
     },
     select: {
       id: true,
+      title: true,
+      slug: true,
+      excerpt: true,
       projectId: true,
       project: {
         select: {
@@ -709,6 +811,8 @@ export const deleteArticle = async (articleId: string) => {
 
   revalidatePath(`/${article.project.slug}`, "layout")
   revalidatePath(`/${article.project.slug}/articles`, "page")
+
+  triggerArticleWebhook(article.projectId, "article.deleted", articleId).catch(() => {})
 }
 
 export const bulkDeleteArticles = async (articleIds: string[]) => {

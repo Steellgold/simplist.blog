@@ -2,7 +2,7 @@
 
 import { createProject } from "@/lib/actions/projects"
 import { cn, generateSlug } from "@/lib/utils"
-import { CreateProjectInput, createProjectSchema, RESERVED_SLUGS } from "@/lib/validations/project"
+import { CreateProjectInput, createProjectSchema, isReservedSlug } from "@/lib/validations/project"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@simplist/ui/components/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@simplist/ui/components/card"
@@ -11,7 +11,6 @@ import { Input } from "@simplist/ui/components/input"
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@simplist/ui/components/input-group"
 import { toast } from "@simplist/ui/components/sonner"
 import { Spinner } from "@simplist/ui/components/spinner"
-import { TimezoneCombobox } from "@simplist/ui/components/timezone-selector"
 import { Plus, X } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
@@ -45,7 +44,7 @@ export const CreateProjectForm = ({ className, ...props }: React.ComponentProps<
     const slug = generateSlug(data.name)
 
     // Check if slug is reserved
-    if (RESERVED_SLUGS.includes(slug as typeof RESERVED_SLUGS[number])) {
+    if (isReservedSlug(slug)) {
       setError(`The name "${data.name}" generates a reserved slug. Please choose a different name.`)
       setIsSubmitting(false)
       return

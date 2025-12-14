@@ -1,5 +1,6 @@
 "use client"
 
+import { Discord, MicrosoftTeams, Slack } from "@ridemountainpig/svgl-react"
 import { Button } from "@simplist/ui/components/button"
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@simplist/ui/components/card"
 import { Checkbox } from "@simplist/ui/components/checkbox"
@@ -7,6 +8,7 @@ import { Input } from "@simplist/ui/components/input"
 import { ColorPickerInputGroup } from "@simplist/ui/components/input-color-picker"
 import { Label } from "@simplist/ui/components/label"
 import { toast } from "@simplist/ui/components/sonner"
+import { Switch } from "@simplist/ui/components/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@simplist/ui/components/tabs"
 import { Textarea } from "@simplist/ui/components/textarea"
 import { Check, Copy } from "lucide-react"
@@ -94,9 +96,12 @@ const defaultTeamsData: TeamsFormData = {
   buttonUrl: "{url}",
 }
 
+type Tab = "discord" | "slack" | "teams"
+
 export const WebhookBuilder: FC = () => {
-  const [activeTab, setActiveTab] = useState<"discord" | "slack" | "teams">("discord")
+  const [activeTab, setActiveTab] = useState<Tab>("discord")
   const [copied, setCopied] = useState(false)
+  const [discordMessageType, setDiscordMessageType] = useState<"simple" | "embed">("embed")
 
   const [discordData, setDiscordData] = useState<DiscordFormData>(defaultDiscordData)
   const [slackData, setSlackData] = useState<SlackFormData>(defaultSlackData)
@@ -108,6 +113,17 @@ export const WebhookBuilder: FC = () => {
   }
 
   const generateDiscordPayload = (): string => {
+    if (discordMessageType === "simple") {
+      const payload: any = {}
+      if (discordData.content) {
+        payload.content = discordData.content
+      } else {
+        payload.content = ""
+      }
+      return JSON.stringify(payload, null, 2)
+    }
+
+    // Embed mode
     const embed: any = {}
 
     if (discordData.title) embed.title = discordData.title
@@ -145,7 +161,9 @@ export const WebhookBuilder: FC = () => {
       embeds: [embed],
     }
 
-    if (discordData.content) payload.content = discordData.content
+    if (discordData.content) {
+      payload.content = discordData.content
+    }
 
     return JSON.stringify(payload, null, 2)
   }
@@ -305,22 +323,65 @@ export const WebhookBuilder: FC = () => {
 
   return (
     <div className="space-y-6">
-      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "discord" | "slack" | "teams")}>
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="discord">Discord</TabsTrigger>
-          <TabsTrigger value="slack">Slack</TabsTrigger>
-          <TabsTrigger value="teams">Teams</TabsTrigger>
+      <Tabs
+        value={activeTab}
+        onValueChange={(v) => setActiveTab(v as "discord" | "slack" | "teams")}
+      >
+        <TabsList className="inline-flex">
+          <TabsTrigger value="discord" className="flex items-center gap-2">
+            <Discord />
+            <span>Discord</span>
+          </TabsTrigger>
+          <TabsTrigger value="slack" className="flex items-center gap-2">
+            <Slack />
+            <span>Slack</span>
+          </TabsTrigger>
+          <TabsTrigger value="teams" className="flex items-center gap-2">
+            <MicrosoftTeams />
+            <span>Teams</span>
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="discord" className="mt-4 data-[state=inactive]:hidden flex-none!">
           <Card>
             <CardHeader>
-              <CardTitle>Discord Embed Builder</CardTitle>
+              <CardTitle>Discord {discordMessageType === "embed" ? "Embed" : "Message"} Builder</CardTitle>
               <CardDescription>Configure your Discord webhook payload</CardDescription>
+
+              <CardAction className="flex items-center gap-2">
+                <Label htmlFor="discord-type-toggle" className="text-sm font-normal cursor-pointer">
+                  Simple Message
+                </Label>
+
+                <Switch
+                  id="discord-type-toggle"
+                  checked={discordMessageType === "embed"}
+                  onCheckedChange={(checked) => setDiscordMessageType(checked ? "embed" : "simple")}
+                />
+
+                <Label htmlFor="discord-type-toggle" className="text-sm font-normal cursor-pointer">
+                  Embed
+                </Label>
+              </CardAction>
             </CardHeader>
+
             <CardContent>
-              <div className="space-y-4">
-                <div className="space-y-2">
+              {discordMessageType === "simple" ? (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Message *</Label>
+                    <Textarea
+                      value={discordData.content}
+                      onChange={(e) => setDiscordData({ ...discordData, content: e.target.value })}
+                      placeholder="Your message text..."
+                      rows={4}
+                    />
+                    <p className="text-xs text-muted-foreground">Enter the message content to send</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="space-y-2">
                     <Label>Message (above embed)</Label>
                     <Textarea
                       value={discordData.content}
@@ -368,16 +429,26 @@ export const WebhookBuilder: FC = () => {
                       />
                     </div>
 
-                    <div className="flex items-center gap-2 pt-8">
-                      <Checkbox
-                        id="includeTimestamp"
-                        checked={discordData.includeTimestamp}
-                        onCheckedChange={(checked) =>
-                          setDiscordData({ ...discordData, includeTimestamp: checked === true })
-                        }
-                      />
-                      <Label htmlFor="includeTimestamp" className="cursor-pointer">
-                        Include timestamp
+                    <div className="space-y-2">
+                      <Label>Include timestamp</Label>
+                      <Label
+                        htmlFor="includeTimestamp"
+                        className="hover:bg-accent/50 flex items-start gap-3 rounded-lg border p-[9.5px] has-aria-checked:border-blue-600 has-aria-checked:bg-blue-50 dark:has-aria-checked:border-blue-900 dark:has-aria-checked:bg-blue-950 cursor-pointer"
+                      >
+                        <Checkbox
+                          id="includeTimestamp"
+                          checked={discordData.includeTimestamp}
+                          onCheckedChange={(checked) =>
+                            setDiscordData({ ...discordData, includeTimestamp: checked === true })
+                          }
+                          className="data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600 data-[state=checked]:text-white dark:data-[state=checked]:border-blue-700 dark:data-[state=checked]:bg-blue-700"
+                        />
+
+                        <div className="grid gap-1.5 font-normal">
+                          <p className="text-sm leading-none font-medium">
+                            Include timestamp
+                          </p>
+                        </div>
                       </Label>
                     </div>
                   </div>
@@ -493,6 +564,7 @@ export const WebhookBuilder: FC = () => {
                     ))}
                   </div>
                 </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -503,6 +575,7 @@ export const WebhookBuilder: FC = () => {
               <CardTitle>Slack Blocks Builder</CardTitle>
               <CardDescription>Configure your Slack webhook payload</CardDescription>
             </CardHeader>
+
             <CardContent>
               <div className="space-y-4">
                 <div className="space-y-2">

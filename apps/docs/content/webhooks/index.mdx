@@ -13,14 +13,22 @@ Create custom webhook payloads for Discord, Slack, and Microsoft Teams. Use the 
 
 You can use these variables in your webhook payloads:
 
-- `{title}` - Article title
-- `{slug}` - Article slug
-- `{excerpt}` - Article excerpt/summary
-- `{author}` - Author name
-- `{tags}` - Comma-separated tags
-- `{publishedAt}` - Publication date
-- `{url}` - Article URL
-- `{event}` - Event type (e.g. article.published)
+<TypeTable properties={[
+  { name: "{title}", type: "string", description: "Article title" },
+  { name: "{slug}", type: "string", description: "Article slug" },
+  { name: "{excerpt}", type: "string", description: "Article excerpt/summary" },
+  { name: "{author}", type: "string", description: "Author name" },
+  { name: "{tags}", type: "string", description: "Comma-separated tags" },
+  { name: "{publishedAt}", type: "string", description: "Publication date (ISO 8601)" },
+  { name: "{url}", type: "string", description: "Full article URL" },
+  { name: "{event}", type: "string", description: "Event type (e.g. article.published)" },
+  { name: "{coverImage}", type: "string", description: "Cover image URL" },
+  { name: "{wordCount}", type: "number", description: "Number of words" },
+  { name: "{characterCount}", type: "number", description: "Number of characters" },
+  { name: "{lineCount}", type: "number", description: "Number of lines" },
+  { name: "{readTimeMinutes}", type: "number", description: "Estimated reading time in minutes" },
+  { name: "{variantCount}", type: "number", description: "Number of language variants" },
+]} />
 
 ## How to Use
 

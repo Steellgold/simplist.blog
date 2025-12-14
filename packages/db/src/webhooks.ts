@@ -16,11 +16,18 @@ type ArticlePayload = {
   tags?: string[]
   publishedAt?: string
   url?: string
+  coverImage?: string
+  wordCount?: number
+  characterCount?: number
+  lineCount?: number
+  readTimeMinutes?: number
+  variantCount?: number
 }
 
 /**
  * Replace variables in a string with values from the article
- * Supports: {title}, {slug}, {excerpt}, {author}, {tags}, {publishedAt}, {url}, {event}
+ * Supports: {title}, {slug}, {excerpt}, {author}, {tags}, {publishedAt}, {url}, {event},
+ * {coverImage}, {wordCount}, {characterCount}, {lineCount}, {readTimeMinutes}, {variantCount}
  */
 const replaceVariables = (
   text: string,
@@ -36,6 +43,12 @@ const replaceVariables = (
     publishedAt: article.publishedAt ?? new Date().toISOString(),
     url: article.url ?? "",
     event: event,
+    coverImage: article.coverImage ?? "",
+    wordCount: article.wordCount?.toString() ?? "0",
+    characterCount: article.characterCount?.toString() ?? "0",
+    lineCount: article.lineCount?.toString() ?? "0",
+    readTimeMinutes: article.readTimeMinutes?.toString() ?? "0",
+    variantCount: article.variantCount?.toString() ?? "0",
   }
 
   return text.replace(/\{(\w+)\}/g, (match, key) => {
@@ -93,6 +106,12 @@ const buildBody = (
       tags: article.tags ?? [],
       publishedAt: article.publishedAt ?? null,
       url: article.url ?? null,
+      coverImage: article.coverImage ?? null,
+      wordCount: article.wordCount ?? null,
+      characterCount: article.characterCount ?? null,
+      lineCount: article.lineCount ?? null,
+      readTimeMinutes: article.readTimeMinutes ?? null,
+      variantCount: article.variantCount ?? null,
     },
   }
 }
@@ -216,6 +235,12 @@ export const sendTestWebhook = async (
     tags: ["test", "webhook", "sample"],
     publishedAt: new Date().toISOString(),
     url: "https://example.com/blog/sample-article-title",
+    coverImage: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=600&h=300&fit=crop",
+    wordCount: 250,
+    characterCount: 1500,
+    lineCount: 20,
+    readTimeMinutes: 2,
+    variantCount: 3,
   }
 
   const body = buildBody(event, sampleArticle, hook.customPayload)
@@ -279,6 +304,74 @@ export const sendTestWebhook = async (
       },
     })
 
+    return { success: false, error: errorMessage }
+  }
+}
+
+/**
+ * Test a webhook with provided data (without saving to database)
+ */
+export const testWebhookFromData = async (
+  url: string,
+  event: WebhookEvent,
+  options: {
+    secret?: string | null
+    headers?: Record<string, string> | null
+    customPayload?: unknown
+  }
+): Promise<{ success: boolean; statusCode?: number; error?: string }> => {
+  const sampleArticle: ArticlePayload = {
+    id: "clxyz123456789",
+    title: "Sample Article Title",
+    slug: "sample-article-title",
+    excerpt: "This is a sample excerpt for testing your webhook integration.",
+    author: "John Doe",
+    tags: ["test", "webhook", "sample"],
+    publishedAt: new Date().toISOString(),
+    url: "https://example.com/blog/sample-article-title",
+    coverImage: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=600&h=300&fit=crop",
+    wordCount: 250,
+    characterCount: 1500,
+    lineCount: 20,
+    readTimeMinutes: 2,
+    variantCount: 3,
+  }
+
+  const body = buildBody(event, sampleArticle, options.customPayload)
+
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    "User-Agent": "simplist-webhooks/1.0",
+    "X-Simplist-Test": "true",
+  }
+
+  if (options.secret) {
+    const signature = createHmac("sha256", options.secret)
+      .update(JSON.stringify(body))
+      .digest("hex")
+    headers["X-Simplist-Signature"] = signature
+  }
+
+  if (options.headers && typeof options.headers === "object") {
+    for (const [k, v] of Object.entries(options.headers)) {
+      if (typeof v === "string") headers[k] = v
+    }
+  }
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(body),
+    })
+
+    return {
+      success: response.ok,
+      statusCode: response.status,
+      error: response.ok ? undefined : `HTTP ${response.status}`,
+    }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error"
     return { success: false, error: errorMessage }
   }
 }

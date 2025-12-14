@@ -1,4 +1,5 @@
 import * as db from "@simplist/db"
+import { sendWebhookEvent } from "@simplist/db"
 import { FastifyPluginAsync } from "fastify"
 
 const { prisma } = db
@@ -42,7 +43,24 @@ const cronRoutes: FastifyPluginAsync = async (fastify) => {
           }
         },
         include: {
-          project: true
+          project: {
+            select: {
+              id: true,
+              name: true,
+              baseUrl: true,
+              articleUrlPattern: true
+            }
+          },
+          author: {
+            select: {
+              name: true,
+            }
+          },
+          tags: {
+            select: {
+              name: true,
+            }
+          }
         }
       })
 
@@ -68,6 +86,18 @@ const cronRoutes: FastifyPluginAsync = async (fastify) => {
               publishedAt: article.scheduledPublishAt || now,
               scheduledPublishAt: null // Clear the scheduled date
             }
+          })
+
+          // Notify webhooks
+          await sendWebhookEvent(article.projectId, "article.published", {
+            id: article.id,
+            title: article.title,
+            slug: article.slug,
+            author: article.author.name,
+            excerpt: article.excerpt ?? "",
+            publishedAt: article.scheduledPublishAt?.toISOString() ?? now.toISOString(),
+            tags: article.tags.map((tag) => tag.name),
+            url: `${article.project.baseUrl}${article.project.articleUrlPattern.replace("{slug}", article.slug)}`
           })
 
           results.published++
