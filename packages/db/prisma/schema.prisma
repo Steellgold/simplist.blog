@@ -125,6 +125,8 @@ model Project {
   allowedOrigins        String[]            @default([]) // Array of allowed origins for CORS
   timezone              String              @default("UTC") // Project timezone for scheduled publishing
   defaultLanguage       String              @default("en") // Default language for articles (ISO 639-1 code)
+  baseUrl               String? // Base URL for the blog (e.g. "https://monblog.com")
+  articleUrlPattern     String              @default("/blog/{slug}") // URL pattern for articles (e.g. "/blog/{slug}" or "/articles/{slug}")
   subscriptionTier      SubscriptionTier    @default(STARTER) // "STARTER" | "PRO" - Project-specific subscription tier
   subscriptionExpiresAt DateTime? // When the subscription expires (for pro projects)
   stripeCustomerId      String? // Stripe customer ID for this project
@@ -140,6 +142,7 @@ model Project {
   members               ProjectMember[]
   roles                 ProjectRole[]
   invitations           ProjectInvitation[]
+  webhooks              Webhook[]
   createdAt             DateTime            @default(now())
   updatedAt             DateTime            @updatedAt
 
@@ -147,6 +150,46 @@ model Project {
   @@index([userId, createdAt])
   @@index([userId, subscriptionTier])
   @@map("project")
+}
+
+model Webhook {
+  id           String    @id @default(cuid())
+  name         String
+  url          String
+  events       String[]  @default([]) // e.g. ["article.published", "article.deleted"]
+  secret       String?
+  status       String    @default("active") // active, disabled
+  lastSentAt   DateTime?
+  failureCount Int       @default(0)
+  headers      Json?
+
+  // Custom payload configuration
+  customPayload Json? // The complete JSON payload to send
+  templateId    String? // "discord-message" | "discord-embed" | "slack-blocks" | "teams-card" | null
+
+  projectId  String
+  project    Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  deliveries WebhookDelivery[]
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+
+  @@index([projectId, status])
+  @@index([projectId, createdAt])
+  @@map("webhook")
+}
+
+model WebhookDelivery {
+  id          String   @id @default(cuid())
+  webhookId   String
+  webhook     Webhook  @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+  status      String // success | failed
+  response    Json?
+  statusCode  Int?
+  error       String?
+  attemptedAt DateTime @default(now())
+
+  @@index([webhookId, attemptedAt])
+  @@map("webhook_delivery")
 }
 
 model Tag {
@@ -375,20 +418,21 @@ model ProjectRole {
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   name String // "Administrator", "Editor", "Viewer", etc. (customizable)
-  slug String // "admin", "editor", "viewer" (pour identifier le rôle)
+  slug String // "admin", "editor", "viewer" (to identify the role)
 
   // Permissions granulaires
-  canManageProject  Boolean @default(false) // Modifier settings projet
-  canManageMembers  Boolean @default(false) // Inviter/retirer membres
-  canManageRoles    Boolean @default(false) // Modifier les rôles/permissions
-  canManageArticles Boolean @default(false) // Créer/modifier articles
-  canManageApiKeys  Boolean @default(false) // Créer/supprimer API keys
-  canViewAnalytics  Boolean @default(true) // Voir analytics
-  canManageBilling  Boolean @default(false) // Gérer abonnement (réservé OWNER)
-  canDeleteProject  Boolean @default(false) // Supprimer projet (réservé OWNER)
+  canManageProject  Boolean @default(false) // Edit project settings
+  canManageMembers  Boolean @default(false) // Invite/remove members
+  canManageRoles    Boolean @default(false) // Edit roles/permissions
+  canManageArticles Boolean @default(false) // Create/edit articles
+  canManageApiKeys  Boolean @default(false) // Create/delete API keys
+  canManageWebhooks Boolean @default(false) // Manage outgoing webhooks
+  canViewAnalytics  Boolean @default(true) // View analytics
+  canManageBilling  Boolean @default(false) // Manage billing (reserved for OWNER)
+  canDeleteProject  Boolean @default(false) // Delete project (reserved for OWNER)
 
-  isOwner   Boolean @default(false) // Rôle fantôme réservé au créateur
-  isDefault Boolean @default(false) // Rôle par défaut créé à l'init du projet
+  isOwner   Boolean @default(false) // Ghost role reserved for creator
+  isDefault Boolean @default(false) // Default role created at project initialization
 
   members ProjectMember[]
 
@@ -400,7 +444,7 @@ model ProjectRole {
   @@map("project_role")
 }
 
-// Table de jointure User ↔ Project
+// User ↔ Project join table
 model ProjectMember {
   id String @id @default(cuid())
 
@@ -410,7 +454,7 @@ model ProjectMember {
   projectId String
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
-  // Rôle assigné (personnalisable)
+  // Assigned role (customizable)
   roleId String
   role   ProjectRole @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
@@ -428,7 +472,7 @@ model ProjectMember {
   @@map("project_member")
 }
 
-// Système d'invitations avec token sécurisé
+// Secure invitation system with token
 model ProjectInvitation {
   id String @id @default(cuid())
 
@@ -436,11 +480,11 @@ model ProjectInvitation {
   projectId String
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
-  roleId String // Rôle à assigner lors de l'acceptation
+  roleId String // Role to assign when accepting
   status InvitationStatus @default(PENDING)
 
   token     String   @unique
-  expiresAt DateTime // 7 jours par défaut
+  expiresAt DateTime // 7 days by default
 
   invitedBy  String
   invitedAt  DateTime  @default(now())
