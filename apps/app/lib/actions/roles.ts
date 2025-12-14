@@ -36,6 +36,7 @@ export const createProjectRole = async (
       canManageRoles?: boolean;
       canManageArticles?: boolean;
       canManageApiKeys?: boolean;
+      canManageWebhooks?: boolean;
       canViewAnalytics?: boolean;
     };
   }
@@ -69,6 +70,7 @@ export const createProjectRole = async (
       canManageRoles: validatedData.permissions.canManageRoles ?? false,
       canManageArticles: validatedData.permissions.canManageArticles ?? false,
       canManageApiKeys: validatedData.permissions.canManageApiKeys ?? false,
+      canManageWebhooks: validatedData.permissions.canManageWebhooks ?? false,
       canViewAnalytics: validatedData.permissions.canViewAnalytics ?? true,
       canManageBilling: false, // Always false (reserved for OWNER)
       canDeleteProject: false, // Always false (reserved for OWNER)
@@ -100,6 +102,7 @@ export const updateProjectRole = async (
       canManageRoles?: boolean;
       canManageArticles?: boolean;
       canManageApiKeys?: boolean;
+      canManageWebhooks?: boolean;
       canViewAnalytics?: boolean;
     };
   }
@@ -130,6 +133,7 @@ export const updateProjectRole = async (
     canManageRoles?: boolean;
     canManageArticles?: boolean;
     canManageApiKeys?: boolean;
+    canManageWebhooks?: boolean;
     canViewAnalytics?: boolean;
   } = {};
 
@@ -156,6 +160,10 @@ export const updateProjectRole = async (
 
     if (validatedData.permissions.canManageApiKeys !== undefined) {
       updateData.canManageApiKeys = validatedData.permissions.canManageApiKeys;
+    }
+
+    if (validatedData.permissions.canManageWebhooks !== undefined) {
+      updateData.canManageWebhooks = validatedData.permissions.canManageWebhooks;
     }
 
     if (validatedData.permissions.canViewAnalytics !== undefined) {

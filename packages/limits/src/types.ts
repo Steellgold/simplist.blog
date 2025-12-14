@@ -23,12 +23,14 @@ export interface PlanLimits {
   maxApiCallsPerMonth: number;
   maxVariantsPerArticle: number;
   maxMembers: number;
+  maxWebhooks: number;
   features: {
     analytics: boolean;
     postVariants: boolean;
     scheduledPublishing: boolean;
     prioritySupport: boolean;
     bulkOperations: boolean;
+    webhooks: boolean;
   };
 }
 

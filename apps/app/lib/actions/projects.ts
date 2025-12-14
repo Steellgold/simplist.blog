@@ -120,6 +120,7 @@ export const createProject = async (input: CreateProjectActionInput) => {
         canManageRoles: true,
         canManageArticles: true,
         canManageApiKeys: true,
+        canManageWebhooks: true,
         canViewAnalytics: true,
         canManageBilling: true,
         canDeleteProject: true,
@@ -137,6 +138,7 @@ export const createProject = async (input: CreateProjectActionInput) => {
         canManageRoles: true,
         canManageArticles: true,
         canManageApiKeys: true,
+        canManageWebhooks: true,
         canViewAnalytics: true,
       },
     });
@@ -149,6 +151,7 @@ export const createProject = async (input: CreateProjectActionInput) => {
         isDefault: true,
         canManageArticles: true,
         canManageApiKeys: true,
+        canManageWebhooks: false,
         canViewAnalytics: true,
       },
     });

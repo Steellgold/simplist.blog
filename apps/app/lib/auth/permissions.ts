@@ -1,9 +1,9 @@
 "use server";
 
+import type { ProjectMember, ProjectRole } from "@simplist/db";
 import { prisma } from "@simplist/db";
-import type { ProjectRole, ProjectMember } from "@simplist/db";
-import { getCurrentUser } from "../auth-helper";
 import { forbidden, redirect } from "next/navigation";
+import { getCurrentUser } from "../auth-helper";
 
 /**
  * Type for available permissions on a role
@@ -15,6 +15,7 @@ export type RolePermission = keyof Pick<
   | "canManageRoles"
   | "canManageArticles"
   | "canManageApiKeys"
+  | "canManageWebhooks"
   | "canViewAnalytics"
   | "canManageBilling"
   | "canDeleteProject"

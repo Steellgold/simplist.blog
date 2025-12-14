@@ -1,4 +1,4 @@
-import { Plan, PlanId, SubscriptionInterval, PlanPrice } from "./types";
+import { Plan, PlanId, PlanPrice, SubscriptionInterval } from "./types";
 
 export const SUBSCRIPTION_PLANS: Record<PlanId, Plan> = {
   STARTER: {
@@ -26,12 +26,14 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, Plan> = {
       maxApiCallsPerMonth: 1000,
       maxVariantsPerArticle: 0, // STARTER: No variants allowed
       maxMembers: 1, // STARTER: Solo mode only (owner)
+      maxWebhooks: 1,
       features: {
         analytics: false, // Advanced analytics are PRO only
         postVariants: false, // Not available on STARTER
         scheduledPublishing: false,
         prioritySupport: true,
         bulkOperations: false,
+        webhooks: true,
       },
     },
   },
@@ -74,12 +76,14 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, Plan> = {
       maxApiCallsPerMonth: 500000,
       maxVariantsPerArticle: -1, // PRO: unlimited variants per article
       maxMembers: 10, // PRO: Up to 10 team members
+      maxWebhooks: 20,
       features: {
         analytics: true, // PRO has full access to advanced analytics
         postVariants: true,
         scheduledPublishing: true,
         prioritySupport: true,
         bulkOperations: true,
+        webhooks: true,
       },
     },
   },

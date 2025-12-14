@@ -1,20 +1,13 @@
 "use client"
 
+import { updateProjectRole } from "@/lib/actions/roles"
 import { Button } from "@simplist/ui/components/button"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle
-} from "@simplist/ui/components/dialog"
+import { Checkbox } from "@simplist/ui/components/checkbox"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@simplist/ui/components/dialog"
 import { Input } from "@simplist/ui/components/input"
 import { Label } from "@simplist/ui/components/label"
-import { Checkbox } from "@simplist/ui/components/checkbox"
 import { toast } from "@simplist/ui/components/sonner"
 import { Spinner } from "@simplist/ui/components/spinner"
-import { updateProjectRole } from "@/lib/actions/roles"
 import { useState } from "react"
 
 type Role = {
@@ -28,6 +21,7 @@ type Role = {
   canManageRoles: boolean
   canManageArticles: boolean
   canManageApiKeys: boolean
+  canManageWebhooks: boolean
   canViewAnalytics: boolean
   canManageBilling: boolean
   canDeleteProject: boolean
@@ -46,6 +40,7 @@ type Permissions = {
   canManageRoles: boolean
   canManageArticles: boolean
   canManageApiKeys: boolean
+  canManageWebhooks: boolean
   canViewAnalytics: boolean
 }
 
@@ -57,6 +52,7 @@ export const EditRoleDialog = ({ projectId, role, onClose, onSuccess }: EditRole
     canManageRoles: role.canManageRoles,
     canManageArticles: role.canManageArticles,
     canManageApiKeys: role.canManageApiKeys,
+    canManageWebhooks: role.canManageWebhooks,
     canViewAnalytics: role.canViewAnalytics
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -223,6 +219,29 @@ export const EditRoleDialog = ({ projectId, role, onClose, onSuccess }: EditRole
                     </label>
                     <p className="text-sm text-muted-foreground">
                       Can create and delete API keys
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start space-x-3">
+                  <Checkbox
+                    id="canManageWebhooks"
+                    checked={permissions.canManageWebhooks}
+                    onCheckedChange={(checked) =>
+                      handlePermissionChange("canManageWebhooks", checked as boolean)
+                    }
+                    disabled={isSubmitting}
+                  />
+
+                  <div className="space-y-1 leading-none">
+                    <label
+                      htmlFor="canManageWebhooks"
+                      className="text-sm font-medium cursor-pointer"
+                    >
+                      Manage webhooks
+                    </label>
+                    <p className="text-sm text-muted-foreground">
+                      Can create, edit, and delete outgoing webhooks
                     </p>
                   </div>
                 </div>

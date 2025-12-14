@@ -8,9 +8,7 @@ export interface QuotaCheckResult {
   limit?: number;
 }
 
-/**
- * Get project's subscription tier and limits
- */
+/** Get project's subscription tier and limits */
 export const getProjectSubscription = async (projectId: string) => {
   const project = await prisma.project.findUnique({
     where: { id: projectId },
@@ -46,9 +44,7 @@ export const getProjectSubscription = async (projectId: string) => {
   };
 };
 
-/**
- * Check if user can create a new article
- */
+/** Check if user can create a new article */
 export const checkArticleQuota = async (
   userId: string,
   projectId: string
@@ -74,6 +70,31 @@ export const checkArticleQuota = async (
   }
 
   return { allowed: true, current: articleCount, limit: subscription.limits.maxArticles };
+};
+
+/** Check if user can create another webhook for the project */
+export const checkWebhookQuota = async (
+  projectId: string
+): Promise<QuotaCheckResult> => {
+  const subscription = await getProjectSubscription(projectId);
+
+  const webhookCount = await prisma.webhook.count({
+    where: {
+      projectId,
+      status: { not: "disabled" },
+    },
+  });
+
+  if (subscription.limits.maxWebhooks !== -1 && webhookCount >= subscription.limits.maxWebhooks) {
+    return {
+      allowed: false,
+      reason: `Webhook limit reached. Your ${subscription.tier} plan allows up to ${subscription.limits.maxWebhooks} webhook${subscription.limits.maxWebhooks === 1 ? "" : "s"}.`,
+      current: webhookCount,
+      limit: subscription.limits.maxWebhooks,
+    };
+  }
+
+  return { allowed: true, current: webhookCount, limit: subscription.limits.maxWebhooks };
 };
 
 /**
@@ -110,9 +131,7 @@ export const checkStorageQuota = async (
 };
 
 
-/**
- * Check if user has exceeded monthly API call quota
- */
+/** Check if user has exceeded monthly API call quota */
 export const checkApiCallQuota = async (userId: string): Promise<QuotaCheckResult> => {
   // For API calls, we use the user's highest tier project or default to free
   const userProjects = await prisma.project.findMany({
@@ -198,9 +217,7 @@ export const checkApiCallQuota = async (userId: string): Promise<QuotaCheckResul
   };
 };
 
-/**
- * Increment user's API call counter (updates the highest tier project)
- */
+/** Increment user's API call counter (updates the highest tier project) */
 export const incrementApiCallCounter = async (userId: string): Promise<void> => {
   // Find the highest tier project
   const userProjects = await prisma.project.findMany({
@@ -237,9 +254,7 @@ export const incrementApiCallCounter = async (userId: string): Promise<void> => 
   });
 };
 
-/**
- * Update user's storage usage (updates the highest tier project)
- */
+/** Update user's storage usage (updates the highest tier project) */
 export const updateStorageUsage = async (
   projectId: string,
   bytesChange: number
@@ -254,9 +269,7 @@ export const updateStorageUsage = async (
   });
 };
 
-/**
- * Check if user has access to a feature
- */
+/** Check if user has access to a feature */
 export const checkFeatureAccess = async (
   userId: string,
   projectId: string,

@@ -1,20 +1,13 @@
 "use client"
 
+import { createProjectRole } from "@/lib/actions/roles"
 import { Button } from "@simplist/ui/components/button"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle
-} from "@simplist/ui/components/dialog"
+import { Checkbox } from "@simplist/ui/components/checkbox"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@simplist/ui/components/dialog"
 import { Input } from "@simplist/ui/components/input"
 import { Label } from "@simplist/ui/components/label"
-import { Checkbox } from "@simplist/ui/components/checkbox"
 import { toast } from "@simplist/ui/components/sonner"
 import { Spinner } from "@simplist/ui/components/spinner"
-import { createProjectRole } from "@/lib/actions/roles"
 import { useState } from "react"
 
 type CreateRoleDialogProps = {
@@ -29,6 +22,7 @@ type Permissions = {
   canManageRoles: boolean
   canManageArticles: boolean
   canManageApiKeys: boolean
+  canManageWebhooks: boolean
   canViewAnalytics: boolean
 }
 
@@ -41,6 +35,7 @@ export const CreateRoleDialog = ({ projectId, onClose, onSuccess }: CreateRoleDi
     canManageRoles: false,
     canManageArticles: false,
     canManageApiKeys: false,
+    canManageWebhooks: false,
     canViewAnalytics: true
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -220,6 +215,28 @@ export const CreateRoleDialog = ({ projectId, onClose, onSuccess }: CreateRoleDi
                     </label>
                     <p className="text-sm text-muted-foreground">
                       Can create and delete API keys
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start space-x-3">
+                  <Checkbox
+                    id="canManageWebhooks"
+                    checked={permissions.canManageWebhooks}
+                    onCheckedChange={(checked) =>
+                      handlePermissionChange("canManageWebhooks", checked as boolean)
+                    }
+                    disabled={isSubmitting}
+                  />
+                  <div className="space-y-1 leading-none">
+                    <label
+                      htmlFor="canManageWebhooks"
+                      className="text-sm font-medium cursor-pointer"
+                    >
+                      Manage webhooks
+                    </label>
+                    <p className="text-sm text-muted-foreground">
+                      Can create, edit, and delete outgoing webhooks
                     </p>
                   </div>
                 </div>

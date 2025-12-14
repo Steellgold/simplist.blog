@@ -9,6 +9,7 @@ export const rolePermissionsSchema = z.object({
   canManageRoles: z.boolean().optional(),
   canManageArticles: z.boolean().optional(),
   canManageApiKeys: z.boolean().optional(),
+  canManageWebhooks: z.boolean().optional(),
   canViewAnalytics: z.boolean().optional(),
   // canManageBilling and canDeleteProject are reserved for the OWNER
   // and cannot be modified via the UI

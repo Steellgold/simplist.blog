@@ -29,7 +29,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem
 } from "@simplist/ui/components/sidebar"
-import { Ban } from "lucide-react"
+import { Ban, WebhookIcon } from "lucide-react"
 import { cloneElement, useState, type ReactNode } from "react"
 import { SidebarFooterItem } from "./sidebar-footer-item"
 
@@ -84,6 +84,13 @@ const getNavigationItems = (isPro: boolean, projectSlug: string): NavigationItem
     disabled: !isPro,
     showProBadge: !isPro,
     requiredPermissions: ["canViewAnalytics"],
+    category: "Navigation"
+  },
+  {
+    title: "Webhooks",
+    icon: <WebhookIcon />,
+    href: `/${projectSlug}/webhooks`,
+    requiredPermissions: ["canManageWebhooks"],
     category: "Navigation"
   },
   {
