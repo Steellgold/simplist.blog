@@ -7,6 +7,8 @@ import { usePathname, useRouter } from "next/navigation"
 
 import { HttpMethodIcon } from "@/components/api-route-icons"
 import { SearchButton } from "@/components/search-button"
+import { cn } from "@/lib/utils"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@simplist/ui/components/dropdown-menu"
 import {
   Sidebar,
   SidebarContent,
@@ -18,9 +20,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@simplist/ui/components/sidebar"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@simplist/ui/components/dropdown-menu"
-import { Package, Globe, Check } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { Check, Globe, Package, Webhook } from "lucide-react"
 
 export type SidebarItem = {
   title: string
@@ -35,7 +35,39 @@ type Props = {
   items: SidebarItem[]
 }
 
-type Mode = "sdk" | "api"
+type Mode = "sdk" | "api" | "webhooks"
+
+type ModeConfig = {
+  icon: LucideIcons.LucideIcon
+  title: string
+  subtitle: string
+  route: string
+  pathPrefix?: string
+}
+
+const MODE_CONFIG: Record<Mode, ModeConfig> = {
+  sdk: {
+    icon: Package,
+    title: "SDK Docs",
+    subtitle: "Client Library",
+    route: "/",
+    pathPrefix: "",
+  },
+  api: {
+    icon: Globe,
+    title: "REST API",
+    subtitle: "Endpoints",
+    route: "/api/index",
+    pathPrefix: "/api",
+  },
+  webhooks: {
+    icon: Webhook,
+    title: "Webhooks",
+    subtitle: "Builder",
+    route: "/webhooks",
+    pathPrefix: "/webhooks",
+  },
+}
 
 export const AppSidebar = ({ items }: Props) => {
   const pathname = usePathname()
@@ -43,22 +75,23 @@ export const AppSidebar = ({ items }: Props) => {
   const httpMethodIcons = new Set(["GET", "POST", "PUT", "PATCH", "DELETE"])
 
   const getCurrentMode = (): Mode => {
+    if (pathname.startsWith("/webhooks")) return "webhooks"
     if (pathname.startsWith("/api")) return "api"
     return "sdk"
   }
 
   const toggleMode = (mode: Mode) => {
-    router.push(mode === "sdk" ? "/" : "/api/index")
+    router.push(MODE_CONFIG[mode].route)
   }
 
   const currentMode = getCurrentMode()
+  const currentConfig = MODE_CONFIG[currentMode]
 
   const filteredItems = items.filter(item => {
-    if (currentMode === "api" as Mode) {
-      return item.href.startsWith("/api")
-    } else {
-      return !item.href.startsWith("/api")
+    if (currentMode === "sdk") {
+      return !item.href.startsWith("/api") && !item.href.startsWith("/webhooks")
     }
+    return item.href.startsWith(currentConfig.pathPrefix || "")
   })
 
   return (
@@ -75,27 +108,14 @@ export const AppSidebar = ({ items }: Props) => {
                   >
                     <div className={cn(
                       "flex aspect-square size-8 items-center justify-center rounded-lg",
-                      currentMode === "sdk" && "bg-border text-foreground",
-                      currentMode === "api" && "bg-border text-foreground"
+                      "bg-border text-foreground"
                     )}>
-                      {currentMode === "sdk" && <Package size={20} />}
-                      {currentMode === "api" && <Globe size={20} />}
+                      <currentConfig.icon size={20} />
                     </div>
 
                     <div className="flex flex-col gap-0.5 leading-none">
-                      <span className="font-medium">
-                        {
-                          currentMode === "sdk"
-                            ? "SDK Docs"
-                              : currentMode === "api"
-                                ? "REST API"
-                                  : ""
-                        }
-                      </span>
-
-                      <span className="text-xs text-muted-foreground">
-                        {currentMode === "sdk" ? "Client Library" : "Endpoints"}
-                      </span>
+                      <span className="font-medium">{currentConfig.title}</span>
+                      <span className="text-xs text-muted-foreground">{currentConfig.subtitle}</span>
                     </div>
 
                     <ChevronsUpDown className="ml-auto" />
@@ -106,17 +126,17 @@ export const AppSidebar = ({ items }: Props) => {
                   className="w-(--radix-dropdown-menu-trigger-width)"
                   align="start"
                 >
-                  <DropdownMenuItem onClick={() => toggleMode("sdk")}>
-                    <Package />
-                    <span>SDK Docs</span>
-                    {currentMode === "sdk" && <Check className="ml-auto" />}
-                  </DropdownMenuItem>
-
-                  <DropdownMenuItem onClick={() => toggleMode("api")}>
-                    <Globe />
-                    <span>REST API</span>
-                    {currentMode === "api" && <Check className="ml-auto" />}
-                  </DropdownMenuItem>
+                  {(Object.keys(MODE_CONFIG) as Mode[]).map((mode) => {
+                    const config = MODE_CONFIG[mode]
+                    const Icon = config.icon
+                    return (
+                      <DropdownMenuItem key={mode} onClick={() => toggleMode(mode)}>
+                        <Icon />
+                        <span>{config.title}</span>
+                        {currentMode === mode && <Check className="ml-auto" />}
+                      </DropdownMenuItem>
+                    )
+                  })}
                 </DropdownMenuContent>
               </DropdownMenu>
             </SidebarMenuButton>

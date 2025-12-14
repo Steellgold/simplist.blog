@@ -1,20 +1,30 @@
-import { ApiPath } from "@/components/api-route"
 import { ApiConfigButton } from "@/components/api-config-button"
+import { ApiPath } from "@/components/api-route"
 import { BlockLink } from "@/components/block-link"
 import { CodeBlock } from "@/components/code-block"
-import { InlineRoute, InlineRouteLink } from "@/components/inline-route"
-import { InstallationTabs } from "@/components/installation-tabs"
 import { CopyMarkdown } from "@/components/copy-markdown"
+import { CurlCommand } from "@/components/curl-command"
 import { EditOnGitHub } from "@/components/edit-on-github"
 import { EnvVars } from "@/components/env-vars"
+import { Faq } from "@/components/faq"
+import { FootNotes } from "@/components/footnotes"
 import { HeadingAnchor } from "@/components/heading-anchor"
+import { InlineRoute, InlineRouteLink } from "@/components/inline-route"
+import { InstallationTabs } from "@/components/installation-tabs"
+import { MethodSignature } from "@/components/method-signature"
 import { OpenIn } from "@/components/open-in"
 import { PageNavigation } from "@/components/page-navigation"
+import { Step, StepContent, Steps } from "@/components/steps"
 import { TableOfContents, TocHeading } from "@/components/table-of-contents"
 import { TestableApiProvider } from "@/components/testable-api-provider"
+import { ApiMethodTable, ErrorTable, LanguageTable, TypeTable } from "@/components/type-table"
+import { WebhookBuilder } from "@/components/webhook-builder"
+import { getPageImage } from "@/lib/content"
+import { generateUniqueId, textToId } from "@/lib/utils"
 import { Alert, AlertDescription, AlertTitle } from "@simplist/ui/components/alert"
 import { Badge } from "@simplist/ui/components/badge"
 import { Button } from "@simplist/ui/components/button"
+import { ButtonGroup } from "@simplist/ui/components/button-group"
 import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@simplist/ui/components/card"
 import { Input } from "@simplist/ui/components/input"
 import { Separator } from "@simplist/ui/components/separator"
@@ -24,18 +34,9 @@ import { existsSync } from "fs"
 import { readFile } from "fs/promises"
 import type { Metadata } from "next"
 import { MDXRemote } from "next-mdx-remote/rsc"
+import Link from "next/link"
 import { join } from "path"
 import { ComponentType, FC } from "react"
-import { ButtonGroup } from "@simplist/ui/components/button-group"
-import { textToId, generateUniqueId } from "@/lib/utils"
-import Link from "next/link"
-import { StepContent, Step, Steps } from "@/components/steps"
-import { TypeTable, ApiMethodTable, ErrorTable, LanguageTable } from "@/components/type-table"
-import { CurlCommand } from "@/components/curl-command"
-import { MethodSignature } from "@/components/method-signature"
-import { Faq } from "@/components/faq"
-import { FootNotes } from "@/components/footnotes"
-import { getPageImage } from "@/lib/content"
 
 const createHeadingComponents = (headings: TocHeading[]): Record<string, ComponentType<any>> => {
   const textToIdMap = new Map<string, string[]>()
@@ -121,6 +122,7 @@ const staticComponents = {
   MethodSignature: createSeparatedComponent(MethodSignature, "MethodSignature"),
   Faq: createSeparatedComponent(Faq, "Faq"),
   FootNotes: createSeparatedComponent(FootNotes, "FootNotes"),
+  WebhookBuilder: createSeparatedComponent(WebhookBuilder, "WebhookBuilder"),
   InlineRoute,
   InlineRouteLink,
   p: (props: any) => (
