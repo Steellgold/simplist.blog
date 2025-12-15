@@ -9,7 +9,6 @@ const EditWebhookLoading = async () => {
       centered="md"
       actions={
         <div className="flex items-center gap-2">
-          <Skeleton className="h-8 w-16" />
           <Skeleton className="h-8 w-20" />
           <Skeleton className="h-8 w-24" />
         </div>
