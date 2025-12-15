@@ -7,6 +7,7 @@ const MembersLoading = () => {
     <PageLayout
       title="Members"
       description="Manage team members and their permissions."
+      centered
       actions={<Skeleton className="h-9 w-32" />}
     >
       <div className="space-y-6">

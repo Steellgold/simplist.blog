@@ -1,5 +1,5 @@
 import { PageLayout } from "@/components/layout/page-layout"
-import { Card, CardContent, CardFooter, CardHeader } from "@simplist/ui/components/card"
+import { Card, CardContent, CardHeader } from "@simplist/ui/components/card"
 import { Skeleton } from "@simplist/ui/components/skeleton"
 
 const RolesLoading = () => {
@@ -7,45 +7,36 @@ const RolesLoading = () => {
     <PageLayout
       title="Roles"
       description="Manage custom roles and permissions for your team."
+      centered
       actions={<Skeleton className="h-9 w-28" />}
     >
       <div className="space-y-4">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <Card key={i}>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <Skeleton className="h-5 w-24" />
-                    <Skeleton className="h-3 w-16" />
-                  </div>
-                  <Skeleton className="h-8 w-8" />
-                </div>
-              </CardHeader>
-
-              <CardContent>
-                <div className="space-y-3">
-                  <Skeleton className="h-4 w-20" />
-                  <div className="space-y-2">
-                    {Array.from({ length: 4 }).map((_, j) => (
-                      <div key={j} className="flex items-center justify-between">
-                        <Skeleton className="h-4 w-32" />
-                        <Skeleton className="h-4 w-4" />
+        {/* Liste compacte des rôles */}
+        <Card>
+          <CardContent className="p-0">
+            <div className="divide-y">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="p-4">
+                  <div className="flex items-center justify-between gap-4">
+                    {/* Gauche: Nom + Info */}
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Skeleton className="h-5 w-32" />
+                          <Skeleton className="h-4 w-16 rounded-sm" />
+                        </div>
+                        <Skeleton className="h-3 w-48" />
                       </div>
-                    ))}
+                    </div>
+
+                    {/* Droite: Actions */}
+                    <Skeleton className="h-8 w-8 shrink-0" />
                   </div>
                 </div>
-              </CardContent>
-
-              <CardFooter>
-                <div className="flex items-center justify-between w-full">
-                  <Skeleton className="h-6 w-20 rounded-full" />
-                  <Skeleton className="h-8 w-16" />
-                </div>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader>
