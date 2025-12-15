@@ -875,6 +875,10 @@ export const bulkDeleteArticles = async (articleIds: string[]) => {
 
   // Get project slug for revalidation
   const projectSlug = articles[0].project.slug
+
+  // Trigger webhook for each deleted article (non-blocking)
+  articleIds.forEach((id) => triggerArticleWebhook(projectId, "article.deleted", id).catch(() => {}))
+
   revalidatePath(`/${projectSlug}`, "layout")
   revalidatePath(`/${projectSlug}/articles`, "page")
 }

@@ -11,7 +11,7 @@ import {
   getWebhookDeliveries as dbGetWebhookDeliveries,
   sendTestWebhook as dbSendTestWebhook,
   testWebhookFromData as dbTestWebhookFromData,
-  prisma,
+  prisma
 } from "@simplist/db"
 import { revalidatePath } from "next/cache"
 
