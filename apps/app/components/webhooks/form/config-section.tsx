@@ -55,7 +55,7 @@ export const ConfigSection: FC<ConfigSectionProps> = ({
               {errors.url && <FieldError>{errors.url.message}</FieldError>}
             </Field>
 
-            <FieldSet>
+            <FieldSet className="gap-3">
               <FieldLegend>Events</FieldLegend>
               <FieldDescription>
                 Select the events that will trigger this webhook
