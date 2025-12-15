@@ -16,6 +16,11 @@ export const getProjectRoles = async (projectId: string) => {
       projectId,
       isOwner: false, // Exclude the phantom OWNER role
     },
+    include: {
+      _count: {
+        select: { members: true }
+      }
+    },
     orderBy: [{ isDefault: "desc" }, { createdAt: "asc" }],
   });
 

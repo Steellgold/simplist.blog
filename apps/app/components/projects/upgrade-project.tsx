@@ -19,7 +19,7 @@ export const UpgradeProject = () => {
         </EmptyHeader>
         <EmptyContent>
           <div className="flex gap-2">
-            <Button>Upgrade Plan</Button>
+            <Button size="sm">Upgrade Plan</Button>
           </div>
         </EmptyContent>
 

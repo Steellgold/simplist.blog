@@ -20,10 +20,11 @@ import {
 import { toast } from "@simplist/ui/components/sonner"
 import { getInitials } from "@simplist/ui/lib/utils"
 import { formatDistanceToNow } from "date-fns"
-import { MoreVertical, UserMinus, UserPlus, UserX } from "lucide-react"
+import { MoreVertical, UserMinus, UserPlus, Users, UserX } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { getPlanLimits } from "@/lib/subscription/plans"
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@simplist/ui/components/empty"
 
 type MembersClientPageProps = {
   project: {
@@ -131,6 +132,28 @@ export const MembersClientPage = ({
           return err instanceof Error ? err.message : "Failed to revoke invitation"
         }
       }
+    )
+  }
+
+  if (members.length === 1) {
+    return (
+      <div className="flex min-h-[calc(90vh-4rem)] items-center justify-center">
+        <Empty>
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <Users />
+            </EmptyMedia>
+            <EmptyTitle>No members yet</EmptyTitle>
+            <EmptyDescription>Invite teammates to collaborate on this project.</EmptyDescription>
+          </EmptyHeader>
+          <EmptyContent>
+            <Button onClick={() => setShowInviteDialog(true)} disabled={!canInviteMore} size="sm">
+              <UserPlus />
+              Invite Member
+            </Button>
+          </EmptyContent>
+        </Empty>
+      </div>
     )
   }
 

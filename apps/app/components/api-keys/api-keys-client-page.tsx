@@ -4,6 +4,8 @@ import { CreateApiKeyForm } from "@/components/api-keys/create-form"
 import { ApiKeysList } from "@/components/api-keys/list"
 import { PageLayout } from "@/components/layout/page-layout"
 import type { ApiKey } from "@simplist/db/types"
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@simplist/ui/components/empty"
+import { KeyRound } from "lucide-react"
 
 type ApiKeySelect = Pick<
   ApiKey,
@@ -20,6 +22,25 @@ type ApiKeysClientPageProps = {
 }
 
 export const ApiKeysClientPage = ({ apiKeys, project }: ApiKeysClientPageProps) => {
+  if (apiKeys.length === 0) {
+    return (
+      <div className="flex min-h-[calc(90vh-4rem)] items-center justify-center">
+        <Empty>
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <KeyRound />
+            </EmptyMedia>
+            <EmptyTitle>No API keys yet</EmptyTitle>
+            <EmptyDescription>Create an API key to start authenticating requests.</EmptyDescription>
+          </EmptyHeader>
+          <EmptyContent>
+            <CreateApiKeyForm projectId={project.id} />
+          </EmptyContent>
+        </Empty>
+      </div>
+    )
+  }
+
   return (
     <PageLayout
       title="API Keys"

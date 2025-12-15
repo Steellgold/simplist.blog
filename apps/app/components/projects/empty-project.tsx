@@ -20,7 +20,7 @@ export const EmptyProject = () => {
         </EmptyHeader>
         <EmptyContent>
           <div className="flex gap-2">
-            <Button>Create Project</Button>
+            <Button size="sm">Create Project</Button>
           </div>
         </EmptyContent>
 

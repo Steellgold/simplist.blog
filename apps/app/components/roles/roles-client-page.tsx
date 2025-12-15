@@ -8,12 +8,12 @@ import { deleteProjectRole } from "@/lib/actions/roles"
 import type { ProjectRole } from "@simplist/db"
 import { Badge } from "@simplist/ui/components/badge"
 import { Button } from "@simplist/ui/components/button"
-import { Card, CardContent } from "@simplist/ui/components/card"
+import { Card, CardContent, CardFooter, CardHeader } from "@simplist/ui/components/card"
 import { ConfirmDialog } from "@simplist/ui/components/confirm-dialog"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@simplist/ui/components/dropdown-menu"
 import { Empty, EmptyHeader, EmptyMedia } from "@simplist/ui/components/empty"
 import { toast } from "@simplist/ui/components/sonner"
-import { Lock, MoreVertical, Pencil, Plus, SearchX, Trash2 } from "lucide-react"
+import { BarChart, Check, CreditCard, FileText, Key, Lock, MoreVertical, Pencil, Plus, SearchX, Settings, Shield, Trash2, Users, Webhook } from "lucide-react"
 import { useState } from "react"
 
 type RolesClientPageProps = {
@@ -24,11 +24,15 @@ type RolesClientPageProps = {
     subscriptionTier: string
     subscriptionExpiresAt: Date | null
   }
-  roles: ProjectRole[]
+  roles: (ProjectRole & {
+    _count: {
+      members: number
+    }
+  })[]
 }
 
 export const RolesClientPage = ({ project, roles: initialRoles }: RolesClientPageProps) => {
-  const [roles, setRoles] = useState<ProjectRole[]>(initialRoles)
+  const [roles, setRoles] = useState<(ProjectRole & { _count: { members: number } })[]>(initialRoles)
   const [showCreateDialog, setShowCreateDialog] = useState(false)
   const [editingRole, setEditingRole] = useState<ProjectRole | null>(null)
   const [deleteRoleDialog, setDeleteRoleDialog] = useState<{ id: string; name: string } | null>(null)
@@ -62,11 +66,11 @@ export const RolesClientPage = ({ project, roles: initialRoles }: RolesClientPag
   }
 
   const handleRoleCreated = (newRole: ProjectRole) => {
-    setRoles(prev => [...prev, newRole])
+    setRoles(prev => [...prev, { ...newRole, _count: { members: 0 } }])
   }
 
   const handleRoleUpdated = (updatedRole: ProjectRole) => {
-    setRoles(prev => prev.map(r => r.id === updatedRole.id ? updatedRole : r))
+    setRoles(prev => prev.map(r => r.id === updatedRole.id ? { ...r, ...updatedRole } : r))
   }
 
   const getPermissionsList = (role: ProjectRole): string[] => {
@@ -85,8 +89,8 @@ export const RolesClientPage = ({ project, roles: initialRoles }: RolesClientPag
 
   return (
     <PageLayout
-      title="Access Control"
-      description={`Manage access to ${project.name}`}
+      title="Roles"
+      description="Manage custom roles and permissions for your team."
       centered
       actions={
         <Button
@@ -103,87 +107,190 @@ export const RolesClientPage = ({ project, roles: initialRoles }: RolesClientPag
         </Button>
       }
     >
-      <Card>
-        <CardContent>
-          {roles.length === 0 ? (
-            <Empty className="flex min-h-[calc(90vh-4rem)] items-center justify-center h-full">
-              <EmptyHeader>
-                <EmptyMedia variant="icon">
-                  <SearchX />
-                </EmptyMedia>
-              </EmptyHeader>
-            </Empty>
-          ) : (
-            <div className="divide-y">
-              {roles.map((role) => {
-                const permissions = getPermissionsList(role)
+      <div className="space-y-4">
+        {/* Section: List of roles */}
+        <Card className="p-0">
+          <CardContent className="p-0">
+            {roles.length === 0 ? (
+              <Empty className="flex min-h-[calc(90vh-4rem)] items-center justify-center h-full">
+                <EmptyHeader>
+                  <EmptyMedia variant="icon">
+                    <SearchX />
+                  </EmptyMedia>
+                </EmptyHeader>
+              </Empty>
+            ) : (
+              <div className="divide-y">
+                {roles.map((role) => {
+                  const permissions = getPermissionsList(role)
 
-                return (
-                  <div key={role.id} className="py-4 first:pt-0 last:pb-0">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1 space-y-1">
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-medium">{role.name}</h3>
-                          {role.isDefault && (
-                            <Badge variant="secondary">Default</Badge>
-                          )}
-
-                          {role.isOwner && (
-                            <Badge variant="default">
-                              <Lock />
-                              Owner
-                            </Badge>
-                          )}
-                        </div>
-
-                        <div className="flex items-center space-x-3">
-                          <div>
-                            {permissions.slice(0, 3).map((permission) => (
-                              <Badge key={permission} variant="outline" className="text-xs">
-                                {permission}
-                              </Badge>
-                            ))}
+                  return (
+                    <div key={role.id} className="p-4 hover:bg-muted/50 transition-colors">
+                      <div className="flex items-center justify-between gap-4">
+                        {/* Left: Name + Badges */}
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h3 className="font-medium truncate">{role.name}</h3>
+                              {role.isDefault && (
+                                <Badge variant="secondary" className="text-xs shrink-0">Default</Badge>
+                              )}
+                              {role.isOwner && (
+                                <Badge variant="default" className="text-xs shrink-0">
+                                  <Lock className="h-3 w-3" />
+                                  Owner
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                              {permissions.length} {permissions.length === 1 ? "permission" : "permissions"} • {role._count.members} {role._count.members === 1 ? "member" : "members"}
+                            </p>
                           </div>
-
-                          <p className="text-sm text-muted-foreground">
-                            {permissions.length > 3 && ` +${permissions.length - 3} more`}
-                          </p>
                         </div>
+
+                        {/* Right: Actions */}
+                        {!role.isOwner && (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="shrink-0">
+                                <MoreVertical />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem
+                                onSelect={(e) => {
+                                  e.preventDefault()
+                                  setTimeout(() => setEditingRole(role), 0)
+                                }}
+                              >
+                                <Pencil />
+                                Edit role
+                              </DropdownMenuItem>
+                              {!role.isDefault && (
+                                <>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem
+                                    onSelect={(e) => {
+                                      e.preventDefault()
+                                      setTimeout(() => setDeleteRoleDialog({ id: role.id, name: role.name }), 0)
+                                    }}
+                                  >
+                                    <Trash2 />
+                                    Delete role
+                                  </DropdownMenuItem>
+                                </>
+                              )}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        )}
                       </div>
-
-                      {!role.isOwner && (
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreVertical />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => setEditingRole(role)}>
-                              <Pencil />
-                              Edit role
-                            </DropdownMenuItem>
-
-                            {!role.isDefault && (
-                              <>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={() => setDeleteRoleDialog({ id: role.id, name: role.name })}>
-                                  <Trash2 />
-                                  Delete role
-                                </DropdownMenuItem>
-                              </>
-                            )}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      )}
                     </div>
-                  </div>
-                )
-              })}
+                  )
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Section: Permission Reference */}
+        <Card>
+          <CardHeader>
+            <div className="space-y-2">
+              <h2 className="text-lg font-semibold">Permission Reference</h2>
+              <p className="text-sm text-muted-foreground">
+                Complete list of available permissions and their descriptions
+              </p>
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {/* Category: Project Management */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm font-medium">Project Management</h3>
+                  <Badge variant="outline" className="text-xs rounded-full">3 permissions</Badge>
+                </div>
+                <div className="pl-4 space-y-2">
+                  <div className="flex items-center gap-3">
+                    <div className="size-6 rounded-full bg-muted flex items-center justify-center">
+                      <Settings className="h-3 w-3" />
+                    </div>
+                    <span className="text-sm text-muted-foreground">Manage project settings</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="size-6 rounded-full bg-muted flex items-center justify-center">
+                      <Trash2 className="h-3 w-3" />
+                    </div>
+                    <span className="text-sm text-muted-foreground">Delete project</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="size-6 rounded-full bg-muted flex items-center justify-center">
+                      <CreditCard className="h-3 w-3" />
+                    </div>
+                    <span className="text-sm text-muted-foreground">Manage billing</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Category: Team Management */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm font-medium">Team Management</h3>
+                  <Badge variant="outline" className="text-xs rounded-full">2 permissions</Badge>
+                </div>
+                <div className="pl-4 space-y-2">
+                  <div className="flex items-center gap-3">
+                    <div className="size-6 rounded-full bg-muted flex items-center justify-center">
+                      <Users className="h-3 w-3" />
+                    </div>
+                    <span className="text-sm text-muted-foreground">Manage members</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="size-6 rounded-full bg-muted flex items-center justify-center">
+                      <Shield className="h-3 w-3" />
+                    </div>
+                    <span className="text-sm text-muted-foreground">Manage roles</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Category: Content & API */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm font-medium">Content & API</h3>
+                  <Badge variant="outline" className="text-xs rounded-full">4 permissions</Badge>
+                </div>
+                <div className="pl-4 space-y-2">
+                  <div className="flex items-center gap-3">
+                    <div className="size-6 rounded-full bg-muted flex items-center justify-center">
+                      <FileText className="h-3 w-3" />
+                    </div>
+                    <span className="text-sm text-muted-foreground">Manage articles</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="size-6 rounded-full bg-muted flex items-center justify-center">
+                      <Key className="h-3 w-3" />
+                    </div>
+                    <span className="text-sm text-muted-foreground">Manage API keys</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="size-6 rounded-full bg-muted flex items-center justify-center">
+                      <Webhook className="h-3 w-3" />
+                    </div>
+                    <span className="text-sm text-muted-foreground">Manage webhooks</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="size-6 rounded-full bg-muted flex items-center justify-center">
+                      <BarChart className="h-3 w-3" />
+                    </div>
+                    <span className="text-sm text-muted-foreground">View analytics</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       {showCreateDialog && (
         <CreateRoleDialog

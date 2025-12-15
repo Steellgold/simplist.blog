@@ -58,7 +58,7 @@ export const ArticleRestore = ({ slug, articleId }: Props) => {
         </EmptyHeader>
 
         <EmptyContent>
-          <Button onClick={handleRestore} disabled={isRestoring}>
+          <Button onClick={handleRestore} disabled={isRestoring} size="sm">
             {isRestoring ? (
               <>
                 <Spinner />

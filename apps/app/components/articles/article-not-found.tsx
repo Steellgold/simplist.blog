@@ -23,7 +23,7 @@ export const ArticleNotFound = ({ slug }: Props) => {
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
-          <Link className={buttonVariants({ variant: "default" })} href={`/${slug}/articles/new`}>
+          <Link className={buttonVariants({ variant: "default", size: "sm" })} href={`/${slug}/articles/new`}>
             Create New Article
             <PlusIcon />
           </Link>

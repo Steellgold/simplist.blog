@@ -133,7 +133,7 @@ export const CreateApiKeyForm = ({ projectId, onSuccess }: CreateApiKeyFormProps
       }
     }}>
       <DialogTrigger asChild>
-        <Button variant="outline">
+        <Button size="sm">
           <Plus className="size-4" />
           Create API Key
         </Button>
