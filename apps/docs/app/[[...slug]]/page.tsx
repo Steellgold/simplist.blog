@@ -20,6 +20,7 @@ import { TestableApiProvider } from "@/components/testable-api-provider"
 import { ApiMethodTable, ErrorTable, LanguageTable, TypeTable } from "@/components/type-table"
 import { WebhookBuilder } from "@/components/webhook-builder"
 import { getPageImage } from "@/lib/content"
+import { GITHUB_DOCS_URL } from "@/lib/info"
 import { generateUniqueId, textToId } from "@/lib/utils"
 import { Alert, AlertDescription, AlertTitle } from "@simplist/ui/components/alert"
 import { Badge } from "@simplist/ui/components/badge"
@@ -308,7 +309,7 @@ const ContentPage: FC<PageProps> = async ({ params }) => {
   const currentHref = contentPath.length === 0 || (contentPath.length === 1 && contentPath[0] === "index") ? "/" : `/${contentPath.join("/")}`
 
   const githubPath = contentPath.join("/")
-  const githubUrl = `https://github.com/Steellgold/simplist.blog/tree/docs/apps/docs/content/${githubPath}.mdx`
+  const githubUrl = `${GITHUB_DOCS_URL}/${githubPath}.mdx`
   const markdownUrl = `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3002"}${currentHref}.mdx`
 
   return (
