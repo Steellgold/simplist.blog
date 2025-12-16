@@ -44,6 +44,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Build workspace dependencies
+        run: pnpm --filter @simplist/db run build && pnpm --filter @simplist/ui run build && pnpm --filter @simplist/limits run build
+
       - name: Restore next build
         uses: actions/cache@v4
         id: restore-build-cache
@@ -59,7 +62,8 @@ jobs:
         run: pnpm --filter @simplist/app run build
 
       - name: Analyze bundle
-        run: npx -p nextjs-bundle-analysis report --app-dir apps/app
+        working-directory: apps/app
+        run: npx -p nextjs-bundle-analysis report
 
       - name: Upload bundle
         uses: actions/upload-artifact@v4
@@ -77,14 +81,16 @@ jobs:
 
       - name: Compare with base branch bundle
         if: success() && github.event.number
-        run: ls -laR apps/app/.next/analyze/base && npx -p nextjs-bundle-analysis compare --app-dir apps/app
+        working-directory: apps/app
+        run: ls -laR .next/analyze/base && npx -p nextjs-bundle-analysis compare
 
       - name: Get comment body
         id: get-comment-body
         if: success() && github.event.number
+        working-directory: apps/app
         run: |
           echo "body<<EOF" >> $GITHUB_OUTPUT
-          echo "$(cat apps/app/.next/analyze/__bundle_analysis_comment.txt)" >> $GITHUB_OUTPUT
+          echo "$(cat .next/analyze/__bundle_analysis_comment.txt)" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Find Comment
