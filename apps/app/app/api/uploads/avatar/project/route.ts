@@ -7,7 +7,7 @@ import { checkStorageQuota, updateStorageUsage } from "@/lib/subscription/quota-
 import { PutObjectCommand } from "@aws-sdk/client-s3"
 import { NextResponse } from "next/server"
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
+const MAX_FILE_SIZE = 2 * 1024 * 1024 // 2MB for project avatars
 const ALLOWED_MIME_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"]
 
 export const POST = async (req: Request) => {
@@ -20,17 +20,12 @@ export const POST = async (req: Request) => {
     const formData = await req.formData()
     const file = formData.get("file") as File | null
     const projectId = formData.get("projectId") as string | null
-    const type = formData.get("type") as string | null // "avatar" | "banner"
-    const postId = formData.get("postId") as string | null // Only for banner
 
     if (!file) {
       return NextResponse.json({ error: "File is required" }, { status: 400 })
     }
     if (!projectId) {
       return NextResponse.json({ error: "projectId is required" }, { status: 400 })
-    }
-    if (!type) {
-      return NextResponse.json({ error: "type is required" }, { status: 400 })
     }
 
     // Validate file type
@@ -41,46 +36,17 @@ export const POST = async (req: Request) => {
     }
 
     // Validate file size
-    const maxSize = type === "avatar" ? 2 * 1024 * 1024 : MAX_FILE_SIZE
-    if (file.size > maxSize) {
+    if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json({
-        error: `File too large. Maximum size: ${maxSize / 1024 / 1024}MB`
+        error: `File too large. Maximum size: ${MAX_FILE_SIZE / 1024 / 1024}MB`
       }, { status: 400 })
     }
 
-    // Check permissions based on upload type
-    if (type === "avatar") {
-      // Avatar uploads require canManageProject permission
-      try {
-        await requirePermission(projectId, "canManageProject")
-      } catch {
-        return NextResponse.json({ error: "Insufficient permissions to upload project avatar" }, { status: 403 })
-      }
-    } else if (type === "banner") {
-      // Banner uploads require canManageArticles permission
-      if (!postId) {
-        return NextResponse.json({ error: "postId is required for banner uploads" }, { status: 400 })
-      }
-
-      try {
-        await requirePermission(projectId, "canManageArticles")
-      } catch {
-        return NextResponse.json({ error: "Insufficient permissions to upload article banner" }, { status: 403 })
-      }
-
-      // Verify article exists in this project
-      const article = await prisma.article.findFirst({
-        where: {
-          id: postId,
-          projectId: projectId,
-        },
-      })
-
-      if (!article) {
-        return NextResponse.json({ error: "Article not found" }, { status: 404 })
-      }
-    } else {
-      return NextResponse.json({ error: "Invalid upload type" }, { status: 400 })
+    // Check permissions - project avatar uploads require canManageProject permission
+    try {
+      await requirePermission(projectId, "canManageProject")
+    } catch {
+      return NextResponse.json({ error: "Insufficient permissions to upload project avatar" }, { status: 403 })
     }
 
     // Get project for quota checks
@@ -98,19 +64,13 @@ export const POST = async (req: Request) => {
       return NextResponse.json({ error: quotaCheck.reason }, { status: 403 })
     }
 
-    // Build key based on type
+    // Build key for project avatar
     const cleanedName = sanitizeFileName(file.name)
     const ext = cleanedName.includes(".") ? cleanedName.split(".").pop() : undefined
     const safeExt = ext ? ext.toLowerCase() : "bin"
     const timestamp = Date.now()
 
-    let key: string
-    if (type === "avatar") {
-      key = `public/${projectId}/avatar/avatar-${timestamp}.${safeExt}`
-    } else {
-      // type === "banner" (already validated above)
-      key = `public/${projectId}/${postId}/b/banner-${timestamp}.${safeExt}`
-    }
+    const key = `public/${projectId}/avatar/avatar-${timestamp}.${safeExt}`
 
     // Upload to R2
     const arrayBuffer = await file.arrayBuffer()
@@ -137,7 +97,7 @@ export const POST = async (req: Request) => {
 
     return NextResponse.json({ key, publicUrl })
   } catch (error) {
-    console.error("Upload error:", error)
+    console.error("Project avatar upload error:", error)
     return NextResponse.json({ error: "Upload failed" }, { status: 500 })
   }
 }

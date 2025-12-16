@@ -114,9 +114,8 @@ const SettingsPage = () => {
             const formData = new FormData()
             formData.append("file", pendingAvatarFile)
             formData.append("projectId", currentProject.id)
-            formData.append("type", "avatar")
 
-            const response = await fetch("/api/uploads", {
+            const response = await fetch("/api/uploads/avatar/project", {
               method: "POST",
               body: formData,
             })

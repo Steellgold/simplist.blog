@@ -19,7 +19,7 @@ const Page = async () => {
       headers: await headers()
     })
   ])
-  
+
   return (
     <PageLayout
       title="Security"
@@ -28,7 +28,7 @@ const Page = async () => {
     >
       <SecuritySettingsForm
         user={user}
-        hasPassword={hasPassword?.password !== null}
+        hasPassword={Boolean(hasPassword?.password && hasPassword.password.length > 0)}
         passkeys={passkeys}
       />
     </PageLayout>

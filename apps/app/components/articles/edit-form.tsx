@@ -308,9 +308,8 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({ article, availableTa
           form.append("file", file)
           form.append("projectId", article.projectId)
           form.append("postId", article.id)
-          form.append("type", "banner")
 
-          const res = await fetch("/api/uploads", {
+          const res = await fetch("/api/uploads/banner", {
             method: "POST",
             body: form,
           })
