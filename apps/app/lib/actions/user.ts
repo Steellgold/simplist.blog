@@ -51,3 +51,51 @@ export const updateUserNameFields = async (firstName: string, lastName: string) 
     },
   })
 }
+
+export const updateUserAvatar = async (imageUrl: string) => {
+  const user = await getCurrentUser()
+
+  if (!user) {
+    throw new Error("Not authenticated")
+  }
+
+  // Update user avatar
+  const updatedUser = await prisma.user.update({
+    where: {
+      id: user.id,
+    },
+    data: {
+      image: imageUrl,
+    },
+  })
+
+  // Revalidate account settings and layout
+  revalidatePath("/account/settings", "page")
+  revalidatePath("/account", "layout")
+
+  return updatedUser
+}
+
+export const deleteUserAvatar = async () => {
+  const user = await getCurrentUser()
+
+  if (!user) {
+    throw new Error("Not authenticated")
+  }
+
+  // Remove user avatar
+  const updatedUser = await prisma.user.update({
+    where: {
+      id: user.id,
+    },
+    data: {
+      image: null,
+    },
+  })
+
+  // Revalidate account settings and layout
+  revalidatePath("/account/settings", "page")
+  revalidatePath("/account", "layout")
+
+  return updatedUser
+}
