@@ -4,7 +4,7 @@ import { deletePasskey } from "@/lib/actions/security"
 import { User } from "@/lib/auth-client"
 import { Passkey } from "@better-auth/passkey"
 import { Button } from "@simplist/ui/components/button"
-import { Card, CardContent } from "@simplist/ui/components/card"
+import { Card, CardContent, CardHeader } from "@simplist/ui/components/card"
 import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel, FieldSeparator } from "@simplist/ui/components/field"
 import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemTitle } from "@simplist/ui/components/item"
 import { Switch } from "@simplist/ui/components/switch"
@@ -67,6 +67,13 @@ export const SecuritySettingsForm = ({ user, hasPassword, passkeys }: Props) => 
   return (
     <>
       <Card>
+        <CardHeader className="mb-4">
+          <FieldLabel className="text-base font-medium">Security</FieldLabel>
+          <FieldDescription className="mt-1">
+            Manage your password, passkeys and two-factor authentication.
+          </FieldDescription>
+        </CardHeader>
+
         <CardContent>
           <FieldGroup>
             {/* Change/Set Password */}

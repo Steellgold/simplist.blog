@@ -23,10 +23,10 @@ export const requestAccountDeletionSchema = z.object({
   confirmation: z.string().min(1, "Please type 'DELETE' to confirm").refine((val) => val.trim().toLowerCase() === "delete", {
     message: "Please type 'DELETE' to confirm",
   }),
-  reason: z
-    .string()
-    .max(500, "Reason must be 500 characters or less")
-    .optional()
+  // reason: z
+  //   .string()
+  //   .max(500, "Reason must be 500 characters or less")
+  //   .optional()
 })
 
 export type RequestAccountDeletionInput = z.infer<typeof requestAccountDeletionSchema>
