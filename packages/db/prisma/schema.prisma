@@ -54,7 +54,16 @@ model User {
   twofactors       TwoFactor[]
   passkeys         Passkey[]
 
+  // Account deletion workflow
+  deletionRequestedAt DateTime?
+  deletionScheduledAt DateTime?
+  deletionCanceledAt  DateTime?
+  deletionReminder7Sent Boolean @default(false)
+  deletionReminder10Sent Boolean @default(false)
+  deletionReminder1hSent Boolean @default(false)
+
   @@unique([email])
+  @@index([deletionScheduledAt])
   @@map("user")
 }
 
