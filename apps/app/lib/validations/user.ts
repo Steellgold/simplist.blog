@@ -19,11 +19,14 @@ export const updateUserEmailSchema = z.object({
 export type UpdateUserInformationInput = z.infer<typeof updateUserInformationSchema>
 export type UpdateUserEmailInput = z.infer<typeof updateUserEmailSchema>
 
-export const deleteAccountSchema = z.object({
-  password: z.string().min(1, "Password is required to delete your account"),
-  confirmation: z.string().min(1, "Please type 'DELETE' to confirm").refine((val) => val.toLowerCase() === "delete", {
+export const requestAccountDeletionSchema = z.object({
+  confirmation: z.string().min(1, "Please type 'DELETE' to confirm").refine((val) => val.trim().toLowerCase() === "delete", {
     message: "Please type 'DELETE' to confirm",
   }),
+  reason: z
+    .string()
+    .max(500, "Reason must be 500 characters or less")
+    .optional()
 })
 
-export type DeleteAccountInput = z.infer<typeof deleteAccountSchema>
+export type RequestAccountDeletionInput = z.infer<typeof requestAccountDeletionSchema>

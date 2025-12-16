@@ -7,13 +7,14 @@
     "esModuleInterop": true,
     "allowJs": false,
     "strict": true,
+    "jsx": "react-jsx",
     "noEmit": false,
     "outDir": "./dist",
     "rootDir": "./src",
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "types": ["node"]
+    "types": ["node", "react"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]

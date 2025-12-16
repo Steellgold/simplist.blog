@@ -6,7 +6,7 @@ import { AvatarUpload } from "@/components/ui/avatar-upload"
 import { CompactLanguageSelector } from "@/components/ui/language-selector"
 import { MiniBadge } from "@/components/ui/mini-badge"
 import { useProject } from "@/hooks/use-project-context"
-import { updateProjectSettings } from "@/lib/actions/projects"
+import { updateProjectSettings, deleteProject } from "@/lib/actions/projects"
 import { UpdateProjectSettingsInput, updateProjectSettingsSchema } from "@/lib/validations/project"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@simplist/ui/components/button"
@@ -17,21 +17,25 @@ import { FieldDescription, FieldError, FieldLabel } from "@simplist/ui/component
 import { IconPicker } from "@simplist/ui/components/icon-picker"
 import { Input } from "@simplist/ui/components/input"
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@simplist/ui/components/input-group"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@simplist/ui/components/alert-dialog"
 import { toast } from "@simplist/ui/components/sonner"
 import { Spinner } from "@simplist/ui/components/spinner"
 import { c } from "@simplist/ui/lib/color"
 import { i } from "@simplist/ui/lib/icons.enum"
-import { Camera, Palette, Plus, X } from "lucide-react"
+import { Camera, Palette, Plus, X, Trash2, ShieldAlert } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { useFieldArray, useForm } from "react-hook-form"
+import { Kbd } from "@simplist/ui/components/kbd"
 
 
 const SettingsPage = () => {
-  const { currentProject, updateProject } = useProject()
+  const { currentProject, updateProject, currentMember } = useProject()
   const router = useRouter()
   const [savingSection, setSavingSection] = useState<string | null>(null)
   const [pendingAvatarFile, setPendingAvatarFile] = useState<File | null>(null)
+  const [deleteConfirm, setDeleteConfirm] = useState("")
+  const [isDeleting, setIsDeleting] = useState(false)
 
   // State to track display type: "avatar" if avatarUrl exists, otherwise "icon"
   const [displayType, setDisplayType] = useState<"avatar" | "icon">(
@@ -71,6 +75,11 @@ const SettingsPage = () => {
   const hasLanguageChanges = dirtyFields.defaultLanguage
   const hasOriginsChanges = dirtyFields.allowedOrigins
   const hasUrlChanges = dirtyFields.baseUrl || dirtyFields.articleUrlPattern
+  const canDeleteProject = Boolean(
+    (currentProject as any)?.memberRole?.canDeleteProject ||
+    (currentProject as any)?.isOwner ||
+    (currentMember as any)?.role?.canDeleteProject
+  )
 
   const saveSettings = async (data: UpdateProjectSettingsInput, section: string) => {
     setSavingSection(section)
@@ -181,6 +190,27 @@ const SettingsPage = () => {
   }
 
   const isDisabled = savingSection !== null
+  const deleteDisabled = !canDeleteProject || deleteConfirm.trim() !== currentProject.slug || isDeleting
+
+  const handleDeleteProject = async () => {
+    if (!currentProject) return
+    setIsDeleting(true)
+    toast.promise(
+      deleteProject(currentProject.id), {
+        loading: "Deleting project...",
+        success: () => {
+          setIsDeleting(false)
+          router.push("/")
+          return "Project deleted permanently"
+        },
+        error: (err) => {
+          setIsDeleting(false)
+          const message = err instanceof Error ? err.message : "Failed to delete project"
+          return message
+        }
+      }
+    )
+  }
 
   return (
     <PageLayout
@@ -190,13 +220,13 @@ const SettingsPage = () => {
     >
       <div className="space-y-6">
         {/* Project Name Card */}
-        <Card className="pb-0">
+        <Card variant="form">
           <CardHeader>
             <FieldLabel htmlFor="name" className="text-base font-medium">Project Name</FieldLabel>
             <FieldDescription className="mt-1">The display name of your project.</FieldDescription>
           </CardHeader>
 
-          <CardContent className="py-2.5">
+          <CardContent>
             <Input
               id="name"
               {...register("name")}
@@ -207,7 +237,7 @@ const SettingsPage = () => {
             {errors.name && <FieldError>{errors.name.message}</FieldError>}
           </CardContent>
 
-          <CardFooter className="flex justify-between bg-muted/50 rounded-b-xl py-2.5 border-t">
+          <CardFooter>
             <p className="text-sm text-muted-foreground">Maximum 64 characters.</p>
             <Button
               type="button"
@@ -221,7 +251,7 @@ const SettingsPage = () => {
         </Card>
 
         {/* Project Slug Card */}
-        <Card className="pb-0">
+        <Card variant="form">
           <CardHeader>
             <FieldLabel htmlFor="slug" className="text-base font-medium">Project Slug</FieldLabel>
             <FieldDescription className="mt-1">
@@ -229,7 +259,7 @@ const SettingsPage = () => {
             </FieldDescription>
           </CardHeader>
 
-          <CardContent className="py-2.5">
+          <CardContent>
             <InputGroup className="max-w-md">
               <InputGroupAddon>https://simplist.blog/</InputGroupAddon>
               <InputGroupInput
@@ -243,7 +273,7 @@ const SettingsPage = () => {
             {errors.slug && <FieldError>{errors.slug.message}</FieldError>}
           </CardContent>
 
-          <CardFooter className="flex justify-between bg-muted/50 rounded-b-xl py-2.5 border-t">
+          <CardFooter>
             <p className="text-sm text-muted-foreground">Lowercase letters, numbers, and hyphens only.</p>
             <Button
               type="button"
@@ -257,7 +287,7 @@ const SettingsPage = () => {
         </Card>
 
         {/* Project Icon & Color Card */}
-        <Card className="pb-0">
+        <Card variant="form">
           <CardHeader>
             <FieldLabel className="text-base font-medium">Project Display</FieldLabel>
             <FieldDescription className="mt-1">Choose how your project is displayed in the app.</FieldDescription>
@@ -284,7 +314,7 @@ const SettingsPage = () => {
             </CardAction>
           </CardHeader>
 
-          <CardContent className="py-2.5">
+          <CardContent>
             <div className="space-y-4">
               {displayType === "icon" ? (
                 <div>
@@ -341,7 +371,7 @@ const SettingsPage = () => {
             </div>
           </CardContent>
 
-          <CardFooter className="flex justify-between bg-muted/50 rounded-b-xl py-2.5 border-t">
+          <CardFooter>
             <p className="text-sm text-muted-foreground">Avatar will override icon if uploaded.</p>
             <Button
               type="button"
@@ -355,7 +385,7 @@ const SettingsPage = () => {
         </Card>
 
         {/* Default Language Card */}
-        <Card className="pb-0">
+        <Card variant="form">
           <CardHeader>
             <div className="flex items-center gap-2">
               <FieldLabel htmlFor="defaultLanguage" className="text-base font-medium">Default Language</FieldLabel>
@@ -367,7 +397,7 @@ const SettingsPage = () => {
             <FieldDescription className="mt-1">The default language for new articles and language variant system.</FieldDescription>
           </CardHeader>
 
-          <CardContent className="py-2.5">
+          <CardContent>
             <CompactLanguageSelector
               value={watch("defaultLanguage")}
               onValueChange={(value) => {
@@ -380,7 +410,7 @@ const SettingsPage = () => {
             {errors.defaultLanguage && <FieldError>{errors.defaultLanguage.message}</FieldError>}
           </CardContent>
 
-          <CardFooter className="flex justify-between bg-muted/50 rounded-b-xl py-2.5 border-t">
+          <CardFooter>
             <p className="text-sm text-muted-foreground">Affects translations and date formatting.</p>
             <Button
               type="button"
@@ -394,13 +424,13 @@ const SettingsPage = () => {
         </Card>
 
         {/* Allowed Origins Card */}
-        <Card className="pb-0">
+        <Card variant="form">
           <CardHeader>
             <FieldLabel className="text-base font-medium">Allowed Origins</FieldLabel>
             <FieldDescription className="mt-1">Domains that can access your project (CORS).</FieldDescription>
           </CardHeader>
 
-          <CardContent className="py-2.5">
+          <CardContent>
             <div className="space-y-3">
               {fields.map((field, index) => (
                 <div key={field.id}>
@@ -444,7 +474,7 @@ const SettingsPage = () => {
             </div>
           </CardContent>
 
-          <CardFooter className="flex justify-between bg-muted/50 rounded-b-xl py-2.5 border-t">
+          <CardFooter>
             <p className="text-sm text-muted-foreground">By default, all origins are allowed.</p>
             <Button
               type="button"
@@ -457,7 +487,7 @@ const SettingsPage = () => {
           </CardFooter>
         </Card>
 
-        <Card className="pb-0">
+        <Card variant="form">
           <CardHeader>
             <FieldLabel className="text-base font-medium">Article URL</FieldLabel>
             <FieldDescription className="mt-1">
@@ -465,7 +495,7 @@ const SettingsPage = () => {
             </FieldDescription>
           </CardHeader>
 
-          <CardContent className="py-2.5">
+          <CardContent>
             <div className="space-y-4 max-w-md">
               <div>
                 <FieldLabel htmlFor="baseUrl" className="text-sm mb-2">Base URL</FieldLabel>
@@ -501,7 +531,7 @@ const SettingsPage = () => {
             </div>
           </CardContent>
 
-          <CardFooter className="flex justify-between bg-muted/50 rounded-b-xl py-2.5 border-t">
+          <CardFooter>
             <p className="text-sm text-muted-foreground">
               {watch("baseUrl") && watch("articleUrlPattern")
                 ? `Articles will use: ${watch("baseUrl")}${watch("articleUrlPattern")}`
@@ -515,6 +545,72 @@ const SettingsPage = () => {
             >
               {savingSection === "url" ? <><Spinner /> Saving...</> : "Save"}
             </Button>
+          </CardFooter>
+        </Card>
+
+        {/* Danger Zone */}
+        <Card variant="form-danger">
+          <CardHeader>
+            <FieldLabel className="text-base font-medium">Danger Zone</FieldLabel>
+            <FieldDescription className="mt-1 text-sm text-muted-foreground">
+              Permanently delete this project and all associated data. This action cannot be undone.
+            </FieldDescription>
+          </CardHeader>
+
+          <CardContent>
+            <div className="space-y-2">
+              <FieldLabel className="text-sm">Type the project slug to confirm</FieldLabel>
+              <Input
+                placeholder={currentProject.slug}
+                value={deleteConfirm}
+                onChange={(e) => setDeleteConfirm(e.target.value)}
+                disabled={isDeleting}
+                className="max-w-md"
+              />
+            </div>
+
+            {!canDeleteProject && (
+              <p className="text-sm text-muted-foreground">
+                You need the <Kbd>Delete project</Kbd> permission <Kbd>OWNER</Kbd> to delete this project.
+              </p>
+            )}
+          </CardContent>
+
+          <CardFooter>
+            <div className="text-sm text-muted-foreground">
+              This will permanently delete the project and all associated data.
+            </div>
+
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  disabled={deleteDisabled}
+                >
+                  {isDeleting ? <Spinner /> : <Trash2 />}
+                  {isDeleting ? "Deleting..." : "Delete project"}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Confirm deletion</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will permanently delete the project and all associated data. This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    disabled={deleteDisabled}
+                    onClick={handleDeleteProject}
+                  >
+                    {isDeleting ? <Spinner /> : "Confirm delete"}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </CardFooter>
         </Card>
       </div>

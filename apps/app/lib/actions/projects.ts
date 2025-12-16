@@ -5,6 +5,9 @@ import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { getCurrentUser } from "../auth-helper"
 import { requirePermission } from "../auth/permissions"
+import { sendEmail } from "../ses"
+import { render } from "@react-email/render"
+import { ProjectDeletedEmail } from "@/components/emails/project-deleted"
 import { CreateProjectActionInput, createProjectSchema, isReservedSlug, UpdateProjectSettingsInput } from "../validations/project"
 
 export const getUserProjects = async () => {
@@ -184,23 +187,48 @@ export const createProject = async (input: CreateProjectActionInput) => {
 }
 
 export const deleteProject = async (projectId: string) => {
-  await requirePermission(projectId, "canDeleteProject");
+  const { user } = await requirePermission(projectId, "canDeleteProject");
 
   const project = await prisma.project.findUnique({
     where: { id: projectId },
-    select: { slug: true },
+    select: { id: true, name: true, slug: true },
   });
 
   if (!project) {
     throw new Error("Project not found");
   }
 
-  await prisma.project.delete({
-    where: {
-      id: projectId,
-    },
-  });
+  // Hard delete the project (cascades) and mark API keys as deleted before removal
+  await prisma.$transaction([
+    prisma.apiKey.updateMany({
+      where: { projectId },
+      data: { status: "deleted", deletedAt: new Date() },
+    }),
+    prisma.project.delete({
+      where: { id: projectId },
+    }),
+  ]);
 
+  // Send confirmation email
+  try {
+    const html = await render(
+      ProjectDeletedEmail({
+        name: user.name || user.email,
+        projectName: project.name,
+      })
+    );
+
+    await sendEmail({
+      to: user.email,
+      subject: `Project "${project.name}" deleted`,
+      html,
+    });
+  } catch (error) {
+    // Non-blocking for user flow
+    console.error("Failed to send project deletion email", error);
+  }
+
+  // Revalidate dashboard
   revalidatePath("/");
 }
 

@@ -200,38 +200,3 @@ export const AccountSettingsForm = ({ user, isOAuthUser }: AccountSettingsFormPr
     </div>
   )
 }
-
-
-{/* <FieldSeparator />
-
-<Field orientation="responsive">
-  <FieldContent>
-    <FieldLabel htmlFor="email">Email</FieldLabel>
-    <FieldDescription>Your email address cannot be changed.</FieldDescription>
-  </FieldContent>
-
-  <Input
-    id="email"
-    type="email"
-    value={user.email}
-    disabled
-  />
-</Field>
-
-<FieldSeparator />
-
-<Field orientation="responsive">
-  <FieldContent>
-    <div className="flex-1" />
-  </FieldContent>
-
-  <Button
-    type="submit"
-    disabled={isSubmitting}
-  >
-    {isSubmitting
-      ? <><Spinner /> Saving...</>
-      : "Save Changes"
-    }
-  </Button>
-</Field> */}

@@ -34,6 +34,30 @@ export const auth = betterAuth({
       lastName: {
         type: "string",
         required: true
+      },
+      deletionRequestedAt: {
+        type: "date",
+        required: false
+      },
+      deletionScheduledAt: {
+        type: "date",
+        required: false
+      },
+      deletionCanceledAt: {
+        type: "date",
+        required: false
+      },
+      deletionReminder7Sent: {
+        type: "boolean",
+        required: false
+      },
+      deletionReminder10Sent: {
+        type: "boolean",
+        required: false
+      },
+      deletionReminder1hSent: {
+        type: "boolean",
+        required: false
       }
     }
   },

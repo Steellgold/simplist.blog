@@ -3,6 +3,7 @@ import { CreateProjectForm } from "@/components/projects/create-form"
 import { SidebarProvider } from "@simplist/ui/components/sidebar"
 import { getUserProjects } from "@/lib/actions/projects"
 import { getCurrentUser } from "@/lib/auth-helper"
+import { redirectIfPendingDeletion } from "@/lib/auth/deletion-guard"
 import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 
@@ -17,6 +18,8 @@ const CreateProjectPage = async () => {
   if (!user) {
     redirect("/auth/login")
   }
+
+  redirectIfPendingDeletion(user, "/create-project")
 
   const projects = await getUserProjects()
 
