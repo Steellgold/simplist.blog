@@ -113,9 +113,13 @@ jobs:
         if: success() && github.event.number
         working-directory: apps/app
         run: |
-          echo "body<<EOF" >> $GITHUB_OUTPUT
-          echo "$(cat .next/analyze/__bundle_analysis_comment.txt)" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          if [ -f ".next/analyze/__bundle_analysis_comment.txt" ]; then
+            echo "body<<EOF" >> $GITHUB_OUTPUT
+            echo "$(cat .next/analyze/__bundle_analysis_comment.txt)" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "body=" >> $GITHUB_OUTPUT
+          fi
 
       - name: Find Comment
         uses: peter-evans/find-comment@v3
@@ -127,14 +131,14 @@ jobs:
 
       - name: Create Comment
         uses: peter-evans/create-or-update-comment@v4
-        if: success() && github.event.number && steps.fc.outputs.comment-id == ''
+        if: success() && github.event.number && steps.fc.outputs.comment-id == '' && steps.get-comment-body.outputs.body != ''
         with:
           issue-number: ${{ github.event.number }}
           body: ${{ steps.get-comment-body.outputs.body }}
 
       - name: Update Comment
         uses: peter-evans/create-or-update-comment@v4
-        if: success() && github.event.number && steps.fc.outputs.comment-id != ''
+        if: success() && github.event.number && steps.fc.outputs.comment-id != '' && steps.get-comment-body.outputs.body != ''
         with:
           issue-number: ${{ github.event.number }}
           comment-id: ${{ steps.fc.outputs.comment-id }}
