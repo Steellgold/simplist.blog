@@ -28,7 +28,7 @@ interface SidebarFooterItemProps {
 
 export const SidebarFooterItem = ({ user, isVerified = false }: SidebarFooterItemProps) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isSended, setIsSended] = useState<boolean>(false);
+  const [isSent, setSent] = useState<boolean>(false);
 
   const router = useRouter();
 
@@ -57,7 +57,7 @@ export const SidebarFooterItem = ({ user, isVerified = false }: SidebarFooterIte
       }), {
         loading: "Resending verification email...",
         success: () => {
-          setIsSended(true);
+          setSent(true);
           return "Verification email sent";
         },
         error: () => {
@@ -101,12 +101,12 @@ export const SidebarFooterItem = ({ user, isVerified = false }: SidebarFooterIte
                 <div className={cn(
                   "flex items-center gap-1 w-full py-0.5",
                   "rounded-md rounded-t-none flex items-center justify-center text-xs border-r border-l border-b", {
-                    "bg-yellow-500/30 text-yellow-500": !isSended,
-                    "bg-cyan-500/30 text-cyan-200": isSended,
+                    "bg-yellow-500/30 text-yellow-500": !isSent,
+                    "bg-cyan-500/30 text-cyan-200": isSent,
                   }
                 )}>
                   <MailWarning className="size-3" />
-                  {isSended ? "Email sent" : "Email not verified"}
+                  {isSent ? "Email sent" : "Email not verified"}
                 </div>
               )}
             </div>
@@ -138,9 +138,9 @@ export const SidebarFooterItem = ({ user, isVerified = false }: SidebarFooterIte
 
               {!isVerified && (
                 <>
-                  <DropdownMenuItem onClick={handleSendVerificationEmail} disabled={isSended}>
-                    {isSended ? <Mailbox /> : <MailWarning />}
-                    {isSended ? "Email sent" : "Resend verification email"}
+                  <DropdownMenuItem onClick={handleSendVerificationEmail} disabled={isSent}>
+                    {isSent ? <Mailbox /> : <MailWarning />}
+                    {isSent ? "Email sent" : "Resend verification email"}
                   </DropdownMenuItem>
 
                   <DropdownMenuSeparator />
