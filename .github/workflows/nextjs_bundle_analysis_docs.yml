@@ -70,6 +70,7 @@ jobs:
       - name: Download base branch bundle stats
         uses: dawidd6/action-download-artifact@v6
         if: success() && github.event.number
+        continue-on-error: true
         with:
           workflow: nextjs_bundle_analysis_docs.yml
           branch: ${{ github.event.pull_request.base.ref }}
@@ -78,7 +79,13 @@ jobs:
       - name: Compare with base branch bundle
         if: success() && github.event.number
         working-directory: apps/docs
-        run: ls -laR .next/analyze/base && npx -p nextjs-bundle-analysis compare
+        run: |
+          if [ -d ".next/analyze/base" ]; then
+            echo "Base bundle found, comparing..."
+            npx -p nextjs-bundle-analysis compare
+          else
+            echo "No base bundle found, skipping comparison (this is normal for the first run)"
+          fi
 
       - name: Get comment body
         id: get-comment-body

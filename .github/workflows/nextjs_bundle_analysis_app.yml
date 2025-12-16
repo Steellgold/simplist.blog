@@ -62,6 +62,20 @@ jobs:
         env:
           SKIP_BUILD_STATIC_GENERATION: true
           DATABASE_URL: postgresql://user:password@localhost:5432/db
+          BETTER_AUTH_SECRET: build-time-secret-not-used
+          BETTER_AUTH_URL: https://app.simplist.blog
+          STRIPE_SECRET_KEY: sk_test_fake
+          STRIPE_WEBHOOK_SECRET: whsec_fake
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_test_fake
+          R2_ACCOUNT_ID: fake
+          R2_ACCESS_KEY_ID: fake
+          R2_SECRET_ACCESS_KEY: fake
+          R2_BUCKET_NAME: fake
+          AWS_ACCESS_KEY_ID: fake
+          AWS_SECRET_ACCESS_KEY: fake
+          SES_FROM_EMAIL: noreply@example.com
+          UPSTASH_REDIS_REST_URL: https://fake.upstash.io
+          UPSTASH_REDIS_REST_TOKEN: fake
         run: pnpm --filter @simplist/app run build
 
       - name: Analyze bundle
@@ -77,6 +91,7 @@ jobs:
       - name: Download base branch bundle stats
         uses: dawidd6/action-download-artifact@v6
         if: success() && github.event.number
+        continue-on-error: true
         with:
           workflow: nextjs_bundle_analysis_app.yml
           branch: ${{ github.event.pull_request.base.ref }}
@@ -85,7 +100,13 @@ jobs:
       - name: Compare with base branch bundle
         if: success() && github.event.number
         working-directory: apps/app
-        run: ls -laR .next/analyze/base && npx -p nextjs-bundle-analysis compare
+        run: |
+          if [ -d ".next/analyze/base" ]; then
+            echo "Base bundle found, comparing..."
+            npx -p nextjs-bundle-analysis compare
+          else
+            echo "No base bundle found, skipping comparison (this is normal for the first run)"
+          fi
 
       - name: Get comment body
         id: get-comment-body
