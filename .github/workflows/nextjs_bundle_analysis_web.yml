@@ -1,0 +1,110 @@
+name: 'Next.js Bundle Analysis - Web'
+
+on:
+  pull_request:
+    paths:
+      - 'apps/web/**'
+      - 'packages/ui/**'
+      - 'packages/limits/**'
+      - 'pnpm-lock.yaml'
+      - 'package.json'
+  push:
+    branches:
+      - preview
+      - prod
+    paths:
+      - 'apps/web/**'
+      - 'packages/ui/**'
+      - 'packages/limits/**'
+      - 'pnpm-lock.yaml'
+      - 'package.json'
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: ./
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '10.4.1'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Restore next build
+        uses: actions/cache@v4
+        id: restore-build-cache
+        env:
+          cache-name: cache-next-build-web
+        with:
+          path: apps/web/.next/cache
+          key: ${{ runner.os }}-build-${{ env.cache-name }}
+
+      - name: Build next.js app
+        env:
+          SKIP_BUILD_STATIC_GENERATION: true
+        run: pnpm --filter @simplist/web run build
+
+      - name: Analyze bundle
+        run: npx -p nextjs-bundle-analysis report --app-dir apps/web
+
+      - name: Upload bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundle-web
+          path: apps/web/.next/analyze/__bundle_analysis.json
+
+      - name: Download base branch bundle stats
+        uses: dawidd6/action-download-artifact@v6
+        if: success() && github.event.number
+        with:
+          workflow: nextjs_bundle_analysis_web.yml
+          branch: ${{ github.event.pull_request.base.ref }}
+          path: apps/web/.next/analyze/base
+
+      - name: Compare with base branch bundle
+        if: success() && github.event.number
+        run: ls -laR apps/web/.next/analyze/base && npx -p nextjs-bundle-analysis compare --app-dir apps/web
+
+      - name: Get comment body
+        id: get-comment-body
+        if: success() && github.event.number
+        run: |
+          echo "body<<EOF" >> $GITHUB_OUTPUT
+          echo "$(cat apps/web/.next/analyze/__bundle_analysis_comment.txt)" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Find Comment
+        uses: peter-evans/find-comment@v3
+        if: success() && github.event.number
+        id: fc
+        with:
+          issue-number: ${{ github.event.number }}
+          body-includes: '<!-- __NEXTJS_BUNDLE_@simplist/web -->'
+
+      - name: Create Comment
+        uses: peter-evans/create-or-update-comment@v4
+        if: success() && github.event.number && steps.fc.outputs.comment-id == ''
+        with:
+          issue-number: ${{ github.event.number }}
+          body: ${{ steps.get-comment-body.outputs.body }}
+
+      - name: Update Comment
+        uses: peter-evans/create-or-update-comment@v4
+        if: success() && github.event.number && steps.fc.outputs.comment-id != ''
+        with:
+          issue-number: ${{ github.event.number }}
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          body: ${{ steps.get-comment-body.outputs.body }}
+          edit-mode: replace

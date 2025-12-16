@@ -6,6 +6,7 @@
     "dev": "next dev -p 3001 --experimental-https",
     "dev-ns": "next dev -p 3001",
     "build": "next build",
+    "analyze": "ANALYZE=true next build",
     "start": "next start -p 3001",
     "lint": "eslint"
   },
@@ -24,6 +25,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.3",
+    "@next/bundle-analyzer": "^16.0.10",
     "@simplist/eslint-config": "workspace:*",
     "@simplist/typescript-config": "workspace:*",
     "@tailwindcss/postcss": "^4.1.18",
@@ -36,5 +38,9 @@
     "tailwindcss-intersect": "^2.2.0",
     "tailwindcss-motion": "^1.1.1",
     "typescript": "^5.9.3"
+  },
+  "nextBundleAnalysis": {
+    "showDetails": true,
+    "buildOutputDirectory": ".next"
   }
 }
