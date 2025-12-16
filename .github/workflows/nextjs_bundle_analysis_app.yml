@@ -45,6 +45,8 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build workspace dependencies
+        env:
+          DATABASE_URL: postgresql://user:password@localhost:5432/db
         run: pnpm --filter @simplist/db run build && pnpm --filter @simplist/ui run build && pnpm --filter @simplist/limits run build
 
       - name: Restore next build
@@ -59,6 +61,7 @@ jobs:
       - name: Build next.js app
         env:
           SKIP_BUILD_STATIC_GENERATION: true
+          DATABASE_URL: postgresql://user:password@localhost:5432/db
         run: pnpm --filter @simplist/app run build
 
       - name: Analyze bundle
