@@ -17,7 +17,7 @@ const usePasswordInput = ({ value, onChange }: UsePasswordInputProps) => {
 
   const toggleVisibility = () => setShowPassword((prev) => !prev)
 
-  const generate = (length: number = 12) => {
+  const generate = () => {
     const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     const lower = "abcdefghijklmnopqrstuvwxyz"
     const numbers = "0123456789"
@@ -30,7 +30,7 @@ const usePasswordInput = ({ value, onChange }: UsePasswordInputProps) => {
     password += numbers[Math.floor(Math.random() * numbers.length)]
     password += special[Math.floor(Math.random() * special.length)]
 
-    for (let i = 4; i < length; i++) {
+    for (let i = 4; i < 12; i++) {
       password += allChars[Math.floor(Math.random() * allChars.length)]
     }
 
