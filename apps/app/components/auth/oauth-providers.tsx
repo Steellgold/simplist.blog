@@ -1,10 +1,11 @@
 "use client"
 
-import { authClient } from "@/lib/auth-client"
-import { Field } from "@simplist/ui/components/field"
 import { createContext, useContext, useEffect, useState } from "react"
-import { PasskeyButton } from "./passkey-button"
+import { ButtonGroup } from "@simplist/ui/components/button-group"
+import { Field } from "@simplist/ui/components/field"
 import { ProviderButton } from "./provider-button"
+import { PasskeyButton } from "./passkey-button"
+import { authClient } from "@/lib/auth-client"
 
 interface OAuthProvidersContextType {
   isAuthenticating: boolean
@@ -44,31 +45,35 @@ export const OAuthProviders = ({ variant = "login" }: OAuthProvidersProps) => {
   }, []);
 
   return (
-    <Field>
-      <ProviderButton
-        type="github"
-        onAuthStart={() => setIsAuthenticating(true)}
-        onAuthEnd={() => setIsAuthenticating(false)}
-        disabled={isAuthenticating}
-        isLastUsed={lastLogin === "github"}
-        variant={variant}
-      />
-
-      <ProviderButton
-        type="google"
-        onAuthStart={() => setIsAuthenticating(true)}
-        onAuthEnd={() => setIsAuthenticating(false)}
-        disabled={isAuthenticating}
-        isLastUsed={lastLogin === "google"}
-        variant={variant}
-      />
-
-      {variant === "login" && (
-        <PasskeyButton
+    <Field className="gap-2">
+      <ButtonGroup orientation="vertical">
+        <ProviderButton
+          type="github"
           onAuthStart={() => setIsAuthenticating(true)}
           onAuthEnd={() => setIsAuthenticating(false)}
           disabled={isAuthenticating}
+          isLastUsed={lastLogin === "github"}
+          variant={variant}
         />
+
+        <ProviderButton
+          type="google"
+          onAuthStart={() => setIsAuthenticating(true)}
+          onAuthEnd={() => setIsAuthenticating(false)}
+          disabled={isAuthenticating}
+          isLastUsed={lastLogin === "google"}
+          variant={variant}
+        />
+      </ButtonGroup>
+
+      {variant === "login" && (
+        <>
+          <PasskeyButton
+            onAuthStart={() => setIsAuthenticating(true)}
+            onAuthEnd={() => setIsAuthenticating(false)}
+            disabled={isAuthenticating}
+          />
+        </>
       )}
     </Field>
   )
