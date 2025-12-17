@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 const TermsOfServicePage = () => {
   return (
-    <article className="prose max-w-none">
+    <article>
       <h1>Terms of Service</h1>
 
       <p className="text-muted-foreground">

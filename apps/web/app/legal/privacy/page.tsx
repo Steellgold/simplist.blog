@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 const PrivacyPolicyPage = () => {
   return (
-    <article className="prose max-w-none">
+    <article>
       <h1>Privacy Policy</h1>
 
       <p className="text-muted-foreground">

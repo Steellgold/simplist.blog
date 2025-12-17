@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 const GDPRCompliancePage = () => {
   return (
-    <article className="prose max-w-none">
+    <article>
       <h1>GDPR Compliance & User Rights</h1>
 
       <p className="text-muted-foreground">

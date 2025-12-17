@@ -129,6 +129,48 @@
   }
 }
 
+@layer components {
+  .legal-content h1 {
+    @apply text-3xl md:text-4xl font-semibold tracking-tight mb-4 mt-2;
+  }
+
+  .legal-content h2 {
+    @apply text-2xl font-semibold mt-8 mb-3;
+  }
+
+  .legal-content h3 {
+    @apply text-lg font-semibold mt-6 mb-2;
+  }
+
+  .legal-content p {
+    @apply text-sm md:text-base leading-relaxed text-muted-foreground mb-3;
+  }
+
+  .legal-content ul {
+    @apply list-disc pl-5 space-y-1 mb-3;
+  }
+
+  .legal-content ol {
+    @apply list-decimal pl-5 space-y-1 mb-3;
+  }
+
+  .legal-content table {
+    @apply w-full text-sm border-collapse my-4;
+  }
+
+  .legal-content th {
+    @apply border-b px-3 py-2 text-left font-medium;
+  }
+
+  .legal-content td {
+    @apply border-b px-3 py-2 align-top;
+  }
+
+  .legal-content a {
+    @apply text-primary underline-offset-2 hover:underline;
+  }
+}
+
 code {
   counter-reset: step;
   counter-increment: step 0;
