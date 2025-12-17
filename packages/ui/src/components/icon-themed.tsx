@@ -14,7 +14,11 @@ export function IconThemed({ light, dark, className }: IconThemedProps) {
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    setMounted(true)
+    const timeout = setTimeout(() => {
+      setMounted(true)
+    }, 0)
+
+    return () => clearTimeout(timeout)
   }, [])
 
   if (!mounted) return <span className={className} />
