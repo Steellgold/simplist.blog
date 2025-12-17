@@ -2,6 +2,11 @@ export type SubscriptionInterval = "monthly" | "yearly";
 
 export type PlanId = "STARTER" | "PRO";
 
+export type StarterPlanId = "STARTER";
+export type ProPlanId = "PRO";
+
+export type PlanIds = StarterPlanId | ProPlanId;
+
 export interface PlanPrice {
   amount: number;
   interval: SubscriptionInterval;
