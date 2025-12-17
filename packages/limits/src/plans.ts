@@ -22,7 +22,7 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, Plan> = {
     ],
     limits: {
       maxArticles: 5,
-      maxStorageBytes: 50 * 1024 * 1024, // 50MB
+      maxStorageBytes: 15 * 1024 * 1024, // 15MB
       maxApiCallsPerMonth: 1000,
       maxVariantsPerArticle: 0, // STARTER: No variants allowed
       maxMembers: 1, // STARTER: Solo mode only (owner)
@@ -45,35 +45,34 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, Plan> = {
     popular: true,
     prices: [
       {
-        amount: 19,
+        amount: 9.99,
         interval: "monthly",
-        displayAmount: "$19",
+        displayAmount: "$9.99",
         displayInterval: "/month",
       },
       {
-        amount: 14,
+        amount: 7.99,
         interval: "yearly",
-        displayAmount: "$14",
+        displayAmount: "$7.99",
         displayInterval: "/month billed yearly",
-        yearlyEquivalent: "$168/year",
-        savings: "Save $60",
+        yearlyEquivalent: "$95.00/year",
+        savings: "Save $24.00",
       },
     ],
     features: [
       { name: "Unlimited articles", included: true },
       { name: "Advanced analytics", included: true },
       { name: "1GB storage", included: true },
-      { name: "500,000 API calls/month", included: true },
+      { name: "Unlimited API calls/month", included: true },
       { name: "Up to 10 team members", included: true },
       { name: "Priority support", included: true },
-      { name: "Unlimited language variants", included: true },
-      { name: "Custom cover images per variant", included: true },
+      { name: "Language variants", included: true },
       { name: "Scheduled publishing", included: true },
     ],
     limits: {
       maxArticles: -1,
       maxStorageBytes: 1024 * 1024 * 1024, // 1GB
-      maxApiCallsPerMonth: 500000,
+      maxApiCallsPerMonth: -1, // PRO: unlimited API calls
       maxVariantsPerArticle: -1, // PRO: unlimited variants per article
       maxMembers: 10, // PRO: Up to 10 team members
       maxWebhooks: 20,
