@@ -9,7 +9,16 @@ import { PricingSection } from "./_sections/pricing-section";
 const HomePage = async () => {
   return (
     <div className="min-h-screen bg-linear-to-br from-background via-background to-secondary/20">
-      <LightRays count={16} color="rgba(240, 187, 59, 0.3)" blur={60} speed={10} length="80vh" />
+
+      <LightRays
+        count={16}
+        color="rgba(240, 187, 59, 0.3)"
+        blur={60}
+        speed={10}
+        length="80vh"
+        className="absolute inset-0 z-40"
+      />
+
       <Navbar />
       <HeroSection />
       <FeaturesSection />

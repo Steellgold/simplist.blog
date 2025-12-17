@@ -3,25 +3,23 @@
 import NumberFlow from "@number-flow/react";
 import { getAllPlans, getPlanLimits, getPlanPrice, type SubscriptionInterval } from "@simplist/limits";
 import { Badge } from "@simplist/ui/components/badge";
+import { BillingToggle } from "@simplist/ui/components/billing-toggle";
 import { buttonVariants } from "@simplist/ui/components/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@simplist/ui/components/card";
-import { cn } from "@simplist/ui/lib/utils";
 import { ArrowRight, BadgeCheck, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
 export const PricingSection = () => {
   const [frequency, setFrequency] = useState<SubscriptionInterval>("monthly");
+  
   const plans = getAllPlans();
-  const [starterPlan, proPlan] = plans;
+  const [, proPlan] = plans;
+  
   const starterLimits = getPlanLimits("STARTER");
   const proLimits = getPlanLimits("PRO");
 
   const proPrice = getPlanPrice(proPlan.id, frequency) || proPlan.prices[0];
-
-  // const handleOpenBilling = () => {
-  //   window.open("https://app.simplist.blog/billing", "_blank");
-  // };
 
   return (
     <section id="pricing" className="py-20 md:py-24 px-4">
@@ -40,41 +38,11 @@ export const PricingSection = () => {
             One free plan for side projects, one PRO plan for serious content platforms.
           </p>
 
-          <div className="inline-flex items-center gap-2 rounded-full border bg-card/80 px-1.5 py-1 text-xs shadow-sm">
-            <button
-              type="button"
-              onClick={() => setFrequency("monthly")}
-              className={`px-3 py-1 rounded-full transition-colors ${
-                frequency === "monthly"
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              Monthly
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setFrequency("yearly")}
-              className={`px-3 py-1 rounded-full transition-colors flex items-center gap-1 ${
-                frequency === "yearly"
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              Yearly
-              <span
-                className={cn(
-                  "rounded-full px-1.5 py-0.5 text-[9px] uppercase tracking-wide ", {
-                    "bg-secondary-foreground/45 text-white dark:bg-secondary dark:text-primary": frequency === "yearly",
-                    "bg-emerald-500/35 dark:bg-emerald-500/45 text-foreground/80 dark:text-foreground/80": frequency !== "yearly"
-                  }
-                )}
-              >
-                -20%
-              </span>
-            </button>
-          </div>
+          <BillingToggle
+            value={frequency}
+            onValueChange={(value) => setFrequency(value)}
+            showSavings={true}
+          />
         </div>
 
         <div className="mt-6 max-w-5xl mx-auto flex flex-col gap-4 lg:flex-row lg:items-start lg:gap-4">

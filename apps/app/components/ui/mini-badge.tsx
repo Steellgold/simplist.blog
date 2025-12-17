@@ -37,7 +37,7 @@ export const MiniBadge = ({ tier, size = "md", className }: MiniBadgeProps) => {
       alt={tier.replace("L", "")}
       width={100}
       height={100}
-      className={cn(sizeClass, className)}
+      className={cn("inline-block align-middle leading-none", sizeClass, className)}
     />
   )
 }
