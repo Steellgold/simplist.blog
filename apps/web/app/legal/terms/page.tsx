@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Terms of Service",
-  description: "Terms of Service for Simplist blog management platform",
+  description: "Terms of Service for the Simplist headless CMS and analytics platform.",
 };
 
 const TermsOfServicePage = () => {
@@ -12,449 +12,463 @@ const TermsOfServicePage = () => {
       <h1>Terms of Service</h1>
 
       <p className="text-muted-foreground">
-        <strong>Effective Date:</strong> October 22, 2025<br />
-        <strong>Last Updated:</strong> October 22, 2025
+        <strong>Effective Date:</strong> December 17, 2025
+        <br />
+        <strong>Last Updated:</strong> December 17, 2025
       </p>
 
       <h2>1. Introduction</h2>
       <p>
-        Welcome to Simplist (&ldquo;Service&rdquo;, &ldquo;Platform&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;, or &ldquo;our&rdquo;). These Terms of Service (&ldquo;Terms&rdquo;) govern your access to and use of Simplist, a blog management platform accessible at simplist.blog and api.simplist.blog.
+        These Terms of Service (&quot;Terms&quot;) govern your access to and use of Simplist
+        (&quot;Simplist&quot;, &quot;we&quot;, &quot;us&quot;, or &quot;our&quot;), a multi-tenant
+        headless CMS and content analytics platform for blogs and technical documentation. The Service
+        includes the SaaS dashboard at <code>app.simplist.blog</code>, the marketing website at{" "}
+        <code>simplist.blog</code>, the REST API at <code>api.simplist.blog</code>, the official TypeScript
+        SDK <code>@simplist.blog/sdk</code>, and any related tools and services (collectively, the
+        &quot;Service&quot;).
       </p>
       <p>
-        Simplist is operated by Gaëtan HUSZOVITS, an independent contractor (&ldquo;Operator&rdquo;).
+        The Service is operated by <strong>Gaëtan HUSZOVITS</strong>, an independent contractor based in
+        France (the &quot;Operator&quot;).
       </p>
       <p>
-        By accessing or using the Service, you agree to be bound by these Terms. If you do not agree to these Terms, you may not use the Service.
+        By creating an account, accessing, or using any part of the Service, you agree to be bound by these
+        Terms. If you do not agree to these Terms, you must not use the Service.
       </p>
 
-      <h2>2. Eligibility</h2>
-      <p>
-        You must be at least <strong>16 years of age</strong> to use this Service. By using the Service, you represent and warrant that you meet this age requirement.
-      </p>
-      <p>
-        If you are using the Service on behalf of an organization, you represent that you have the authority to bind that organization to these Terms.
-      </p>
-
-      <h2>3. Account Registration</h2>
-
-      <h3>3.1 Account Creation</h3>
-      <p>To use the Service, you must create an account by providing:</p>
+      <h2>2. Definitions</h2>
       <ul>
-        <li>A valid email address</li>
-        <li>A password (for email/password authentication), or</li>
-        <li>Authentication via a supported OAuth provider (Google, GitHub)</li>
+        <li>
+          <strong>&quot;Account&quot;</strong> – your authenticated user profile in the Simplist dashboard.
+        </li>
+        <li>
+          <strong>&quot;Project&quot;</strong> – a workspace in which you manage articles, tags, API keys,
+          webhooks, settings, and analytics.
+        </li>
+        <li>
+          <strong>&quot;Owner&quot;</strong> – the Project member with the special OWNER role and full
+          rights, including billing and deletion.
+        </li>
+        <li>
+          <strong>&quot;Member&quot;</strong> – any user who has joined a Project via invitation.
+        </li>
+        <li>
+          <strong>&quot;Role&quot; / &quot;Project Role&quot;</strong> – a set of fine-grained permissions
+          (for example: canManageProject, canManageMembers, canManageArticles, canManageApiKeys,
+          canManageWebhooks, canViewAnalytics, canManageBilling, canDeleteProject).
+        </li>
+        <li>
+          <strong>&quot;Content&quot;</strong> – all text, media, and metadata you store in Simplist,
+          including articles, article variants, tags, and images.
+        </li>
+        <li>
+          <strong>&quot;API&quot;</strong> – the REST API at <code>api.simplist.blog</code> and any
+          programmatic access via the SDK.
+        </li>
+        <li>
+          <strong>&quot;Free Plan&quot; / &quot;Starter&quot;</strong> – the no-cost plan with limited
+          quotas and features.
+        </li>
+        <li>
+          <strong>&quot;Pro Plan&quot; / &quot;PRO&quot;</strong> – the paid subscription plan with extended
+          quotas and advanced features.
+        </li>
       </ul>
 
-      <h3>3.2 Account Security</h3>
+      <h2>3. Eligibility and Account Registration</h2>
+      <h3>3.1 Age and capacity</h3>
+      <p>
+        You must be at least <strong>16 years old</strong> and have the legal capacity to enter into a
+        binding contract. If you use the Service on behalf of an organization, you represent that you have
+        authority to bind that organization to these Terms.
+      </p>
+
+      <h3>3.2 Account creation and authentication</h3>
+      <p>To use the dashboard, you must create an Account using at least one of the following methods:</p>
+      <ul>
+        <li>Email and password (stored only as a secure hash);</li>
+        <li>OAuth via Google or GitHub;</li>
+        <li>Passkeys (WebAuthn);</li>
+        <li>Optional two-factor authentication (TOTP).</li>
+      </ul>
+      <p>You must provide a valid email address and keep your Account information accurate and up to date.</p>
+
+      <h3>3.3 Account security</h3>
       <p>You are responsible for:</p>
       <ul>
-        <li>Maintaining the confidentiality of your account credentials</li>
-        <li>All activities that occur under your account</li>
-        <li>Notifying us immediately of any unauthorized use of your account</li>
+        <li>Maintaining the confidentiality of your credentials and passkeys;</li>
+        <li>All activity occurring under your Account;</li>
+        <li>Promptly notifying us of any suspected unauthorized access.</li>
       </ul>
 
-      <h3>3.3 Accurate Information</h3>
+      <h3>3.4 One Account per individual</h3>
       <p>
-        You agree to provide accurate, current, and complete information during registration and to update such information to keep it accurate and complete.
+        You must not share your personal Account with other individuals. Projects support collaboration via
+        invitations and roles so that each collaborator has their own Account.
       </p>
 
-      <h2>4. Service Description</h2>
-
-      <h3>4.1 Subscription Tiers</h3>
-      <p>Simplist operates on a freemium model with two subscription tiers:</p>
-      
-      <p><strong>Free Tier:</strong></p>
-      <ul>
-        <li><strong>One project per user</strong>: Create and manage one blog project</li>
-        <li><strong>5 articles maximum</strong>: Create, edit, publish, and delete up to 5 articles</li>
-        <li><strong>1 API key</strong>: Generate one API key for programmatic access</li>
-        <li><strong>Basic analytics</strong>: Track article views and visitor engagement</li>
-        <li><strong>50MB storage</strong>: Upload and manage cover images (max 5MB per file, formats: JPEG, PNG, WebP, GIF)</li>
-        <li><strong>1,000 API calls per month</strong>: Rate-limited API access</li>
-      </ul>
-      
-      <p><strong>Pro Tier ($19/month or $14/month billed yearly):</strong></p>
-      <ul>
-        <li><strong>One project per user</strong>: Create and manage one blog project</li>
-        <li><strong>Unlimited articles</strong>: No limit on article creation</li>
-        <li><strong>Unlimited API keys</strong>: Generate multiple API keys with granular permissions</li>
-        <li><strong>Advanced analytics</strong>: Comprehensive visitor insights and engagement metrics</li>
-        <li><strong>1GB storage</strong>: Extended storage for images and media</li>
-        <li><strong>100,000 API calls per month</strong>: Higher rate limits for API access</li>
-        <li><strong>Priority support</strong>: Faster response times for support requests</li>
-        <li><strong>Article language variants</strong>: Create multiple language versions of articles</li>
-        <li><strong>Scheduled publishing</strong>: Schedule articles for future publication</li>
-        <li><strong>Bulk operations</strong>: Perform batch operations on articles and content</li>
-      </ul>
-
-      <h3>4.2 Public API</h3>
+      <h2>4. Projects, Roles, and Members</h2>
+      <h3>4.1 Projects</h3>
       <p>
-        The Simplist Public API (<code>api.simplist.blog</code>) allows third-party access to published content via API keys. API usage is subject to:
-      </p>
-      <ul>
-        <li><strong>Rate limiting</strong>: 100 requests per minute per API key</li>
-        <li><strong>CORS restrictions</strong>: Only domains configured in your project settings may access the API</li>
-        <li><strong>API key permissions</strong>: Keys may have <code>read</code> and/or <code>analytics</code> permissions</li>
-      </ul>
-
-      <h3>4.3 TypeScript SDK</h3>
-      <p>
-        The Simplist SDK (<code>@simplist.blog/sdk</code> on NPM) provides a type-safe client for interacting with the Public API.
+        Projects are the primary organizational unit in Simplist. Within a Project you can manage articles,
+        tags, analytics, API keys, webhooks, settings (slug, icon, color, avatar, allowed origins, base URL,
+        article URL pattern, default language), and members.
       </p>
 
-      <h2>5. User Responsibilities</h2>
-
-      <h3>5.1 Acceptable Use</h3>
-      <p>You agree NOT to:</p>
-      <ul>
-        <li>Violate any applicable laws or regulations</li>
-        <li>Infringe on intellectual property rights of others</li>
-        <li>Upload malicious code, viruses, or harmful content</li>
-        <li>Attempt to gain unauthorized access to the Service or other users&apos; accounts</li>
-        <li>Use the Service to distribute spam, phishing, or fraudulent content</li>
-        <li>Scrape, data-mine, or excessively burden the Service infrastructure</li>
-        <li>Reverse engineer or attempt to extract source code from the Service</li>
-        <li>Use the Service to host illegal, defamatory, or obscene content</li>
-        <li>Impersonate any person or entity</li>
-      </ul>
-
-      <h3>5.2 Content Ownership</h3>
+      <h3>4.2 Roles and permissions</h3>
       <p>
-        You retain all intellectual property rights to content you create on the Platform (articles, images, etc.). By publishing content via the Public API, you grant Simplist a worldwide, non-exclusive, royalty-free license to host, store, and distribute your content as necessary to provide the Service.
+        Each Project has configurable roles with granular permissions. The OWNER role always has full access,
+        including billing and deletion, and is the only role allowed to transfer ownership.
       </p>
 
-      <h3>5.3 Content Responsibility</h3>
+      <h3>4.3 Membership and invitations</h3>
       <p>
-        You are solely responsible for the content you publish. Simplist is not responsible for user-generated content and does not pre-screen content before publication.
+        Members join a Project through invitations sent to their email address. Invitations are scoped to one
+        Project and one role, have an expiration date, and can be revoked before acceptance. A Member can leave
+        a Project at any time, except that the Owner must first transfer ownership.
       </p>
 
-      <h2>6. API Keys and Security</h2>
-
-      <h3>6.1 API Key Types</h3>
+      <h3>4.4 Project deletion (danger zone)</h3>
+      <p>
+        Only users with <strong>canDeleteProject</strong> may permanently delete a Project. Deletion is
+        initiated from the Project settings and requires explicit confirmation of the Project slug.
+      </p>
+      <p>When a Project is deleted:</p>
       <ul>
-        <li><strong>Secret keys</strong> (<code>sk_</code>): Full access keys that should never be exposed publicly</li>
-        <li><strong>Public keys</strong> (<code>pk_</code>): Limited-access keys safe for client-side use</li>
+        <li>All articles and article variants for that Project are permanently removed;</li>
+        <li>All associated analytics records (page views, events, aggregates) are removed;</li>
+        <li>All API keys are marked deleted and immediately stop working;</li>
+        <li>All tags, webhooks, roles, members, and invitations for that Project are removed;</li>
+        <li>Caches and temporary data for that Project are invalidated and expire shortly after.</li>
+      </ul>
+      <p>
+        Project deletion is <strong>irreversible</strong>. You are responsible for exporting any data you need
+        before deleting a Project.
+      </p>
+
+      <h2>5. Acceptable Use and Content</h2>
+      <h3>5.1 Acceptable use</h3>
+      <p>You agree not to use the Service to:</p>
+      <ul>
+        <li>Violate any applicable law or regulation;</li>
+        <li>Infringe the intellectual property, privacy, or other rights of third parties;</li>
+        <li>Publish content that is unlawful, hateful, harassing, or obscene;</li>
+        <li>Upload malware or code designed to disrupt or compromise systems;</li>
+        <li>Attempt to gain unauthorized access to any systems or data;</li>
+        <li>Bypass rate limits, quotas, or security controls;</li>
+        <li>Scrape or crawl the Service in a way that overloads infrastructure;</li>
+        <li>Use the Service for high-risk applications where failure could lead to injury or serious harm.</li>
       </ul>
 
-      <h3>6.2 API Key Security</h3>
+      <h3>5.2 Content responsibility</h3>
+      <p>
+        You are solely responsible for Content you create, host, or distribute through the Service, including
+        via the API and webhooks. We do not proactively moderate or pre-approve Content, but we may remove or
+        restrict Content that we reasonably believe violates these Terms, infringes rights, or poses a risk.
+      </p>
+
+      <h3>5.3 Intellectual property</h3>
+      <p>
+        You retain ownership of your Content. You grant Simplist a worldwide, non-exclusive, royalty-free
+        license to host, store, reproduce, and transmit your Content as necessary to operate, maintain, back up,
+        and improve the Service.
+      </p>
+      <p>
+        All rights in the Service itself (including software, UI, documentation, and branding) are owned by the
+        Operator and its licensors. You receive a limited, revocable, non-transferable license to use the
+        Service in accordance with these Terms.
+      </p>
+
+      <h2>6. Plans, Quotas, and Features</h2>
+      <h3>6.1 Free (Starter) plan</h3>
+      <p>The Starter plan is designed for side projects, small blogs, and evaluation. Per Project it typically includes:</p>
+      <ul>
+        <li>Up to 5 active articles;</li>
+        <li>Up to 50 MB of image storage;</li>
+        <li>Up to 1,000 API calls per month;</li>
+        <li>One member (Owner only);</li>
+        <li>Limited analytics features;</li>
+        <li>No article language variants or bulk operations.</li>
+      </ul>
+
+      <h3>6.2 Pro plan</h3>
+      <p>The Pro plan is designed for professional and production use. Per Project it typically includes:</p>
+      <ul>
+        <li>Unlimited articles (subject to fair use);</li>
+        <li>Up to 1 GB of image storage;</li>
+        <li>Up to 500,000 API calls per month;</li>
+        <li>Up to 10 members;</li>
+        <li>Full analytics dashboards and statistics;</li>
+        <li>Article language variants and per-variant cover images;</li>
+        <li>Scheduled publishing with automatic cron-based publishing;</li>
+        <li>Bulk operations and extended webhook capacity.</li>
+      </ul>
+      <p>
+        Current plan limits and prices are displayed on the{" "}
+        <Link href="/pricing">pricing page</Link> and may be updated over time.
+      </p>
+
+      <h3>6.3 Quota enforcement</h3>
+      <p>
+        The Service tracks quotas for each Project (articles, members, storage, monthly API calls). When quotas
+        are exceeded, we may reject new API calls, block new article creation or variants, block adding members,
+        or disable features such as bulk operations until usage is back within limits or the plan is upgraded.
+      </p>
+
+      <h2>7. Public API, SDK, and API Keys</h2>
+      <h3>7.1 API authentication</h3>
+      <p>
+        The REST API at <code>api.simplist.blog</code> is authenticated using API keys sent in the{" "}
+        <code>X-API-Key</code> header. All API access must occur over HTTPS.
+      </p>
+
+      <h3>7.2 API key management</h3>
+      <p>
+        Within each Project, members with <strong>canManageApiKeys</strong> can create API keys with specific
+        permissions (e.g. <code>read</code>, <code>analytics</code>), set optional expirations, and revoke keys
+        when no longer needed.
+      </p>
       <p>You are responsible for:</p>
       <ul>
-        <li>Keeping secret API keys confidential</li>
-        <li>Rotating keys if compromised</li>
-        <li>Setting appropriate permissions and expiration dates</li>
-        <li>Configuring CORS origins correctly</li>
+        <li>Keeping API keys confidential and storing them securely;</li>
+        <li>Not embedding secret keys in public repositories or client-side code;</li>
+        <li>Rotating keys promptly if you suspect compromise;</li>
+        <li>Configuring CORS and allowed origins appropriately.</li>
       </ul>
 
-      <h3>6.3 API Key Revocation</h3>
-      <p>We reserve the right to revoke API keys that:</p>
-      <ul>
-        <li>Are used to violate these Terms</li>
-        <li>Generate excessive or abusive traffic</li>
-        <li>Are associated with suspended accounts</li>
-      </ul>
-
-      <h2>7. Analytics and Tracking</h2>
-
-      <h3>7.1 Visitor Analytics</h3>
+      <h3>7.3 Rate limiting and quotas</h3>
       <p>
-        Simplist collects anonymized analytics data about visitors to your published articles, including:
-      </p>
-      <ul>
-        <li>Device type, browser, and operating system</li>
-        <li>Geographic location (country, city, region)</li>
-        <li>Referrer sources and UTM parameters</li>
-        <li>Engagement metrics (time on page, scroll depth)</li>
-        <li><strong>IP addresses are NOT stored</strong> (only hashed for visitor identification)</li>
-      </ul>
-
-      <h3>7.2 Analytics Retention</h3>
-      <p>Analytics data (page views, events) is retained until:</p>
-      <ul>
-        <li>You delete your project, or</li>
-        <li>You delete your account</li>
-      </ul>
-      <p>
-        For more information, see our <Link href="/legal/privacy">Privacy Policy</Link>.
+        API usage is subject to per-key and per-Project rate limits as well as monthly quotas based on your
+        plan. We may temporarily or permanently throttle or revoke keys that abuse or threaten the stability or
+        security of the Service.
       </p>
 
-      <h2>8. Service Availability</h2>
-
-      <h3>8.1 No Uptime Guarantee</h3>
+      <h3>7.4 SDK usage</h3>
       <p>
-        The Service is provided &ldquo;as is&rdquo; without any guaranteed uptime or availability. We strive for high availability but do not guarantee uninterrupted access.
+        The official TypeScript SDK <code>@simplist.blog/sdk</code> is a convenience wrapper over the REST API.
+        Using the SDK does not change your responsibilities under these Terms or the{" "}
+        <Link href="/legal/privacy">Privacy Policy</Link>.
       </p>
 
-      <h3>8.2 Maintenance</h3>
+      <h2>8. Analytics, Logs, and Webhooks</h2>
+      <h3>8.1 Visitor analytics</h3>
       <p>
-        We may perform scheduled or emergency maintenance that temporarily limits access to the Service. We will provide notice when feasible.
+        When analytics are enabled and integrated on your site, Simplist records pseudonymous analytics about
+        visitors to your articles, including browser and device information, derived geographic region, referrer
+        and UTM parameters, and engagement metrics (time on page, scroll depth, exit position, events).
+      </p>
+      <p>
+        Analytics are designed to be privacy-friendly and do not intentionally attach directly identified user
+        accounts to visitor records by default. For details about what is collected and how long it is stored,
+        see the <Link href="/legal/privacy">Privacy Policy</Link> and{" "}
+        <Link href="/legal/gdpr">GDPR &amp; Data Protection</Link> pages.
       </p>
 
-      <h3>8.3 Service Modifications</h3>
-      <p>We reserve the right to:</p>
-      <ul>
-        <li>Modify, suspend, or discontinue any feature of the Service at any time</li>
-        <li>Change rate limits, storage limits, or other usage restrictions</li>
-        <li>Update these Terms with notice (see Section 13)</li>
-      </ul>
-
-      <h2>9. Pricing and Payment</h2>
-
-      <h3>9.1 Subscription Plans</h3>
-      <p>Simplist offers the following subscription plans:</p>
-      
-      <p><strong>Free Plan:</strong></p>
-      <ul>
-        <li>No monthly fee</li>
-        <li>Limited features as described in Section 4.1</li>
-        <li>No payment information required</li>
-      </ul>
-      
-      <p><strong>Pro Plan:</strong></p>
-      <ul>
-        <li><strong>Monthly:</strong> $19 USD per month</li>
-        <li><strong>Yearly:</strong> $14 USD per month (billed annually at $168 USD)</li>
-        <li>Full access to all features as described in Section 4.1</li>
-        <li>Payment required via credit card through Stripe</li>
-      </ul>
-
-      <h3>9.2 Payment Processing</h3>
-      <p>All payments are processed securely through <strong>Stripe, Inc.</strong> We do not store your credit card information on our servers.</p>
-      
-      <p><strong>Accepted Payment Methods:</strong></p>
-      <ul>
-        <li>Credit cards (Visa, Mastercard, American Express, Discover)</li>
-        <li>Debit cards</li>
-        <li>Other payment methods supported by Stripe in your region</li>
-      </ul>
-
-      <h3>9.3 Billing and Auto-Renewal</h3>
-      <p><strong>Billing Cycles:</strong></p>
-      <ul>
-        <li><strong>Monthly subscriptions:</strong> Billed every 30 days from the subscription start date</li>
-        <li><strong>Yearly subscriptions:</strong> Billed every 365 days from the subscription start date</li>
-      </ul>
-      
-      <p><strong>Auto-Renewal:</strong></p>
-      <ul>
-        <li>Subscriptions automatically renew unless canceled before the next billing date</li>
-        <li>You will be charged the then-current subscription fee</li>
-        <li>You can cancel anytime via your account settings or the Stripe billing portal</li>
-      </ul>
-
-      <h3>9.4 Subscription Changes</h3>
-      <p><strong>Upgrades:</strong></p>
-      <ul>
-        <li>Upgrade from Free to Pro anytime</li>
-        <li>Changes take effect immediately</li>
-        <li>Prorated billing applies for mid-cycle upgrades</li>
-      </ul>
-      
-      <p><strong>Downgrades:</strong></p>
-      <ul>
-        <li>Downgrade from Pro to Free anytime</li>
-        <li>Downgrade takes effect at the end of your current billing period</li>
-        <li>Content exceeding Free tier limits will be inaccessible but not deleted</li>
-        <li>No refunds for unused portions of paid subscriptions</li>
-      </ul>
-
-      <h3>9.5 Failed Payments</h3>
-      <p>If a payment fails:</p>
-      <ul>
-        <li>We will attempt to process payment up to 3 times over 7 days</li>
-        <li>You will receive email notifications about failed payments</li>
-        <li>If payment cannot be processed, your subscription will be suspended</li>
-        <li>During suspension, your account will be limited to Free tier features</li>
-        <li>Your content and data will be preserved for 30 days</li>
-        <li>After 30 days of suspension, content exceeding Free tier limits may be deleted</li>
-      </ul>
-
-      <h3>9.6 Refunds</h3>
-      <p><strong>Refund Policy:</strong></p>
-      <ul>
-        <li><strong>No refunds</strong> for partial months or unused portions of subscriptions</li>
-        <li>Refunds may be considered on a case-by-case basis for:</li>
-        <ul>
-          <li>Technical issues preventing service use for extended periods</li>
-          <li>Billing errors or unauthorized charges</li>
-          <li>Service cancellation within 7 days of initial subscription</li>
-        </ul>
-        <li>Refund requests must be submitted to privacy@simplist.blog within 30 days</li>
-        <li>Approved refunds will be processed within 5-10 business days</li>
-      </ul>
-
-      <h3>9.7 Price Changes</h3>
-      <p>We reserve the right to modify subscription prices with:</p>
-      <ul>
-        <li><strong>30 days advance notice</strong> via email to your registered address</li>
-        <li>Price changes apply to new subscriptions and renewals after the notice period</li>
-        <li>Existing subscribers may cancel before price changes take effect</li>
-      </ul>
-
-      <h3>9.8 Taxes</h3>
-      <p>Subscription fees are exclusive of taxes. You are responsible for:</p>
-      <ul>
-        <li>Any applicable sales tax, VAT, or other taxes</li>
-        <li>Providing accurate tax information if required</li>
-        <li>Taxes will be calculated and collected by Stripe based on your billing address</li>
-      </ul>
-
-      <h2>10. Termination</h2>
-
-      <h3>10.1 Termination by You</h3>
-      <p><strong>Account Deletion:</strong></p>
-      <p>You may terminate your account at any time via the account settings page. Upon termination:</p>
-      <ul>
-        <li>Your account and all associated data (projects, articles, API keys, analytics) will be permanently deleted</li>
-        <li>This action is irreversible</li>
-        <li>No refunds will be provided for unused subscription time</li>
-      </ul>
-      
-      <p><strong>Subscription Cancellation:</strong></p>
-      <p>You may cancel your Pro subscription without deleting your account:</p>
-      <ul>
-        <li>Cancel anytime via account settings or Stripe billing portal</li>
-        <li>Cancellation takes effect at the end of your current billing period</li>
-        <li>Your account will automatically downgrade to Free tier</li>
-        <li>Content exceeding Free tier limits will become inaccessible but preserved for 90 days</li>
-        <li>You can resubscribe anytime to regain access to all content</li>
-      </ul>
-
-      <h3>10.2 Termination by Us</h3>
-      <p>We may suspend or terminate your account if:</p>
-      <ul>
-        <li>You violate these Terms</li>
-        <li>Your account is inactive for an extended period (12+ months)</li>
-        <li>Your usage threatens the stability or security of the Service</li>
-        <li>We are required to do so by law</li>
-        <li>Repeated payment failures (after 30-day grace period)</li>
-        <li>Fraudulent or unauthorized use of payment methods</li>
-      </ul>
-      
-      <p><strong>Suspension Process:</strong></p>
-      <ul>
-        <li>We will provide 7 days notice via email before termination (except for security violations)</li>
-        <li>During suspension, your account will be limited to Free tier features</li>
-        <li>You may appeal termination decisions by contacting privacy@simplist.blog</li>
-      </ul>
-
-      <h3>10.3 Effect of Termination</h3>
-      <p><strong>Account Termination:</strong></p>
-      <ul>
-        <li>Your access to the Service will cease immediately</li>
-        <li>All API keys will be revoked</li>
-        <li>Content will be removed from the Public API within 24 hours</li>
-        <li>All data will be permanently deleted within 30 days</li>
-        <li>Active subscriptions will be canceled (no refunds)</li>
-      </ul>
-      
-      <p><strong>Subscription Cancellation:</strong></p>
-      <ul>
-        <li>Pro features will be disabled at the end of the billing period</li>
-        <li>Account downgrades to Free tier with associated limitations</li>
-        <li>Content exceeding Free tier limits becomes inaccessible</li>
-        <li>API keys exceeding Free tier limits are automatically disabled</li>
-      </ul>
-      
-      <p><strong>Data Recovery:</strong></p>
-      <ul>
-        <li>We are not liable for any loss of data or content</li>
-        <li>You are responsible for backing up your content before termination</li>
-        <li>Data export tools are available in account settings</li>
-      </ul>
-
-      <h2>11. Disclaimers</h2>
-
-      <h3>11.1 No Warranties</h3>
+      <h3>8.2 Operational logs and audit trails</h3>
       <p>
-        THE SERVICE IS PROVIDED &ldquo;AS IS&rdquo; AND &ldquo;AS AVAILABLE&rdquo; WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO:
-      </p>
-      <ul>
-        <li>Warranties of merchantability or fitness for a particular purpose</li>
-        <li>Warranties of non-infringement</li>
-        <li>Warranties that the Service will be error-free, secure, or uninterrupted</li>
-      </ul>
-
-      <h3>11.2 Third-Party Services</h3>
-      <p>
-        The Service relies on third-party providers (AWS, Cloudflare, Upstash, Google, GitHub). We are not responsible for outages, data loss, or security issues caused by these providers.
+        To secure and operate the Service we maintain internal logs and audit-like records, such as who created
+        or updated an article, membership history, invitation status, API key metadata, webhook deliveries, and
+        scheduler activity (for example, scheduled publishing and account deletion processes).
       </p>
 
-      <h3>11.3 Data Loss</h3>
+      <h3>8.3 Webhooks</h3>
       <p>
-        While we implement reasonable backup practices, we are not liable for data loss. You are responsible for maintaining your own backups of critical content.
+        Eligible Projects can configure outgoing webhooks for events like <code>article.published</code>,{" "}
+        <code>article.scheduled</code>, <code>article.updated</code>, and <code>article.deleted</code>. You are
+        responsible for:
       </p>
-
-      <h2>12. Limitation of Liability</h2>
-      <p>TO THE MAXIMUM EXTENT PERMITTED BY LAW:</p>
       <ul>
-        <li>Gaëtan HUSZOVITS and Simplist SHALL NOT BE LIABLE for any indirect, incidental, special, consequential, or punitive damages</li>
-        <li>Our total liability for any claim related to the Service shall not exceed:</li>
-        <ul>
-          <li><strong>Free users:</strong> €100 (one hundred euros)</li>
-          <li><strong>Pro users:</strong> The total amount paid by you in the 12 months preceding the claim, or €500 (five hundred euros), whichever is greater</li>
-        </ul>
-        <li>We are not liable for loss of profits, data, goodwill, or other intangible losses</li>
-        <li>Payment processing issues, billing disputes, or refund delays caused by third-party payment processors (Stripe)</li>
-        <li>Service interruptions due to payment failures or subscription lapses</li>
-      </ul>
-      
-      <h3>12.1 Payment and Billing Liability</h3>
-      <p>Regarding payment and billing:</p>
-      <ul>
-        <li>We are not liable for unauthorized charges if you fail to secure your account</li>
-        <li>Billing disputes must be reported within 60 days of the charge</li>
-        <li>We will assist with legitimate billing disputes but are not liable for Stripe processing issues</li>
-        <li>Currency conversion fees and international transaction fees are your responsibility</li>
+        <li>Configuring secure webhook URLs and secrets;</li>
+        <li>Validating signatures or authenticity where applicable;</li>
+        <li>Handling retries and idempotency on your side.</li>
       </ul>
 
-      <h2>13. Changes to Terms</h2>
-      <p>We may update these Terms from time to time. If we make material changes:</p>
+      <h2>9. Billing, Payments, and Taxes</h2>
+      <h3>9.1 Billing provider</h3>
+      <p>
+        Subscriptions are processed by <strong>Stripe</strong>. Stripe stores and processes your payment method
+        details under its own terms and privacy policy. We receive only limited billing identifiers such as
+        customer and subscription IDs, status, and basic metadata.
+      </p>
+
+      <h3>9.2 Subscription cycles and auto-renewal</h3>
+      <p>
+        Pro subscriptions may be billed monthly or annually and renew automatically unless canceled before the
+        end of the current billing period. The then-current price and applicable taxes are displayed before
+        checkout.
+      </p>
+
+      <h3>9.3 Plan changes and cancellations</h3>
       <ul>
-        <li>We will notify you via email (to the address associated with your account)</li>
-        <li>The updated Terms will be posted on the Service with a new &ldquo;Last Updated&rdquo; date</li>
-        <li>Continued use of the Service after changes constitutes acceptance of the new Terms</li>
+        <li>You can upgrade from Free to Pro at any time; Stripe handles charges and proration.</li>
+        <li>
+          You can downgrade or cancel Pro effective at the end of the current billing period via the dashboard
+          or Stripe billing portal.
+        </li>
+        <li>
+          When downgrading to Free, Content or usage above Free limits may become inaccessible but is generally
+          not immediately deleted.
+        </li>
       </ul>
 
-      <h2>14. Governing Law</h2>
+      <h3>9.4 Failed payments</h3>
       <p>
-        These Terms are governed by the laws of <strong>France</strong>, without regard to its conflict of law provisions. Any disputes shall be resolved in the courts of France.
+        If Stripe cannot charge your payment method, it may retry over a grace period. If payment ultimately
+        fails, we may suspend Pro features and treat the Project as if it were on the Free plan until payment
+        issues are resolved.
       </p>
 
-      <h2>15. GDPR and Data Protection</h2>
+      <h3>9.5 Refunds</h3>
       <p>
-        As a service operating in the European Union, we comply with the General Data Protection Regulation (GDPR). Your data protection rights are detailed in our <Link href="/legal/privacy">Privacy Policy</Link> and <Link href="/legal/gdpr">GDPR Compliance Document</Link>.
+        Except where required by law, subscription fees are non-refundable. In exceptional cases (for example,
+        extended outages caused by us or clear billing errors), we may grant partial or full refunds at our
+        discretion. Refund requests must be submitted to{" "}
+        <a href="mailto:privacy@simplist.blog">privacy@simplist.blog</a> within 30 days of the charge.
       </p>
 
-      <h2>16. Contact Information</h2>
-      <p>For questions about these Terms, please contact:</p>
+      <h3>9.6 Taxes</h3>
       <p>
-        <strong>Gaëtan HUSZOVITS</strong><br />
-        Email: privacy@simplist.blog<br />
-        Website: simplist.blog
+        Fees are displayed exclusive of VAT, sales tax, or similar taxes, which may be added and collected by
+        Stripe based on your billing address. You are responsible for any bank or currency conversion fees.
       </p>
 
-      <h2>17. Entire Agreement</h2>
+      <h2>10. Account Deletion and User-Initiated Termination</h2>
+      <h3>10.1 Deletion workflow</h3>
       <p>
-        These Terms, together with our Privacy Policy and GDPR Compliance Document, constitute the entire agreement between you and Simplist regarding the use of the Service.
+        You may request deletion of your Account from the account settings page. When you confirm deletion, a
+        deletion date is scheduled (currently 14 days in the future). During this grace period:
+      </p>
+      <ul>
+        <li>You may receive reminder emails;</li>
+        <li>You may sign back in and cancel the deletion;</li>
+        <li>Your Account is marked as pending deletion but not yet removed.</li>
+      </ul>
+      <p>
+        If you do not cancel by the scheduled date, your Account is permanently deleted and associated user data
+        is removed or anonymized, subject to legal retention obligations described in the Privacy Policy.
       </p>
 
-      <h2>18. Severability</h2>
+      <h3>10.2 Ownership preconditions</h3>
       <p>
-        If any provision of these Terms is found to be invalid or unenforceable, the remaining provisions will remain in full force and effect.
+        If you are the Owner of one or more Projects, you must transfer ownership or delete those Projects
+        before scheduling Account deletion. This prevents orphaned Projects and protects other members.
       </p>
 
-      <h2>19. No Waiver</h2>
+      <h3>10.3 Effect of Account deletion</h3>
+      <p>Once your Account is permanently deleted:</p>
+      <ul>
+        <li>Your user profile and authentication data are removed from our primary database;</li>
+        <li>Your memberships in Projects are removed;</li>
+        <li>
+          Any Projects still owned solely by you may be suspended or deleted according to internal safety
+          policies;
+        </li>
+        <li>
+          Certain billing and audit records may be retained in line with legal, tax, or security retention
+          obligations.
+        </li>
+      </ul>
+
+      <h2>11. Termination by Simplist</h2>
       <p>
-        Our failure to enforce any right or provision of these Terms will not be considered a waiver of those rights.
+        We may suspend or terminate your Account or access to all or part of the Service if we reasonably
+        believe that:
+      </p>
+      <ul>
+        <li>You have materially breached these Terms or applicable law;</li>
+        <li>Your use of the Service poses a security, legal, or reputational risk;</li>
+        <li>Your subscriptions remain unpaid beyond a reasonable grace period;</li>
+        <li>We are required to do so by law or court order.</li>
+      </ul>
+      <p>
+        Where reasonable, we will provide notice before termination. In urgent security or abuse scenarios, we
+        may act without prior notice.
+      </p>
+
+      <h2>12. Disclaimers and Limitations of Liability</h2>
+      <h3>12.1 Disclaimers</h3>
+      <p>
+        The Service is provided on an &quot;AS IS&quot; and &quot;AS AVAILABLE&quot; basis, without warranties
+        of any kind, whether express or implied, including but not limited to warranties of merchantability,
+        fitness for a particular purpose, non-infringement, or availability.
+      </p>
+      <p>
+        We do not warrant that the Service will be error-free, secure, or uninterrupted, or that any defects
+        will be corrected, nor do we guarantee that your Content will not be lost.
+      </p>
+
+      <h3>12.2 Limitation of liability</h3>
+      <p>
+        To the fullest extent permitted by law, in no event shall the Operator be liable for any indirect,
+        incidental, special, consequential, or punitive damages, or for any loss of profits, revenues, data,
+        goodwill, or other intangible losses, arising out of or related to your use of or inability to use the
+        Service.
+      </p>
+      <p>
+        In all cases, our total aggregate liability for all claims related to the Service shall not exceed the
+        greater of (a) the amounts you paid to us for the Service in the twelve (12) months preceding the event
+        giving rise to the claim, or (b) one hundred euros (€100) for Free users and five hundred euros (€500)
+        for paying users.
+      </p>
+
+      <h3>12.3 Indemnification</h3>
+      <p>
+        You agree to indemnify and hold harmless the Operator from and against any claims, damages, losses,
+        liabilities, and expenses (including reasonable legal fees) arising out of or related to your use of the
+        Service, your Content, or your violation of these Terms.
+      </p>
+
+      <h2>13. Data Protection and Privacy</h2>
+      <p>
+        Our collection and use of personal data is described in detail in the{" "}
+        <Link href="/legal/privacy">Privacy Policy</Link>, the{" "}
+        <Link href="/legal/cookies">Cookie Policy</Link>, and the{" "}
+        <Link href="/legal/gdpr">GDPR &amp; Data Protection</Link> page. Those documents are incorporated into
+        these Terms by reference. In case of conflict regarding data protection, those documents prevail.
+      </p>
+
+      <h2>14. Governing Law and Dispute Resolution</h2>
+      <p>
+        These Terms are governed by the laws of <strong>France</strong>, without regard to its conflict of laws
+        rules. Any dispute arising out of or relating to these Terms or the Service shall be subject to the
+        exclusive jurisdiction of the competent courts located in France, except where mandatory law grants you
+        the right to bring claims in another jurisdiction.
+      </p>
+
+      <h2>15. Changes to These Terms</h2>
+      <p>
+        We may update these Terms from time to time. When we make material changes, we will update the &quot;Last
+        Updated&quot; date and may provide additional notice via email or in-app notifications. Your continued
+        use of the Service after the changes become effective constitutes your acceptance of the updated Terms.
+      </p>
+
+      <h2>16. Miscellaneous</h2>
+      <p>
+        If any provision of these Terms is held invalid or unenforceable, the remaining provisions will remain in
+        full force and effect. Our failure to enforce any right or provision will not be deemed a waiver of such
+        right or provision. These Terms, together with the Privacy Policy and any applicable enterprise
+        agreements, constitute the entire agreement between you and us regarding the Service.
+      </p>
+
+      <h2>17. Contact</h2>
+      <p>If you have questions about these Terms or the Service, you can contact:</p>
+      <p>
+        <strong>Gaëtan HUSZOVITS</strong>
+        <br />
+        Email: <a href="mailto:privacy@simplist.blog">privacy@simplist.blog</a>
+        <br />
+        Website: <a href="https://simplist.blog">https://simplist.blog</a>
       </p>
 
       <hr className="my-8" />
-
       <p className="text-center font-medium">
-        By using Simplist, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.
+        By using Simplist, you acknowledge that you have read, understood, and agree to be bound by these Terms
+        of Service.
       </p>
     </article>
   );
 };
 
 export default TermsOfServicePage;
+
+

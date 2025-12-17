@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
-  description: "Privacy Policy for Simplist blog management platform - GDPR compliant",
+  description: "Privacy Policy for the Simplist headless CMS and analytics platform.",
 };
 
 const PrivacyPolicyPage = () => {
@@ -12,639 +12,396 @@ const PrivacyPolicyPage = () => {
       <h1>Privacy Policy</h1>
 
       <p className="text-muted-foreground">
-        <strong>Effective Date:</strong> October 22, 2025<br />
-        <strong>Last Updated:</strong> October 22, 2025
+        <strong>Effective Date:</strong> December 17, 2025
+        <br />
+        <strong>Last Updated:</strong> December 17, 2025
       </p>
 
-      <h2>1. Introduction</h2>
+      <h2>1. Overview</h2>
       <p>
-        This Privacy Policy explains how Simplist (&ldquo;we&rdquo;, &ldquo;us&rdquo;, &ldquo;our&rdquo;) collects, uses, stores, and protects your personal data when you use our blog management platform at simplist.blog and api.simplist.blog.
+        This Privacy Policy explains how Simplist (&quot;Simplist&quot;, &quot;we&quot;, &quot;us&quot;, or
+        &quot;our&quot;) collects, uses, stores, and shares personal data when you visit{" "}
+        <code>simplist.blog</code> or <code>app.simplist.blog</code>, create and use an account, integrate our
+        REST API at <code>api.simplist.blog</code>, or use our TypeScript SDK <code>@simplist.blog/sdk</code>.
       </p>
       <p>
-        Simplist is operated by <strong>Gaëtan HUSZOVITS</strong>, an independent contractor based in France.
-      </p>
-      <p>
-        We are committed to protecting your privacy and complying with the <strong>General Data Protection Regulation (GDPR)</strong> and other applicable data protection laws.
+        We are committed to protecting your privacy and complying with applicable data protection laws, including
+        the General Data Protection Regulation (GDPR).
       </p>
 
       <h2>2. Data Controller</h2>
       <p>The data controller responsible for your personal data is:</p>
       <p>
-        <strong>Gaëtan HUSZOVITS</strong><br />
-        Email: privacy@simplist.blog<br />
-        Website: simplist.blog
-      </p>
-      <p>
-        For data protection inquiries, requests to exercise your rights, or concerns about your privacy, please contact us at privacy@simplist.blog.
+        <strong>Gaëtan HUSZOVITS</strong>
+        <br />
+        Email: <a href="mailto:privacy@simplist.blog">privacy@simplist.blog</a>
+        <br />
+        Website: <a href="https://simplist.blog">https://simplist.blog</a>
+        <br />
+        Country: France
       </p>
 
-      <h2>3. Legal Basis for Processing</h2>
+      <h2>3. Legal Bases for Processing</h2>
       <p>We process your personal data under the following legal bases:</p>
       <ul>
-        <li><strong>Contract Performance</strong> (GDPR Art. 6(1)(b)): To provide the Service you have signed up for</li>
-        <li><strong>Legitimate Interest</strong> (GDPR Art. 6(1)(f)): To improve the Service, prevent fraud, and ensure security</li>
-        <li><strong>Consent</strong> (GDPR Art. 6(1)(a)): For optional analytics tracking on published articles (via visitor consent)</li>
-        <li><strong>Legal Obligation</strong> (GDPR Art. 6(1)(c)): To comply with applicable laws and regulations</li>
+        <li>
+          <strong>Contract performance (Art. 6(1)(b) GDPR):</strong> to provide, operate, and support your use of
+          the Service (account creation, authentication, projects, articles, analytics dashboards, API).
+        </li>
+        <li>
+          <strong>Legitimate interests (Art. 6(1)(f) GDPR):</strong> to secure our systems, prevent abuse, measure
+          performance, and improve features.
+        </li>
+        <li>
+          <strong>Legal obligations (Art. 6(1)(c) GDPR):</strong> to comply with tax, accounting, and regulatory
+          requirements.
+        </li>
+        <li>
+          <strong>Consent (Art. 6(1)(a) GDPR):</strong> where required for optional tracking or integrations that
+          are not strictly necessary for the Service.
+        </li>
       </ul>
 
       <h2>4. Data We Collect</h2>
 
-      <h3>4.1 Account Information</h3>
-      <p>When you create an account, we collect:</p>
+      <h3>4.1 Account and profile data</h3>
+      <p>When you create or manage an account, we collect:</p>
       <ul>
-        <li><strong>Email address</strong> (required)</li>
-        <li><strong>Name</strong> (optional, can be pseudonym)</li>
-        <li><strong>Profile image URL</strong> (optional, if provided via OAuth)</li>
-        <li><strong>Account creation and update timestamps</strong></li>
-        <li><strong>Subscription tier</strong> (free or pro)</li>
-        <li><strong>Subscription expiration date</strong> (for Pro users)</li>
-        <li><strong>Stripe customer ID</strong> (for Pro users, used for billing)</li>
-        <li><strong>Stripe subscription ID</strong> (for active Pro subscriptions)</li>
+        <li>Email address;</li>
+        <li>Name and optional first/last name fields;</li>
+        <li>Profile image URL (from OAuth providers, if provided);</li>
+        <li>Account creation and update timestamps;</li>
+        <li>
+          Account deletion workflow fields (e.g. deletionRequestedAt, deletionScheduledAt, deletionCanceledAt,
+          reminder flags).
+        </li>
       </ul>
 
-      <h3>4.2 Authentication Data</h3>
-      <p>Depending on your chosen authentication method:</p>
-
-      <p><strong>Email/Password Authentication:</strong></p>
+      <h3>4.2 Authentication data</h3>
+      <p>Depending on the sign-in method you use:</p>
       <ul>
-        <li><strong>Hashed password</strong> (we do NOT store plaintext passwords)</li>
-        <li><strong>Email verification status</strong></li>
+        <li>
+          <strong>Email + password:</strong> we store a cryptographic hash of your password (never the plaintext),
+          and email verification status.
+        </li>
+        <li>
+          <strong>OAuth (Google, GitHub):</strong> we store your provider ID, basic profile information (such as
+          email, name, avatar URL), and tokens needed to maintain your session.
+        </li>
+        <li>
+          <strong>Passkeys (WebAuthn):</strong> we store your public key, credential ID, and passkey metadata, but
+          never your private key.
+        </li>
+        <li>
+          <strong>Two-factor authentication (TOTP):</strong> we store encrypted secrets and backup codes used to
+          verify login attempts.
+        </li>
       </ul>
 
-      <p><strong>OAuth Authentication (Google, GitHub):</strong></p>
+      <h3>4.3 Session and security data</h3>
+      <p>To maintain secure sessions and detect suspicious sign-ins, we collect:</p>
       <ul>
-        <li><strong>OAuth provider ID</strong> (e.g., Google ID, GitHub ID)</li>
-        <li><strong>Access tokens and refresh tokens</strong> (securely stored, used only for authentication)</li>
-        <li><strong>Token expiration dates</strong></li>
-        <li><strong>OAuth scope information</strong></li>
+        <li>Session tokens and expiration times;</li>
+        <li>IP address and user agent at session creation;</li>
+        <li>Basic device and browser data used to detect unusual login activity.</li>
       </ul>
 
-      <h3>4.3 Session Data</h3>
-      <p>To maintain your logged-in state, we collect:</p>
+      <h3>4.4 Project and content data</h3>
+      <p>Within each project we store configuration and content including:</p>
       <ul>
-        <li><strong>Session tokens</strong> (unique per session)</li>
-        <li><strong>Session expiration timestamps</strong></li>
-        <li><strong>IP address</strong> (logged per session for security purposes)</li>
-        <li><strong>User agent</strong> (browser/device information)</li>
+        <li>
+          Project metadata: name, slug, icon, color, avatar URL, timezone, default language, allowed origins, base
+          URL, article URL pattern, subscription tier, subscription state, storage usage, monthly API call
+          counters.
+        </li>
+        <li>
+          Articles: title, slug, content, excerpt, cover image URLs, status (draft/published/deleted/scheduled),
+          publishedAt, scheduledPublishAt, statistics (word count, character count, line count, estimated read
+          time), and relationships to tags and variants.
+        </li>
+        <li>
+          Article variants: same as articles but per language, with their own content, cover image, and statistics.
+        </li>
+        <li>Tags: name, icon, color, and relationships to articles.</li>
+        <li>
+          Webhooks: URLs, subscribed events, headers, custom templates, secret values, and delivery history.
+        </li>
       </ul>
-
-      <h3>4.4 Project and Content Data</h3>
-      <p>When you create and manage projects:</p>
-      <ul>
-        <li><strong>Project name and slug</strong> (URL identifier)</li>
-        <li><strong>Project description</strong></li>
-        <li><strong>Allowed CORS origins</strong> (domains authorized to access your API)</li>
-        <li><strong>Articles</strong>: title, slug, content (Markdown), excerpt, cover image URL</li>
-        <li><strong>Article metadata</strong>: publication status, view counts, word/character/line counts, reading time estimates</li>
-        <li><strong>Creation and modification timestamps</strong></li>
-      </ul>
-
-      <h3>4.5 API Keys</h3>
-      <p>When you generate API keys:</p>
-      <ul>
-        <li><strong>Key name</strong> (user-defined label)</li>
-        <li><strong>Key value</strong> (secret token)</li>
-        <li><strong>Key type</strong> (secret or public)</li>
-        <li><strong>Permissions</strong> (read, analytics)</li>
-        <li><strong>Expiration date</strong> (if set)</li>
-        <li><strong>Last used timestamp</strong></li>
-        <li><strong>Creation and deletion timestamps</strong></li>
-      </ul>
-
-      <h3>4.6 File Uploads</h3>
-      <p>When you upload images:</p>
-      <ul>
-        <li><strong>Image files</strong> (stored on Cloudflare R2)</li>
-        <li><strong>File metadata</strong>: filename, size, MIME type, upload timestamp</li>
-        <li><strong>Uploader reference</strong> (linked to your user account)</li>
-      </ul>
-
-      <h3>4.7 Visitor Analytics (for Published Articles)</h3>
       <p>
-        When visitors access your published articles via the Public API, we collect <strong>anonymized analytics data</strong>:
+        Content may include personal data if you or your users choose to store such information. You are
+        responsible for ensuring that such content is collected and processed lawfully.
       </p>
 
-      <p><strong>Visitor Identification (Anonymized):</strong></p>
+      <h3>4.5 Members, roles, and invitations</h3>
+      <p>For collaboration features, we store:</p>
       <ul>
-        <li><strong>Visitor ID</strong>: SHA256 hash of (IP address + User Agent), truncated to 16 characters</li>
-        <li className="text-amber-600 dark:text-amber-400"><strong>Important</strong>: The IP address itself is NOT stored; only the hash is retained</li>
-        <li><strong>Session ID</strong>: Browser session identifier (generated client-side)</li>
+        <li>Project members (userId, projectId, roleId, invitedBy, invitedAt, joinedAt);</li>
+        <li>
+          Project roles (name, slug, and booleans for each permission, such as canManageProject,
+          canManageMembers, canViewAnalytics, canManageBilling, canDeleteProject);
+        </li>
+        <li>
+          Invitations (email, projectId, roleId, token, status, expiresAt, invitedBy, invitedAt, acceptedAt).
+        </li>
       </ul>
 
-      <p><strong>Geographic Data:</strong></p>
+      <h3>4.6 API keys</h3>
+      <p>For each API key we store:</p>
       <ul>
-        <li>Country, country code, city, region, timezone</li>
-        <li><strong>Note</strong>: Derived from IP address but IP is not stored</li>
+        <li>Key ID and secret value;</li>
+        <li>Display name and permissions (e.g. read, analytics);</li>
+        <li>Project association;</li>
+        <li>Optional expiration date;</li>
+        <li>Last used timestamp and current status (active/deleted);</li>
+        <li>Creation and deletion timestamps.</li>
       </ul>
 
-      <p><strong>Device and Browser Information:</strong></p>
+      <h3>4.7 Analytics data (visitors to your articles)</h3>
+      <p>
+        When you enable Simplist analytics and instrument your articles, we collect and process pseudonymous
+        visitor analytics including:
+      </p>
       <ul>
-        <li>User agent string</li>
-        <li>Device type (mobile, desktop, tablet)</li>
-        <li>Browser type and version (Chrome, Firefox, Safari, Edge)</li>
-        <li>Operating system and version (Windows, macOS, Linux, Android, iOS)</li>
-        <li>Screen width and height</li>
+        <li>Article and project identifiers (which article was viewed, in which project);</li>
+        <li>Pseudonymous visitor IDs and session IDs (generated client- or server-side);</li>
+        <li>
+          Device and browser data: user agent, browser name/version, OS name/version, screen width/height, device
+          type;
+        </li>
+        <li>
+          Traffic data: referrer URL and domain, UTM parameters (source, medium, campaign, term, content), page
+          URL and title;
+        </li>
+        <li>
+          Derived geographic data (when requested): country, region, city, timezone, country code, using
+          IP-based geolocation via trusted providers;
+        </li>
+        <li>
+          Engagement metrics: time on page, scroll depth, exit position, bounce flag, and timestamp of views and
+          events;
+        </li>
+        <li>
+          Events: event type (e.g. scroll milestone, click), element selectors, event-specific data, and time
+          offsets.
+        </li>
       </ul>
-
-      <p><strong>Traffic Sources:</strong></p>
-      <ul>
-        <li>Referrer URL and domain</li>
-        <li>UTM parameters (source, medium, campaign, term, content)</li>
-      </ul>
-
-      <p><strong>Engagement Metrics:</strong></p>
-      <ul>
-        <li>Page URL and title</li>
-        <li>Time on page (seconds)</li>
-        <li>Scroll depth (percentage)</li>
-        <li>Exit position (scroll position when leaving)</li>
-        <li>Bounce status (did user navigate elsewhere or leave immediately)</li>
-      </ul>
-
-      <p><strong>Event Tracking:</strong></p>
-      <ul>
-        <li>Event type (scroll milestones, clicks, focus/blur)</li>
-        <li>Event data (additional context)</li>
-        <li>Position on page (0-100%)</li>
-        <li>Element identifier (CSS selector)</li>
-        <li>Timestamp and time offset from page load</li>
-      </ul>
-
-      <p><strong>Bot Filtering:</strong></p>
-      <ul>
-        <li>Automated bot traffic is detected and excluded from analytics</li>
-      </ul>
-
-      <h3>4.8 Billing and Payment Data</h3>
-      <p>For Pro subscribers, we collect billing information through Stripe:</p>
-      <ul>
-        <li><strong>Stripe customer ID</strong> (unique identifier for billing)</li>
-        <li><strong>Stripe subscription ID</strong> (for active subscriptions)</li>
-        <li><strong>Subscription status</strong> (active, canceled, past_due, etc.)</li>
-        <li><strong>Billing cycle information</strong> (monthly or yearly)</li>
-        <li><strong>Payment method metadata</strong> (last 4 digits of card, expiration date - stored by Stripe)</li>
-        <li><strong>Invoice and payment history</strong> (stored by Stripe, accessible via billing portal)</li>
-        <li><strong>Billing address</strong> (stored by Stripe for tax calculation)</li>
-      </ul>
-      <p className="text-amber-600 dark:text-amber-400">
-        <strong>Important:</strong> We do NOT store full credit card numbers, CVV codes, or other sensitive payment information on our servers. All payment data is securely handled by Stripe.
+      <p>
+        These analytics are designed to be privacy-friendly and are primarily used to provide aggregated
+        statistics in your analytics dashboards. They are not used to build marketing profiles or sell data.
       </p>
 
-      <h3>4.9 Usage and Quota Tracking</h3>
-      <p>To enforce subscription limits, we track:</p>
+      <h3>4.8 Billing and payment data</h3>
+      <p>
+        We use Stripe to process payments. Through Stripe we receive and store the following billing-related data:
+      </p>
       <ul>
-        <li><strong>Monthly API call count</strong> (reset monthly based on subscription date)</li>
-        <li><strong>API call reset date</strong> (when the monthly counter resets)</li>
-        <li><strong>Total storage used</strong> (in bytes, for uploaded images)</li>
-        <li><strong>Article count</strong> (to enforce Free tier limits)</li>
-        <li><strong>API key count</strong> (to enforce tier-based limits)</li>
+        <li>Stripe customer ID and subscription ID;</li>
+        <li>Plan type, billing interval, and subscription status;</li>
+        <li>Basic payment method metadata (e.g. card brand, last four digits, expiry date);</li>
+        <li>Billing address and country (used for tax calculations);</li>
+        <li>Invoice and payment history (amount, currency, status, timestamps).</li>
       </ul>
+      <p>
+        We do <strong>not</strong> store full card numbers, CVV codes, or bank account details; Stripe handles
+        those directly.
+      </p>
 
-      <h3>4.10 Technical and Log Data</h3>
-      <p>We may collect:</p>
+      <h3>4.9 Technical and diagnostic logs</h3>
+      <p>To operate and secure the Service, we log:</p>
       <ul>
-        <li><strong>Error logs</strong> (to diagnose technical issues)</li>
-        <li><strong>API request logs</strong> (for rate limiting and abuse prevention)</li>
-        <li><strong>Cached data</strong> (stored temporarily in Redis for performance)</li>
-        <li><strong>Subscription event logs</strong> (for billing reconciliation and support)</li>
+        <li>API request metadata (path, method, status code, response time, projectId, apiKeyId where relevant);</li>
+        <li>Error logs, stack traces, and context required for debugging;</li>
+        <li>Scheduler activity (e.g. scheduled publishing, invitation expiry, account deletion cron jobs);</li>
+        <li>Cache and queue operations associated with analytics and article caching.</li>
       </ul>
 
       <h2>5. How We Use Your Data</h2>
-
-      <h3>5.1 To Provide the Service</h3>
+      <p>We use the data described above to:</p>
       <ul>
-        <li>Create and manage your account</li>
-        <li>Authenticate your login sessions</li>
-        <li>Store and serve your blog content</li>
-        <li>Generate and validate API keys</li>
-        <li>Process image uploads</li>
-        <li>Track analytics for your articles</li>
+        <li>Provide, maintain, and improve the Service and its features;</li>
+        <li>Authenticate your Account and authorize access based on project roles and permissions;</li>
+        <li>Store and serve your Content via the dashboard, API, and SDK;</li>
+        <li>Generate analytics dashboards and statistics for your projects;</li>
+        <li>Enforce subscription quotas and plan limits;</li>
+        <li>Process payments, manage billing, and handle upgrades/downgrades;</li>
+        <li>
+          Communicate with you about security events, billing issues, changes to policies, and important product
+          updates;
+        </li>
+        <li>Detect, investigate, and prevent fraud, abuse, and security incidents;</li>
+        <li>Debug issues, optimize performance, and plan product improvements.</li>
       </ul>
+      <p>We do not sell or rent your personal data to third parties.</p>
 
-      <h3>5.2 To Improve the Service</h3>
+      <h2>6. Data Retention</h2>
+      <p>We retain your data only as long as necessary for the purposes described in this Policy, subject to legal requirements:</p>
       <ul>
-        <li>Analyze usage patterns to enhance features</li>
-        <li>Diagnose and fix technical issues</li>
-        <li>Optimize performance and infrastructure</li>
-      </ul>
-
-      <h3>5.3 To Ensure Security</h3>
-      <ul>
-        <li>Detect and prevent fraud, abuse, and unauthorized access</li>
-        <li>Enforce our Terms of Service</li>
-        <li>Monitor for suspicious activity</li>
-      </ul>
-
-      <h3>5.4 To Process Payments and Manage Subscriptions</h3>
-      <ul>
-        <li>Process subscription payments via Stripe</li>
-        <li>Manage subscription upgrades, downgrades, and cancellations</li>
-        <li>Handle billing disputes and refund requests</li>
-        <li>Enforce subscription-based feature limits</li>
-        <li>Generate invoices and billing statements</li>
-        <li>Calculate and collect applicable taxes</li>
-      </ul>
-
-      <h3>5.5 To Communicate with You</h3>
-      <ul>
-        <li>Send service-related notifications (e.g., password resets, account changes)</li>
-        <li>Send billing-related notifications (e.g., payment confirmations, failed payments, subscription changes)</li>
-        <li>Respond to your support requests</li>
-        <li>Notify you of changes to our policies or Terms of Service</li>
-      </ul>
-
-      <p className="font-medium">We do NOT send marketing emails.</p>
-
-      <h2>6. Data Storage and Retention</h2>
-
-      <h3>6.1 Storage Locations</h3>
-      <p>Your data is stored in the following locations:</p>
-
-      <p><strong>Primary Database (PostgreSQL):</strong></p>
-      <ul>
-        <li>Provider: Neon (via AWS)</li>
-        <li>Location: <strong>EU Central Europe (Frankfurt, Germany)</strong></li>
-      </ul>
-
-      <p><strong>Caching Layer (Redis):</strong></p>
-      <ul>
-        <li>Provider: Upstash</li>
-        <li>Primary region: <strong>United States</strong></li>
-        <li>Read replicas: <strong>European Union</strong></li>
-        <li>Cache retention: <strong>5 minutes</strong> (automatic expiration)</li>
-      </ul>
-
-      <p><strong>File Storage (Images):</strong></p>
-      <ul>
-        <li>Provider: Cloudflare R2</li>
-        <li>Location: <strong>Western Europe (WEUR)</strong></li>
-      </ul>
-
-      <p><strong>Payment Processing:</strong></p>
-      <ul>
-        <li>Provider: Stripe, Inc.</li>
-        <li>Primary location: <strong>United States</strong></li>
-        <li>EU operations: <strong>Ireland (Stripe Payments Europe Ltd.)</strong></li>
-        <li>Data residency: <strong>Global (with EU adequacy protections)</strong></li>
-      </ul>
-
-      <p><strong>API Infrastructure:</strong></p>
-      <ul>
-        <li>Location: <strong>EU West</strong></li>
-      </ul>
-
-      <h3>6.2 International Data Transfers</h3>
-      <p>
-        Some of our service providers (Upstash Redis) may process data in the United States. We rely on:
-      </p>
-      <ul>
-        <li><strong>Standard Contractual Clauses (SCCs)</strong> approved by the European Commission</li>
-        <li><strong>Adequacy decisions</strong> where applicable</li>
-        <li><strong>Service provider commitments</strong> to GDPR-equivalent protections</li>
-      </ul>
-
-      <h3>6.3 Data Retention Periods</h3>
-      <div className="overflow-x-auto">
-        <table className="min-w-full">
-          <thead>
-            <tr>
-              <th>Data Type</th>
-              <th>Retention Period</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Account information</td>
-              <td>Until account deletion by user</td>
-            </tr>
-            <tr>
-              <td>Authentication data</td>
-              <td>Until account deletion by user</td>
-            </tr>
-            <tr>
-              <td>Session data</td>
-              <td>Until session expires or account deleted</td>
-            </tr>
-            <tr>
-              <td>Projects and articles</td>
-              <td>Until project/account deletion by user</td>
-            </tr>
-            <tr>
-              <td>API keys</td>
-              <td>Until revoked by user or account deleted (soft delete)</td>
-            </tr>
-            <tr>
-              <td>Visitor analytics</td>
-              <td>Until project/account deletion by user</td>
-            </tr>
-            <tr>
-              <td>Uploaded images</td>
-              <td>Until manually deleted or account deleted</td>
-            </tr>
-            <tr>
-              <td>Billing and payment data</td>
-              <td>7 years after subscription ends (tax/legal requirements)</td>
-            </tr>
-            <tr>
-              <td>Subscription history</td>
-              <td>Until account deletion (minimum 3 years for billing disputes)</td>
-            </tr>
-            <tr>
-              <td>Usage tracking data</td>
-              <td>Until account deletion or 2 years, whichever is sooner</td>
-            </tr>
-            <tr>
-              <td>Redis cache</td>
-              <td>5 minutes (automatic expiration)</td>
-            </tr>
-            <tr>
-              <td>Audit logs</td>
-              <td>90 days (for security purposes)</td>
-            </tr>
-            <tr>
-              <td>Email verification tokens</td>
-              <td>24 hours or until verified</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <p className="mt-4">
-        <strong>Upon account deletion:</strong>
-      </p>
-      <ul>
-        <li>All personal data is permanently deleted within <strong>30 days</strong></li>
-        <li>Backups containing your data may persist for up to <strong>90 days</strong> before automatic purge</li>
-      </ul>
-
-      <h2>7. Data Sharing and Third Parties</h2>
-
-      <h3>7.1 Third-Party Services</h3>
-      <p>We share data with the following service providers <strong>only as necessary</strong> to operate the Service:</p>
-
-      <div className="overflow-x-auto">
-        <table className="min-w-full text-sm">
-          <thead>
-            <tr>
-              <th>Service</th>
-              <th>Purpose</th>
-              <th>Data Shared</th>
-              <th>Location</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Neon (AWS)</td>
-              <td>Database hosting</td>
-              <td>All user data</td>
-              <td>EU (Frankfurt)</td>
-            </tr>
-            <tr>
-              <td>Upstash</td>
-              <td>Redis caching</td>
-              <td>API keys, analytics data (cached)</td>
-              <td>US (primary), EU (replicas)</td>
-            </tr>
-            <tr>
-              <td>Cloudflare R2</td>
-              <td>File storage</td>
-              <td>Uploaded images</td>
-              <td>EU (WEUR)</td>
-            </tr>
-            <tr>
-              <td>Google OAuth</td>
-              <td>Authentication</td>
-              <td>Email, name, profile image</td>
-              <td>Global</td>
-            </tr>
-            <tr>
-              <td>GitHub OAuth</td>
-              <td>Authentication</td>
-              <td>Email, name, profile image</td>
-              <td>Global</td>
-            </tr>
-            <tr>
-              <td>Stripe</td>
-              <td>Payment processing</td>
-              <td>Billing info, payment methods, transaction history</td>
-              <td>US (primary), EU (Ireland)</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <p className="mt-4">
-        All third-party processors are contractually obligated to comply with GDPR and protect your data.
-      </p>
-
-      <h3>7.2 No Selling of Data</h3>
-      <p className="font-bold text-lg">
-        We do NOT sell, rent, or trade your personal data to third parties.
-      </p>
-
-      <h3>7.3 Payment Processing Disclosures</h3>
-      <p>For payment processing, we share necessary data with:</p>
-      <ul>
-        <li><strong>Stripe, Inc.</strong> - Payment processor for subscription billing</li>
-        <li><strong>Financial institutions</strong> - Banks and card networks for payment authorization</li>
-        <li><strong>Tax authorities</strong> - As required for tax reporting and compliance</li>
-      </ul>
-
-      <h3>7.4 Legal Disclosures</h3>
-      <p>We may disclose your data if required by:</p>
-      <ul>
-        <li><strong>Legal process</strong> (court orders, subpoenas)</li>
-        <li><strong>Law enforcement requests</strong> (with valid legal authority)</li>
-        <li><strong>Protection of rights</strong> (to enforce our Terms, prevent fraud, or protect safety)</li>
-        <li><strong>Billing disputes</strong> (sharing transaction details with payment processors as needed)</li>
-      </ul>
-
-      <h2>8. Your Rights Under GDPR</h2>
-      <p>As a data subject in the European Economic Area (EEA), you have the following rights:</p>
-
-      <h3>8.1 Right to Access (Art. 15)</h3>
-      <p>You have the right to request a copy of all personal data we hold about you.</p>
-      <p><strong>How to exercise:</strong> Email privacy@simplist.blog with subject &ldquo;Data Access Request&rdquo;</p>
-
-      <h3>8.2 Right to Rectification (Art. 16)</h3>
-      <p>You have the right to correct inaccurate or incomplete personal data.</p>
-      <p><strong>How to exercise:</strong> Update your information via account settings, or email privacy@simplist.blog</p>
-
-      <h3>8.3 Right to Erasure / &ldquo;Right to be Forgotten&rdquo; (Art. 17)</h3>
-      <p>You have the right to request deletion of your personal data.</p>
-      <p><strong>How to exercise:</strong> Delete your account via account settings, or email privacy@simplist.blog</p>
-      <p><strong>Note:</strong> Upon account deletion, all associated data (projects, articles, API keys, analytics) will be permanently deleted.</p>
-
-      <h3>8.4 Right to Restriction of Processing (Art. 18)</h3>
-      <p>You have the right to request that we limit how we use your data.</p>
-      <p><strong>How to exercise:</strong> Email privacy@simplist.blog with specific instructions</p>
-
-      <h3>8.5 Right to Data Portability (Art. 20)</h3>
-      <p>You have the right to receive your data in a structured, machine-readable format.</p>
-      <p><strong>How to exercise:</strong> Email privacy@simplist.blog with subject &ldquo;Data Portability Request&rdquo;</p>
-
-      <h3>8.6 Right to Object (Art. 21)</h3>
-      <p>You have the right to object to processing based on legitimate interests.</p>
-      <p><strong>How to exercise:</strong> Email privacy@simplist.blog</p>
-
-      <h3>8.7 Right to Withdraw Consent (Art. 7(3))</h3>
-      <p>Where processing is based on consent, you may withdraw consent at any time.</p>
-      <p><strong>How to exercise:</strong> Update preferences in account settings or email privacy@simplist.blog</p>
-
-      <h3>8.8 Right to Lodge a Complaint</h3>
-      <p>You have the right to file a complaint with a supervisory authority:</p>
-      <p>
-        <strong>France (CNIL):</strong><br />
-        Commission Nationale de l&apos;Informatique et des Libertés<br />
-        3 Place de Fontenoy, TSA 80715, 75334 Paris Cedex 07, France<br />
-        Website: <a href="https://www.cnil.fr" target="_blank" rel="noopener noreferrer">www.cnil.fr</a>
-      </p>
-
-      <p>
-        For detailed information about exercising your rights, see our <Link href="/legal/gdpr">GDPR Compliance Document</Link>.
-      </p>
-
-      <h2>9. Security Measures</h2>
-      <p>We implement industry-standard security measures to protect your data:</p>
-
-      <h3>9.1 Technical Safeguards</h3>
-      <ul>
-        <li><strong>Encryption in transit</strong>: TLS/SSL for all connections (HTTPS)</li>
-        <li><strong>Encryption at rest</strong>: Database encryption via Neon/AWS</li>
-        <li><strong>Password hashing</strong>: Bcrypt algorithm (passwords never stored in plaintext)</li>
-        <li><strong>API key security</strong>: Keys stored securely; secret keys marked as sensitive</li>
-        <li><strong>Session tokens</strong>: Cryptographically secure, unique per session</li>
-        <li><strong>Rate limiting</strong>: Protection against brute-force attacks (API: 100 req/min)</li>
-      </ul>
-
-      <h3>9.2 Access Controls</h3>
-      <ul>
-        <li><strong>Authentication required</strong>: All admin features require valid login</li>
-        <li><strong>API key permissions</strong>: Granular read/analytics permissions</li>
-        <li><strong>CORS restrictions</strong>: Only whitelisted domains can access your API</li>
-        <li><strong>Bot filtering</strong>: Automated traffic excluded from analytics</li>
-      </ul>
-
-      <h3>9.3 Operational Safeguards</h3>
-      <ul>
-        <li><strong>Regular security audits</strong> of code and infrastructure</li>
-        <li><strong>Secure coding practices</strong> (input validation, SQL injection prevention)</li>
-        <li><strong>Minimal data collection</strong> (privacy by design)</li>
-        <li><strong>Anonymization</strong>: IP addresses hashed, not stored</li>
-      </ul>
-
-      <h3>9.4 Data Breach Notification</h3>
-      <p>In the event of a data breach affecting your personal data:</p>
-      <ul>
-        <li>We will notify you <strong>within 72 hours</strong> of discovery via email</li>
-        <li>We will report the breach to the relevant supervisory authority (CNIL) as required by GDPR Art. 33</li>
-      </ul>
-
-      <h2>10. Cookies and Tracking Technologies</h2>
-
-      <h3>10.1 Cookies We Use</h3>
-      <p>Simplist uses <strong>minimal cookies</strong> for essential functionality:</p>
-
-      <div className="overflow-x-auto">
-        <table className="min-w-full text-sm">
-          <thead>
-            <tr>
-              <th>Cookie Name</th>
-              <th>Purpose</th>
-              <th>Duration</th>
-              <th>Type</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Session cookie</td>
-              <td>Maintain your logged-in state</td>
-              <td>Session (expires on logout)</td>
-              <td>Essential</td>
-            </tr>
-            <tr>
-              <td>Auth token</td>
-              <td>Authenticate API requests</td>
-              <td>Session</td>
-              <td>Essential</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <h3>10.2 No Third-Party Tracking</h3>
-      <p>We do <strong>NOT</strong> use:</p>
-      <ul>
-        <li>Google Analytics</li>
-        <li>Facebook Pixel</li>
-        <li>Advertising trackers</li>
-        <li>Social media tracking pixels</li>
-      </ul>
-
-      <h3>10.3 Analytics Tracking</h3>
-      <p>Visitor analytics on published articles (via Public API) use:</p>
-      <ul>
-        <li><strong>Anonymized visitor IDs</strong> (hashed, not tied to personal identity)</li>
-        <li><strong>No persistent cookies</strong> (session-based tracking only)</li>
-        <li><strong>First-party tracking</strong> (no third-party analytics services)</li>
-      </ul>
-
-      <h2>11. Children&apos;s Privacy</h2>
-      <p>
-        Simplist is <strong>not intended for users under 16 years of age</strong>. We do not knowingly collect personal data from children under 16.
-      </p>
-      <p>If we become aware that a user under 16 has provided personal data, we will:</p>
-      <ul>
-        <li>Delete the account and associated data immediately</li>
-        <li>Notify the user via email (if possible)</li>
+        <li>
+          <strong>Account data</strong> is kept while your Account is active. If you delete your Account, it is
+          removed or anonymized after the deletion grace period, except for data we must keep for legal, tax, or
+          security purposes.
+        </li>
+        <li>
+          <strong>Project and content data</strong> is stored until the Project or Article is deleted, or until we
+          delete it due to prolonged inactivity or plan limits, in line with our Terms of Service.
+        </li>
+        <li>
+          <strong>Analytics data</strong> is stored for as long as the associated project and articles remain
+          active, or until you delete them. Summarized aggregates may be kept longer in anonymized form.
+        </li>
+        <li>
+          <strong>Billing records</strong> and invoices are kept for the retention period required by
+          French/EU tax and accounting law (typically up to 7–10 years).
+        </li>
+        <li>
+          <strong>Technical logs</strong> are kept for shorter periods (e.g. 30–365 days), depending on the log
+          type, then aggregated or deleted.
+        </li>
       </ul>
       <p>
-        If you believe a child under 16 has created an account, please contact privacy@simplist.blog.
+        Backups may contain copies of your data for a limited additional period until they are rotated or
+        overwritten.
       </p>
 
-      <h2>12. Changes to This Privacy Policy</h2>
-      <p>
-        We may update this Privacy Policy from time to time to reflect changes in our practices or legal requirements.
-      </p>
-      <p><strong>When we make material changes:</strong></p>
+      <h2>7. Sharing with Third Parties</h2>
+      <p>We share limited data with trusted third-party processors who help us operate the Service, including:</p>
       <ul>
-        <li>We will notify you via email (to the address associated with your account)</li>
-        <li>We will update the &ldquo;Last Updated&rdquo; date at the top of this page</li>
-        <li>We will post a notice on the Service</li>
+        <li>Cloud hosting providers (compute, database);</li>
+        <li>Redis/caching providers for performance and API key caching;</li>
+        <li>Object storage providers (e.g. Cloudflare R2) for file uploads;</li>
+        <li>Email providers for sending transactional emails (verification, deletion, reminders);</li>
+        <li>OAuth providers (Google, GitHub) for authentication;</li>
+        <li>Stripe for payments and subscriptions.</li>
       </ul>
       <p>
-        <strong>Continued use of the Service after changes constitutes acceptance of the updated Privacy Policy.</strong>
+        These providers process data on our behalf under contracts that require them to protect your data and
+        comply with relevant privacy laws.
       </p>
-      <p>We encourage you to review this Privacy Policy periodically.</p>
-
-      <h2>13. Contact Us</h2>
-      <p>For questions, concerns, or requests related to this Privacy Policy or your personal data, please contact:</p>
-      <p>
-        <strong>Data Controller:</strong><br />
-        Gaëtan HUSZOVITS<br />
-        Email: privacy@simplist.blog<br />
-        Website: simplist.blog
-      </p>
-      <p>
-        <strong>Response Time:</strong><br />
-        We aim to respond to all privacy inquiries within <strong>30 days</strong> (as required by GDPR Art. 12(3)).
-      </p>
-
-      <h2>14. Additional Resources</h2>
+      <p>We may also share data:</p>
       <ul>
-        <li><Link href="/legal/terms">Terms of Service</Link></li>
-        <li><Link href="/legal/gdpr">GDPR Compliance & User Rights</Link></li>
-        <li><strong>European Commission - Data Protection</strong>: <a href="https://ec.europa.eu/info/law/law-topic/data-protection_en" target="_blank" rel="noopener noreferrer">ec.europa.eu/info/law/law-topic/data-protection_en</a></li>
-        <li><strong>CNIL (France)</strong>: <a href="https://www.cnil.fr/en/home" target="_blank" rel="noopener noreferrer">cnil.fr/en/home</a></li>
+        <li>When required by law, court order, or governmental authority;</li>
+        <li>
+          To enforce our Terms of Service or protect the rights, property, or safety of Simplist, our users, or
+          the public;
+        </li>
+        <li>In connection with a business transaction (e.g. merger, acquisition), with appropriate safeguards.</li>
       </ul>
 
-      <hr className="my-8" />
+      <h2>8. International Data Transfers</h2>
+      <p>
+        Some of our infrastructure and providers may be located outside your country, including outside the EU/EEA.
+        When personal data is transferred internationally, we rely on:
+      </p>
+      <ul>
+        <li>European Commission adequacy decisions, where applicable;</li>
+        <li>Standard Contractual Clauses (SCCs) or equivalent contractual safeguards;</li>
+        <li>Provider commitments to GDPR-level protections and security practices.</li>
+      </ul>
 
-      <p className="text-center font-medium">
-        By using Simplist, you acknowledge that you have read and understood this Privacy Policy.
+      <h2>9. Your Rights</h2>
+      <p>
+        If you are in the EU/EEA or a jurisdiction with similar privacy laws, you may have the following rights:
+      </p>
+      <ul>
+        <li>
+          <strong>Access:</strong> request a copy of the personal data we hold about you and information on how it
+          is used.
+        </li>
+        <li>
+          <strong>Rectification:</strong> correct inaccurate or incomplete personal data (you can also update many
+          details in your account settings).
+        </li>
+        <li>
+          <strong>Erasure:</strong> request deletion of your personal data where we are not required to keep it by
+          law (for example, by deleting your account).
+        </li>
+        <li>
+          <strong>Restriction:</strong> ask us to restrict processing while a dispute or request is being resolved.
+        </li>
+        <li>
+          <strong>Portability:</strong> request your data in a structured, commonly used, machine-readable format.
+        </li>
+        <li>
+          <strong>Objection:</strong> object to processing based on our legitimate interests, in certain
+          circumstances.
+        </li>
+        <li>
+          <strong>Withdrawal of consent:</strong> where processing is based on your consent, withdraw consent at
+          any time (without affecting prior lawful processing).
+        </li>
+      </ul>
+      <p>
+        To exercise these rights, contact us at{" "}
+        <a href="mailto:privacy@simplist.blog">privacy@simplist.blog</a>. We may need to verify your identity
+        before acting on your request.
+      </p>
+      <p>
+        You also have the right to lodge a complaint with your local data protection authority. In France, this is
+        the <a href="https://www.cnil.fr" target="_blank" rel="noreferrer">CNIL</a>.
+      </p>
+
+      <h2>10. Security Measures</h2>
+      <p>We implement technical and organizational measures to protect your data, including:</p>
+      <ul>
+        <li>Transport-layer encryption (HTTPS/TLS) for all dashboard and API traffic;</li>
+        <li>Secure password hashing and secret storage;</li>
+        <li>Access controls on databases and infrastructure;</li>
+        <li>Rate-limiting and bot detection on public APIs;</li>
+        <li>Regular security updates, dependency management, and monitoring.</li>
+      </ul>
+      <p>
+        No system is perfectly secure. If we become aware of a personal data breach that is likely to result in a
+        high risk to your rights and freedoms, we will notify you and the relevant authorities in accordance with
+        legal requirements.
+      </p>
+
+      <h2>11. Cookies and Similar Technologies</h2>
+      <p>
+        Simplist uses limited first-party cookies and browser storage to provide essential functionality such as
+        login sessions, CSRF protection, and basic UI preferences. We do not use third-party advertising cookies.
+      </p>
+      <p>
+        For more details about the cookies we set and how to manage them, please see our{" "}
+        <Link href="/legal/cookies">Cookie Policy</Link>.
+      </p>
+
+      <h2>12. Children&apos;s Privacy</h2>
+      <p>
+        The Service is not intended for children under 16. We do not knowingly collect personal data from children
+        under 16. If you believe a child has created an account, please contact us so we can investigate and take
+        appropriate action.
+      </p>
+
+      <h2>13. Changes to This Privacy Policy</h2>
+      <p>
+        We may update this Privacy Policy from time to time. When we make material changes, we will update the
+        &quot;Last Updated&quot; date at the top of this page and may also notify you via email or in-app
+        notifications.
+      </p>
+      <p>Your continued use of the Service after the changes take effect constitutes your acceptance of them.</p>
+
+      <h2>14. Contact</h2>
+      <p>
+        If you have any questions, concerns, or requests regarding this Privacy Policy or your personal data,
+        please contact:
+      </p>
+      <p>
+        <strong>Data Controller:</strong>
+        <br />
+        Gaëtan HUSZOVITS
+        <br />
+        Email: <a href="mailto:privacy@simplist.blog">privacy@simplist.blog</a>
+      </p>
+
+      <p className="mt-6 text-center font-medium">
+        For additional legal information, see our{" "}
+        <Link href="/legal/terms">Terms of Service</Link> and{" "}
+        <Link href="/legal/gdpr">GDPR &amp; Data Protection</Link> pages.
       </p>
     </article>
   );
 };
 
 export default PrivacyPolicyPage;
+
+

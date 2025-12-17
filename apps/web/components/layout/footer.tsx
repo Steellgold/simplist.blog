@@ -43,7 +43,8 @@ export const Footer = () => {
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li><Link href="/legal/terms" className="hover:text-foreground transition-colors">Terms of Service</Link></li>
               <li><Link href="/legal/privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link></li>
-              <li><Link href="/legal/gdpr" className="hover:text-foreground transition-colors">GDPR Compliance</Link></li>
+              <li><Link href="/legal/cookies" className="hover:text-foreground transition-colors">Cookie Policy</Link></li>
+              <li><Link href="/legal/gdpr" className="hover:text-foreground transition-colors">GDPR &amp; Data Protection</Link></li>
             </ul>
           </div>
 
