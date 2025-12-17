@@ -1,12 +1,12 @@
 "use client";
 
 import { SimplistIcon } from "@/components/simplist-icon";
-import { Button } from "@simplist/ui/components/button";
+import { buttonVariants } from "@simplist/ui/components/button";
 import Link from "next/link";
 
 export const Navbar = () => {
   return (
-    <header className="sticky py-1 top-0 z-50 w-full backdrop-blur-sm bg-background/20 border-b">
+    <header className="sticky py-1 top-0 z-50 w-full backdrop-blur-sm bg-background/20">
       <div className="container mx-auto px-4">
         <div className="flex h-14 items-center justify-between">
           <SimplistIcon />
@@ -17,7 +17,7 @@ export const Navbar = () => {
                 Features
               </Link>
 
-              <Link href="/pricing" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+              <Link href="#pricing" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                 Pricing
               </Link>
 
@@ -26,9 +26,13 @@ export const Navbar = () => {
               </Link>
             </nav>
 
-            <Button asChild>
-              <Link href="https://app.simplist.blog/auth/login">Get Started</Link>
-            </Button>
+            <Link
+              className={buttonVariants({ variant: "default", size: "sm" })}
+              href="https://app.simplist.blog/auth/login"
+              target="_blank"
+            >
+              Get Started
+            </Link>
           </div>
         </div>
       </div>

@@ -4,14 +4,16 @@ import { LightRays } from "@simplist/ui/components/shared/light-rays";
 import { ApiDemoSection } from "./_sections/api-demo-section";
 import { FeaturesSection } from "./_sections/features-section";
 import { HeroSection } from "./_sections/hero-section";
+import { PricingSection } from "./_sections/pricing-section";
 
 const HomePage = async () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary/20">
+    <div className="min-h-screen bg-linear-to-br from-background via-background to-secondary/20">
       <LightRays count={16} color="rgba(240, 187, 59, 0.3)" blur={60} speed={10} length="80vh" />
       <Navbar />
       <HeroSection />
       <FeaturesSection />
+      <PricingSection />
       <ApiDemoSection />
       <Footer />
     </div>

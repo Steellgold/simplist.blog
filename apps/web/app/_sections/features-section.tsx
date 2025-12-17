@@ -7,19 +7,20 @@ import { ChevronLeftRight } from "@simplist/ui/components/animate-ui/icons/chevr
 import { Fingerprint } from "@simplist/ui/components/animate-ui/icons/fingerprint";
 import { Lightbulb } from "@simplist/ui/components/animate-ui/icons/lightbulb";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@simplist/ui/components/card";
-import { useState } from "react";
+import { Minus } from "lucide-react";
+import { cloneElement, type ReactElement, useState } from "react";
 
 type Feature = {
   title: string;
   description: string;
-  icon: (animate: boolean) => React.ReactNode;
+  icon: (animate: boolean) => ReactElement<{ className?: string }>;
   list: string[];
 }
 
 const features: Feature[] = [
   {
-    title: "Lightning Fast",
-    description: "Your content loads instantly, keeping your audience engaged",
+    title: "Global performance by default",
+    description: "Your content loads instantly anywhere in the world.",
     icon: (animate) => <Lightbulb animate={animate} />,
     list: [
       "Sub-50ms response times worldwide",
@@ -28,8 +29,8 @@ const features: Feature[] = [
     ],
   },
   {
-    title: "Secure by Design",
-    description: "Sleep well knowing your content is protected by enterprise-grade security",
+    title: "Security first",
+    description: "Enterprise-grade security baked into every request.",
     icon: (animate) => <Cctv animate={animate} />,
     list: [
       "Secure API keys with granular permissions",
@@ -38,8 +39,8 @@ const features: Feature[] = [
     ],
   },
   {
-    title: "SEO Optimized",
-    description: "Rank higher on Google with built-in SEO tools that just work",
+    title: "SEO & feeds included",
+    description: "Ship sitemaps, RSS and social cards without extra services.",
     icon: (animate) => <Fingerprint animate={animate} />,
     list: [
       "Auto-generated XML sitemaps",
@@ -48,8 +49,8 @@ const features: Feature[] = [
     ],
   },
   {
-    title: "Developer Experience First",
-    description: "Build faster with modern tools and comprehensive documentation",
+    title: "Developer experience first",
+    description: "Modern SDKs, great docs and an API that feels familiar.",
     icon: (animate) => <ChevronLeftRight animate={animate} />,
     list: [
       "TypeScript SDK with auto-completion",
@@ -58,8 +59,8 @@ const features: Feature[] = [
     ],
   },
   {
-    title: "Know Your Audience",
-    description: "Understand who reads your content and what they love",
+    title: "Analytics that actually help",
+    description: "Understand your readers and what they care about.",
     icon: (animate) => <ChartNoAxesColumn animate={animate} />,
     list: [
       "Track views, time on page & engagement",
@@ -68,8 +69,8 @@ const features: Feature[] = [
     ],
   },
   {
-    title: "Grows With You",
-    description: "Start small, scale big. No migration headaches",
+    title: "Scales with your projects",
+    description: "From side project to production-grade content platform.",
     icon: (animate) => <Blocks animate={animate} />,
     list: [
       "From side project to production",
@@ -83,53 +84,57 @@ export const FeaturesSection = () => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   return (
-    <section id="features" className="py-28 px-4 mb-20">
+    <section id="features" className="relative py-24 md:py-28 px-4 mb-10">
       <div className="container max-w-6xl mx-auto">
-        <div className="text-center mb-16 intersect-once intersect:motion-preset-fade">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Everything you need for content management
+        <div className="text-center mb-14 intersect-once intersect:motion-preset-fade">
+          <p className="text-sm font-medium text-primary mb-2 uppercase tracking-[0.18em]">
+            Why Developers Pick Simplist
+          </p>
+          <h2 className="text-3xl md:text-4xl font-semibold mb-2.5" style={{ fontFamily: "var(--font-syne)" }}>
+            Everything you need to run a content platform
           </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Built for developers who want a simple, powerful, and fast content API without the complexity.
+          <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
+            Content API, analytics, SEO and multi-tenant projects – all in one place,
+            without a custom backend to maintain.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {features.map((feature, index) => {
-            // Static delay classes for Tailwind
-            const delayClasses = [
-              '',
-              'intersect:motion-delay-[150ms]',
-              'intersect:motion-delay-[300ms]',
-              'intersect:motion-delay-[450ms]',
-              'intersect:motion-delay-[600ms]',
-              'intersect:motion-delay-[750ms]'
-            ];
-
-            return (
+        <div className="flex justify-center">
+          <div className="overflow-hidden rounded-2xl bg-muted/70 shadow-sm grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 sm:gap-0.5 space-y-0.5 sm:space-y-0 p-0.5 border">
+            {features.map((feature, index) => (
               <Card
                 key={feature.title}
-                className={`intersect-once intersect:motion-preset-slide-up-sm ${delayClasses[index]} hover:border-primary/95 transition-colors duration-300`}
+                className="group relative border-0 p-0"
                 onMouseEnter={() => setHoveredIndex(index)}
                 onMouseLeave={() => setHoveredIndex(null)}
               >
-                <CardHeader>
-                  <div className="w-fit bg-secondary/60 p-1 rounded-md">
-                    {feature.icon(hoveredIndex === index)}
+                <CardHeader className="space-y-2 px-4 pt-4 pb-2">
+                  <div className="w-fit rounded-lg bg-secondary/70 p-1.5">
+                    {cloneElement(feature.icon(hoveredIndex === index), {
+                      className: "h-6 w-6 opacity-30 group-hover:opacity-100 transition-opacity duration-300"
+                    })}
                   </div>
-                  <CardTitle>{feature.title}</CardTitle>
-                  <CardDescription>{feature.description}</CardDescription>
+                  <CardTitle className="text-base md:text-lg">
+                    {feature.title}
+                  </CardTitle>
+                  <CardDescription className="text-sm md:text-[15px]">
+                    {feature.description}
+                  </CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <ul className="text-sm text-muted-foreground space-y-1">
+
+                <CardContent className="px-4 pb-4 pt-1">
+                  <ul className="text-xs md:text-sm text-muted-foreground space-y-1.5">
                     {feature.list.map((item) => (
-                      <li key={item}>• {item}</li>
+                      <li key={item} className="flex items-center gap-2">
+                        <Minus size={16} className="text-muted-foreground/50" />
+                        <span>{item}</span>
+                      </li>
                     ))}
                   </ul>
                 </CardContent>
               </Card>
-            );
-          })}
+            ))}
+          </div>
         </div>
       </div>
     </section>
