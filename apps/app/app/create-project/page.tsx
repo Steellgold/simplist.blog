@@ -1,14 +1,14 @@
 import { AppSidebarWrapper } from "@/components/layout/sidebar-wrapper"
-import { CreateProjectForm } from "@/components/projects/create-form"
-import { SidebarProvider } from "@simplist/ui/components/sidebar"
+import { CreateProjectPageClient } from "@/components/projects/create-project-client"
 import { getUserProjects } from "@/lib/actions/projects"
 import { getCurrentUser } from "@/lib/auth-helper"
 import { redirectIfPendingDeletion } from "@/lib/auth/deletion-guard"
+import { SidebarProvider } from "@simplist/ui/components/sidebar"
 import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 
 export const metadata: Metadata = {
-  title: "Create Project",
+  title: "Onboarding",
   robots: { index: false, follow: false },
 }
 
@@ -35,18 +35,7 @@ const CreateProjectPage = async () => {
         projects={projects}
         currentRole={null}
       />
-
-      <div className="flex-1">
-        {/* Backdrop blur */}
-        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40" />
-        
-        {/* Dialog container */}
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-6">
-          <div className="w-full max-w-md">
-            <CreateProjectForm />
-          </div>
-        </div>
-      </div>
+      <CreateProjectPageClient />
     </SidebarProvider>
   )
 }

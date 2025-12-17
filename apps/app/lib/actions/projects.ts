@@ -1,13 +1,13 @@
 "use server"
 
+import { ProjectDeletedEmail } from "@/components/emails/project-deleted"
+import { render } from "@react-email/render"
 import { prisma } from "@simplist/db"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { getCurrentUser } from "../auth-helper"
 import { requirePermission } from "../auth/permissions"
 import { sendEmail } from "../ses"
-import { render } from "@react-email/render"
-import { ProjectDeletedEmail } from "@/components/emails/project-deleted"
 import { CreateProjectActionInput, createProjectSchema, isReservedSlug, UpdateProjectSettingsInput } from "../validations/project"
 
 export const getUserProjects = async () => {
@@ -58,7 +58,10 @@ export const createProject = async (input: CreateProjectActionInput) => {
     name: input.name,
     icon: input.icon || "building-2",
     color: input.color || "YELLOW",
+    avatarUrl: input.avatarUrl ?? null,
     allowedOrigins: input.allowedOrigins || [],
+    baseUrl: input.baseUrl ?? null,
+    articleUrlPattern: input.articleUrlPattern || "/posts/{slug}",
   })
 
   // Extract string values from the validated data
@@ -106,6 +109,8 @@ export const createProject = async (input: CreateProjectActionInput) => {
         timezone: "UTC",
         subscriptionTier: "STARTER",
         allowedOrigins: allowedOriginStrings,
+        baseUrl: validatedData.baseUrl ?? null,
+        articleUrlPattern: validatedData.articleUrlPattern || "/posts/{slug}",
         userId: user.id,
       },
     });

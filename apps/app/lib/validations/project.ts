@@ -3,6 +3,18 @@ import { ColorsEnum } from "@simplist/ui/lib/color";
 import { IconsEnum } from "@simplist/ui/lib/icons.enum";
 import { z } from "zod";
 
+// Project name max length constant
+export const PROJECT_NAME_MAX_LENGTH = 32
+
+// Step constants
+export const STEP_NAME = 0
+export const STEP_ICON = 1
+export const STEP_URLS = 2
+export const STEP_PLAN = 3
+
+// Step type
+export type ProjectStep = typeof STEP_NAME | typeof STEP_ICON | typeof STEP_URLS | typeof STEP_PLAN
+
 // Reserved slugs that cannot be used for project names
 export const RESERVED_SLUGS = [
   // Next.js system routes
@@ -199,6 +211,20 @@ export const createProjectSchema = z.object({
           })
       })
     ),
+  baseUrl: z
+    .url("Please enter a valid URL")
+    .optional()
+    .or(z.literal(""))
+    .transform((val) => (val === "" ? null : val))
+    .nullable(),
+  articleUrlPattern: z
+    .string()
+    .max(200, "URL pattern must be less than 200 characters")
+    .refine(
+      (val) => !val || val.includes("{slug}"),
+      "URL pattern must include {slug}"
+    )
+    .optional(),
 })
 
 export type CreateProjectInput = z.infer<typeof createProjectSchema>
@@ -210,6 +236,9 @@ export const createProjectActionSchema = z.object({
   color: z.string().optional(),
   subscriptionTier: z.enum(["STARTER", "PRO"]).optional(),
   allowedOrigins: z.array(z.object({ value: z.string() })).optional(),
+  avatarUrl: z.string().optional().nullable(),
+  baseUrl: z.string().optional().nullable(),
+  articleUrlPattern: z.string().optional(),
 })
 
 export type CreateProjectActionInput = z.infer<typeof createProjectActionSchema>
