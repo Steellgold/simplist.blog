@@ -8,6 +8,12 @@ export const createTagSchema = z.object({
     .min(1, "Tag name is required")
     .max(50, "Tag name must be less than 50 characters")
     .trim(),
+  description: z
+    .string()
+    .max(200, "Description must be less than 200 characters")
+    .trim()
+    .optional()
+    .nullable(),
   icon: IconsEnum.default("tag"),
   color: ColorsEnum.nullable().default(null),
 });
@@ -21,6 +27,12 @@ export const updateTagSchema = z.object({
     .max(50, "Tag name must be less than 50 characters")
     .trim()
     .optional(),
+  description: z
+    .string()
+    .max(200, "Description must be less than 200 characters")
+    .trim()
+    .optional()
+    .nullable(),
   icon: IconsEnum.optional(),
   color: ColorsEnum.nullable().optional(),
 });
