@@ -26,34 +26,43 @@ type CreateArticleFormProps = {
   availableTags: Tag[];
 };
 
-export const CreateArticleForm = ({ projectId, availableTags: initialAvailableTags }: CreateArticleFormProps) => {
+export const CreateArticleForm = ({
+  projectId,
+  availableTags: initialAvailableTags,
+}: CreateArticleFormProps) => {
   const router = useRouter();
   const { currentProject } = useProject();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Default language from project or fallback to English
-  const defaultLanguage: LanguageCode = (currentProject?.defaultLanguage as LanguageCode) || "en";
+  const defaultLanguage: LanguageCode =
+    (currentProject?.defaultLanguage as LanguageCode) || "en";
 
   // Form state
   const [title, setTitle] = useState("");
   const [excerpt, setExcerpt] = useState("");
   const [content, setContent] = useState("");
   const [status, setStatus] = useState<ArticleStatus>("draft");
-  const [scheduledPublishAt, setScheduledPublishAt] = useState<Date | null>(null);
+  const [scheduledPublishAt, setScheduledPublishAt] = useState<Date | null>(
+    null,
+  );
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [imageFiles, setImageFiles] = useState<Map<LanguageCode, File>>(new Map());
+  const [imageFiles, setImageFiles] = useState<Map<LanguageCode, File>>(
+    new Map(),
+  );
   const [tags, setTags] = useState<Tag[]>([]);
   const [availableTags] = useState<Tag[]>(initialAvailableTags);
 
   // Variants state
   const [variants, setVariants] = useState<ArticleVariant[]>([
-    { lang: defaultLanguage, title: "", excerpt: "", content: "" }
+    { lang: defaultLanguage, title: "", excerpt: "", content: "" },
   ]);
-  const [activeVariant, setActiveVariant] = useState<LanguageCode>(defaultLanguage);
+  const [activeVariant, setActiveVariant] =
+    useState<LanguageCode>(defaultLanguage);
 
   // Sync form fields with active variant (default or selected)
   useEffect(() => {
-    const currentVariant = variants.find(v => v.lang === activeVariant);
+    const currentVariant = variants.find((v) => v.lang === activeVariant);
     if (currentVariant) {
       setTitle(currentVariant.title);
       setExcerpt(currentVariant.excerpt);
@@ -64,18 +73,17 @@ export const CreateArticleForm = ({ projectId, availableTags: initialAvailableTa
 
   // Update variant when form fields change
   const updateActiveVariant = (updates: Partial<ArticleVariant>) => {
-    setVariants(prev => prev.map(variant => 
-      variant.lang === activeVariant 
-        ? { ...variant, ...updates }
-        : variant
-    ));
+    setVariants((prev) =>
+      prev.map((variant) =>
+        variant.lang === activeVariant ? { ...variant, ...updates } : variant,
+      ),
+    );
   };
-
 
   // Handle image upload
   const handlePickedImage = (file: File | null) => {
     if (!file) {
-      setImageFiles(prev => {
+      setImageFiles((prev) => {
         const next = new Map(prev);
         next.delete(activeVariant);
         return next;
@@ -84,7 +92,7 @@ export const CreateArticleForm = ({ projectId, availableTags: initialAvailableTa
       updateActiveVariant({ coverImage: undefined });
       return;
     }
-    setImageFiles(prev => {
+    setImageFiles((prev) => {
       const next = new Map(prev);
       next.set(activeVariant, file);
       return next;
@@ -101,7 +109,7 @@ export const CreateArticleForm = ({ projectId, availableTags: initialAvailableTa
   // Remove image
   const handleRemoveImage = () => {
     setImagePreview(null);
-    setImageFiles(prev => {
+    setImageFiles((prev) => {
       const next = new Map(prev);
       next.delete(activeVariant);
       return next;
@@ -135,18 +143,20 @@ export const CreateArticleForm = ({ projectId, availableTags: initialAvailableTa
 
     try {
       // Step 1: Create article
-      toast.loading("Generating slug and calculating stats...", { id: toastId });
-      
+      toast.loading("Generating slug and calculating stats...", {
+        id: toastId,
+      });
+
       // Get default language variant for main article
-      const defaultVariant = variants.find(v => v.lang === defaultLanguage);
+      const defaultVariant = variants.find((v) => v.lang === defaultLanguage);
       if (!defaultVariant) {
         throw new Error("Default language variant not found");
       }
-      
+
       // Prepare variants (exclude default language as it goes to main article)
       const articleVariants = variants
-        .filter(v => v.lang !== defaultLanguage)
-        .map(v => ({
+        .filter((v) => v.lang !== defaultLanguage)
+        .map((v) => ({
           lang: v.lang,
           title: v.title,
           excerpt: v.excerpt,
@@ -161,17 +171,22 @@ export const CreateArticleForm = ({ projectId, availableTags: initialAvailableTa
 
         for (const tag of tags) {
           // Check if tag exists in availableTags
-          const existingTag = initialAvailableTags.find(t => t.name === tag.name);
+          const existingTag = initialAvailableTags.find(
+            (t) => t.name === tag.name,
+          );
 
           if (existingTag) {
             // Tag exists - check if appearance changed
-            if (tag.icon !== existingTag.icon || tag.color !== existingTag.color) {
+            if (
+              tag.icon !== existingTag.icon ||
+              tag.color !== existingTag.color
+            ) {
               // Update tag appearance
               await updateTagAppearance(
                 tag.name,
                 projectId,
                 (tag.icon || "tag") as any,
-                tag.color as any
+                tag.color as any,
               );
             }
             tagIds.push(existingTag.id);
@@ -198,7 +213,8 @@ export const CreateArticleForm = ({ projectId, availableTags: initialAvailableTa
         content: defaultVariant.content,
         status,
         coverImage: defaultVariant.coverImage,
-        scheduledPublishAt: status === "scheduled" ? scheduledPublishAt || undefined : undefined,
+        scheduledPublishAt:
+          status === "scheduled" ? scheduledPublishAt || undefined : undefined,
         projectId,
         variants: articleVariants.length > 0 ? articleVariants : undefined,
         tags: tagIds.length > 0 ? tagIds : undefined,
@@ -211,29 +227,32 @@ export const CreateArticleForm = ({ projectId, availableTags: initialAvailableTa
 
         for (const [lang, file] of imageFiles.entries()) {
           uploadedCount++;
-          toast.loading(`Uploading cover image ${uploadedCount}/${totalImages}...`, { id: toastId });
+          toast.loading(
+            `Uploading cover image ${uploadedCount}/${totalImages}...`,
+            { id: toastId },
+          );
 
-          const form = new FormData()
-          form.append("file", file)
-          form.append("projectId", article.projectId)
-          form.append("postId", article.id)
+          const form = new FormData();
+          form.append("file", file);
+          form.append("projectId", article.projectId);
+          form.append("postId", article.id);
 
           const res = await fetch("/api/uploads/banner", {
             method: "POST",
             body: form,
-          })
+          });
 
           if (!res.ok) {
-            throw new Error(`Failed to upload image for ${lang}`)
+            throw new Error(`Failed to upload image for ${lang}`);
           }
 
-          const data = await res.json()
+          const data = await res.json();
 
           await updateArticleCoverImage({
             articleId: article.id,
             objectKey: data.key,
             variantLang: lang,
-          })
+          });
         }
       }
 
@@ -244,7 +263,9 @@ export const CreateArticleForm = ({ projectId, availableTags: initialAvailableTa
       router.refresh();
     } catch (error) {
       console.error("Error creating article:", error);
-      toast.error("Failed to create article. Please try again.", { id: toastId });
+      toast.error("Failed to create article. Please try again.", {
+        id: toastId,
+      });
       setIsSubmitting(false);
     }
   };
@@ -288,22 +309,29 @@ export const CreateArticleForm = ({ projectId, availableTags: initialAvailableTa
             projectTimezone="UTC"
             projectDefaultLanguage={defaultLanguage}
             projectId={currentProject?.id}
-            leftAction={(
+            leftAction={
               <Link
                 href={`/${currentProject?.slug}/articles`}
-                className={buttonVariants({ variant: "outline-destructive", size: "sm" })}
+                className={buttonVariants({
+                  variant: "outline-destructive",
+                  size: "sm",
+                })}
               >
                 <X />
                 Cancel
               </Link>
-            )}
+            }
           />
 
           <ArticleBannerUpload
             imagePreview={imagePreview}
             onImageChange={handlePickedImage}
             onRemoveImage={handleRemoveImage}
-            uploadLabel={activeVariant === defaultLanguage ? "Upload Image" : `Upload Image for ${getLanguageName(activeVariant)}`}
+            uploadLabel={
+              activeVariant === defaultLanguage
+                ? "Upload Image"
+                : `Upload Image for ${getLanguageName(activeVariant)}`
+            }
             emptyDescription={
               activeVariant === defaultLanguage
                 ? "On the response API it will return the URL of the image."
@@ -320,6 +348,8 @@ export const CreateArticleForm = ({ projectId, availableTags: initialAvailableTa
               const tempTag: Tag = {
                 id: `temp-${Date.now()}`, // Temporary ID
                 name,
+                slug: null,
+                description: null,
                 icon: "tag",
                 color: null,
                 projectId,
@@ -342,4 +372,4 @@ export const CreateArticleForm = ({ projectId, availableTags: initialAvailableTa
       </div>
     </form>
   );
-}
+};

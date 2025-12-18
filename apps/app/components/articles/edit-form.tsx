@@ -2,7 +2,11 @@
 
 import { useProject } from "@/hooks/use-project-context";
 import { type ArticleVariant } from "@/hooks/use-variant-operations";
-import { removeArticleCoverImage, updateArticle, updateArticleCoverImage } from "@/lib/actions/articles";
+import {
+  removeArticleCoverImage,
+  updateArticle,
+  updateArticleCoverImage,
+} from "@/lib/actions/articles";
 import { createTag, updateTagAppearance } from "@/lib/actions/tags";
 import { type LanguageCode, getLanguageName } from "@/lib/types/languages";
 import { type Tag } from "@simplist/db";
@@ -52,20 +56,29 @@ type EditArticleFormProps = {
   availableTags: Tag[];
 };
 
-export const EditArticleForm: FC<EditArticleFormProps> = ({ article, availableTags: initialAvailableTags }) => {
+export const EditArticleForm: FC<EditArticleFormProps> = ({
+  article,
+  availableTags: initialAvailableTags,
+}) => {
   const router = useRouter();
   const { currentProject } = useProject();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [imagesToDelete, setImagesToDelete] = useState<Set<LanguageCode>>(new Set());
-  const [availableTags, setAvailableTags] = useState<Tag[]>(initialAvailableTags);
+  const [imagesToDelete, setImagesToDelete] = useState<Set<LanguageCode>>(
+    new Set(),
+  );
+  const [availableTags, setAvailableTags] =
+    useState<Tag[]>(initialAvailableTags);
 
   // Default language from project or fallback to English
-  const defaultLanguage: LanguageCode = (article.project.defaultLanguage as LanguageCode) || (currentProject?.defaultLanguage as LanguageCode) || "en";
+  const defaultLanguage: LanguageCode =
+    (article.project.defaultLanguage as LanguageCode) ||
+    (currentProject?.defaultLanguage as LanguageCode) ||
+    "en";
 
   // Initialize variants with main article data and existing variants
   const initializeVariants = (): ArticleVariant[] => {
     const variants: ArticleVariant[] = [];
-    
+
     // Add main article as default language variant
     variants.push({
       lang: defaultLanguage,
@@ -77,7 +90,7 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({ article, availableTa
 
     // Add existing variants (if any)
     if (article.variants) {
-      article.variants.forEach(variant => {
+      article.variants.forEach((variant) => {
         if (variant.lang !== defaultLanguage) {
           variants.push({
             lang: variant.lang as LanguageCode,
@@ -97,12 +110,18 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({ article, availableTa
   const [title, setTitle] = useState(article.title);
   const [excerpt, setExcerpt] = useState(article.excerpt || "");
   const [content, setContent] = useState(article.content);
-  const [status, setStatus] = useState<ArticleStatus>(article.status as ArticleStatus);
-  const [scheduledPublishAt, setScheduledPublishAt] = useState<Date | null>(
-    article.scheduledPublishAt ? new Date(article.scheduledPublishAt) : null
+  const [status, setStatus] = useState<ArticleStatus>(
+    article.status as ArticleStatus,
   );
-  const [imagePreview, setImagePreview] = useState<string | null>(article.coverImage);
-  const [imageFiles, setImageFiles] = useState<Map<LanguageCode, File>>(new Map());
+  const [scheduledPublishAt, setScheduledPublishAt] = useState<Date | null>(
+    article.scheduledPublishAt ? new Date(article.scheduledPublishAt) : null,
+  );
+  const [imagePreview, setImagePreview] = useState<string | null>(
+    article.coverImage,
+  );
+  const [imageFiles, setImageFiles] = useState<Map<LanguageCode, File>>(
+    new Map(),
+  );
 
   // Initialize tags by matching article tag names with available tags
   const [tags, setTags] = useState<Tag[]>(() => {
@@ -110,17 +129,21 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({ article, availableTa
 
     // Match article tags with available tags to get full Tag objects
     return article.tags
-      .map(articleTag => initialAvailableTags.find(t => t.name === articleTag.name))
+      .map((articleTag) =>
+        initialAvailableTags.find((t) => t.name === articleTag.name),
+      )
       .filter((tag): tag is Tag => tag !== undefined);
   });
 
-    // Variants state
-    const [variants, setVariants] = useState<ArticleVariant[]>(initializeVariants());
-    const [activeVariant, setActiveVariant] = useState<LanguageCode>(defaultLanguage);
+  // Variants state
+  const [variants, setVariants] =
+    useState<ArticleVariant[]>(initializeVariants());
+  const [activeVariant, setActiveVariant] =
+    useState<LanguageCode>(defaultLanguage);
 
   // Sync form fields with active variant (default or selected)
   useEffect(() => {
-    const currentVariant = variants.find(v => v.lang === activeVariant);
+    const currentVariant = variants.find((v) => v.lang === activeVariant);
     if (currentVariant) {
       setTitle(currentVariant.title);
       setExcerpt(currentVariant.excerpt);
@@ -131,18 +154,17 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({ article, availableTa
 
   // Update variant when form fields change
   const updateActiveVariant = (updates: Partial<ArticleVariant>) => {
-    setVariants(prev => prev.map(variant => 
-      variant.lang === activeVariant 
-        ? { ...variant, ...updates }
-        : variant
-    ));
+    setVariants((prev) =>
+      prev.map((variant) =>
+        variant.lang === activeVariant ? { ...variant, ...updates } : variant,
+      ),
+    );
   };
-
 
   // Handle image upload
   const handlePickedImage = (file: File | null) => {
     if (!file) {
-      setImageFiles(prev => {
+      setImageFiles((prev) => {
         const next = new Map(prev);
         next.delete(activeVariant);
         return next;
@@ -151,7 +173,7 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({ article, availableTa
       updateActiveVariant({ coverImage: undefined });
       return;
     }
-    setImageFiles(prev => {
+    setImageFiles((prev) => {
       const next = new Map(prev);
       next.set(activeVariant, file);
       return next;
@@ -167,17 +189,17 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({ article, availableTa
 
   // Remove image (deferred deletion - only marks for deletion)
   const handleRemoveImage = () => {
-    const currentVariant = variants.find(v => v.lang === activeVariant);
+    const currentVariant = variants.find((v) => v.lang === activeVariant);
     const hasNewImageFile = imageFiles.has(activeVariant);
     const hasServerImage = currentVariant?.coverImage && !hasNewImageFile;
 
     // Mark server image for deletion on submit (not immediate)
     if (hasServerImage) {
-      setImagesToDelete(prev => new Set(prev).add(activeVariant));
+      setImagesToDelete((prev) => new Set(prev).add(activeVariant));
     }
 
     setImagePreview(null);
-    setImageFiles(prev => {
+    setImageFiles((prev) => {
       const next = new Map(prev);
       next.delete(activeVariant);
       return next;
@@ -211,18 +233,20 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({ article, availableTa
 
     try {
       // Step 1: Update article
-      toast.loading("Updating article content and metadata...", { id: toastId });
-      
+      toast.loading("Updating article content and metadata...", {
+        id: toastId,
+      });
+
       // Get default language variant for main article
-      const defaultVariant = variants.find(v => v.lang === defaultLanguage);
+      const defaultVariant = variants.find((v) => v.lang === defaultLanguage);
       if (!defaultVariant) {
         throw new Error("Default language variant not found");
       }
-      
+
       // Prepare variants (exclude default language as it goes to main article)
       const articleVariants = variants
-        .filter(v => v.lang !== defaultLanguage)
-        .map(v => ({
+        .filter((v) => v.lang !== defaultLanguage)
+        .map((v) => ({
           lang: v.lang,
           title: v.title,
           excerpt: v.excerpt,
@@ -237,17 +261,20 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({ article, availableTa
 
         for (const tag of tags) {
           // Check if tag exists in availableTags
-          const existingTag = availableTags.find(t => t.name === tag.name);
+          const existingTag = availableTags.find((t) => t.name === tag.name);
 
           if (existingTag) {
             // Tag exists - check if appearance changed
-            if (tag.icon !== existingTag.icon || tag.color !== existingTag.color) {
+            if (
+              tag.icon !== existingTag.icon ||
+              tag.color !== existingTag.color
+            ) {
               // Update tag appearance
               await updateTagAppearance(
                 tag.name,
                 article.projectId,
                 (tag.icon || "tag") as any,
-                tag.color as any
+                tag.color as any,
               );
             }
             tagIds.push(existingTag.id);
@@ -284,7 +311,10 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({ article, availableTa
 
         for (const lang of imagesToDelete) {
           deletedCount++;
-          toast.loading(`Deleting cover image ${deletedCount}/${totalDeletes}...`, { id: toastId });
+          toast.loading(
+            `Deleting cover image ${deletedCount}/${totalDeletes}...`,
+            { id: toastId },
+          );
 
           try {
             await removeArticleCoverImage(article.id, lang);
@@ -302,29 +332,32 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({ article, availableTa
 
         for (const [lang, file] of imageFiles.entries()) {
           uploadedCount++;
-          toast.loading(`Uploading cover image ${uploadedCount}/${totalImages}...`, { id: toastId });
+          toast.loading(
+            `Uploading cover image ${uploadedCount}/${totalImages}...`,
+            { id: toastId },
+          );
 
-          const form = new FormData()
-          form.append("file", file)
-          form.append("projectId", article.projectId)
-          form.append("postId", article.id)
+          const form = new FormData();
+          form.append("file", file);
+          form.append("projectId", article.projectId);
+          form.append("postId", article.id);
 
           const res = await fetch("/api/uploads/banner", {
             method: "POST",
             body: form,
-          })
+          });
 
           if (!res.ok) {
-            throw new Error(`Failed to upload image for ${lang}`)
+            throw new Error(`Failed to upload image for ${lang}`);
           }
 
-          const data = await res.json()
+          const data = await res.json();
 
           await updateArticleCoverImage({
             articleId: article.id,
             objectKey: data.key,
             variantLang: lang,
-          })
+          });
         }
       }
 
@@ -335,7 +368,9 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({ article, availableTa
       router.refresh();
     } catch (error) {
       console.error("Error updating article:", error);
-      toast.error("Failed to update article. Please try again.", { id: toastId });
+      toast.error("Failed to update article. Please try again.", {
+        id: toastId,
+      });
       setIsSubmitting(false);
     }
   };
@@ -379,22 +414,29 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({ article, availableTa
             projectTimezone="UTC"
             projectDefaultLanguage={defaultLanguage}
             projectId={currentProject?.id}
-            leftAction={(
+            leftAction={
               <Link
                 href={`/${currentProject?.slug}/articles`}
-                className={buttonVariants({ variant: "outline-destructive", size: "sm" })}
+                className={buttonVariants({
+                  variant: "outline-destructive",
+                  size: "sm",
+                })}
               >
                 <X />
                 Cancel
               </Link>
-            )}
+            }
           />
 
           <ArticleBannerUpload
             imagePreview={imagePreview}
             onImageChange={handlePickedImage}
             onRemoveImage={handleRemoveImage}
-            uploadLabel={activeVariant === defaultLanguage ? "Change Image" : `Change Image for ${getLanguageName(activeVariant)}`}
+            uploadLabel={
+              activeVariant === defaultLanguage
+                ? "Change Image"
+                : `Change Image for ${getLanguageName(activeVariant)}`
+            }
             emptyDescription={
               activeVariant === defaultLanguage
                 ? "Update the article cover image."
@@ -410,6 +452,8 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({ article, availableTa
               const tempTag: Tag = {
                 id: `temp-${Date.now()}`,
                 name,
+                slug: null,
+                description: null,
                 icon: "tag",
                 color: null,
                 projectId: article.projectId,
@@ -432,5 +476,4 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({ article, availableTa
       </div>
     </form>
   );
-}
-
+};
