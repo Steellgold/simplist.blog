@@ -9,14 +9,6 @@ import type { User } from "@/lib/auth-client"
 import type { RolePermission } from "@/lib/auth/permissions"
 import type { ProjectRole } from "@simplist/db"
 import type { Project } from "@simplist/db/types"
-import { ChartLine } from "@simplist/ui/animate-ui/chart-line"
-import { ClipboardListIcon } from "@simplist/ui/animate-ui/clipboard-list"
-import { LayersIcon } from "@simplist/ui/animate-ui/layers"
-import { LayoutDashboardIcon } from "@simplist/ui/animate-ui/layout-dashboard"
-import { SettingsIcon } from "@simplist/ui/animate-ui/settings"
-import { Star } from "@simplist/ui/animate-ui/star"
-import { UnplugIcon } from "@simplist/ui/animate-ui/unplug"
-import { UsersIcon } from "@simplist/ui/animate-ui/users"
 import {
   Sidebar,
   SidebarContent,
@@ -29,8 +21,19 @@ import {
   SidebarMenuButton,
   SidebarMenuItem
 } from "@simplist/ui/components/sidebar"
-import { Ban, WebhookIcon } from "lucide-react"
-import { cloneElement, useState, type ReactNode } from "react"
+import {
+  Ban,
+  ChartLine,
+  ClipboardList,
+  Layers,
+  LayoutDashboard,
+  Settings,
+  Unplug,
+  Users,
+  Wallet,
+  Webhook
+} from "lucide-react"
+import type { LucideIcon } from "lucide-react"
 import { SidebarFooterItem } from "./sidebar-footer-item"
 
 /**
@@ -52,7 +55,7 @@ interface AppSidebarProps {
 
 type NavigationItem = {
   title: string
-  icon: ReactNode
+  icon: LucideIcon
   href: string
   disabled?: boolean
   showProBadge?: boolean
@@ -64,72 +67,72 @@ type NavigationItem = {
 const getNavigationItems = (isPro: boolean, projectSlug: string): NavigationItem[] => [
   {
     title: "Dashboard",
-    icon: <LayoutDashboardIcon />,
+    icon: LayoutDashboard,
     href: `/${projectSlug}`,
     matchStrategy: "exact",
     requiredPermissions: [],
-    category: "Navigation"
+    category: "Content"
   },
   {
     title: "Articles",
-    icon: <LayersIcon />,
+    icon: Layers,
     href: `/${projectSlug}/articles`,
     requiredPermissions: ["canManageArticles"],
-    category: "Navigation"
+    category: "Content"
   },
   {
     title: "Analytics",
-    icon: <ChartLine />,
+    icon: ChartLine,
     href: `/${projectSlug}/analytics`,
     disabled: !isPro,
     showProBadge: !isPro,
     requiredPermissions: ["canViewAnalytics"],
-    category: "Navigation"
+    category: "Content"
+  },
+  {
+    title: "API Keys",
+    icon: Unplug,
+    href: `/${projectSlug}/api-keys`,
+    requiredPermissions: ["canManageApiKeys"],
+    category: "API"
   },
   {
     title: "Webhooks",
-    icon: <WebhookIcon />,
+    icon: Webhook,
     href: `/${projectSlug}/webhooks`,
     requiredPermissions: ["canManageWebhooks"],
-    category: "Navigation"
+    category: "API"
   },
   {
     title: "General",
-    icon: <SettingsIcon />,
+    icon: Settings,
     href: `/${projectSlug}/settings`,
     matchStrategy: "exact",
     requiredPermissions: ["canManageProject"],
     category: "Settings"
   },
   {
-    title: "API Keys",
-    icon: <UnplugIcon />,
-    href: `/${projectSlug}/api-keys`,
-    requiredPermissions: ["canManageApiKeys"],
-    category: "Settings"
-  },
-  {
     title: "Billing",
-    icon: <Star />,
+    icon: Wallet,
     href: `/${projectSlug}/settings/billing`,
     requiredPermissions: ["canManageBilling"],
     category: "Settings"
   },
   {
     title: "Members",
-    icon: <UsersIcon />,
+    icon: Users,
     href: `/${projectSlug}/settings/members`,
     requiredPermissions: ["canManageMembers"],
-      category: "Team"
+    category: "Settings"
   },
   {
     title: "Roles",
-    icon: <ClipboardListIcon />,
+    icon: ClipboardList,
     href: `/${projectSlug}/settings/roles`,
     disabled: !isPro,
     showProBadge: !isPro,
     requiredPermissions: ["canManageRoles"],
-    category: "Team"
+    category: "Settings"
   }
 ]
 
@@ -139,7 +142,6 @@ export const AppSidebar = ({
   onProjectChange, onCreateProject,
   isCreatingProject = false,
 }: AppSidebarProps) => {
-  const [itemHovered, setItemHovered] = useState<string | null>(null)
   const pathname = usePathname()
 
   const isPro = activeProject?.subscriptionTier === "PRO" &&
@@ -205,6 +207,8 @@ export const AppSidebar = ({
                       return null
                     }
 
+                    const Icon = item.icon
+
                     return (
                       <SidebarMenuItem key={item.href}>
                         <SidebarMenuButton
@@ -212,8 +216,6 @@ export const AppSidebar = ({
                           disabled={isDisabled}
                           isActive={isActive}
                           className={isDisabled ? "opacity-50 cursor-not-allowed" : ""}
-                          onMouseEnter={() => setItemHovered(item.href)}
-                          onMouseLeave={() => setItemHovered(null)}
                           tooltip={
                             !userHasAccess
                               ? `${item.title} (No permission)`
@@ -225,12 +227,9 @@ export const AppSidebar = ({
                           {isDisabled ? (
                             <div className="flex items-center gap-2 w-full [&>svg]:size-4">
                               {userHasAccess ? (
-                                cloneElement(item.icon as React.ReactElement, {
-                                  // @ts-expect-error - animate prop is added dynamically
-                                  animate: itemHovered === item.href
-                                })
+                                <Icon />
                               ) : (
-                                <Ban className="size-4" />
+                                <Ban />
                               )}
                               <span className="flex-1 group-data-[collapsible=icon]:hidden">{item.title}</span>
                               {item.showProBadge && (
@@ -239,10 +238,7 @@ export const AppSidebar = ({
                             </div>
                           ) : (
                             <Link href={item.href}>
-                              {cloneElement(item.icon as React.ReactElement, {
-                                // @ts-expect-error - animate prop is added dynamically
-                                animate: itemHovered === item.href || isActive
-                              })}
+                              <Icon />
                               <span className="group-data-[collapsible=icon]:hidden">{item.title}</span>
                             </Link>
                           )}
