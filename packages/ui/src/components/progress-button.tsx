@@ -47,7 +47,7 @@ const ProgressPrimitive = forwardRef<HTMLElement, ProgressPrimitiveProps>(
       className,
       children,
       variant = "default",
-      size = "default",
+      size = "sm",
       asChild = false,
       as = "div",
       disabled,
