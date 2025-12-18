@@ -202,10 +202,12 @@ model WebhookDelivery {
 }
 
 model Tag {
-  id    String  @id @default(cuid())
-  name  String
-  color Color?
-  icon  String? @default("tag")
+  id          String  @id @default(cuid())
+  name        String
+  slug        String?
+  description String?
+  color       Color?
+  icon        String? @default("tag")
 
   projectId String
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
@@ -216,6 +218,7 @@ model Tag {
   updatedAt DateTime @updatedAt
 
   @@unique([projectId, name])
+  @@unique([projectId, slug])
   @@index([projectId])
   @@map("tag")
 }
@@ -434,6 +437,7 @@ model ProjectRole {
   canManageMembers  Boolean @default(false) // Invite/remove members
   canManageRoles    Boolean @default(false) // Edit roles/permissions
   canManageArticles Boolean @default(false) // Create/edit articles
+  canManageTags     Boolean @default(false) // Create/edit/delete tags
   canManageApiKeys  Boolean @default(false) // Create/delete API keys
   canManageWebhooks Boolean @default(false) // Manage outgoing webhooks
   canViewAnalytics  Boolean @default(true) // View analytics
