@@ -8,10 +8,13 @@ import { CreateProjectInput, isReservedSlug, ProjectStep, STEP_NAME, STEP_PLAN }
 import { PlanIds, SubscriptionInterval } from "@simplist/limits"
 import { Badge } from "@simplist/ui/components/badge"
 import { Button } from "@simplist/ui/components/button"
+import { ButtonGroup } from "@simplist/ui/components/button-group"
 import { Card, CardContent, CardFooter } from "@simplist/ui/components/card"
 import { Item, ItemContent, ItemDescription, ItemGroup, ItemTitle } from "@simplist/ui/components/item"
 import { ThemeSwitcher } from "@simplist/ui/components/shared/switch-theme"
 import { toast } from "@simplist/ui/components/sonner"
+import { useIsMobile } from "@simplist/ui/hooks/use-mobile"
+import { ArrowLeft, ArrowRight, RefreshCcw } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useRef, useState } from "react"
 
@@ -20,9 +23,14 @@ export const CreateProjectPageClient = () => {
   const [step, setStep] = useState<ProjectStep>(STEP_NAME)
   const [error, setError] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const formRef = useRef<{ 
+  const [hasFormData, setHasFormData] = useState(false)
+  const isMobile = useIsMobile();
+
+  const formRef = useRef<{
     validateStep: (step: number) => Promise<boolean>
-    submitForm: () => void 
+    submitForm: () => void
+    resetForm: () => void
+    hasData: boolean
   }>(null)
 
   const handleNext = async () => {
@@ -92,6 +100,32 @@ export const CreateProjectPageClient = () => {
     )
   }
 
+  const handleReset = () => {
+    formRef.current?.resetForm()
+    setHasFormData(false)
+    setStep(STEP_NAME)
+  }
+
+  const handleFormChange = (hasData: boolean) => setHasFormData(hasData)
+
+  const handleStepChange = async (newStep: ProjectStep) => {
+    // If going backwards, allow it without validation
+    if (newStep < step) {
+      setStep(newStep)
+      return
+    }
+
+    // If going forward, validate each step in between
+    for (let i = step; i < newStep; i++) {
+      if (formRef.current) {
+        const isValid = await formRef.current.validateStep(i)
+        if (!isValid) return
+      }
+    }
+
+    setStep(newStep)
+  }
+
   return (
     <div className="flex-1">
       <div className="fixed inset-0 bg-background/0 backdrop-blur-sm z-40" />
@@ -111,34 +145,34 @@ export const CreateProjectPageClient = () => {
                       Create your first project
                     </h1>
                     <p className="mt-2 text-sm text-muted-foreground max-w-md">
-                      Give a name to your project, add an optional avatar and start connecting your blog. You can always refine the settings (URL, SEO, etc.) later in the project settings.
+                      Set up your project with a name and icon. You can configure advanced settings anytime later.
                     </p>
                   </div>
 
                   <ItemGroup>
                     <Item size="sm" variant="muted">
                       <ItemContent>
-                        <ItemTitle>Create your project</ItemTitle>
+                        <ItemTitle>What's a project?</ItemTitle>
                         <ItemDescription>
-                          A project corresponds to a blog or a documentation. You can have multiple projects (e.g. personal blog, SaaS blog, documentation).
+                          Each project represents a blog or documentation site. Create separate projects for different websites.
                         </ItemDescription>
                       </ItemContent>
                     </Item>
 
                     <Item size="sm" variant="muted">
                       <ItemContent>
-                        <ItemTitle>Name and avatar</ItemTitle>
+                        <ItemTitle>Identify your project</ItemTitle>
                         <ItemDescription>
-                          Choose a clear name and an optional avatar to easily identify your project in the sidebar.
+                          Pick a name and icon to quickly spot this project in your sidebar.
                         </ItemDescription>
                       </ItemContent>
                     </Item>
 
                     <Item size="sm" variant="muted">
                       <ItemContent>
-                        <ItemTitle>Blog URL (later)</ItemTitle>
+                        <ItemTitle>URLs (optional)</ItemTitle>
                         <ItemDescription>
-                          The blog URL and article pattern are used only to generate automatic links in webhooks and analytics. This is not blocking: you can fill them in later in <span className="font-medium">Settings &gt; Project &gt; Article URL</span>.
+                          Add your blog URL to enable automatic links in webhooks and analytics. Skip this step and configure it anytime in project settings.
                         </ItemDescription>
                       </ItemContent>
                     </Item>
@@ -146,12 +180,14 @@ export const CreateProjectPageClient = () => {
                 </div>
 
                 <div className="px-2.5 py-2.5 flex flex-col gap-4">
-                  <CreateProjectForm 
+                  <CreateProjectForm
                     ref={formRef}
                     step={step}
                     onNext={handleNext}
                     onBack={handleBack}
+                    onStepChange={handleStepChange}
                     onSubmit={handleSubmit}
+                    onFormChange={handleFormChange}
                     isSubmitting={isSubmitting}
                     error={error}
                   />
@@ -163,15 +199,27 @@ export const CreateProjectPageClient = () => {
               <ThemeSwitcher variant="card" />
 
               <div className="flex items-center gap-2">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  onClick={handleBack}
-                  disabled={step === STEP_NAME || isSubmitting}
-                >
-                  Back
-                </Button>
+                <ButtonGroup>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={handleReset}
+                    disabled={isSubmitting || !hasFormData}
+                  >
+                    <RefreshCcw />
+                  </Button>
+
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={handleBack}
+                    disabled={step === STEP_NAME || isSubmitting}
+                  >
+                    {isMobile ? <ArrowLeft /> : "Back"}
+                  </Button>
+                </ButtonGroup>
 
                 <Button
                   type="button"
@@ -184,7 +232,7 @@ export const CreateProjectPageClient = () => {
                   }
                 >
                   {step < STEP_PLAN
-                    ? "Next"
+                    ? isMobile ? <ArrowRight /> : "Next"
                     : isSubmitting
                       ? "Creating..."
                       : "Create project"}

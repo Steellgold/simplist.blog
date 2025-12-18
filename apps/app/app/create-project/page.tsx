@@ -35,6 +35,7 @@ const CreateProjectPage = async () => {
         projects={projects}
         currentRole={null}
       />
+
       <CreateProjectPageClient />
     </SidebarProvider>
   )

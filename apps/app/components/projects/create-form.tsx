@@ -1,7 +1,7 @@
 "use client"
 
 import { generateSlug } from "@/lib/utils"
-import { CreateProjectInput, createProjectSchema, isReservedSlug, PROJECT_NAME_MAX_LENGTH, ProjectStep, STEP_ICON, STEP_NAME, STEP_PLAN, STEP_URLS } from "@/lib/validations/project"
+import { CreateProjectInput, createProjectSchema, DEFAULT_ARTICLE_URL_PATTERN, isReservedSlug, PROJECT_NAME_MAX_LENGTH, ProjectStep, STEP_ICON, STEP_NAME, STEP_PLAN, STEP_URLS, WILDCARD_PROTOCOLS } from "@/lib/validations/project"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { PlanIds, SUBSCRIPTION_PLANS, SubscriptionInterval } from "@simplist/limits"
 import { BillingToggle } from "@simplist/ui/components/billing-toggle"
@@ -10,15 +10,20 @@ import { ColorSelector } from "@simplist/ui/components/color-selector"
 import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel, FieldSet, FieldTitle } from "@simplist/ui/components/field"
 import { IconPicker } from "@simplist/ui/components/icon-picker"
 import { Input } from "@simplist/ui/components/input"
-import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@simplist/ui/components/input-group"
+import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput, InputGroupSelect } from "@simplist/ui/components/input-group"
 import { Label } from "@simplist/ui/components/label"
 import { RadioGroup, RadioGroupItem } from "@simplist/ui/components/radio-group"
-import { c } from "@simplist/ui/lib/color"
+import { Select, SelectContent, SelectItem, SelectValue } from "@simplist/ui/components/select"
+import { c, getColorValue, getIconTextColorWithBackgroundColorOf } from "@simplist/ui/lib/color"
 import { i } from "@simplist/ui/lib/icons.enum"
+import { cn } from "@simplist/ui/lib/utils"
 import { ChevronRight, Plus, X } from "lucide-react"
-import { forwardRef, useImperativeHandle, useState } from "react"
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react"
 import { useFieldArray, useForm } from "react-hook-form"
 import { z } from "zod"
+import { InfoTooltip } from "@simplist/ui/components/info-tooltip"
+import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "@simplist/ui/components/item"
+import { IconRender } from "@simplist/ui/components/icon-renderer"
 
 type CreateProjectFormValues = z.infer<typeof createProjectSchema>
 
@@ -27,20 +32,25 @@ interface CreateProjectFormProps {
   step: ProjectStep
   onNext: () => void
   onBack: () => void
+  onStepChange: (step: ProjectStep) => void
   onSubmit: (data: CreateProjectInput & { selectedPlan: PlanIds, billingInterval: SubscriptionInterval }) => void
+  onFormChange?: (hasData: boolean) => void
   isSubmitting: boolean
   error: string
 }
 
 export const CreateProjectForm = forwardRef<
-  { 
+  {
     validateStep: (step: number) => Promise<boolean>
-    submitForm: () => void 
+    submitForm: () => void
+    resetForm: () => void
+    hasData: boolean
   },
   CreateProjectFormProps
->(({ className, step, onNext, onBack, onSubmit, isSubmitting, error, ...props }, ref) => {
+>(({ className, step, onNext, onBack, onStepChange, onSubmit, onFormChange, isSubmitting, error, ...props }, ref) => {
   const [selectedPlan, setSelectedPlan] = useState<PlanIds>("STARTER")
   const [billingInterval, setBillingInterval] = useState<SubscriptionInterval>("monthly")
+  const [originPrefixes, setOriginPrefixes] = useState<Record<string, WILDCARD_PROTOCOLS>>({})
 
   const form = useForm<CreateProjectFormValues>({
     resolver: zodResolver(createProjectSchema) as any,
@@ -50,40 +60,101 @@ export const CreateProjectForm = forwardRef<
       color: "YELLOW",
       icon: "building-2",
       baseUrl: null,
-      articleUrlPattern: "/posts/{slug}",
+      articleUrlPattern: "posts/{slug}",
     },
   })
 
-  const { register, control, handleSubmit, watch, trigger, formState: { errors } } = form
+  const {
+    register,
+    control,
+    handleSubmit,
+    watch,
+    trigger,
+    formState: {
+      errors
+    }
+  } = form
 
   const { fields, append, remove } = useFieldArray({
     control,
     name: "allowedOrigins"
   })
 
+  const checkHasData = () => {
+    const values = form.getValues()
+    return (
+      values.name !== "" ||
+      values.icon !== "building-2" ||
+      values.color !== "YELLOW" ||
+      values.baseUrl !== null ||
+      values.articleUrlPattern !== DEFAULT_ARTICLE_URL_PATTERN ||
+      (values.allowedOrigins && values.allowedOrigins.length > 0) ||
+      selectedPlan !== "STARTER" ||
+      billingInterval !== "monthly"
+    )
+  }
+
+  // Notify parent when form data changes
+  useEffect(() => {
+    if (onFormChange) {
+      const subscription = watch(() => {
+        onFormChange(checkHasData())
+      })
+      return () => subscription.unsubscribe()
+    }
+  }, [watch, onFormChange, selectedPlan, billingInterval])
+
   useImperativeHandle(ref, () => ({
     validateStep: async (stepToValidate: number) => {
       if (stepToValidate === STEP_NAME) {
         const nameIsValid = await trigger("name")
         if (!nameIsValid) return false
-        
+
         const currentName = watch("name")
         if (currentName && isReservedSlug(generateSlug(currentName))) {
           return false
         }
-        
+
         return true
       }
       return true
     },
-    submitForm: handleCreateProject
+    submitForm: handleCreateProject,
+    resetForm: () => {
+      form.reset()
+      setSelectedPlan("STARTER")
+      setBillingInterval("monthly")
+      setOriginPrefixes({})
+    },
+    get hasData() {
+      return checkHasData()
+    }
   }))
 
   const handleFormSubmit = (e: React.FormEvent) => e.preventDefault()
 
   const handleCreateProject = () => {
     handleSubmit((data) => {
-      onSubmit({ ...data, selectedPlan, billingInterval })
+      // Combine prefix with origin values
+      const processedOrigins = data.allowedOrigins?.map((origin, index) => {
+        const fieldId = fields[index]?.id
+        const prefix = originPrefixes[fieldId] || "https://"
+        const value = origin.value.trim()
+
+        // If prefix is wildcard and value doesn't start with *., add it
+        if (prefix === "https://*." && !value.startsWith("*.")) {
+          return { value: `*.${value}` }
+        }
+
+        return origin
+      }) || []
+
+      onSubmit({
+        ...data,
+        allowedOrigins: processedOrigins,
+        selectedPlan,
+        billingInterval
+      })
     })()
   }
 
@@ -101,28 +172,22 @@ export const CreateProjectForm = forwardRef<
           )}
 
           <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-            
-            <span className={step === STEP_NAME ? "font-semibold text-foreground" : ""}>
-              {STEP_NAME + 1}. Name
-            </span>
-
-            <ChevronRight size={12} />
-
-            <span className={step === STEP_ICON ? "font-semibold text-foreground" : ""}>
-              {STEP_ICON + 1}. Icon
-            </span>
-
-            <ChevronRight size={12} />
-
-            <span className={step === STEP_URLS ? "font-semibold text-foreground" : ""}>
-              {STEP_URLS + 1}. URLs
-            </span>
-
-            <ChevronRight size={12} />
-
-            <span className={step === STEP_PLAN ? "font-semibold text-foreground" : ""}>
-              {STEP_PLAN + 1}. Plan
-            </span>
+            {["Name", "Icon", "URLs", "Plan"].map((stepName, index) => (
+              <React.Fragment key={index}>
+                <span
+                  className={cn(
+                    "cursor-pointer transition-colors hover:text-foreground",
+                    index === step && "font-semibold text-foreground"
+                  )}
+                  onClick={() => {
+                    onStepChange(index as ProjectStep)
+                  }}
+                >
+                  {index + 1}. {stepName}
+                </span>
+                {index < 3 && <ChevronRight size={12} />}
+              </React.Fragment>
+            ))}
           </div>
 
           {step === STEP_NAME && (
@@ -147,10 +212,6 @@ export const CreateProjectForm = forwardRef<
                       {errors.name.message}
                     </p>
                   )}
-                  
-                  <FieldDescription className="text-xs">
-                    Used to generate the project slug automatically (you can change it later in Settings).
-                  </FieldDescription>
                 </Field>
 
                 <Field>
@@ -159,18 +220,16 @@ export const CreateProjectForm = forwardRef<
                   </FieldLabel>
                   
                   <InputGroup>
-                    <InputGroupAddon>app.simplist.blog/</InputGroupAddon>
+                    <InputGroupAddon align="inline-start">app.simplist.blog/</InputGroupAddon>
                     <InputGroupInput
                       id="slug-preview"
                       type="text"
                       disabled
                       value={watch("name") ? generateSlug(watch("name")) : ""}
                       placeholder="my-awesome-blog"
-                      className={`bg-muted ${
-                        watch("name") && isReservedSlug(generateSlug(watch("name"))) 
-                          ? "border-destructive text-destructive" 
-                          : ""
-                      }`}
+                      className={cn({
+                        "border-destructive text-destructive": watch("name") && isReservedSlug(generateSlug(watch("name")))
+                      })}
                     />
                   </InputGroup>
                   
@@ -184,16 +243,30 @@ export const CreateProjectForm = forwardRef<
             )}
 
             {step === STEP_ICON && (
-              <div className="space-y-4">
+              <>
                 <Field>
-                  <FieldLabel className="text-sm">Project icon & color</FieldLabel>
-                    <FieldDescription className="text-xs">
-                      Choose an icon and a color to quickly identify your project in the sidebar.
-                      You can upload a custom avatar / logo from your computer later in the project settings.
-                    </FieldDescription>
-                  </Field>
+                  <Item size="sm" variant="muted">
+                    <ItemMedia
+                      variant="icon"
+                      className="size-8"
+                      style={{
+                        backgroundColor: getColorValue(watch("color") ?? "CYAN"),
+                        color: getIconTextColorWithBackgroundColorOf(watch("color") ?? "CYAN")
+                      }}
+                    >
+                      <IconRender name={i(watch("icon") ?? "building-2")} />
+                    </ItemMedia>
 
-                  <div className="flex flex-col gap-3">
+                    <ItemContent>
+                      <ItemTitle>Preview</ItemTitle>
+                      <ItemDescription className="text-xs line-clamp-2">
+                        You can upload a custom avatar / logo from your computer later in the project settings.
+                      </ItemDescription>
+                    </ItemContent>
+                  </Item>
+                </Field>
+
+                <div className="flex flex-col gap-3">
                     <Field>
                       <FieldLabel className="text-sm">Icon</FieldLabel>
 
@@ -219,110 +292,141 @@ export const CreateProjectForm = forwardRef<
                       />
                   </Field>
                 </div>
-              </div>
+              </>
             )}
-
+            
             {step === STEP_URLS && (
-              <div className="space-y-4">
+              <>
                 <Field>
-                  <FieldLabel htmlFor="baseUrl">Base URL (optional)</FieldLabel>
+                  <FieldLabel htmlFor="baseUrl">URL</FieldLabel>
+            
                   <Input
                     id="baseUrl"
                     type="url"
-                    placeholder="https://monblog.com"
+                    placeholder="https://acme.com"
                     {...register("baseUrl")}
                   />
-                    
+            
                   <FieldDescription className="text-xs">
-                    The base URL of your blog, used to pre-fill links in webhooks and analytics. You can leave this empty for now.
+                    The base URL of your site. Used to pre-fill links in webhooks and analytics.
                   </FieldDescription>
-                    
+            
                   {errors.baseUrl && (
                     <p className="text-destructive text-sm">
                       {errors.baseUrl.message}
                     </p>
                   )}
                 </Field>
-                  
+            
                 <Field>
                   <FieldLabel htmlFor="articleUrlPattern">
                     URL pattern (optional)
+                    <InfoTooltip
+                      content="Webhook sent with {{url}} variable will contain the full URL of the article."
+                      showBrackets
+                    />
                   </FieldLabel>
-                    
+            
                   <InputGroup>
                     <InputGroupAddon>
-                      {watch("baseUrl") || "https://example.com"}
+                      {watch("baseUrl") || "https://acme.com/"}
                     </InputGroupAddon>
-                      
+            
                     <InputGroupInput
                       id="articleUrlPattern"
                       placeholder="/posts/{slug}"
                       {...register("articleUrlPattern")}
                     />
                   </InputGroup>
-
+            
                   <FieldDescription className="text-xs">
-                    Pattern for article URLs. Should include {"{slug}"} (e.g. /posts/{"{slug}"}, /articles/{"{slug}"}). Leave empty to use defaults.
+                    Used to generate article URLs.
                   </FieldDescription>
-                    
+            
                   {errors.articleUrlPattern && (
                     <p className="text-destructive text-sm">
                       {errors.articleUrlPattern.message}
                     </p>
                   )}
                 </Field>
-
+            
                 <Field>
-                  <FieldLabel>Allowed Origins (Optional)</FieldLabel>
-                  <div className="space-y-2">
-                    <div className={`space-y-2 ${fields.length > 3 ? 'max-h-32 overflow-y-auto pr-2' : ''}`}>
-                      {fields.map((field, index) => (
-                        <InputGroup key={field.id}>
-                          <InputGroupAddon>https://</InputGroupAddon>
-
-                          <InputGroupInput
-                            placeholder="yourdomain.com or *.yourdomain.com"
-                            {...register(`allowedOrigins.${index}.value`)}
-                          />
-
-                          <InputGroupAddon align="inline-end">
-                            <InputGroupButton
-                              type="button"
-                              variant="ghost"
-                              size="icon-xs"
-                              onClick={() => remove(index)}
-                            >
-                              <X />
-                            </InputGroupButton>
-                          </InputGroupAddon>
-                        </InputGroup>
-                      ))}
-                    </div>
+                  <div className="flex items-center justify-between">
+                    <FieldLabel>
+                      Allowed Origins
+                      <InfoTooltip
+                        content="API requests from these domains will be allowed. Leave empty to allow all origins."
+                      />
+                    </FieldLabel>
 
                     <Button
                       type="button"
                       variant="outline"
-                      size="sm"
+                      size="xs"
+                      className="w-fit h-fit text-[11px]"
                       onClick={() => append({ value: "" })}
-                      className="w-full"
                     >
-                      <Plus />
+                      <Plus className="size-3.5" />
                       Add Origin
                     </Button>
-
-                    <p className="text-muted-foreground text-sm">
-                      Add domains that can use your API. Leave empty to allow all origins.
-                    </p>
-
-                    {errors.allowedOrigins && (
-                      <p className="text-destructive text-sm">
-                        {errors.allowedOrigins.message}
-                      </p>
-                    )}
                   </div>
+            
+                  {fields.map((field, index) => (
+                    <InputGroup key={field.id}>
+                      <Select
+                        value={originPrefixes[field.id] || "https://"}
+                        onValueChange={(value: "https://" | "https://*.") => {
+                          setOriginPrefixes(prev => ({ ...prev, [field.id]: value }))
+                        }}
+                      >
+                        <InputGroupSelect>
+                          <SelectValue />
+                        </InputGroupSelect>
+                        <SelectContent>
+                          <SelectItem value="https://">https://</SelectItem>
+                          <SelectItem value="https://*.">https://*.</SelectItem>
+                        </SelectContent>
+                      </Select>
+
+                      <InputGroupInput
+                        placeholder="yourdomain.com"
+                        {...register(`allowedOrigins.${index}.value`)}
+                      />
+
+                      <InputGroupAddon align="inline-end">
+                        <InputGroupButton
+                          type="button"
+                          variant="ghost"
+                          size="icon-xs"
+                          onClick={() => {
+                            remove(index)
+                            setOriginPrefixes(prev => {
+                              const newPrefixes = { ...prev }
+                              delete newPrefixes[field.id]
+                              return newPrefixes
+                            })
+                          }}
+                        >
+                          <X />
+                        </InputGroupButton>
+                      </InputGroupAddon>
+                    </InputGroup>
+                  ))}
+
+                  {fields.length === 0 && (
+                    <div className="flex justify-center items-center text-center text-muted-foreground text-xs border border-dashed border-input rounded-md p-4 h-16">
+                      Leave empty to allow all origins.                 
+                    </div>
+                  )}
+
+                  {errors.allowedOrigins && (
+                    <p className="text-destructive text-sm">
+                      {errors.allowedOrigins.message}
+                    </p>
+                  )}
                 </Field>
-              </div>
-            )}
+              </>
+            )}            
 
             {step === STEP_PLAN && (
               <div>
@@ -368,7 +472,7 @@ export const CreateProjectForm = forwardRef<
                           </Label>
                         </div>
 
-                        <div className="text-muted-foreground text-xs leading-[inherit] px-2 py-px bg-primary/10 rounded-md text-primary">
+                        <div className="text-xs leading-[inherit] px-2 py-px bg-primary/10 rounded-md text-primary">
                           {SUBSCRIPTION_PLANS.STARTER.prices[0].displayAmount}
                         </div>
                       </div>
@@ -394,14 +498,14 @@ export const CreateProjectForm = forwardRef<
                           >
                             {SUBSCRIPTION_PLANS.PRO.name}
                             {billingInterval === 'yearly' && SUBSCRIPTION_PLANS.PRO.prices[1].savings && (
-                              <span className="font-normal text-muted-foreground text-xs leading-[inherit] text-primary">
+                              <span className="font-normal text-xs leading-[inherit] text-primary">
                                 ({SUBSCRIPTION_PLANS.PRO.prices[1].savings})
                               </span>
                             )}
                           </Label>
                         </div>
 
-                        <div className="text-muted-foreground text-xs leading-[inherit] px-2 py-px bg-primary/10 rounded-md text-primary">
+                        <div className="text-xs leading-[inherit] px-2 py-px bg-primary/10 rounded-md text-primary">
                           {SUBSCRIPTION_PLANS.PRO.prices[billingInterval === "monthly" ? 0 : 1].displayAmount}/month
                         </div>
                       </div>

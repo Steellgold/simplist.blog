@@ -12,6 +12,13 @@ export const STEP_ICON = 1
 export const STEP_URLS = 2
 export const STEP_PLAN = 3
 
+// Default pattern for article URLs
+export const DEFAULT_ARTICLE_URL_PATTERN = "posts/{slug}"
+export const DEFAULT_BASE_URL = "https://acme.com"
+
+// Wildcard domain prefix
+export type WILDCARD_PROTOCOLS = "https://" | "https://*."
+
 // Step type
 export type ProjectStep = typeof STEP_NAME | typeof STEP_ICON | typeof STEP_URLS | typeof STEP_PLAN
 

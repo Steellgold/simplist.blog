@@ -22,9 +22,10 @@ export type ThemeSwitcherProps = {
   defaultValue?: Theme;
   className?: string;
   variant?: "default" | "card";
+  with2XB?: boolean;
 };
 
-export const ThemeSwitcher: FC<ThemeSwitcherProps> = ({ value, onChange, defaultValue, className, variant = "default" }) => {
+export const ThemeSwitcher: FC<ThemeSwitcherProps> = ({ value, onChange, defaultValue, className, variant = "default", with2XB = false }) => {
   const { theme: currentTheme, setTheme: setT } = useTheme();
 
   const [theme, setTheme] = useControllableState({
@@ -50,14 +51,14 @@ export const ThemeSwitcher: FC<ThemeSwitcherProps> = ({ value, onChange, default
 
   if (!mounted) {
     return (
-      <div className="border rounded-full p-0.5">
+      <div className={cn(with2XB && "border rounded-full p-0.5")}>
         <Skeleton className="w-20 h-8 rounded-full" />
       </div>
     );
   }
 
   return (
-    <div className="border rounded-full p-0.5">
+    <div className={cn(with2XB && "border rounded-full p-0.5")}>
       <div
         className={cn(
           "relative isolate flex h-8 rounded-full p-1 ring-1 ring-border",
