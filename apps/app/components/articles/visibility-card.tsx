@@ -46,7 +46,7 @@ export const ArticleVisibilityCard = ({
       <CardHeader>
         <CardTitle>Visibility</CardTitle>
         <CardDescription>
-          Do you want to publish, draft, or schedule this post?
+          Select the visibility of the article.
         </CardDescription>
       </CardHeader>
 
