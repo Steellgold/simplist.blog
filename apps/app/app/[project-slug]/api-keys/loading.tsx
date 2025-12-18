@@ -6,7 +6,6 @@ const ApiKeysLoading = () => {
     <PageLayout
       title="API Keys"
       description="Manage API keys for your project"
-      centered
       actions={<Skeleton className="h-10 w-40" />}
     >
       <div className="space-y-4">

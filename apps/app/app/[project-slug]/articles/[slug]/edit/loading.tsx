@@ -1,5 +1,5 @@
-import { Card, CardContent, CardHeader } from "@simplist/ui/components/card"
-import { Skeleton } from "@simplist/ui/components/skeleton"
+import { Card, CardContent, CardHeader } from "@simplist/ui/components/card";
+import { Skeleton } from "@simplist/ui/components/skeleton";
 
 const EditArticleLoading = () => {
   return (
@@ -62,10 +62,21 @@ const EditArticleLoading = () => {
               <Skeleton className="h-36 w-full" />
             </CardContent>
           </Card>
+
+          {/* Tags Skeleton */}
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-6 w-16 mb-2" />
+              <Skeleton className="h-4 w-40" />
+            </CardHeader>
+            <CardContent>
+              <Skeleton className="h-10 w-full" />
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default EditArticleLoading
+export default EditArticleLoading;
