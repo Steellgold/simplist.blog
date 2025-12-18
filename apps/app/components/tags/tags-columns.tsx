@@ -193,7 +193,7 @@ export const useTagsColumns = ({
     columns.push({
       id: "select",
       header: ({ table }) => (
-        <div className="pl-2">
+        <div className="flex items-center pl-2">
           <Checkbox
             checked={
               table.getIsAllPageRowsSelected() ||
@@ -207,7 +207,7 @@ export const useTagsColumns = ({
         </div>
       ),
       cell: ({ row }) => (
-        <div className="pl-2">
+        <div className="flex items-center pl-2">
           <Checkbox
             checked={row.getIsSelected()}
             onCheckedChange={(value) => row.toggleSelected(!!value)}

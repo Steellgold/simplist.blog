@@ -168,7 +168,7 @@ export const useArticlesColumns = (): ColumnDef<Article>[] => {
     columns.push({
       id: "select",
       header: ({ table }) => (
-        <div className="pl-2">
+        <div className="flex items-center pl-2">
           <Checkbox
             checked={
               table.getIsAllPageRowsSelected() ||
@@ -182,7 +182,7 @@ export const useArticlesColumns = (): ColumnDef<Article>[] => {
         </div>
       ),
       cell: ({ row }) => (
-        <div className="pl-2">
+        <div className="flex items-center pl-2">
           <Checkbox
             checked={row.getIsSelected()}
             onCheckedChange={(value) => row.toggleSelected(!!value)}
