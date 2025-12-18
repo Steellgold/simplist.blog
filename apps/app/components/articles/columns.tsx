@@ -321,6 +321,57 @@ export const useArticlesColumns = (): ColumnDef<Article>[] => {
       },
     },
     {
+      accessorKey: "tags",
+      header: "Tags",
+      cell: ({ row }) => {
+        const tags = row.original.tags || [];
+
+        if (tags.length === 0) {
+          return <div className="text-xs text-muted-foreground italic">-</div>;
+        }
+
+        const visibleTags = tags.slice(0, 2);
+        const remainingCount = tags.length - 2;
+
+        return (
+          <div className="flex flex-wrap gap-1">
+            {visibleTags.map((tag) => (
+              <Badge key={tag.name} variant="outline" className="text-xs">
+                {tag.name}
+              </Badge>
+            ))}
+            {remainingCount > 0 && (
+              <TooltipProvider delayDuration={100}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge variant="outline" className="text-xs">
+                      +{remainingCount}
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {tags
+                      .slice(2)
+                      .map((tag) => tag.name)
+                      .join(", ")}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+          </div>
+        );
+      },
+      filterFn: (row, columnId, filterValue: string[] | undefined) => {
+        if (!filterValue || filterValue.length === 0) return true;
+        const tags = row.getValue(columnId) as
+          | Array<{ name: string }>
+          | undefined;
+        if (!tags || tags.length === 0) return false;
+        return filterValue.some((selectedTag) =>
+          tags.some((tag) => tag.name === selectedTag),
+        );
+      },
+    },
+    {
       accessorKey: "createdAt",
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Created" />
@@ -363,22 +414,6 @@ export const useArticlesColumns = (): ColumnDef<Article>[] => {
       header: () => null,
       cell: () => null,
       enableHiding: true,
-    },
-    {
-      accessorKey: "tags",
-      header: () => null,
-      cell: () => null,
-      enableHiding: true,
-      filterFn: (row, columnId, filterValue: string[] | undefined) => {
-        if (!filterValue || filterValue.length === 0) return true;
-        const tags = row.getValue(columnId) as
-          | Array<{ name: string }>
-          | undefined;
-        if (!tags || tags.length === 0) return false;
-        return filterValue.some((selectedTag) =>
-          tags.some((tag) => tag.name === selectedTag),
-        );
-      },
     },
     {
       id: "author",
