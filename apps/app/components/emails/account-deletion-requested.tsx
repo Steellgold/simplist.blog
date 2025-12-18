@@ -4,10 +4,9 @@ type Props = {
   name: string;
   scheduledAt: Date;
   manageUrl: string;
-  reason?: string;
 };
 
-export const AccountDeletionRequestedEmail = ({ name, scheduledAt, manageUrl, reason }: Props) => {
+export const AccountDeletionRequestedEmail = ({ name, scheduledAt, manageUrl }: Props) => {
   return (
     <EmailLayout previewText="Your account deletion has been scheduled">
       <h1>Account deletion scheduled</h1>
@@ -29,14 +28,6 @@ export const AccountDeletionRequestedEmail = ({ name, scheduledAt, manageUrl, re
           records may be retained as required by law.
         </p>
       </div>
-
-      {reason && (
-        <div className="highlight">
-          <p>
-            <strong>Your note:</strong> {reason}
-          </p>
-        </div>
-      )}
 
       <p style={{ textAlign: "center", margin: "32px 0" }}>
         <a href={manageUrl} className="button">

@@ -86,19 +86,20 @@ export const requestAccountDeletion = async (input: RequestAccountDeletionInput)
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
   const manageUrl = `${appUrl}/account/settings/account`
 
+  // TODO: Store the reason deletion for user experience feedback
+
   const html = await render(
     AccountDeletionRequestedEmail({
       name: userName,
       scheduledAt,
-      manageUrl,
-      reason: parsedInput.reason,
+      manageUrl
     })
   )
 
   await sendEmail({
     to: user.email,
     subject: "Your Simplist account deletion request",
-    html,
+    html
   })
 
   revalidatePath("/account/settings/account", "page")
