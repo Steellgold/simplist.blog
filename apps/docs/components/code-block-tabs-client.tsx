@@ -1,33 +1,45 @@
-"use client"
+"use client";
 
-import { FC, useState } from "react"
-import { Card } from "@simplist/ui/components/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@simplist/ui/components/tabs"
-import { cn } from "@/lib/utils"
-import { CopyButton } from "./copy"
-import { languages } from "@/lib/languages"
+import { FC, useState } from "react";
+import { Card } from "@simplist/ui/components/card";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@simplist/ui/components/tabs";
+import { cn } from "@/lib/utils";
+import { CopyButton } from "@simplist/ui/components/copy-button";
+import { languages } from "@/lib/languages";
 
 type HighlightedTab = {
-  label: string
-  language: string
-  code: string
-  filename?: string
-  highlighted: string
-}
+  label: string;
+  language: string;
+  code: string;
+  filename?: string;
+  highlighted: string;
+};
 
 type CodeBlockTabsClientProps = {
-  tabs: HighlightedTab[]
-  className?: string
-}
+  tabs: HighlightedTab[];
+  className?: string;
+};
 
-export const CodeBlockTabsClient: FC<CodeBlockTabsClientProps> = ({ tabs, className }) => {
-  const [activeTab, setActiveTab] = useState(tabs[0].label)
-  const activeTabData = tabs.find(t => t.label === activeTab) || tabs[0]
+export const CodeBlockTabsClient: FC<CodeBlockTabsClientProps> = ({
+  tabs,
+  className,
+}) => {
+  const [activeTab, setActiveTab] = useState(tabs[0].label);
+  const activeTabData = tabs.find((t) => t.label === activeTab) || tabs[0];
 
   return (
     <Card className="p-[2.5px] rounded-2xl">
       <Card className={cn("overflow-hidden p-0 max-w-full", className)}>
-        <Tabs value={activeTab} onValueChange={setActiveTab} defaultValue={tabs[0].label}>
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          defaultValue={tabs[0].label}
+        >
           <div className="flex items-center justify-between bg-muted/50 px-2 py-2 border-b gap-2 min-w-0">
             <TabsList className="bg-transparent overflow-x-auto flex-shrink min-w-0">
               {tabs.map((tab) => (
@@ -37,10 +49,8 @@ export const CodeBlockTabsClient: FC<CodeBlockTabsClientProps> = ({ tabs, classN
                   className="flex-shrink-0"
                   title={tab.filename || tab.label}
                 >
-                  {languages.find(l => l.value === tab.language)?.icon}
-                  <span className="inline-block align-middle">
-                    {tab.label}
-                  </span>
+                  {languages.find((l) => l.value === tab.language)?.icon}
+                  <span className="inline-block align-middle">{tab.label}</span>
                 </TabsTrigger>
               ))}
             </TabsList>
@@ -63,5 +73,5 @@ export const CodeBlockTabsClient: FC<CodeBlockTabsClientProps> = ({ tabs, classN
         </Tabs>
       </Card>
     </Card>
-  )
-}
+  );
+};

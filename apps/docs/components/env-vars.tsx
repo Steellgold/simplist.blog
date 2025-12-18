@@ -1,36 +1,52 @@
-"use client"
+"use client";
 
-import { FC, useState } from "react"
-import { Card, CardContent } from "@simplist/ui/components/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@simplist/ui/components/table"
-import { TooltipProvider } from "@simplist/ui/components/tooltip"
-import { CopyButton } from "./copy"
-import { cn } from "@/lib/utils"
+import { FC, useState } from "react";
+import { Card, CardContent } from "@simplist/ui/components/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@simplist/ui/components/table";
+import { TooltipProvider } from "@simplist/ui/components/tooltip";
+import { CopyButton } from "@simplist/ui/components/copy-button";
+import { cn } from "@/lib/utils";
 
 type EnvVar = {
-  name: string
-  required?: boolean
-  default?: string
-  description?: string
-}
+  name: string;
+  required?: boolean;
+  default?: string;
+  description?: string;
+};
 
 type EnvVarsProps = {
-  variables: EnvVar[]
-  title?: string
-  className?: string
-}
+  variables: EnvVar[];
+  title?: string;
+  className?: string;
+};
 
-const EnvVarsTable: FC<Pick<EnvVarsProps, "variables">> = ({ variables }: Pick<EnvVarsProps, "variables">) => {
-
+const EnvVarsTable: FC<Pick<EnvVarsProps, "variables">> = ({
+  variables,
+}: Pick<EnvVarsProps, "variables">) => {
   return (
     <div className="w-full rounded-lg border">
       <Table>
         <TableHeader>
           <TableRow className="bg-muted/50 hover:bg-muted/50">
-            <TableHead className="font-medium whitespace-nowrap">Variable</TableHead>
-            <TableHead className="font-medium whitespace-nowrap">Required</TableHead>
-            <TableHead className="font-medium whitespace-nowrap">Default</TableHead>
-            <TableHead className="font-medium whitespace-nowrap">Description</TableHead>
+            <TableHead className="font-medium whitespace-nowrap">
+              Variable
+            </TableHead>
+            <TableHead className="font-medium whitespace-nowrap">
+              Required
+            </TableHead>
+            <TableHead className="font-medium whitespace-nowrap">
+              Default
+            </TableHead>
+            <TableHead className="font-medium whitespace-nowrap">
+              Description
+            </TableHead>
           </TableRow>
         </TableHeader>
 
@@ -46,10 +62,15 @@ const EnvVarsTable: FC<Pick<EnvVarsProps, "variables">> = ({ variables }: Pick<E
               </TableCell>
 
               <TableCell className="whitespace-nowrap">
-                {variable.required
-                  ? <span className="text-xs text-destructive font-medium">Required</span>
-                  : <span className="text-xs text-muted-foreground font-medium">Optional</span>
-                }
+                {variable.required ? (
+                  <span className="text-xs text-destructive font-medium">
+                    Required
+                  </span>
+                ) : (
+                  <span className="text-xs text-muted-foreground font-medium">
+                    Optional
+                  </span>
+                )}
               </TableCell>
 
               <TableCell className="font-mono text-sm whitespace-nowrap">
@@ -70,8 +91,8 @@ const EnvVarsTable: FC<Pick<EnvVarsProps, "variables">> = ({ variables }: Pick<E
         </TableBody>
       </Table>
     </div>
-  )
-}
+  );
+};
 
 export const EnvVars: FC<EnvVarsProps> = ({ variables, title, className }) => {
   if (!title) {
@@ -85,7 +106,7 @@ export const EnvVars: FC<EnvVarsProps> = ({ variables, title, className }) => {
           </Card>
         </Card>
       </TooltipProvider>
-    )
+    );
   }
 
   return (
@@ -104,5 +125,5 @@ export const EnvVars: FC<EnvVarsProps> = ({ variables, title, className }) => {
         </Card>
       </Card>
     </TooltipProvider>
-  )
-}
+  );
+};

@@ -1,17 +1,17 @@
-"use client"
+"use client";
 
-import { FC } from "react"
-import { Card, CardContent } from "@simplist/ui/components/card"
-import { TooltipProvider } from "@simplist/ui/components/tooltip"
-import { cn } from "@simplist/ui/lib/utils"
-import { CopyButton } from "./copy"
+import { FC } from "react";
+import { Card, CardContent } from "@simplist/ui/components/card";
+import { TooltipProvider } from "@simplist/ui/components/tooltip";
+import { cn } from "@simplist/ui/lib/utils";
+import { CopyButton } from "@simplist/ui/components/copy-button";
 
 interface CurlCommandProps {
-  method: string
-  url: string
-  headers?: Record<string, string>
-  body?: string
-  className?: string
+  method: string;
+  url: string;
+  headers?: Record<string, string>;
+  body?: string;
+  className?: string;
 }
 
 export const CurlCommand: FC<CurlCommandProps> = ({
@@ -19,24 +19,24 @@ export const CurlCommand: FC<CurlCommandProps> = ({
   url,
   headers = {},
   body,
-  className
+  className,
 }) => {
   const generateCurlCommand = () => {
-    const parts: string[] = [`curl -X ${method} "${url}"`]
+    const parts: string[] = [`curl -X ${method} "${url}"`];
 
     Object.entries(headers).forEach(([key, value]) => {
-      parts.push(`  -H "${key}: ${value}"`)
-    })
+      parts.push(`  -H "${key}: ${value}"`);
+    });
 
     if (body && ["POST", "PUT", "PATCH"].includes(method)) {
-      const escapedBody = body.replace(/"/g, '\\"')
-      parts.push(`  -d "${escapedBody}"`)
+      const escapedBody = body.replace(/"/g, '\\"');
+      parts.push(`  -d "${escapedBody}"`);
     }
 
-    return parts.join(" \\\n")
-  }
+    return parts.join(" \\\n");
+  };
 
-  const curlCommand = generateCurlCommand()
+  const curlCommand = generateCurlCommand();
 
   return (
     <TooltipProvider delayDuration={300}>
@@ -60,5 +60,5 @@ export const CurlCommand: FC<CurlCommandProps> = ({
         </Card>
       </Card>
     </TooltipProvider>
-  )
-}
+  );
+};
