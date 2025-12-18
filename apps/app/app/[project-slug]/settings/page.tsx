@@ -157,20 +157,34 @@ const SettingsPage = () => {
           setSavingSection(null)
           updateProject(project)
 
-          // Reset form with new values to clear dirty state
-          reset({
-            name: project.name,
-            slug: project.slug,
-            icon: i(project.icon || "building-2"),
-            color: project.color || "CYAN",
-            avatarUrl: project.avatarUrl || null,
-            defaultLanguage: project.defaultLanguage,
-            allowedOrigins: project.allowedOrigins?.map((origin: string) => ({
-              value: origin.replace("https://", "")
-            })) || [],
-            baseUrl: project.baseUrl || null,
-            articleUrlPattern: project.articleUrlPattern || "/blog/{slug}",
-          })
+          // Only reset the specific fields that were saved to clear dirty state
+          switch (section) {
+            case "name":
+              form.resetField("name", { defaultValue: project.name })
+              break
+            case "slug":
+              form.resetField("slug", { defaultValue: project.slug })
+              break
+            case "icon-color":
+              form.resetField("icon", { defaultValue: i(project.icon || "building-2") })
+              form.resetField("color", { defaultValue: project.color || "CYAN" })
+              form.resetField("avatarUrl", { defaultValue: project.avatarUrl || null })
+              break
+            case "language":
+              form.resetField("defaultLanguage", { defaultValue: project.defaultLanguage })
+              break
+            case "origins":
+              form.resetField("allowedOrigins", {
+                defaultValue: project.allowedOrigins?.map((origin: string) => ({
+                  value: origin.replace("https://", "")
+                })) || []
+              })
+              break
+            case "url":
+              form.resetField("baseUrl", { defaultValue: project.baseUrl || null })
+              form.resetField("articleUrlPattern", { defaultValue: project.articleUrlPattern || "/blog/{slug}" })
+              break
+          }
 
           // If slug changed, redirect to new URL
           if (project.slug !== oldSlug) {

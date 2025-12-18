@@ -10,9 +10,9 @@ import { getTagColorClasses } from "@simplist/ui/lib/color";
 import type { IconsEnumType } from "@simplist/ui/lib/icons.enum";
 import { cn } from "@simplist/ui/lib/utils";
 import { X } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { FC, useEffect, useMemo, useRef, useState } from "react";
 
-interface ArticleTagsInputProps {
+type ArticleTagsInputProps = {
   value: Tag[]
   onChange: (tags: Tag[]) => void
   availableTags?: Tag[]
@@ -22,7 +22,7 @@ interface ArticleTagsInputProps {
   onCreateTag?: (name: string) => Promise<Tag | null>
 }
 
-export function ArticleTagsInput({
+export const ArticleTagsInput: FC<ArticleTagsInputProps> = ({
   value,
   onChange,
   availableTags = [],
@@ -30,7 +30,7 @@ export function ArticleTagsInput({
   className,
   maxTags,
   onCreateTag,
-}: ArticleTagsInputProps) {
+}) => {
   const [inputValue, setInputValue] = useState("")
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [highlightedIndex, setHighlightedIndex] = useState(-1)
