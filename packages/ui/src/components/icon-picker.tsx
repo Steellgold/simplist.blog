@@ -33,7 +33,7 @@ import { ChevronDown } from "lucide-react";
 import { ComponentType, FC, useEffect, useMemo, useRef, useState } from "react";
 import { useMediaQuery } from "../hooks/use-media-query";
 
-const DEFAULT_ICONS_PER_BATCH = 40;
+const DEFAULT_ICONS_PER_BATCH = 100;
 
 type IconPickerProps = {
   value?: IconsEnumType;
@@ -273,6 +273,7 @@ export const IconPicker: FC<IconPickerProps> = ({
                   : placeholder}
               </span>
             </div>
+
             <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
           </Button>
         </DialogTrigger>}
@@ -314,6 +315,7 @@ export const IconPicker: FC<IconPickerProps> = ({
             >
               Cancel
             </Button>
+
             <Button
               type="button"
               variant="default"
