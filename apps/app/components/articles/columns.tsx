@@ -1,21 +1,22 @@
-"use client"
+"use client";
 
-import { useProjectContext } from "@/components/projects/context-provider"
-import { ColumnDef } from "@tanstack/react-table"
-import { format } from "date-fns"
-import { Copy, Edit, MoreVertical, Trash, TrendingUp } from "lucide-react"
-import Image from "next/image"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
-import { VariantFlags } from "./variant-flags"
+import { useProjectContext } from "@/components/projects/context-provider";
+import { ColumnDef } from "@tanstack/react-table";
+import { format } from "date-fns";
+import { Copy, Edit, MoreVertical, Trash, TrendingUp } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { VariantFlags } from "./variant-flags";
 
-import { deleteArticle } from "@/lib/actions/articles"
-import { getDateFnsLocale, LanguageCode } from "@/lib/types/languages"
-import { Badge } from "@simplist/ui/components/badge"
-import { Button } from "@simplist/ui/components/button"
-import { Checkbox } from "@simplist/ui/components/checkbox"
-import { ConfirmDialog } from "@simplist/ui/components/confirm-dialog"
+import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
+import { deleteArticle } from "@/lib/actions/articles";
+import { getDateFnsLocale, LanguageCode } from "@/lib/types/languages";
+import { Badge } from "@simplist/ui/components/badge";
+import { Button } from "@simplist/ui/components/button";
+import { Checkbox } from "@simplist/ui/components/checkbox";
+import { ConfirmDialog } from "@simplist/ui/components/confirm-dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,59 +25,64 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@simplist/ui/components/dropdown-menu"
-import { toast } from "@simplist/ui/components/sonner"
-import { Spinner } from "@simplist/ui/components/spinner"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@simplist/ui/components/tooltip"
+} from "@simplist/ui/components/dropdown-menu";
+import { toast } from "@simplist/ui/components/sonner";
+import { Spinner } from "@simplist/ui/components/spinner";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@simplist/ui/components/tooltip";
 
 type Article = {
-  id: string
-  title: string
-  slug: string
-  excerpt: string | null
-  coverImage: string | null
-  status: string
-  viewCount: number
-  createdAt: Date
-  updatedAt: Date
-  scheduledPublishAt?: Date | null
-  variants?: Array<{ lang: LanguageCode }>
-}
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  coverImage: string | null;
+  status: string;
+  viewCount: number;
+  createdAt: Date;
+  updatedAt: Date;
+  scheduledPublishAt?: Date | null;
+  variants?: Array<{ id: string; lang: LanguageCode }>;
+  author?: { id: string; name: string | null } | null;
+  tags?: Array<{ name: string }>;
+};
 
 const ArticleActionsCell = ({ article }: { article: Article }) => {
-  const router = useRouter()
-  const { currentProject } = useProjectContext()
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
-  const [isDeleting, setIsDeleting] = useState(false)
+  const router = useRouter();
+  const { currentProject } = useProjectContext();
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Reset isDeleting when dialog closes
   useEffect(() => {
     if (!showDeleteDialog) {
-      setIsDeleting(false)
+      setIsDeleting(false);
     }
-  }, [showDeleteDialog])
+  }, [showDeleteDialog]);
 
   const copyId = () => {
-    navigator.clipboard.writeText(article.id)
-    toast.success("Article ID copied to clipboard")
-  }
+    navigator.clipboard.writeText(article.id);
+    toast.success("Article ID copied to clipboard");
+  };
 
   const handleDelete = async () => {
     try {
-      setIsDeleting(true)
-      toast.promise(
-        deleteArticle(article.id), {
-          loading: "Deleting article...",
-          success: "Article deleted successfully",
-          error: "Failed to delete article",
-        }
-      )
-      setShowDeleteDialog(false)
-      router.refresh()
+      setIsDeleting(true);
+      toast.promise(deleteArticle(article.id), {
+        loading: "Deleting article...",
+        success: "Article deleted successfully",
+        error: "Failed to delete article",
+      });
+      setShowDeleteDialog(false);
+      router.refresh();
     } catch {
-      setIsDeleting(false)
+      setIsDeleting(false);
     }
-  }
+  };
 
   return (
     <>
@@ -98,12 +104,18 @@ const ArticleActionsCell = ({ article }: { article: Article }) => {
 
           <DropdownMenuSeparator />
 
-          <DropdownMenuItemLink as={Link} href={`/${currentProject?.slug}/articles/${article.slug}/edit`}>
+          <DropdownMenuItemLink
+            as={Link}
+            href={`/${currentProject?.slug}/articles/${article.slug}/edit`}
+          >
             <Edit />
             Edit article
           </DropdownMenuItemLink>
 
-          <DropdownMenuItemLink as={Link} href={`/${currentProject?.slug}/analytics?articles=${article.id}`}>
+          <DropdownMenuItemLink
+            as={Link}
+            href={`/${currentProject?.slug}/analytics?articles=${article.id}`}
+          >
             <TrendingUp />
             Analytics
           </DropdownMenuItemLink>
@@ -129,200 +141,261 @@ const ArticleActionsCell = ({ article }: { article: Article }) => {
         variant="destructive"
       />
     </>
-  )
-}
+  );
+};
 
 const statusConfig = {
   draft: { label: "Draft", variant: "secondary" as const },
   published: { label: "Published", variant: "default" as const },
   scheduled: { label: "Scheduled", variant: "outline" as const },
   archived: { label: "Archived", variant: "outline" as const },
-}
+};
 
 export const useArticlesColumns = (): ColumnDef<Article>[] => {
-  const { currentProject } = useProjectContext()
+  const { currentProject } = useProjectContext();
 
   // Check if user has pro access for bulk operations
-  const isPro = Boolean(currentProject?.subscriptionTier === "PRO" &&
+  const isPro = Boolean(
+    currentProject?.subscriptionTier === "PRO" &&
     currentProject?.subscriptionExpiresAt &&
-    new Date(currentProject.subscriptionExpiresAt) > new Date())
+    new Date(currentProject.subscriptionExpiresAt) > new Date(),
+  );
 
-  const columns: ColumnDef<Article>[] = []
+  const columns: ColumnDef<Article>[] = [];
 
   // Only add select column for Pro users
   if (isPro) {
     columns.push({
       id: "select",
       header: ({ table }) => (
-        <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
-          }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-        />
+        <div className="pl-2">
+          <Checkbox
+            checked={
+              table.getIsAllPageRowsSelected() ||
+              (table.getIsSomePageRowsSelected() && "indeterminate")
+            }
+            onCheckedChange={(value) =>
+              table.toggleAllPageRowsSelected(!!value)
+            }
+            aria-label="Select all"
+          />
+        </div>
       ),
       cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
+        <div className="pl-2">
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
+            aria-label="Select row"
+          />
+        </div>
       ),
       enableSorting: false,
       enableHiding: false,
-    })
+    });
   }
 
   return [
     ...columns,
-  {
-    accessorKey: "coverImage",
-    header: () => null,
-    cell: ({ row }) => {
-      const coverImage = row.getValue("coverImage") as string | null
-      const title = row.getValue("title") as string
-      const variants = row.original.variants as Array<{ lang: string; coverImage?: string | null }> | undefined
+    {
+      accessorKey: "coverImage",
+      header: () => null,
+      cell: ({ row }) => {
+        const coverImage = row.getValue("coverImage") as string | null;
+        const title = row.getValue("title") as string;
+        const variants = row.original.variants as
+          | Array<{ lang: string; coverImage?: string | null }>
+          | undefined;
 
-      const displayImage = coverImage || variants?.find(v => v.coverImage)?.coverImage || null
+        const displayImage =
+          coverImage || variants?.find((v) => v.coverImage)?.coverImage || null;
 
-      return (
-        <div className="w-24 h-16 relative rounded-md overflow-hidden bg-muted">
-          {displayImage ? (
-            <Image
-              src={displayImage}
-              alt={title}
-              fill
-              sizes="128px"
-              className="object-cover"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">
-              No image
-            </div>
-          )}
-        </div>
-      )
-    },
-  },
-  {
-    accessorKey: "title",
-    header: "Title",
-    cell: ({ row }) => {
-      const title = row.getValue("title") as string
-      const excerpt = row.original.excerpt
-
-      return (
-        <>
-          <div className="font-medium truncate max-w-[200px] sm:max-w-md" title={title}>
-            {title}
-          </div>
-          {excerpt && (
-            <div className="text-sm text-muted-foreground line-clamp-1 max-w-[200px] sm:max-w-md hidden sm:block">
-              {excerpt}
-            </div>
-          )}
-        </>
-      )
-    },
-  },
-  {
-    id: "variants",
-    header: "Variants",
-    cell: ({ row }) => {
-      const article = row.original
-      const variants = article.variants || []
-
-      if (variants.length === 0) {
         return (
-          <div className="text-xs text-muted-foreground italic flex justify-center select-none">
-            X
+          <div className="w-24 h-16 relative rounded-md overflow-hidden bg-muted">
+            {displayImage ? (
+              <Image
+                src={displayImage}
+                alt={title}
+                fill
+                sizes="128px"
+                className="object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">
+                No image
+              </div>
+            )}
           </div>
-        )
-      }
-
-      return (
-        <div className="flex justify-center">
-          <VariantFlags variants={variants} maxVisible={4} />
-        </div>
-      )
+        );
+      },
     },
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => {
-      const status = row.getValue("status") as keyof typeof statusConfig
-      const config = statusConfig[status] || statusConfig.draft
-      const article = row.original
+    {
+      accessorKey: "title",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Title" />
+      ),
+      cell: ({ row }) => {
+        const title = row.getValue("title") as string;
+        const excerpt = row.original.excerpt;
 
-      if (status === "scheduled" && article.scheduledPublishAt) {
         return (
-          <TooltipProvider delayDuration={100}>
-            <Tooltip>
-              <TooltipTrigger>
-                <Badge variant={config.variant}>{config.label}</Badge>
-              </TooltipTrigger>
-
-              <TooltipContent>
-                {format(new Date(article.scheduledPublishAt), "PPP 'at' HH:mm", { locale: getDateFnsLocale(currentProject?.defaultLanguage || "en") })}
-                <br />
-                Timezone: {currentProject?.timezone}
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        )
-      }
-
-      return (
-        <div className="space-y-1">
-          <Badge variant={config.variant}>{config.label}</Badge>
-        </div>
-      )
+          <>
+            <div
+              className="font-medium truncate max-w-[200px] sm:max-w-md"
+              title={title}
+            >
+              {title}
+            </div>
+            {excerpt && (
+              <div className="text-sm text-muted-foreground line-clamp-1 max-w-[200px] sm:max-w-md hidden sm:block">
+                {excerpt}
+              </div>
+            )}
+          </>
+        );
+      },
     },
-  },
-  {
-    id: "analytics",
-    header: "Analytics",
-    cell: ({ row }) => {
-      const article = row.original
+    {
+      id: "variants",
+      header: "Variants",
+      cell: ({ row }) => {
+        const article = row.original;
+        const variants = article.variants || [];
 
-      return (
-        <Button
-          variant="outline"
-          size="sm"
-          asChild
-          className="h-8"
-        >
-          <Link href={`/${currentProject?.slug}/analytics?articles=${article.id}`}>
-            <TrendingUp className="h-3 w-3 sm:mr-1" />
-            <span className="hidden sm:inline">Analytics</span>
-          </Link>
-        </Button>
-      )
-    },
-  },
-  {
-    accessorKey: "createdAt",
-    header: "Created",
-    cell: ({ row }) => {
-      const createdAt = row.getValue("createdAt") as Date
-      const updatedAt = row.original.updatedAt
+        if (variants.length === 0) {
+          return (
+            <div className="text-xs text-muted-foreground italic flex justify-center select-none">
+              X
+            </div>
+          );
+        }
 
-      return (
-        <div className="space-y-1 text-sm">
-          <div className="truncate">{format(new Date(createdAt), "MMM d, yyyy")}</div>
-          <div className="text-muted-foreground text-xs hidden sm:block">
-            Updated: {format(new Date(updatedAt), "MMM d, yyyy")}
+        return (
+          <div className="flex justify-center">
+            <VariantFlags variants={variants} maxVisible={4} />
           </div>
-        </div>
-      )
+        );
+      },
     },
-  },
+    {
+      accessorKey: "status",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Status" />
+      ),
+      cell: ({ row }) => {
+        const status = row.getValue("status") as keyof typeof statusConfig;
+        const config = statusConfig[status] || statusConfig.draft;
+        const article = row.original;
+
+        if (status === "scheduled" && article.scheduledPublishAt) {
+          return (
+            <TooltipProvider delayDuration={100}>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Badge variant={config.variant}>{config.label}</Badge>
+                </TooltipTrigger>
+
+                <TooltipContent>
+                  {format(
+                    new Date(article.scheduledPublishAt),
+                    "PPP 'at' HH:mm",
+                    {
+                      locale: getDateFnsLocale(
+                        currentProject?.defaultLanguage || "en",
+                      ),
+                    },
+                  )}
+                  <br />
+                  Timezone: {currentProject?.timezone}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          );
+        }
+
+        return (
+          <div className="space-y-1">
+            <Badge variant={config.variant}>{config.label}</Badge>
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "createdAt",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Created" />
+      ),
+      cell: ({ row }) => {
+        const createdAt = row.getValue("createdAt") as Date;
+
+        return (
+          <div className="text-sm truncate">
+            {format(new Date(createdAt), "MMM d, yyyy")}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "updatedAt",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Updated" />
+      ),
+      cell: ({ row }) => {
+        const updatedAt = row.getValue("updatedAt") as Date;
+
+        return (
+          <div className="text-sm truncate">
+            {format(new Date(updatedAt), "MMM d, yyyy")}
+          </div>
+        );
+      },
+    },
+    // Hidden columns for filtering/sorting only
+    {
+      accessorKey: "viewCount",
+      header: () => null,
+      cell: () => null,
+      enableHiding: true,
+    },
+    {
+      id: "variantCount",
+      accessorFn: (row) => row.variants?.length ?? 0,
+      header: () => null,
+      cell: () => null,
+      enableHiding: true,
+    },
+    {
+      accessorKey: "tags",
+      header: () => null,
+      cell: () => null,
+      enableHiding: true,
+      filterFn: (row, columnId, filterValue: string[] | undefined) => {
+        if (!filterValue || filterValue.length === 0) return true;
+        const tags = row.getValue(columnId) as
+          | Array<{ name: string }>
+          | undefined;
+        if (!tags || tags.length === 0) return false;
+        return filterValue.some((selectedTag) =>
+          tags.some((tag) => tag.name === selectedTag),
+        );
+      },
+    },
+    {
+      id: "author",
+      accessorFn: (row) => row.author?.id,
+      header: () => null,
+      cell: () => null,
+      enableHiding: true,
+      filterFn: (row, columnId, filterValue: string[] | undefined) => {
+        if (!filterValue || filterValue.length === 0) return true;
+        const authorId = row.getValue(columnId) as string | undefined;
+        if (!authorId) return false;
+        return filterValue.includes(authorId);
+      },
+    },
     {
       id: "actions",
       cell: ({ row }) => <ArticleActionsCell article={row.original} />,
     },
-  ]
-}
+  ];
+};
