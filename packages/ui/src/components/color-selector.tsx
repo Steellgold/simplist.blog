@@ -208,7 +208,6 @@ export const ColorSelector: FC<ColorSelectorProps> = ({
             <Button
               type="button"
               variant="outline"
-              size="sm"
               onClick={() => handleDialogOpenChange(false)}
             >
               Cancel
@@ -217,7 +216,6 @@ export const ColorSelector: FC<ColorSelectorProps> = ({
             <Button
               type="button"
               variant="default"
-              size="sm"
               onClick={handleDialogConfirm}
               disabled={selectedColor === undefined}
             >
