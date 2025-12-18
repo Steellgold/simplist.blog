@@ -13,6 +13,7 @@ import { VariantFlags } from "./variant-flags";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { deleteArticle } from "@/lib/actions/articles";
 import { getDateFnsLocale, LanguageCode } from "@/lib/types/languages";
+import type { Color } from "@simplist/db";
 import { Badge } from "@simplist/ui/components/badge";
 import { Button } from "@simplist/ui/components/button";
 import { Checkbox } from "@simplist/ui/components/checkbox";
@@ -26,6 +27,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@simplist/ui/components/dropdown-menu";
+import { IconRender } from "@simplist/ui/components/icon-renderer";
 import { toast } from "@simplist/ui/components/sonner";
 import { Spinner } from "@simplist/ui/components/spinner";
 import {
@@ -34,8 +36,11 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@simplist/ui/components/tooltip";
+import { getTagColorClasses } from "@simplist/ui/lib/color";
+import type { IconsEnumType } from "@simplist/ui/lib/icons.enum";
+import { cn } from "@simplist/ui/lib/utils";
 
-type Article = {
+export type Article = {
   id: string;
   title: string;
   slug: string;
@@ -48,7 +53,7 @@ type Article = {
   scheduledPublishAt?: Date | null;
   variants?: Array<{ id: string; lang: LanguageCode }>;
   author?: { id: string; name: string | null } | null;
-  tags?: Array<{ name: string }>;
+  tags?: Array<{ name: string; icon: string | null; color: Color | null }>;
 };
 
 const ArticleActionsCell = ({ article }: { article: Article }) => {
@@ -151,7 +156,13 @@ const statusConfig = {
   archived: { label: "Archived", variant: "outline" as const },
 };
 
-export const useArticlesColumns = (): ColumnDef<Article>[] => {
+type UseArticlesColumnsOptions = {
+  articles: Article[];
+};
+
+export const useArticlesColumns = ({
+  articles,
+}: UseArticlesColumnsOptions): ColumnDef<Article>[] => {
   const { currentProject } = useProjectContext();
 
   // Check if user has pro access for bulk operations
@@ -159,6 +170,14 @@ export const useArticlesColumns = (): ColumnDef<Article>[] => {
     currentProject?.subscriptionTier === "PRO" &&
     currentProject?.subscriptionExpiresAt &&
     new Date(currentProject.subscriptionExpiresAt) > new Date(),
+  );
+
+  // Check if any article on current page has variants or tags
+  const hasAnyVariants = articles.some(
+    (article) => article.variants && article.variants.length > 0,
+  );
+  const hasAnyTags = articles.some(
+    (article) => article.tags && article.tags.length > 0,
   );
 
   const columns: ColumnDef<Article>[] = [];
@@ -255,28 +274,29 @@ export const useArticlesColumns = (): ColumnDef<Article>[] => {
         );
       },
     },
-    {
-      id: "variants",
-      header: "Variants",
-      cell: ({ row }) => {
-        const article = row.original;
-        const variants = article.variants || [];
+    // Only show variants column if any article has variants
+    ...(hasAnyVariants
+      ? [
+          {
+            id: "variants",
+            header: "Variants",
+            cell: ({ row }: { row: { original: Article } }) => {
+              const article = row.original;
+              const variants = article.variants || [];
 
-        if (variants.length === 0) {
-          return (
-            <div className="text-xs text-muted-foreground italic flex justify-center select-none">
-              X
-            </div>
-          );
-        }
+              if (variants.length === 0) {
+                return null;
+              }
 
-        return (
-          <div className="flex justify-center">
-            <VariantFlags variants={variants} maxVisible={4} />
-          </div>
-        );
-      },
-    },
+              return (
+                <div className="flex justify-center">
+                  <VariantFlags variants={variants} maxVisible={4} />
+                </div>
+              );
+            },
+          } as ColumnDef<Article>,
+        ]
+      : []),
     {
       accessorKey: "status",
       header: ({ column }) => (
@@ -292,7 +312,9 @@ export const useArticlesColumns = (): ColumnDef<Article>[] => {
             <TooltipProvider delayDuration={100}>
               <Tooltip>
                 <TooltipTrigger>
-                  <Badge variant={config.variant}>{config.label}</Badge>
+                  <Badge variant={config.variant} className="rounded">
+                    {config.label}
+                  </Badge>
                 </TooltipTrigger>
 
                 <TooltipContent>
@@ -315,62 +337,93 @@ export const useArticlesColumns = (): ColumnDef<Article>[] => {
 
         return (
           <div className="space-y-1">
-            <Badge variant={config.variant}>{config.label}</Badge>
+            <Badge variant={config.variant} className="rounded">
+              {config.label}
+            </Badge>
           </div>
         );
       },
     },
-    {
-      accessorKey: "tags",
-      header: "Tags",
-      cell: ({ row }) => {
-        const tags = row.original.tags || [];
+    // Only show tags column if any article has tags
+    ...(hasAnyTags
+      ? [
+          {
+            accessorKey: "tags",
+            header: "Tags",
+            cell: ({ row }: { row: { original: Article } }) => {
+              const tags = row.original.tags || [];
 
-        if (tags.length === 0) {
-          return <div className="text-xs text-muted-foreground italic">-</div>;
-        }
+              if (tags.length === 0) {
+                return null;
+              }
 
-        const visibleTags = tags.slice(0, 2);
-        const remainingCount = tags.length - 2;
+              const visibleTags = tags.slice(0, 2);
+              const remainingCount = tags.length - 2;
 
-        return (
-          <div className="flex flex-wrap gap-1">
-            {visibleTags.map((tag) => (
-              <Badge key={tag.name} variant="outline" className="text-xs">
-                {tag.name}
-              </Badge>
-            ))}
-            {remainingCount > 0 && (
-              <TooltipProvider delayDuration={100}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Badge variant="outline" className="text-xs">
-                      +{remainingCount}
-                    </Badge>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    {tags
-                      .slice(2)
-                      .map((tag) => tag.name)
-                      .join(", ")}
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            )}
-          </div>
-        );
-      },
-      filterFn: (row, columnId, filterValue: string[] | undefined) => {
-        if (!filterValue || filterValue.length === 0) return true;
-        const tags = row.getValue(columnId) as
-          | Array<{ name: string }>
-          | undefined;
-        if (!tags || tags.length === 0) return false;
-        return filterValue.some((selectedTag) =>
-          tags.some((tag) => tag.name === selectedTag),
-        );
-      },
-    },
+              return (
+                <div className="flex flex-wrap gap-1">
+                  {visibleTags.map((tag) => {
+                    const colorClass =
+                      getTagColorClasses(tag.color) ||
+                      getTagColorClasses("GRAY");
+
+                    return (
+                      <span
+                        key={tag.name}
+                        className={cn(
+                          "inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-xs font-medium",
+                          colorClass,
+                        )}
+                      >
+                        <IconRender
+                          name={(tag.icon as IconsEnumType) || "tag"}
+                          size={12}
+                        />
+                        <span>{tag.name}</span>
+                      </span>
+                    );
+                  })}
+                  {remainingCount > 0 && (
+                    <TooltipProvider delayDuration={100}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="inline-flex items-center rounded border px-1.5 py-0.5 text-xs font-medium bg-muted text-muted-foreground">
+                            +{remainingCount}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          {tags
+                            .slice(2)
+                            .map((tag) => tag.name)
+                            .join(", ")}
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  )}
+                </div>
+              );
+            },
+            filterFn: (
+              row: { getValue: (id: string) => unknown },
+              columnId: string,
+              filterValue: string[] | undefined,
+            ) => {
+              if (!filterValue || filterValue.length === 0) return true;
+              const tags = row.getValue(columnId) as
+                | Array<{
+                    name: string;
+                    icon: string | null;
+                    color: Color | null;
+                  }>
+                | undefined;
+              if (!tags || tags.length === 0) return false;
+              return filterValue.some((selectedTag) =>
+                tags.some((tag) => tag.name === selectedTag),
+              );
+            },
+          } as ColumnDef<Article>,
+        ]
+      : []),
     {
       accessorKey: "createdAt",
       header: ({ column }) => (

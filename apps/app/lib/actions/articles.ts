@@ -514,6 +514,7 @@ export const getProjectArticles = async (
         select: {
           name: true,
           icon: true,
+          color: true,
         },
       },
     },

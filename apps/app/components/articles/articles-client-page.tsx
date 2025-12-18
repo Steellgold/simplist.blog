@@ -1,13 +1,16 @@
 "use client";
 
-import { useArticlesColumns } from "@/components/articles/columns";
+import {
+  useArticlesColumns,
+  type Article,
+} from "@/components/articles/columns";
 import { ArticlesDataTable } from "@/components/articles/data-table";
+import { ImportDialog, type ImportColumn } from "@/components/import-dialog";
 import { PageLayout } from "@/components/layout/page-layout";
 import {
   bulkImportArticles,
   type ImportArticleInput,
 } from "@/lib/actions/articles";
-import type { Article } from "@simplist/db/types";
 import { buttonVariants } from "@simplist/ui/components/button";
 import {
   Empty,
@@ -17,7 +20,6 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@simplist/ui/components/empty";
-import { ImportDialog, type ImportColumn } from "@/components/import-dialog";
 import { ProgressLink } from "@simplist/ui/components/progress-button";
 import { FileText, Plus } from "lucide-react";
 import Link from "next/link";
@@ -43,7 +45,7 @@ export const ArticlesClientPage = ({
   maxCount,
 }: ArticlesClientPageProps) => {
   const router = useRouter();
-  const columns = useArticlesColumns();
+  const columns = useArticlesColumns({ articles: articles as Article[] });
   const isAtLimit = maxCount !== -1 && articleCount >= maxCount;
 
   const importColumns: ImportColumn[] = [
