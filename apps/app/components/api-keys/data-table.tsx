@@ -1,20 +1,23 @@
-"use client"
+"use client";
 
+import { DataTableViewOptions } from "@/components/data-table/data-table-view-options";
 import {
-  ColumnDef,
-  ColumnFiltersState,
+  type ColumnDef,
+  type ColumnFiltersState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  SortingState,
+  type SortingState,
   useReactTable,
-} from "@tanstack/react-table"
-import { useState } from "react"
+  type VisibilityState,
+} from "@tanstack/react-table";
+import { useEffect, useState } from "react";
 
-import { Button } from "@simplist/ui/components/button"
-import { Input } from "@simplist/ui/components/input"
+import { Button } from "@simplist/ui/components/button";
+import { ButtonGroup } from "@simplist/ui/components/button-group";
+import { Input } from "@simplist/ui/components/input";
 import {
   Table,
   TableBody,
@@ -22,12 +25,12 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@simplist/ui/components/table"
+} from "@simplist/ui/components/table";
 
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[]
-  data: TData[]
-  onDelete?: (id: string) => void
+  columns: ColumnDef<TData, TValue>[];
+  data: TData[];
+  onDelete?: (id: string) => void;
 }
 
 export const ApiKeysDataTable = <TData, TValue>({
@@ -35,8 +38,23 @@ export const ApiKeysDataTable = <TData, TValue>({
   data,
   onDelete,
 }: DataTableProps<TData, TValue>) => {
-  const [sorting, setSorting] = useState<SortingState>([])
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  const STORAGE_KEY = "api-keys-table-column-visibility";
+
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
+    () => {
+      if (typeof window === "undefined") return {};
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return saved ? JSON.parse(saved) : {};
+    },
+  );
+
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+
+  // Persist column visibility to localStorage
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(columnVisibility));
+  }, [columnVisibility]);
 
   const table = useReactTable({
     data,
@@ -47,44 +65,51 @@ export const ApiKeysDataTable = <TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
+    onColumnVisibilityChange: setColumnVisibility,
     state: {
       sorting,
       columnFilters,
+      columnVisibility,
     },
     meta: {
       onDelete,
     },
-  })
+  });
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center">
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center justify-between gap-2">
         <Input
           placeholder="Filter API keys..."
           value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
             table.getColumn("name")?.setFilterValue(event.target.value)
           }
-          className="max-w-sm"
+          className="h-8 w-[150px] lg:w-[250px]"
         />
+
+        <DataTableViewOptions table={table} />
       </div>
-      <div className="rounded-md border">
+
+      <div className="rounded-md border overflow-hidden">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  )
-                })}
+                {headerGroup.headers.map((header) => (
+                  <TableHead
+                    key={header.id}
+                    colSpan={header.colSpan}
+                    className="px-4"
+                  >
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
+                  </TableHead>
+                ))}
               </TableRow>
             ))}
           </TableHeader>
@@ -96,10 +121,10 @@ export const ApiKeysDataTable = <TData, TValue>({
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="px-4">
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </TableCell>
                   ))}
@@ -118,27 +143,28 @@ export const ApiKeysDataTable = <TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      {table.getPageCount() > 1 && (
-        <div className="flex items-center justify-end space-x-2">
+
+      <div className="flex items-center justify-between">
+        <div className="text-sm text-muted-foreground">
+          {table.getFilteredRowModel().rows.length} API key(s)
+        </div>
+        <ButtonGroup>
           <Button
             variant="outline"
-            size="sm"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
             Previous
           </Button>
-
           <Button
             variant="outline"
-            size="sm"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
             Next
           </Button>
-        </div>
-      )}
+        </ButtonGroup>
+      </div>
     </div>
-  )
-}
+  );
+};

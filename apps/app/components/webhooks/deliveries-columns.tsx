@@ -1,37 +1,38 @@
-"use client"
+"use client";
 
-import { Badge } from "@simplist/ui/components/badge"
-import { Button } from "@simplist/ui/components/button"
+import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
+import { Badge } from "@simplist/ui/components/badge";
+import { Button } from "@simplist/ui/components/button";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@simplist/ui/components/collapsible"
-import { ScrollArea } from "@simplist/ui/components/scroll-area"
-import { ColumnDef } from "@tanstack/react-table"
-import { CheckCircle, ChevronDown, ExternalLink, XCircle } from "lucide-react"
-import Link from "next/link"
-import { useState } from "react"
-import { formatDate, formatResponse } from "./utils"
+} from "@simplist/ui/components/collapsible";
+import { ScrollArea } from "@simplist/ui/components/scroll-area";
+import { ColumnDef } from "@tanstack/react-table";
+import { CheckCircle, ChevronDown, ExternalLink, XCircle } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
+import { formatDate, formatResponse } from "./utils";
 
 type Delivery = {
-  id: string
-  status: string
-  statusCode: number | null
-  error: string | null
-  response: unknown
-  attemptedAt: Date
-}
+  id: string;
+  status: string;
+  statusCode: number | null;
+  error: string | null;
+  response: unknown;
+  attemptedAt: Date;
+};
 
 type DeliveryWithProject = Delivery & {
-  projectSlug: string
-}
+  projectSlug: string;
+};
 
 const DeliveryResponseCell = ({ delivery }: { delivery: Delivery }) => {
-  const [isExpanded, setIsExpanded] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(false);
 
   if (typeof delivery.response !== "object" || delivery.response === null) {
-    return <span className="text-xs text-muted-foreground">No response</span>
+    return <span className="text-xs text-muted-foreground">No response</span>;
   }
 
   return (
@@ -54,18 +55,18 @@ const DeliveryResponseCell = ({ delivery }: { delivery: Delivery }) => {
         </ScrollArea>
       </CollapsibleContent>
     </Collapsible>
-  )
-}
+  );
+};
 
 const DeliveryTypeCell = ({ delivery }: { delivery: DeliveryWithProject }) => {
   // Extract event info from response
-  const response = delivery.response as any
-  
+  const response = delivery.response as any;
+
   // Check if it's a test delivery (has X-Simplist-Test header info)
   if (response && typeof response === "object" && response.event) {
-    const event = response.event
-    const article = response.article
-    
+    const event = response.event;
+    const article = response.article;
+
     if (response.timestamp && response.timestamp.includes("test")) {
       // Test delivery
       return (
@@ -77,9 +78,9 @@ const DeliveryTypeCell = ({ delivery }: { delivery: DeliveryWithProject }) => {
             {event?.replace("article.", "")}
           </div>
         </div>
-      )
+      );
     }
-    
+
     // Real event delivery
     return (
       <div className="space-y-1">
@@ -98,36 +99,40 @@ const DeliveryTypeCell = ({ delivery }: { delivery: DeliveryWithProject }) => {
           </Link>
         )}
       </div>
-    )
+    );
   }
-  
+
   // Check if response indicates it was a test (look for test indicators)
-  const responseStr = JSON.stringify(delivery.response || {}).toLowerCase()
+  const responseStr = JSON.stringify(delivery.response || {}).toLowerCase();
   if (responseStr.includes("test") || responseStr.includes("sample")) {
     return (
       <Badge variant="outline" className="text-xs">
         Test
       </Badge>
-    )
+    );
   }
-  
+
   // Default to unknown event
   return (
     <Badge variant="secondary" className="text-xs">
       Event
     </Badge>
-  )
-}
+  );
+};
 
-export const useDeliveriesColumns = (projectSlug: string): ColumnDef<Delivery>[] => {
+export const useDeliveriesColumns = (
+  projectSlug: string,
+): ColumnDef<Delivery>[] => {
   return [
     {
       accessorKey: "status",
-      header: "Status",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Status" />
+      ),
       cell: ({ row }) => {
-        const delivery = row.original
-        const isSuccess = delivery.status === "success"
-        
+        const delivery = row.original;
+        const isSuccess = delivery.status === "success";
+
         return (
           <div className="flex items-center gap-2">
             <Badge
@@ -146,62 +151,67 @@ export const useDeliveriesColumns = (projectSlug: string): ColumnDef<Delivery>[]
                 </>
               )}
             </Badge>
-            
+
             {delivery.statusCode && (
               <Badge variant="outline" className="shrink-0 text-xs">
                 {delivery.statusCode}
               </Badge>
             )}
           </div>
-        )
+        );
       },
     },
     {
       id: "type",
-      header: "Type",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Type" />
+      ),
       cell: ({ row }) => {
-        const delivery = { ...row.original, projectSlug }
-        return <DeliveryTypeCell delivery={delivery} />
+        const delivery = { ...row.original, projectSlug };
+        return <DeliveryTypeCell delivery={delivery} />;
       },
     },
     {
       accessorKey: "error",
-      header: "Error",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Error" />
+      ),
       cell: ({ row }) => {
-        const delivery = row.original
-        
+        const delivery = row.original;
+
         if (!delivery.error) {
-          return <span className="text-xs text-muted-foreground">-</span>
+          return <span className="text-xs text-muted-foreground">-</span>;
         }
-        
+
         return (
           <div className="max-w-[200px]">
-            <span className="text-xs text-destructive truncate block" title={delivery.error}>
+            <span
+              className="text-xs text-destructive truncate block"
+              title={delivery.error}
+            >
               {delivery.error}
             </span>
           </div>
-        )
+        );
       },
     },
     {
       accessorKey: "attemptedAt",
-      header: "Attempted At",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Attempted At" />
+      ),
       cell: ({ row }) => {
-        const delivery = row.original
-        
+        const delivery = row.original;
+
         return (
-          <div className="text-sm">
-            {formatDate(delivery.attemptedAt)}
-          </div>
-        )
+          <div className="text-sm">{formatDate(delivery.attemptedAt)}</div>
+        );
       },
     },
     {
       id: "response",
       header: "Response",
-      cell: ({ row }) => (
-        <DeliveryResponseCell delivery={row.original} />
-      ),
+      cell: ({ row }) => <DeliveryResponseCell delivery={row.original} />,
     },
-  ]
-}
+  ];
+};
