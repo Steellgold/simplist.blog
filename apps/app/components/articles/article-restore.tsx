@@ -58,7 +58,7 @@ export const ArticleRestore = ({ slug, articleId }: Props) => {
         </EmptyHeader>
 
         <EmptyContent>
-          <Button onClick={handleRestore} disabled={isRestoring} size="sm">
+          <Button onClick={handleRestore} disabled={isRestoring}>
             {isRestoring ? (
               <>
                 <Spinner />
@@ -73,7 +73,7 @@ export const ArticleRestore = ({ slug, articleId }: Props) => {
           </Button>
         </EmptyContent>
 
-        <Link className={buttonVariants({ variant: "link", size: "sm" })} href={`/${slug}/articles`}>
+        <Link className={buttonVariants({ variant: "link" })} href={`/${slug}/articles`}>
           <ArrowLeftIcon />
           Back to Articles
         </Link>

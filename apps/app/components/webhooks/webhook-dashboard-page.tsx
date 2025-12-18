@@ -284,14 +284,15 @@ export const WebhookDashboardPage: FC<Props> = ({
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-medium">Webhook URL</p>
                   <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="sm" onClick={copyUrl}>
+                    <Button variant="ghost" onClick={copyUrl}>
                       <Copy />
                     </Button>
+
                     <Link
                       href={webhook.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={buttonVariants({ variant: "ghost", size: "sm" })}
+                      className={buttonVariants({ variant: "ghost" })}
                     >
                       <ExternalLink />
                     </Link>
@@ -349,7 +350,6 @@ export const WebhookDashboardPage: FC<Props> = ({
               <ButtonGroup>
                 <Button
                   variant="outline"
-                  size="sm"
                   onClick={handleTest}
                   disabled={isPending}
                 >

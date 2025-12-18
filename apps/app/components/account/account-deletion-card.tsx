@@ -2,23 +2,22 @@
 
 import { cancelAccountDeletion, requestAccountDeletion } from "@/lib/actions/account-deletion"
 import { authClient, type User } from "@/lib/auth-client"
+import { formatTimeRemaining } from "@/lib/utils/time"
 import { RequestAccountDeletionInput, requestAccountDeletionSchema } from "@/lib/validations/user"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Alert, AlertDescription } from "@simplist/ui/components/alert"
+import { Badge } from "@simplist/ui/components/badge"
 import { Button } from "@simplist/ui/components/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@simplist/ui/components/card"
 import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel } from "@simplist/ui/components/field"
 import { Input } from "@simplist/ui/components/input"
-import { Textarea } from "@simplist/ui/components/textarea"
+import { Kbd } from "@simplist/ui/components/kbd"
 import { toast } from "@simplist/ui/components/sonner"
-import { Badge } from "@simplist/ui/components/badge"
+import { Spinner } from "@simplist/ui/components/spinner"
 import { AlertTriangle, Shield, Trash2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
-import { formatTimeRemaining } from "@/lib/utils/time"
-import { Kbd } from "@simplist/ui/components/kbd"
-import { Spinner } from "@simplist/ui/components/spinner"
 
 type OwnedProject = {
   id: string
@@ -185,7 +184,6 @@ export const AccountDeletionCard = ({ user, ownedProjects }: Props) => {
           </p>
           <Button
             onClick={handleRequestDeletion}
-            size="sm"
             variant="destructive"
             disabled={isSubmitting || hasOwnershipBlocker}
           >

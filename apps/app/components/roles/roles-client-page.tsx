@@ -8,12 +8,12 @@ import { deleteProjectRole } from "@/lib/actions/roles"
 import type { ProjectRole } from "@simplist/db"
 import { Badge } from "@simplist/ui/components/badge"
 import { Button } from "@simplist/ui/components/button"
-import { Card, CardContent, CardFooter, CardHeader } from "@simplist/ui/components/card"
+import { Card, CardContent, CardHeader } from "@simplist/ui/components/card"
 import { ConfirmDialog } from "@simplist/ui/components/confirm-dialog"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@simplist/ui/components/dropdown-menu"
 import { Empty, EmptyHeader, EmptyMedia } from "@simplist/ui/components/empty"
 import { toast } from "@simplist/ui/components/sonner"
-import { BarChart, Check, CreditCard, FileText, Key, Lock, MoreVertical, Pencil, Plus, SearchX, Settings, Shield, Trash2, Users, Webhook } from "lucide-react"
+import { BarChart, CreditCard, FileText, Key, Lock, MoreVertical, Pencil, Plus, SearchX, Settings, Shield, Trash2, Users, Webhook } from "lucide-react"
 import { useState } from "react"
 
 type RolesClientPageProps = {
@@ -94,7 +94,6 @@ export const RolesClientPage = ({ project, roles: initialRoles }: RolesClientPag
       centered
       actions={
         <Button
-          size="sm"
           onClick={() => setShowCreateDialog(true)}
           disabled={!isPro}
         >

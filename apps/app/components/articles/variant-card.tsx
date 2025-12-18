@@ -132,7 +132,6 @@ export const VariantCard = ({
                   <Button
                     type="button"
                     variant="outline"
-                    size="sm"
                     disabled={disabled || !canAdd}
                   >
                     <Plus />
@@ -246,7 +245,6 @@ export const VariantCard = ({
                       <Button
                         type="button"
                         variant="outline"
-                        size="sm"
                         onClick={() => handleDialogOpenChange(false)}
                       >
                         Cancel
@@ -255,7 +253,6 @@ export const VariantCard = ({
                       <Button
                         type="button"
                         variant="default"
-                        size="sm"
                         onClick={handleAddVariant}
                         disabled={!selectedLanguage}
                       >
@@ -277,7 +274,7 @@ export const VariantCard = ({
               const isActive = activeVariant === variant.lang
 
               return (
-                <Item key={variant.lang} variant="outline" size="sm">
+                <Item key={variant.lang} variant="outline" >
                   <ItemMedia variant="icon">
                     <Image
                       src={getFlagUrl(variant.lang)}
@@ -301,7 +298,6 @@ export const VariantCard = ({
                         pressed={isActive}
                         onPressedChange={() => handleSelectVariant(variant.lang)}
                         disabled={disabled || isFreeTier}
-                        size="sm"
                         variant="outline"
                         className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
                       >

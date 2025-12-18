@@ -1,13 +1,13 @@
 "use client"
 
-import { updateUserAvatar, deleteUserAvatar } from "@/lib/actions/user"
+import { deleteUserAvatar, updateUserAvatar } from "@/lib/actions/user"
 import { User } from "@/lib/auth-client"
 import { Button } from "@simplist/ui/components/button"
 import { toast } from "@simplist/ui/components/sonner"
 import { Spinner } from "@simplist/ui/components/spinner"
 import { Upload, X } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useState, useRef, useEffect } from "react"
+import { useEffect, useRef, useState } from "react"
 
 interface UserAvatarUploadProps {
   user: User
@@ -186,7 +186,6 @@ export function UserAvatarUpload({ user, disabled = false }: UserAvatarUploadPro
         <Button
           type="button"
           variant="outline"
-          size="sm"
           disabled={disabled || isUploading}
           onClick={() => fileInputRef.current?.click()}
         >

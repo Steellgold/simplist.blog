@@ -56,7 +56,6 @@ export const WebhooksClientPage: FC<Props> = ({ webhooks, project, maxWebhooks }
           value={webhooks.length}
           max={maxWebhooks}
           variant="outline"
-          size="sm"
           className={isAtLimit ? "pointer-events-none opacity-50" : ""}
         >
           <Plus />

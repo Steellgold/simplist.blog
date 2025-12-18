@@ -1,15 +1,15 @@
 "use client"
 
-import { useState } from "react"
-import { Check, Cog, Settings, X } from "lucide-react"
+import { useApiKeyStore } from "@/lib/api-key-store"
+import { cn } from "@/lib/utils"
 import { Button } from "@simplist/ui/components/button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@simplist/ui/components/dialog"
-import { InputGroupPasswordInput } from "@simplist/ui/components/password-input"
-import { useApiKeyStore } from "@/lib/api-key-store"
-import { useTestableApi } from "./testable-api-provider"
-import { Field, FieldLabel, FieldDescription } from "@simplist/ui/components/field"
+import { Field, FieldLabel } from "@simplist/ui/components/field"
 import { InputGroup, InputGroupAddon } from "@simplist/ui/components/input-group"
-import { cn } from "@/lib/utils"
+import { InputGroupPasswordInput } from "@simplist/ui/components/password-input"
+import { Check, Settings, X } from "lucide-react"
+import { useState } from "react"
+import { useTestableApi } from "./testable-api-provider"
 
 export const ApiConfigButton = () => {
   const { apiKey, setApiKey, clearApiKey } = useApiKeyStore()
@@ -25,7 +25,7 @@ export const ApiConfigButton = () => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
+        <Button variant="outline">
           <Settings />
           Configure
         </Button>

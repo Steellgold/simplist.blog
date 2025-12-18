@@ -203,7 +203,6 @@ export const CreateProjectPageClient = () => {
                   <Button
                     type="button"
                     variant="secondary"
-                    size="sm"
                     onClick={handleReset}
                     disabled={isSubmitting || !hasFormData}
                   >
@@ -213,7 +212,6 @@ export const CreateProjectPageClient = () => {
                   <Button
                     type="button"
                     variant="secondary"
-                    size="sm"
                     onClick={handleBack}
                     disabled={step === STEP_NAME || isSubmitting}
                   >
@@ -223,7 +221,6 @@ export const CreateProjectPageClient = () => {
 
                 <Button
                   type="button"
-                  size="sm"
                   disabled={isSubmitting}
                   onClick={
                     step < STEP_PLAN

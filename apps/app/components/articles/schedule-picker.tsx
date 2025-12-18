@@ -99,7 +99,6 @@ export const ArticleSchedulePicker = ({
             </ItemDescription>
 
             <Button
-              size="sm"
               variant="secondary"
               onClick={handleClearSchedule}
               disabled={disabled}
@@ -146,7 +145,6 @@ export const ArticleSchedulePicker = ({
                         onClick={() => setSelectedTime(time)}
                         className="w-full shadow-none"
                         disabled={disabled}
-                        size="sm"
                       >
                         {is12Hour ? formatTime24to12(time) : time}
                       </Button>
@@ -164,7 +162,6 @@ export const ArticleSchedulePicker = ({
               <Button
                 onClick={handleConfirm}
                 disabled={!isScheduleComplete || disabled}
-                size="sm"
               >
                 Confirm
               </Button>

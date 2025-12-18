@@ -52,7 +52,7 @@ export const OpenIn: FC<OpenInProps> = ({ githubUrl, markdownUrl, className }) =
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" className={className}>
+        <Button variant="outline" className={className}>
           Open in
           <ChevronDown className="size-4" />
         </Button>

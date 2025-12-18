@@ -21,7 +21,6 @@ export const WebhookFormActions: FC<WebhookFormActionsProps> = ({ mode, formId }
       <Button
         type="button"
         variant="outline"
-        size="sm"
         disabled={isPending}
         onClick={handleTest}
       >
@@ -33,7 +32,6 @@ export const WebhookFormActions: FC<WebhookFormActionsProps> = ({ mode, formId }
         type="submit"
         form={formId}
         disabled={isPending}
-        size="sm"
         variant={mode === "create" ? "default" : "outline"}
       >
         {mode === "create" ? "Create webhook" : "Save changes"}

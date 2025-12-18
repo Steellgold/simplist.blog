@@ -83,7 +83,7 @@ export const ArticleContentEditor = ({ content, onContentChange, textareaId = "c
                     {groupName === "media" && (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button type="button" variant="outline" size="sm" className="h-8 px-2" title="Heading">
+                          <Button type="button" variant="outline" className="h-8 px-2" title="Heading">
                             <Heading2 className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
@@ -99,7 +99,7 @@ export const ArticleContentEditor = ({ content, onContentChange, textareaId = "c
                     )}
 
                     {actions.map((action, index) => (
-                      <Button key={index} type="button" variant="outline" size="sm" onClick={action.action} title={action.label} className="h-8 px-2">
+                      <Button key={index} type="button" variant="outline" onClick={action.action} title={action.label} className="h-8 px-2">
                         <action.icon className="h-4 w-4" />
                       </Button>
                     ))}
@@ -110,7 +110,7 @@ export const ArticleContentEditor = ({ content, onContentChange, textareaId = "c
               <ButtonGroup className="flex sm:hidden">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button type="button" variant="outline" size="sm" className="h-8 px-2" title="Heading">
+                    <Button type="button" variant="outline" className="h-8 px-2" title="Heading">
                       <Heading2 className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
@@ -125,14 +125,14 @@ export const ArticleContentEditor = ({ content, onContentChange, textareaId = "c
                 </DropdownMenu>
 
                 {primaryActions.map((action, index) => (
-                  <Button key={index} type="button" variant="outline" size="sm" onClick={action.action} title={action.label}>
+                  <Button key={index} type="button" variant="outline" onClick={action.action} title={action.label}>
                     <action.icon />
                   </Button>
                 ))}
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button type="button" variant="outline" size="sm" title="More options">
+                    <Button type="button" variant="outline" title="More options">
                       <MoreHorizontal />
                     </Button>
                   </DropdownMenuTrigger>

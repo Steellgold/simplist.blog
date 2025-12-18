@@ -89,7 +89,7 @@ export const ArticleVisibilityCard = ({
 
         <div className="flex items-center justify-between pt-2">
           <div>{leftAction}</div>
-          <Button type="submit" disabled={isSubmitting} size="sm">
+          <Button type="submit" disabled={isSubmitting}>
             {isSubmitting ? <Spinner /> : submitLabel}
           </Button>
         </div>

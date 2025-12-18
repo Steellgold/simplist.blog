@@ -15,9 +15,7 @@ import { Label } from "@simplist/ui/components/label"
 import {
   Select,
   SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
+  SelectItem, SelectValue
 } from "@simplist/ui/components/select"
 import { toast } from "@simplist/ui/components/sonner"
 import { Spinner } from "@simplist/ui/components/spinner"
@@ -180,7 +178,6 @@ export const InviteMemberDialog = ({ projectId, roles, onClose, onSuccess }: Inv
                 <Button
                   type="button"
                   variant="outline"
-                  size="sm"
                   onClick={addInvitation}
                   disabled={isSubmitting}
                   className="w-full"

@@ -66,7 +66,7 @@ export const CurrentPlanCard = ({ projectId, projectName, subscriptionTier }: Cu
               {subscriptionTier === SubscriptionTier.STARTER ? (
                 <UpgradeModal projectId={projectId} projectName={projectName} />
               ) : (
-                <Button size="sm" onClick={handleManageBilling} disabled={isLoading}>
+                <Button onClick={handleManageBilling} disabled={isLoading}>
                   {isLoading ? <Spinner /> : <CircleGauge />}
                   Manage billing
                 </Button>

@@ -3,6 +3,7 @@
 import { PageLayout } from "@/components/layout/page-layout"
 import { InviteMemberDialog } from "@/components/members/invite-member-dialog"
 import { removeProjectMember, revokeProjectInvitation, updateMemberRole } from "@/lib/actions/members"
+import { getPlanLimits } from "@/lib/subscription/plans"
 import type { MemberListItem } from "@/lib/types/members"
 import type { ProjectInvitation, ProjectRole } from "@simplist/db"
 import { Avatar, AvatarFallback, AvatarImage } from "@simplist/ui/components/avatar"
@@ -17,14 +18,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from "@simplist/ui/components/dropdown-menu"
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@simplist/ui/components/empty"
 import { toast } from "@simplist/ui/components/sonner"
 import { getInitials } from "@simplist/ui/lib/utils"
 import { formatDistanceToNow } from "date-fns"
 import { MoreVertical, UserMinus, UserPlus, Users, UserX } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { getPlanLimits } from "@/lib/subscription/plans"
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@simplist/ui/components/empty"
 
 type MembersClientPageProps = {
   project: {
@@ -147,7 +147,7 @@ export const MembersClientPage = ({
             <EmptyDescription>Invite teammates to collaborate on this project.</EmptyDescription>
           </EmptyHeader>
           <EmptyContent>
-            <Button onClick={() => setShowInviteDialog(true)} disabled={!canInviteMore} size="sm">
+            <Button onClick={() => setShowInviteDialog(true)} disabled={!canInviteMore}>
               <UserPlus />
               Invite Member
             </Button>
@@ -166,7 +166,6 @@ export const MembersClientPage = ({
         <Button
           onClick={() => setShowInviteDialog(true)}
           disabled={!canInviteMore}
-          size="sm"
         >
           <UserPlus />
           Invite Member

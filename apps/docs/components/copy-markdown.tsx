@@ -25,7 +25,6 @@ export const CopyMarkdown: FC<CopyMarkdownProps> = ({ content, className }) => {
   return (
     <Button
       variant="outline"
-      size="sm"
       onClick={handleCopy}
       className={className}
     >

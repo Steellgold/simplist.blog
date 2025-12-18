@@ -132,7 +132,6 @@ export const RecentActivityTable = ({ data }: RecentActivityTableProps) => {
         <ButtonGroup>
           <Button
             variant="outline"
-            size="sm"
             onClick={() => setCurrentPage(currentPage - 1)}
             disabled={!canGoPrevious}
             className="text-xs sm:text-sm"
@@ -142,7 +141,6 @@ export const RecentActivityTable = ({ data }: RecentActivityTableProps) => {
           </Button>
           <Button
             variant="outline"
-            size="sm"
             onClick={() => setCurrentPage(currentPage + 1)}
             disabled={!canGoNext}
             className="text-xs sm:text-sm"

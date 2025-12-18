@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Alert, AlertDescription, AlertTitle } from "@simplist/ui/components/alert"
 import { Button } from "@simplist/ui/components/button"
 import { Card, CardContent, CardFooter, CardHeader } from "@simplist/ui/components/card"
-import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel, FieldSeparator, FieldSet } from "@simplist/ui/components/field"
+import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel, FieldSet } from "@simplist/ui/components/field"
 import { Input } from "@simplist/ui/components/input"
 import { toast } from "@simplist/ui/components/sonner"
 import { Spinner } from "@simplist/ui/components/spinner"
@@ -145,7 +145,7 @@ export const AccountSettingsForm = ({ user, isOAuthUser }: AccountSettingsFormPr
           </CardContent>
 
           <CardFooter className="flex justify-end">
-            <Button type="submit" size="sm" disabled={isSubmitting}>
+            <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? <Spinner /> : "Save Changes"}
             </Button>
           </CardFooter>
@@ -188,7 +188,7 @@ export const AccountSettingsForm = ({ user, isOAuthUser }: AccountSettingsFormPr
           </CardContent>
 
           <CardFooter className="flex justify-end">
-            <Button type="submit" size="sm" disabled={isSubmitting || isOAuthUser}>
+            <Button type="submit" disabled={isSubmitting || isOAuthUser}>
               {isSubmitting ? <Spinner /> : "Save Changes"}
             </Button>
           </CardFooter>

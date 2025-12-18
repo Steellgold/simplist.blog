@@ -53,7 +53,7 @@ export const UpgradeModal = ({ projectId, projectName }: UpgradeModalProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button size="sm">
+        <Button>
           <CircleFadingArrowUp />
           Upgrade
         </Button>
@@ -143,7 +143,6 @@ export const UpgradeModal = ({ projectId, projectName }: UpgradeModalProps) => {
           <div className="flex gap-2">
             <Button
               variant="outline"
-              size="sm"
               onClick={() => setIsOpen(false)}
               className="flex-1"
             >
@@ -154,7 +153,6 @@ export const UpgradeModal = ({ projectId, projectName }: UpgradeModalProps) => {
               variant="default"
               onClick={handleUpgrade}
               disabled={isLoading}
-              size="sm"
               className="flex-1"
             >
               {isLoading ? <Spinner /> : <CircleFadingArrowUp />}

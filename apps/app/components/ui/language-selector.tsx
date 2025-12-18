@@ -448,7 +448,6 @@ export function CompactLanguageSelector({
     return (
       <Button
         variant="outline"
-        size="sm"
         role="combobox"
         className={cn(
           "w-auto justify-between bg-transparent",
@@ -484,7 +483,6 @@ export function CompactLanguageSelector({
         <DialogTrigger asChild>
           <Button
             variant="outline"
-            size="sm"
             role="combobox"
             className={cn(
               "w-auto justify-between bg-transparent",
@@ -584,7 +582,6 @@ export function CompactLanguageSelector({
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          size="sm"
           role="combobox"
           aria-expanded={open}
           className={cn(

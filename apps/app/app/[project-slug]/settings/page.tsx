@@ -6,9 +6,10 @@ import { AvatarUpload } from "@/components/ui/avatar-upload"
 import { CompactLanguageSelector } from "@/components/ui/language-selector"
 import { MiniBadge } from "@/components/ui/mini-badge"
 import { useProject } from "@/hooks/use-project-context"
-import { updateProjectSettings, deleteProject } from "@/lib/actions/projects"
+import { deleteProject, updateProjectSettings } from "@/lib/actions/projects"
 import { UpdateProjectSettingsInput, updateProjectSettingsSchema } from "@/lib/validations/project"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@simplist/ui/components/alert-dialog"
 import { Button } from "@simplist/ui/components/button"
 import { ButtonGroup } from "@simplist/ui/components/button-group"
 import { Card, CardAction, CardContent, CardFooter, CardHeader } from "@simplist/ui/components/card"
@@ -17,16 +18,15 @@ import { FieldDescription, FieldError, FieldLabel } from "@simplist/ui/component
 import { IconPicker } from "@simplist/ui/components/icon-picker"
 import { Input } from "@simplist/ui/components/input"
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@simplist/ui/components/input-group"
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@simplist/ui/components/alert-dialog"
+import { Kbd } from "@simplist/ui/components/kbd"
 import { toast } from "@simplist/ui/components/sonner"
 import { Spinner } from "@simplist/ui/components/spinner"
 import { c } from "@simplist/ui/lib/color"
 import { i } from "@simplist/ui/lib/icons.enum"
-import { Camera, Palette, Plus, X, Trash2, ShieldAlert } from "lucide-react"
+import { Camera, Palette, Plus, Trash2, X } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { useFieldArray, useForm } from "react-hook-form"
-import { Kbd } from "@simplist/ui/components/kbd"
 
 
 const SettingsPage = () => {
@@ -254,7 +254,6 @@ const SettingsPage = () => {
             <p className="text-sm text-muted-foreground">Maximum 64 characters.</p>
             <Button
               type="button"
-              size="sm"
               disabled={isDisabled || !hasNameChanges}
               onClick={handleSubmit((data) => saveSettings(data, "name"))}
             >
@@ -290,7 +289,6 @@ const SettingsPage = () => {
             <p className="text-sm text-muted-foreground">Lowercase letters, numbers, and hyphens only.</p>
             <Button
               type="button"
-              size="sm"
               disabled={isDisabled || !hasSlugChanges}
               onClick={handleSubmit((data) => saveSettings(data, "slug"))}
             >
@@ -310,7 +308,6 @@ const SettingsPage = () => {
                 <Button
                   type="button"
                   variant={displayType === "icon" ? "default" : "secondary"}
-                  size="sm"
                   onClick={() => setDisplayType("icon")}
                 >
                   <Palette />
@@ -318,7 +315,6 @@ const SettingsPage = () => {
                 <Button
                   type="button"
                   variant={displayType === "avatar" ? "default" : "secondary"}
-                  size="sm"
                   onClick={() => setDisplayType("avatar")}
                 >
                   <Camera />
@@ -388,7 +384,6 @@ const SettingsPage = () => {
             <p className="text-sm text-muted-foreground">Avatar will override icon if uploaded.</p>
             <Button
               type="button"
-              size="sm"
               disabled={isDisabled || !hasIconColorChanges}
               onClick={handleSubmit((data) => saveSettings(data, "icon-color"))}
             >
@@ -427,7 +422,6 @@ const SettingsPage = () => {
             <p className="text-sm text-muted-foreground">Affects translations and date formatting.</p>
             <Button
               type="button"
-              size="sm"
               disabled={isDisabled || !hasLanguageChanges}
               onClick={handleSubmit((data) => saveSettings(data, "language"))}
             >
@@ -477,7 +471,6 @@ const SettingsPage = () => {
               <Button
                 type="button"
                 variant="outline"
-                size="sm"
                 onClick={() => append({ value: "" })}
                 disabled={isDisabled}
               >
@@ -491,7 +484,6 @@ const SettingsPage = () => {
             <p className="text-sm text-muted-foreground">By default, all origins are allowed.</p>
             <Button
               type="button"
-              size="sm"
               disabled={isDisabled || !hasOriginsChanges}
               onClick={handleSubmit((data) => saveSettings(data, "origins"))}
             >
@@ -552,7 +544,6 @@ const SettingsPage = () => {
             </p>
             <Button
               type="button"
-              size="sm"
               disabled={isDisabled || !hasUrlChanges}
               onClick={handleSubmit((data) => saveSettings(data, "url"))}
             >
@@ -599,7 +590,6 @@ const SettingsPage = () => {
                 <Button
                   type="button"
                   variant="destructive"
-                  size="sm"
                   disabled={deleteDisabled}
                 >
                   {isDeleting ? <Spinner /> : <Trash2 />}

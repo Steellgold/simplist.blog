@@ -76,7 +76,6 @@ export const InvoicesCard = ({ billingEntries }: InvoicesCardProps) => {
               <ButtonGroup>
                 <Button
                   variant="outline"
-                  size="sm"
                   onClick={handlePreviousPage}
                   disabled={currentPage === 0}
                   className="text-xs sm:text-sm"
@@ -87,7 +86,6 @@ export const InvoicesCard = ({ billingEntries }: InvoicesCardProps) => {
 
                 <Button
                   variant="outline"
-                  size="sm"
                   onClick={handleNextPage}
                   disabled={currentPage === totalPages - 1}
                   className="text-xs sm:text-sm"

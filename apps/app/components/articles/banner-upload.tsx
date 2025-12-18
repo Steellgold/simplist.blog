@@ -6,8 +6,8 @@ import { ConfirmDialog } from "@simplist/ui/components/confirm-dialog";
 import { Spinner } from "@simplist/ui/components/spinner";
 import { Trash2, Upload } from "lucide-react";
 import Image from "next/image";
-import { toast } from "sonner";
 import { useState } from "react";
+import { toast } from "sonner";
 
 type ArticleBannerUploadProps = {
   imagePreview: string | null;
@@ -91,7 +91,6 @@ export const ArticleBannerUpload = ({ imagePreview, onImageChange, onRemoveImage
               <Button
                 type="button"
                 variant="destructive"
-                size="sm"
                 className="flex-1"
                 onClick={handleDeleteClick}
                 disabled={isRemoving}
@@ -99,7 +98,7 @@ export const ArticleBannerUpload = ({ imagePreview, onImageChange, onRemoveImage
                 {isRemoving ? <Spinner /> : <Trash2 />}
                 Remove Image
               </Button>
-              <Button type="button" variant="outline" size="sm" className="flex-1" onClick={triggerUpload}>
+              <Button type="button" variant="outline" className="flex-1" onClick={triggerUpload}>
                 <Upload />
                 {uploadLabel}
               </Button>

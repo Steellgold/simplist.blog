@@ -520,7 +520,7 @@ export const WebhookBuilder: FC = () => {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <Label>Fields ({discordData.fields.length})</Label>
-                      <Button variant="outline" size="sm" onClick={addDiscordField}>
+                      <Button variant="outline" onClick={addDiscordField}>
                         Add field
                       </Button>
                     </div>
@@ -556,7 +556,7 @@ export const WebhookBuilder: FC = () => {
                               Display inline
                             </Label>
                           </div>
-                          <Button variant="ghost" size="sm" onClick={() => removeDiscordField(index)}>
+                          <Button variant="ghost" onClick={() => removeDiscordField(index)}>
                             Remove
                           </Button>
                         </div>
@@ -755,7 +755,7 @@ export const WebhookBuilder: FC = () => {
           <CardDescription>Copy this JSON to your webhook payload field</CardDescription>
 
           <CardAction>
-            <Button onClick={handleCopy} variant="outline" size="sm">
+            <Button onClick={handleCopy} variant="outline">
               {copied ? <Check /> : <Copy />}
               {copied ? "Copied!" : "Copy JSON"}
             </Button>

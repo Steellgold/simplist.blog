@@ -1,10 +1,10 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
 import { Button } from "@simplist/ui/components/button"
 import { toast } from "@simplist/ui/components/sonner"
-import { Upload, X } from "lucide-react"
 import { cn } from "@simplist/ui/lib/utils"
+import { Upload, X } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
 
 interface AvatarUploadProps {
   projectId: string
@@ -123,7 +123,6 @@ export function AvatarUpload({
         <Button
           type="button"
           variant="outline"
-          size="sm"
           disabled={disabled}
           onClick={() => fileInputRef.current?.click()}
         >

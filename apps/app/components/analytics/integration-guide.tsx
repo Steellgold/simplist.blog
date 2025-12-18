@@ -57,7 +57,7 @@ export const AnalyticsIntegrationGuide = ({ apiKey, showSuccessCard = false, has
               <h3 className="font-semibold">1. Add the tracking script</h3>
               <Button
                 variant="outline"
-                size="sm"
+                
                 onClick={handleCopyScript}
               >
                 {copiedScript ? (
@@ -94,7 +94,6 @@ export const AnalyticsIntegrationGuide = ({ apiKey, showSuccessCard = false, has
               </code>
               <Button
                 variant="outline"
-                size="sm"
                 onClick={handleCopyKey}
               >
                 {copiedKey ? (
@@ -110,23 +109,23 @@ export const AnalyticsIntegrationGuide = ({ apiKey, showSuccessCard = false, has
             <h3 className="font-semibold">3. What gets tracked?</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li className="flex items-start gap-2">
-                <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                <Check className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
                 <span>Page views and unique visitors (anonymized)</span>
               </li>
               <li className="flex items-start gap-2">
-                <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                <Check className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
                 <span>Time on page and scroll depth</span>
               </li>
               <li className="flex items-start gap-2">
-                <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                <Check className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
                 <span>Geographic location (country/city level)</span>
               </li>
               <li className="flex items-start gap-2">
-                <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                <Check className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
                 <span>Device type, browser, and operating system</span>
               </li>
               <li className="flex items-start gap-2">
-                <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                <Check className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
                 <span>Referrer sources and UTM campaign parameters</span>
               </li>
             </ul>

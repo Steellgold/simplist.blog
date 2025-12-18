@@ -310,7 +310,6 @@ export const IconPicker: FC<IconPickerProps> = ({
             <Button
               type="button"
               variant="outline"
-              size="sm"
               onClick={() => handleOpenChange(false)}
             >
               Cancel
@@ -319,7 +318,6 @@ export const IconPicker: FC<IconPickerProps> = ({
             <Button
               type="button"
               variant="default"
-              size="sm"
               onClick={handleDialogConfirm}
               disabled={!selectedIcon}
             >
@@ -527,7 +525,6 @@ function IconPickerContent({
                 key={category}
                 type="button"
                 variant={selectedCategory === category ? "default" : "outline"}
-                size="sm"
                 onClick={() => handleCategorySelect(category)}
                 className="shrink-0 text-xs h-6"
               >

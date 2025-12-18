@@ -198,7 +198,6 @@ export const Enable2FADialog = ({ open, onOpenChange, onEnabled }: Enable2FADial
                         </code>
                         <Button
                           type="button"
-                          size="sm"
                           variant="outline"
                           onClick={handleCopySecret}
                           disabled={isSubmitting}

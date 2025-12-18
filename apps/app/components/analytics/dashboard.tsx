@@ -292,7 +292,6 @@ export const AnalyticsDashboard = ({ analyticsData }: AnalyticsDashboardProps) =
             <ButtonGroup>
               <Button
                 variant={selectedPeriod === 7 ? "default" : "outline"}
-                size="sm"
                 onClick={() => setSelectedPeriod(7)}
               >
                 {isMobile ? "7d" : "7 days"}
@@ -300,7 +299,6 @@ export const AnalyticsDashboard = ({ analyticsData }: AnalyticsDashboardProps) =
 
               <Button
                 variant={selectedPeriod === 30 ? "default" : "outline"}
-                size="sm"
                 onClick={() => setSelectedPeriod(30)}
               >
                 {isMobile ? "30d" : "30 days"}
@@ -308,7 +306,6 @@ export const AnalyticsDashboard = ({ analyticsData }: AnalyticsDashboardProps) =
 
               <Button
                 variant={selectedPeriod === 90 ? "default" : "outline"}
-                size="sm"
                 onClick={() => setSelectedPeriod(90)}
               >
                 {isMobile ? "90d" : "90 days"}
@@ -316,7 +313,7 @@ export const AnalyticsDashboard = ({ analyticsData }: AnalyticsDashboardProps) =
 
               {/* Chart type dropdown after period buttons for all screen sizes */}
               <Select value={selectedChartTab.toString()} onValueChange={(value) => setSelectedChartTab(parseInt(value))}>
-                <SelectTrigger className="!h-8" suppressHydrationWarning>
+                <SelectTrigger className="h-8!" suppressHydrationWarning>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -658,21 +655,18 @@ export const AnalyticsDashboard = ({ analyticsData }: AnalyticsDashboardProps) =
                 <ButtonGroup>
                   <Button
                     variant={selectedLocationTab === 0 ? "default" : "outline"}
-                    size="sm"
                     onClick={() => setSelectedLocationTab(0)}
                   >
                     Countries
                   </Button>
                   <Button
                     variant={selectedLocationTab === 1 ? "default" : "outline"}
-                    size="sm"
                     onClick={() => setSelectedLocationTab(1)}
                   >
                     Cities
                   </Button>
                   <Button
                     variant={selectedLocationTab === 2 ? "default" : "outline"}
-                    size="sm"
                     onClick={() => setSelectedLocationTab(2)}
                   >
                     Regions

@@ -1,8 +1,8 @@
 "use client";
 
-import { Button } from "@simplist/ui/components/button"
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@simplist/ui/components/empty"
-import { ArrowRightIcon, FolderIcon } from "lucide-react"
+import { Button } from "@simplist/ui/components/button";
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@simplist/ui/components/empty";
+import { ArrowRightIcon, FolderIcon } from "lucide-react";
 
 export const EmptyProject = () => {
   return (
@@ -20,7 +20,7 @@ export const EmptyProject = () => {
         </EmptyHeader>
         <EmptyContent>
           <div className="flex gap-2">
-            <Button size="sm">Create Project</Button>
+            <Button>Create Project</Button>
           </div>
         </EmptyContent>
 
@@ -28,7 +28,6 @@ export const EmptyProject = () => {
           variant="link"
           asChild
           className="text-muted-foreground"
-          size="sm"
         >
           <a href="#">
             Learn More <ArrowRightIcon />
