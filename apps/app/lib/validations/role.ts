@@ -8,6 +8,7 @@ export const rolePermissionsSchema = z.object({
   canManageMembers: z.boolean().optional(),
   canManageRoles: z.boolean().optional(),
   canManageArticles: z.boolean().optional(),
+  canManageTags: z.boolean().optional(),
   canManageApiKeys: z.boolean().optional(),
   canManageWebhooks: z.boolean().optional(),
   canViewAnalytics: z.boolean().optional(),
@@ -31,7 +32,7 @@ export const createRoleSchema = z.object({
     .max(50, "Slug cannot be longer than 50 characters")
     .regex(
       /^[a-z0-9-]+$/,
-      "Slug can only contain lowercase letters, numbers and dashes"
+      "Slug can only contain lowercase letters, numbers and dashes",
     ),
   permissions: rolePermissionsSchema,
 });

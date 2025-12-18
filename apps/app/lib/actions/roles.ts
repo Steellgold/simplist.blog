@@ -18,8 +18,8 @@ export const getProjectRoles = async (projectId: string) => {
     },
     include: {
       _count: {
-        select: { members: true }
-      }
+        select: { members: true },
+      },
     },
     orderBy: [{ isDefault: "desc" }, { createdAt: "asc" }],
   });
@@ -40,11 +40,12 @@ export const createProjectRole = async (
       canManageMembers?: boolean;
       canManageRoles?: boolean;
       canManageArticles?: boolean;
+      canManageTags?: boolean;
       canManageApiKeys?: boolean;
       canManageWebhooks?: boolean;
       canViewAnalytics?: boolean;
     };
-  }
+  },
 ) => {
   await requirePermission(projectId, "canManageRoles");
 
@@ -74,6 +75,7 @@ export const createProjectRole = async (
       canManageMembers: validatedData.permissions.canManageMembers ?? false,
       canManageRoles: validatedData.permissions.canManageRoles ?? false,
       canManageArticles: validatedData.permissions.canManageArticles ?? false,
+      canManageTags: validatedData.permissions.canManageTags ?? false,
       canManageApiKeys: validatedData.permissions.canManageApiKeys ?? false,
       canManageWebhooks: validatedData.permissions.canManageWebhooks ?? false,
       canViewAnalytics: validatedData.permissions.canViewAnalytics ?? true,
@@ -106,11 +108,12 @@ export const updateProjectRole = async (
       canManageMembers?: boolean;
       canManageRoles?: boolean;
       canManageArticles?: boolean;
+      canManageTags?: boolean;
       canManageApiKeys?: boolean;
       canManageWebhooks?: boolean;
       canViewAnalytics?: boolean;
     };
-  }
+  },
 ) => {
   await requirePermission(projectId, "canManageRoles");
 
@@ -137,6 +140,7 @@ export const updateProjectRole = async (
     canManageMembers?: boolean;
     canManageRoles?: boolean;
     canManageArticles?: boolean;
+    canManageTags?: boolean;
     canManageApiKeys?: boolean;
     canManageWebhooks?: boolean;
     canViewAnalytics?: boolean;
@@ -160,7 +164,12 @@ export const updateProjectRole = async (
     }
 
     if (validatedData.permissions.canManageArticles !== undefined) {
-      updateData.canManageArticles = validatedData.permissions.canManageArticles;
+      updateData.canManageArticles =
+        validatedData.permissions.canManageArticles;
+    }
+
+    if (validatedData.permissions.canManageTags !== undefined) {
+      updateData.canManageTags = validatedData.permissions.canManageTags;
     }
 
     if (validatedData.permissions.canManageApiKeys !== undefined) {
@@ -168,7 +177,8 @@ export const updateProjectRole = async (
     }
 
     if (validatedData.permissions.canManageWebhooks !== undefined) {
-      updateData.canManageWebhooks = validatedData.permissions.canManageWebhooks;
+      updateData.canManageWebhooks =
+        validatedData.permissions.canManageWebhooks;
     }
 
     if (validatedData.permissions.canViewAnalytics !== undefined) {
@@ -216,14 +226,14 @@ export const deleteProjectRole = async (projectId: string, roleId: string) => {
   // Cannot delete default roles
   if (role.isDefault) {
     throw new Error(
-      "Cannot delete default roles. You can only modify their name and permissions."
+      "Cannot delete default roles. You can only modify their name and permissions.",
     );
   }
 
   // Cannot delete role if members are assigned to it
   if (role.members.length > 0) {
     throw new Error(
-      `Cannot delete this role because ${role.members.length} member${role.members.length > 1 ? "s are" : " is"} currently assigned to it. Reassign them first.`
+      `Cannot delete this role because ${role.members.length} member${role.members.length > 1 ? "s are" : " is"} currently assigned to it. Reassign them first.`,
     );
   }
 

@@ -14,6 +14,7 @@ export type RolePermission = keyof Pick<
   | "canManageMembers"
   | "canManageRoles"
   | "canManageArticles"
+  | "canManageTags"
   | "canManageApiKeys"
   | "canManageWebhooks"
   | "canViewAnalytics"
@@ -43,7 +44,7 @@ export type MembershipWithRole = ProjectMember & {
  */
 export const getUserProjectMembership = async (
   projectId: string,
-  userId: string
+  userId: string,
 ): Promise<MembershipWithRole | null> => {
   const membership = await prisma.projectMember.findUnique({
     where: {
@@ -81,7 +82,7 @@ export const getUserProjectMembership = async (
  */
 export const requirePermission = async (
   projectId: string,
-  permission: RolePermission
+  permission: RolePermission,
 ) => {
   const user = await getCurrentUser();
   if (!user) redirect("/auth/login");
@@ -141,7 +142,7 @@ export const getUserProjectsAsMember = async (userId: string) => {
  */
 export const isProjectOwner = async (
   projectId: string,
-  userId: string
+  userId: string,
 ): Promise<boolean> => {
   const membership = await getUserProjectMembership(projectId, userId);
   if (!membership) return false;
@@ -156,7 +157,7 @@ export const isProjectOwner = async (
  */
 export const getProjectRoles = async (
   projectId: string,
-  includeOwner = false
+  includeOwner = false,
 ) => {
   const roles = await prisma.projectRole.findMany({
     where: {
@@ -177,7 +178,7 @@ export const getProjectRoles = async (
  */
 export const hasProjectAccess = async (
   projectId: string,
-  userId: string
+  userId: string,
 ): Promise<boolean> => {
   const membership = await getUserProjectMembership(projectId, userId);
   return membership !== null;

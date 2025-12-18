@@ -1,17 +1,22 @@
-"use server"
+"use server";
 
-import { ProjectDeletedEmail } from "@/components/emails/project-deleted"
-import { render } from "@react-email/render"
-import { prisma } from "@simplist/db"
-import { revalidatePath } from "next/cache"
-import { redirect } from "next/navigation"
-import { getCurrentUser } from "../auth-helper"
-import { requirePermission } from "../auth/permissions"
-import { sendEmail } from "../ses"
-import { CreateProjectActionInput, createProjectSchema, isReservedSlug, UpdateProjectSettingsInput } from "../validations/project"
+import { ProjectDeletedEmail } from "@/components/emails/project-deleted";
+import { render } from "@react-email/render";
+import { prisma } from "@simplist/db";
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { getCurrentUser } from "../auth-helper";
+import { requirePermission } from "../auth/permissions";
+import { sendEmail } from "../ses";
+import {
+  CreateProjectActionInput,
+  createProjectSchema,
+  isReservedSlug,
+  UpdateProjectSettingsInput,
+} from "../validations/project";
 
 export const getUserProjects = async () => {
-  const user = await getCurrentUser()
+  const user = await getCurrentUser();
   if (!user) redirect("/auth/login");
 
   const memberships = await prisma.projectMember.findMany({
@@ -33,10 +38,10 @@ export const getUserProjects = async () => {
     memberRole: m.role,
     isOwner: m.role.isOwner,
   }));
-}
+};
 
 export const createProject = async (input: CreateProjectActionInput) => {
-  const user = await getCurrentUser()
+  const user = await getCurrentUser();
   if (!user) redirect("/auth/login");
 
   // Check if user has reached the project limit (2 owned projects max)
@@ -50,7 +55,9 @@ export const createProject = async (input: CreateProjectActionInput) => {
   });
 
   if (ownedProjectsCount >= 2) {
-    throw new Error("You have reached the maximum number of projects (2). Delete a project to create a new one.");
+    throw new Error(
+      "You have reached the maximum number of projects (2). Delete a project to create a new one.",
+    );
   }
 
   // Validate input with Zod
@@ -62,14 +69,16 @@ export const createProject = async (input: CreateProjectActionInput) => {
     allowedOrigins: input.allowedOrigins || [],
     baseUrl: input.baseUrl ?? null,
     articleUrlPattern: input.articleUrlPattern || "/posts/{slug}",
-  })
+  });
 
   // Extract string values from the validated data
-  const allowedOriginStrings = validatedData.allowedOrigins.map(origin => origin.value)
+  const allowedOriginStrings = validatedData.allowedOrigins.map(
+    (origin) => origin.value,
+  );
 
   // Check if slug is reserved
   if (isReservedSlug(input.slug)) {
-    throw new Error("This slug is reserved and cannot be used")
+    throw new Error("This slug is reserved and cannot be used");
   }
 
   // Check if slug already exists globally and make it unique if needed
@@ -127,6 +136,7 @@ export const createProject = async (input: CreateProjectActionInput) => {
         canManageMembers: true,
         canManageRoles: true,
         canManageArticles: true,
+        canManageTags: true,
         canManageApiKeys: true,
         canManageWebhooks: true,
         canViewAnalytics: true,
@@ -145,6 +155,7 @@ export const createProject = async (input: CreateProjectActionInput) => {
         canManageMembers: true,
         canManageRoles: true,
         canManageArticles: true,
+        canManageTags: true,
         canManageApiKeys: true,
         canManageWebhooks: true,
         canViewAnalytics: true,
@@ -158,6 +169,7 @@ export const createProject = async (input: CreateProjectActionInput) => {
         name: "Editor",
         isDefault: true,
         canManageArticles: true,
+        canManageTags: true,
         canManageApiKeys: true,
         canManageWebhooks: false,
         canViewAnalytics: true,
@@ -187,9 +199,9 @@ export const createProject = async (input: CreateProjectActionInput) => {
     return project;
   });
 
-  revalidatePath("/")
-  return result
-}
+  revalidatePath("/");
+  return result;
+};
 
 export const deleteProject = async (projectId: string) => {
   const { user } = await requirePermission(projectId, "canDeleteProject");
@@ -220,7 +232,7 @@ export const deleteProject = async (projectId: string) => {
       ProjectDeletedEmail({
         name: user.name || user.email,
         projectName: project.name,
-      })
+      }),
     );
 
     await sendEmail({
@@ -235,11 +247,11 @@ export const deleteProject = async (projectId: string) => {
 
   // Revalidate dashboard
   revalidatePath("/");
-}
+};
 
 export const updateProject = async (
   projectId: string,
-  input: { name: string }
+  input: { name: string },
 ) => {
   await requirePermission(projectId, "canManageProject");
 
@@ -301,9 +313,12 @@ export const updateProject = async (
     revalidatePath(`/${project.slug}/settings`, "page");
   }
   return updated;
-}
+};
 
-export const updateProjectSettings = async (projectId: string, input: UpdateProjectSettingsInput) => {
+export const updateProjectSettings = async (
+  projectId: string,
+  input: UpdateProjectSettingsInput,
+) => {
   await requirePermission(projectId, "canManageProject");
 
   const project = await prisma.project.findUnique({
@@ -338,7 +353,9 @@ export const updateProjectSettings = async (projectId: string, input: UpdateProj
   }
 
   // Extract string values from allowedOrigins
-  const allowedOriginStrings = input.allowedOrigins?.map(origin => origin.value).filter(value => value?.trim() !== "");
+  const allowedOriginStrings = input.allowedOrigins
+    ?.map((origin) => origin.value)
+    .filter((value) => value?.trim() !== "");
 
   // Detect if default language has changed
   const languageChanged = project.defaultLanguage !== input.defaultLanguage;
@@ -360,11 +377,12 @@ export const updateProjectSettings = async (projectId: string, input: UpdateProj
 
   // If default language changed, migrate article variants
   if (languageChanged) {
-    const { migrateArticleVariantsOnLanguageChange } = await import("../migrations/migrate-article-variants");
+    const { migrateArticleVariantsOnLanguageChange } =
+      await import("../migrations/migrate-article-variants");
     await migrateArticleVariantsOnLanguageChange(
       projectId,
       project.defaultLanguage,
-      input.defaultLanguage
+      input.defaultLanguage,
     );
   }
 
@@ -378,4 +396,4 @@ export const updateProjectSettings = async (projectId: string, input: UpdateProj
     revalidatePath(`/${project.slug}/settings`, "page");
   }
   return updated;
-}
+};

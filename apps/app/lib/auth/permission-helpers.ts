@@ -9,7 +9,7 @@ import type { RolePermission } from "./permissions";
  */
 export const hasPermission = (
   role: ProjectRole | null,
-  permission: RolePermission
+  permission: RolePermission,
 ): boolean => {
   if (!role) return false;
   return role[permission] === true;
@@ -33,6 +33,11 @@ export const canManageRoles = (role: ProjectRole | null): boolean => {
 /** Helper: Check if user can manage articles */
 export const canManageArticles = (role: ProjectRole | null): boolean => {
   return hasPermission(role, "canManageArticles");
+};
+
+/** Helper: Check if user can manage tags */
+export const canManageTags = (role: ProjectRole | null): boolean => {
+  return hasPermission(role, "canManageTags");
 };
 
 /** Helper: Check if user can manage API keys */
