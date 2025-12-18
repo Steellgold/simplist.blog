@@ -1,13 +1,16 @@
-"use client"
+"use client";
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useState } from "react"
-import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 
-import { createApiKey } from "@/lib/actions/api-keys"
-import { CreateApiKeyInput, createApiKeySchema } from "@/lib/validations/api-key"
-import { Button } from "@simplist/ui/components/button"
-import { Checkbox } from "@simplist/ui/components/checkbox"
+import { createApiKey } from "@/lib/actions/api-keys";
+import {
+  CreateApiKeyInput,
+  createApiKeySchema,
+} from "@/lib/validations/api-key";
+import { Button } from "@simplist/ui/components/button";
+import { Checkbox } from "@simplist/ui/components/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -15,45 +18,75 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@simplist/ui/components/dialog"
-import { Field, FieldError, FieldGroup, FieldLabel, FieldSet } from "@simplist/ui/components/field"
-import { Input } from "@simplist/ui/components/input"
+} from "@simplist/ui/components/dialog";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldSet,
+} from "@simplist/ui/components/field";
+import { Input } from "@simplist/ui/components/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@simplist/ui/components/select"
-import { toast } from "@simplist/ui/components/sonner"
-import { Spinner } from "@simplist/ui/components/spinner"
-import { cn } from "@simplist/ui/lib/utils"
-import { Check, Copy, Plus } from "lucide-react"
-import { useRouter } from "next/navigation"
+} from "@simplist/ui/components/select";
+import { toast } from "@simplist/ui/components/sonner";
+import { Spinner } from "@simplist/ui/components/spinner";
+import { cn } from "@simplist/ui/lib/utils";
+import { Kbd } from "@simplist/ui/components/kbd";
+import { Check, Copy, Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface CreateApiKeyFormProps {
-  projectId: string
-  onSuccess?: () => void
+  projectId: string;
+  onSuccess?: () => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  showTrigger?: boolean;
 }
 
 type Permission = {
-  id: "read" | "analytics"
-  label: string
-  description: string
-}
+  id: "read" | "analytics";
+  label: string;
+  description: string;
+};
 
 const PERMISSIONS: Permission[] = [
-  { id: "read", label: "Read", description: "Access articles and project data" },
-  { id: "analytics", label: "Analytics", description: "Track page views and events" }
-]
+  {
+    id: "read",
+    label: "Read",
+    description: "Access articles and project data",
+  },
+  {
+    id: "analytics",
+    label: "Analytics",
+    description: "Track page views and events",
+  },
+];
 
-export const CreateApiKeyForm = ({ projectId, onSuccess }: CreateApiKeyFormProps) => {
-  const router = useRouter()
-  const [open, setOpen] = useState(false)
-  const [newApiKey, setNewApiKey] = useState<string | null>(null)
-  const [copied, setCopied] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+export const CreateApiKeyForm = ({
+  projectId,
+  onSuccess,
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
+  showTrigger = true,
+}: CreateApiKeyFormProps) => {
+  const router = useRouter();
+  const [internalOpen, setInternalOpen] = useState(false);
+  const [newApiKey, setNewApiKey] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Use controlled or uncontrolled state
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : internalOpen;
+  const setOpen = isControlled
+    ? (value: boolean) => controlledOnOpenChange?.(value)
+    : setInternalOpen;
 
   const {
     register,
@@ -69,84 +102,91 @@ export const CreateApiKeyForm = ({ projectId, onSuccess }: CreateApiKeyFormProps
       permissions: [],
       expiresInDays: null,
     },
-  })
+  });
 
-  const expiresInDays = watch("expiresInDays")
-  const permissions = watch("permissions")
+  const expiresInDays = watch("expiresInDays");
+  const permissions = watch("permissions");
 
-  const handlePermissionChange = (permission: Permission["id"], checked: boolean) => {
-    const currentPermissions = permissions || []
+  const handlePermissionChange = (
+    permission: Permission["id"],
+    checked: boolean,
+  ) => {
+    const currentPermissions = permissions || [];
     if (checked) {
       if (!currentPermissions.includes(permission)) {
-        setValue("permissions", [...currentPermissions, permission])
+        setValue("permissions", [...currentPermissions, permission]);
       }
     } else {
-      setValue("permissions", currentPermissions.filter((p) => p !== permission))
+      setValue(
+        "permissions",
+        currentPermissions.filter((p) => p !== permission),
+      );
     }
-  }
+  };
 
   const onSubmit = async (data: CreateApiKeyInput) => {
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
-    toast.promise(
-      createApiKey(projectId, data),
-      {
-        loading: "Creating API key...",
-        success: (result) => {
-          setNewApiKey(result.key)
-          reset()
-          setIsSubmitting(false)
-          router.refresh()
-          onSuccess?.()
-          return "API key created successfully"
-        },
-        error: (err: unknown) => {
-          setIsSubmitting(false)
-          return err instanceof Error ? err.message : "Failed to create API key"
-        },
-      }
-    )
-  }
+    toast.promise(createApiKey(projectId, data), {
+      loading: "Creating API key...",
+      success: (result) => {
+        setNewApiKey(result.key);
+        reset();
+        setIsSubmitting(false);
+        router.refresh();
+        onSuccess?.();
+        return "API key created successfully";
+      },
+      error: (err: unknown) => {
+        setIsSubmitting(false);
+        return err instanceof Error ? err.message : "Failed to create API key";
+      },
+    });
+  };
 
   const handleCopy = async () => {
     if (newApiKey) {
-      await navigator.clipboard.writeText(newApiKey)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-      toast.success("API key copied to clipboard")
+      await navigator.clipboard.writeText(newApiKey);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+      toast.success("API key copied to clipboard");
     }
-  }
+  };
 
   const handleClose = () => {
-    setOpen(false)
-    setNewApiKey(null)
-    setCopied(false)
-    reset()
-  }
+    setOpen(false);
+    setNewApiKey(null);
+    setCopied(false);
+    reset();
+  };
 
   return (
-    <Dialog open={open} onOpenChange={(isOpen) => {
-      if (!isOpen) {
-        handleClose()
-      } else {
-        setOpen(true)
-      }
-    }}>
-      <DialogTrigger asChild>
-        <Button>
-          <Plus className="size-4" />
-          Create API Key
-        </Button>
-      </DialogTrigger>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) {
+          handleClose();
+        } else {
+          setOpen(true);
+        }
+      }}
+    >
+      {showTrigger && (
+        <DialogTrigger asChild>
+          <Button>
+            <Plus className="size-4" />
+            Create API key
+            <Kbd>N</Kbd>
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create API Key</DialogTitle>
           <DialogDescription>
-            {newApiKey ? (
-              "Save this API key securely. You won't be able to see it again."
-            ) : (
-              "Create a new API key to access your project's data programmatically."
-            )}
+            {newApiKey
+              ? "Save this API key securely. You won't be able to see it again."
+              : "Create a new API key to access your project's data programmatically."}
           </DialogDescription>
         </DialogHeader>
 
@@ -189,27 +229,29 @@ export const CreateApiKeyForm = ({ projectId, onSuccess }: CreateApiKeyFormProps
                       {...register("name")}
                     />
 
-                    {errors.name && <FieldError>{errors.name.message}</FieldError>}
+                    {errors.name && (
+                      <FieldError>{errors.name.message}</FieldError>
+                    )}
                   </Field>
 
                   <Field>
                     <FieldLabel>Permissions</FieldLabel>
                     <FieldGroup className="gap-0">
                       {PERMISSIONS.map((permission, index) => {
-                        const isFirst = index === 0
-                        const isLast = index === PERMISSIONS.length - 1
+                        const isFirst = index === 0;
+                        const isLast = index === PERMISSIONS.length - 1;
 
                         const radius = isFirst
                           ? "rounded-t-md"
-                            : isLast
-                              ? "rounded-b-md"
-                                : "rounded-none"
-                          
+                          : isLast
+                            ? "rounded-b-md"
+                            : "rounded-none";
+
                         const borders = isFirst
                           ? "border-t border-l border-r"
-                            : isLast
-                              ? "border-l border-r border-b"
-                                : "border-l border-r"
+                          : isLast
+                            ? "border-l border-r border-b"
+                            : "border-l border-r";
 
                         return (
                           <Field key={permission.id} orientation="horizontal">
@@ -218,15 +260,20 @@ export const CreateApiKeyForm = ({ projectId, onSuccess }: CreateApiKeyFormProps
                               className={cn(
                                 "hover:bg-accent/50 flex items-start gap-3 p-3 has-[[aria-checked=true]]:border-blue-600 has-[[aria-checked=true]]:bg-blue-50 dark:has-[[aria-checked=true]]:border-blue-900 dark:has-[[aria-checked=true]]:bg-blue-950",
                                 borders,
-                                radius
+                                radius,
                               )}
                             >
                               <Checkbox
                                 id={`permission-${permission.id}`}
                                 className="data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600 data-[state=checked]:text-white dark:data-[state=checked]:border-blue-700 dark:data-[state=checked]:bg-blue-700"
-                                checked={permissions?.includes(permission.id) ?? false}
+                                checked={
+                                  permissions?.includes(permission.id) ?? false
+                                }
                                 onCheckedChange={(checked) =>
-                                  handlePermissionChange(permission.id, checked as boolean)
+                                  handlePermissionChange(
+                                    permission.id,
+                                    checked as boolean,
+                                  )
                                 }
                                 disabled={isSubmitting}
                               />
@@ -242,7 +289,7 @@ export const CreateApiKeyForm = ({ projectId, onSuccess }: CreateApiKeyFormProps
                               </div>
                             </FieldLabel>
                           </Field>
-                        )
+                        );
                       })}
                     </FieldGroup>
 
@@ -254,9 +301,14 @@ export const CreateApiKeyForm = ({ projectId, onSuccess }: CreateApiKeyFormProps
                   <Field>
                     <FieldLabel htmlFor="expiration">Expiration</FieldLabel>
                     <Select
-                      value={expiresInDays === null ? "never" : String(expiresInDays)}
+                      value={
+                        expiresInDays === null ? "never" : String(expiresInDays)
+                      }
                       onValueChange={(value) => {
-                        setValue("expiresInDays", value === "never" ? null : parseInt(value))
+                        setValue(
+                          "expiresInDays",
+                          value === "never" ? null : parseInt(value),
+                        );
                       }}
                     >
                       <SelectTrigger id="expiration">
@@ -291,5 +343,5 @@ export const CreateApiKeyForm = ({ projectId, onSuccess }: CreateApiKeyFormProps
         )}
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};

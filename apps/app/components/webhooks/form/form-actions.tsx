@@ -1,23 +1,25 @@
-"use client"
+"use client";
 
-import { FC } from "react"
+import { FC } from "react";
 
-import { Button } from "@simplist/ui/components/button"
-import { ButtonGroup } from "@simplist/ui/components/button-group"
-import { Play } from "lucide-react"
-import type { WebhookFormMode } from "../types"
-import { useWebhookFormContext } from "./form-context"
+import { Button } from "@simplist/ui/components/button";
+import { Play } from "lucide-react";
+import type { WebhookFormMode } from "../types";
+import { useWebhookFormContext } from "./form-context";
 
 type WebhookFormActionsProps = {
-  mode: WebhookFormMode
-  formId: string
-}
+  mode: WebhookFormMode;
+  formId: string;
+};
 
-export const WebhookFormActions: FC<WebhookFormActionsProps> = ({ mode, formId }) => {
-  const { isPending, handleTest } = useWebhookFormContext()
+export const WebhookFormActions: FC<WebhookFormActionsProps> = ({
+  mode,
+  formId,
+}) => {
+  const { isPending, handleTest } = useWebhookFormContext();
 
   return (
-    <ButtonGroup>
+    <div className="flex items-center gap-2">
       <Button
         type="button"
         variant="outline"
@@ -36,7 +38,6 @@ export const WebhookFormActions: FC<WebhookFormActionsProps> = ({ mode, formId }
       >
         {mode === "create" ? "Create webhook" : "Save changes"}
       </Button>
-    </ButtonGroup>
-  )
-}
-
+    </div>
+  );
+};

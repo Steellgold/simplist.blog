@@ -14,8 +14,10 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@simplist/ui/components/empty";
+import { Kbd } from "@simplist/ui/components/kbd";
 import { Plus, Tag } from "lucide-react";
 import { useState } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
 
 type TagsClientPageProps = {
   tags: TagWithMetadata[];
@@ -36,6 +38,12 @@ export const TagsClientPage = ({
 }: TagsClientPageProps) => {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const columns = useTagsColumns({ canManageTags });
+
+  // Keyboard shortcut: N to create new tag
+  useHotkeys("n", () => setShowCreateDialog(true), {
+    enabled: canManageTags,
+    enableOnFormTags: false,
+  });
 
   if (tags.length === 0) {
     return (
@@ -58,7 +66,8 @@ export const TagsClientPage = ({
                   onClick={() => setShowCreateDialog(true)}
                 >
                   <Plus />
-                  New Tag
+                  New tag
+                  <Kbd>N</Kbd>
                 </Button>
               </EmptyContent>
             )}
@@ -81,9 +90,10 @@ export const TagsClientPage = ({
         description="Manage tags to organize and categorize your articles."
         actions={
           canManageTags && (
-            <Button variant="outline" onClick={() => setShowCreateDialog(true)}>
+            <Button variant="default" onClick={() => setShowCreateDialog(true)}>
               <Plus />
-              New Tag
+              New tag
+              <Kbd>N</Kbd>
             </Button>
           )
         }

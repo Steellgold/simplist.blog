@@ -20,10 +20,12 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@simplist/ui/components/empty";
+import { Kbd } from "@simplist/ui/components/kbd";
 import { ProgressLink } from "@simplist/ui/components/progress-button";
 import { FileText, Plus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useHotkeys } from "react-hotkeys-hook";
 
 type ArticlesClientPageProps = {
   articles: Omit<Article, "content">[];
@@ -47,6 +49,12 @@ export const ArticlesClientPage = ({
   const router = useRouter();
   const columns = useArticlesColumns({ articles: articles as Article[] });
   const isAtLimit = maxCount !== -1 && articleCount >= maxCount;
+
+  // Keyboard shortcut: N to create new article
+  useHotkeys("n", () => router.push(`/${project.slug}/articles/new`), {
+    enabled: !isAtLimit,
+    enableOnFormTags: false,
+  });
 
   const importColumns: ImportColumn[] = [
     { key: "title", header: "Title", required: true },
@@ -94,7 +102,8 @@ export const ArticlesClientPage = ({
                 aria-disabled={isAtLimit}
               >
                 <Plus />
-                New Article
+                New article
+                <Kbd>N</Kbd>
               </Link>
             </div>
           </EmptyContent>
@@ -111,10 +120,11 @@ export const ArticlesClientPage = ({
         maxCount === -1 ? (
           <Link
             href={`/${project.slug}/articles/new`}
-            className={buttonVariants({ variant: "outline" })}
+            className={buttonVariants({ variant: "default" })}
           >
             <Plus />
-            New Article
+            New article
+            <Kbd>N</Kbd>
           </Link>
         ) : (
           <ProgressLink
@@ -122,11 +132,11 @@ export const ArticlesClientPage = ({
             value={articleCount}
             min={0}
             max={maxCount}
-            variant="outline"
+            variant="default"
             as={Link}
           >
             <Plus />
-            New Article ({articleCount}/{maxCount})
+            New article ({articleCount}/{maxCount})<Kbd>N</Kbd>
           </ProgressLink>
         )
       }
