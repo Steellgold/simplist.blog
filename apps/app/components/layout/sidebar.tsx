@@ -5,8 +5,10 @@ import { usePathname } from "next/navigation";
 
 import { ProjectSwitcher } from "@/components/projects/switcher";
 import { MiniBadge } from "@/components/ui/mini-badge";
+import type { ProjectStats } from "@/lib/actions/projects";
 import type { User } from "@/lib/auth-client";
 import type { RolePermission } from "@/lib/auth/permissions";
+import { formatBytes } from "@/lib/utils";
 import type { ProjectRole } from "@simplist/db";
 import type { Project } from "@simplist/db/types";
 import {
@@ -18,6 +20,7 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
+  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@simplist/ui/components/sidebar";
@@ -26,6 +29,7 @@ import {
   Ban,
   ChartLine,
   ClipboardList,
+  ImageIcon,
   Layers,
   LayoutDashboard,
   Settings,
@@ -48,6 +52,7 @@ interface AppSidebarProps {
   projects: Project[];
   activeProject: Project | null;
   currentRole: ProjectRole | null;
+  stats?: ProjectStats;
   onProjectChange?: (projectId: string) => void;
   onCreateProject?: () => void;
   onLogout?: () => void;
@@ -89,6 +94,13 @@ const getNavigationItems = (
     icon: Tag,
     href: `/${projectSlug}/tags`,
     requiredPermissions: ["canManageTags"],
+    category: "Content",
+  },
+  {
+    title: "Media",
+    icon: ImageIcon,
+    href: `/${projectSlug}/media`,
+    requiredPermissions: ["canManageArticles"],
     category: "Content",
   },
   {
@@ -152,6 +164,7 @@ export const AppSidebar = ({
   projects,
   activeProject,
   currentRole,
+  stats,
   onProjectChange,
   onCreateProject,
   isCreatingProject = false,
@@ -185,6 +198,24 @@ export const AppSidebar = ({
     return item.requiredPermissions.every(
       (permission) => currentRole[permission] === true,
     );
+  };
+
+  const getItemBadge = (itemTitle: string): string | null => {
+    if (!stats) return null;
+
+    switch (itemTitle) {
+      case "Articles":
+        return isPro ? `${stats.articles}` : `${stats.articles}/5`;
+      case "Tags":
+        return `${stats.tags}`;
+      case "Media":
+        return formatBytes(stats.storageBytes);
+      case "Members":
+        // Only show if PRO and more than 1 member
+        return isPro && stats.members > 1 ? `${stats.members}` : null;
+      default:
+        return null;
+    }
   };
 
   // Regrouper les items par catégorie
@@ -238,6 +269,7 @@ export const AppSidebar = ({
                     }
 
                     const Icon = item.icon;
+                    const badge = getItemBadge(item.title);
 
                     return (
                       <SidebarMenuItem key={item.href}>
@@ -279,6 +311,11 @@ export const AppSidebar = ({
                             </Link>
                           )}
                         </SidebarMenuButton>
+                        {badge && !isDisabled && (
+                          <SidebarMenuBadge className="bg-secondary px-1.5">
+                            {badge}
+                          </SidebarMenuBadge>
+                        )}
                       </SidebarMenuItem>
                     );
                   })}

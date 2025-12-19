@@ -1,6 +1,13 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@simplist/ui/components/card";
+import { formatBytes } from "@/lib/utils";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@simplist/ui/components/card";
 import { Progress } from "@simplist/ui/components/progress";
 import { AlertTriangle, BarChart3 } from "lucide-react";
 
@@ -26,14 +33,6 @@ interface UsageCardProps {
   };
 }
 
-const formatBytes = (bytes: number): string => {
-  if (bytes === 0) return "0 B";
-  const k = 1024;
-  const sizes = ["B", "KB", "MB", "GB"];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
-};
-
 const formatNumber = (num: number): string => {
   return num.toLocaleString();
 };
@@ -45,10 +44,12 @@ const getProgressColor = (percentage: number): string => {
 };
 
 export const UsageCard = ({ usage }: UsageCardProps) => {
-  const articlePercentage = (usage.articles.current / usage.articles.limit) * 100;
+  const articlePercentage =
+    (usage.articles.current / usage.articles.limit) * 100;
   const storagePercentage = (usage.storage.current / usage.storage.limit) * 100;
   const apiKeyPercentage = (usage.apiKeys.current / usage.apiKeys.limit) * 100;
-  const apiCallPercentage = (usage.apiCalls.current / usage.apiCalls.limit) * 100;
+  const apiCallPercentage =
+    (usage.apiCalls.current / usage.apiCalls.limit) * 100;
 
   const isArticleLimitWarning = articlePercentage >= 75;
   const isStorageLimitWarning = storagePercentage >= 75;
@@ -69,7 +70,8 @@ export const UsageCard = ({ usage }: UsageCardProps) => {
           <div className="flex items-center justify-between text-sm">
             <span className="font-medium">Articles</span>
             <span className="text-muted-foreground">
-              {usage.articles.current} / {usage.articles.limit === Infinity ? "∞" : usage.articles.limit}
+              {usage.articles.current} /{" "}
+              {usage.articles.limit === Infinity ? "∞" : usage.articles.limit}
             </span>
           </div>
           {usage.articles.limit !== Infinity && (
@@ -94,7 +96,8 @@ export const UsageCard = ({ usage }: UsageCardProps) => {
           <div className="flex items-center justify-between text-sm">
             <span className="font-medium">Storage</span>
             <span className="text-muted-foreground">
-              {formatBytes(usage.storage.current)} / {formatBytes(usage.storage.limit)}
+              {formatBytes(usage.storage.current)} /{" "}
+              {formatBytes(usage.storage.limit)}
             </span>
           </div>
 
@@ -131,7 +134,8 @@ export const UsageCard = ({ usage }: UsageCardProps) => {
           <div className="flex items-center justify-between text-sm">
             <span className="font-medium">API Calls (Monthly)</span>
             <span className="text-muted-foreground">
-              {formatNumber(usage.apiCalls.current)} / {formatNumber(usage.apiCalls.limit)}
+              {formatNumber(usage.apiCalls.current)} /{" "}
+              {formatNumber(usage.apiCalls.limit)}
             </span>
           </div>
           <Progress
@@ -148,7 +152,7 @@ export const UsageCard = ({ usage }: UsageCardProps) => {
           <p className="text-xs text-muted-foreground">
             Resets on{" "}
             {new Date(
-              usage.apiCalls.resetDate.getTime() + 30 * 24 * 60 * 60 * 1000
+              usage.apiCalls.resetDate.getTime() + 30 * 24 * 60 * 60 * 1000,
             ).toLocaleDateString("en-US", {
               month: "short",
               day: "numeric",

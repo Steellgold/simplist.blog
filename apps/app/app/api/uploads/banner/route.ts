@@ -1,56 +1,66 @@
-import { createR2Client, getPublicUrlForKey } from "@/lib/actions/images"
-import { getCurrentUser } from "@/lib/auth-helper"
-import { requirePermission } from "@/lib/auth/permissions"
-import { sanitizeFileName } from "@/lib/utils"
-import { prisma } from "@simplist/db"
-import { checkStorageQuota, updateStorageUsage } from "@/lib/subscription/quota-check"
-import { PutObjectCommand } from "@aws-sdk/client-s3"
-import { NextResponse } from "next/server"
-
-const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB for article banners
-const ALLOWED_MIME_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"]
+import { createR2Client, getPublicUrlForKey } from "@/lib/actions/images";
+import { getCurrentUser } from "@/lib/auth-helper";
+import { requirePermission } from "@/lib/auth/permissions";
+import { checkStorageQuota, updateStorageUsage } from "@/lib/subscription/quota-check";
+import { ALLOWED_IMAGE_MIME_TYPES, FILE_SIZE_LIMITS, formatFileSizeLimit, isAllowedImageType } from "@/lib/uploads/constants";
+import { sanitizeFileName } from "@/lib/utils";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { prisma } from "@simplist/db";
+import { randomUUID } from "crypto";
+import { NextResponse } from "next/server";
 
 export const POST = async (req: Request) => {
   try {
-    const user = await getCurrentUser()
+    const user = await getCurrentUser();
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const formData = await req.formData()
-    const file = formData.get("file") as File | null
-    const projectId = formData.get("projectId") as string | null
-    const postId = formData.get("postId") as string | null
+    const formData = await req.formData();
+    const file = formData.get("file") as File | null;
+    const projectId = formData.get("projectId") as string | null;
+    const postId = formData.get("postId") as string | null;
 
     if (!file) {
-      return NextResponse.json({ error: "File is required" }, { status: 400 })
+      return NextResponse.json({ error: "File is required" }, { status: 400 });
     }
     if (!projectId) {
-      return NextResponse.json({ error: "projectId is required" }, { status: 400 })
+      return NextResponse.json(
+        { error: "projectId is required" },
+        { status: 400 },
+      );
     }
     if (!postId) {
-      return NextResponse.json({ error: "postId is required" }, { status: 400 })
+      return NextResponse.json(
+        { error: "postId is required" },
+        { status: 400 },
+      );
     }
 
     // Validate file type
-    if (!ALLOWED_MIME_TYPES.includes(file.type)) {
-      return NextResponse.json({
-        error: `Invalid file type. Allowed: ${ALLOWED_MIME_TYPES.join(", ")}`
-      }, { status: 400 })
+    if (!isAllowedImageType(file.type)) {
+      return NextResponse.json(
+        { error: `Invalid file type. Allowed: ${ALLOWED_IMAGE_MIME_TYPES.join(", ")}` },
+        { status: 400 },
+      );
     }
 
     // Validate file size
-    if (file.size > MAX_FILE_SIZE) {
-      return NextResponse.json({
-        error: `File too large. Maximum size: ${MAX_FILE_SIZE / 1024 / 1024}MB`
-      }, { status: 400 })
+    if (file.size > FILE_SIZE_LIMITS.ARTICLE_BANNER) {
+      return NextResponse.json(
+        { error: `File too large. Maximum size: ${formatFileSizeLimit(FILE_SIZE_LIMITS.ARTICLE_BANNER)}` },
+        { status: 400 },
+      );
     }
 
     // Check permissions - banner uploads require canManageArticles permission
     try {
-      await requirePermission(projectId, "canManageArticles")
+      await requirePermission(projectId, "canManageArticles");
     } catch {
-      return NextResponse.json({ error: "Insufficient permissions to upload article banner" }, { status: 403 })
+      return NextResponse.json(
+        { error: "Insufficient permissions to upload article banner" },
+        { status: 403 },
+      );
     }
 
     // Verify article exists in this project
@@ -59,43 +69,46 @@ export const POST = async (req: Request) => {
         id: postId,
         projectId: projectId,
       },
-    })
+    });
 
     if (!article) {
-      return NextResponse.json({ error: "Article not found" }, { status: 404 })
+      return NextResponse.json({ error: "Article not found" }, { status: 404 });
     }
 
     // Get project for quota checks
     const project = await prisma.project.findUnique({
       where: { id: projectId },
-    })
+    });
 
     if (!project) {
-      return NextResponse.json({ error: "Project not found" }, { status: 404 })
+      return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
     // Check storage quota
-    const quotaCheck = await checkStorageQuota(project.id, file.size)
+    const quotaCheck = await checkStorageQuota(project.id, file.size);
     if (!quotaCheck.allowed) {
-      return NextResponse.json({ error: quotaCheck.reason }, { status: 403 })
+      return NextResponse.json({ error: quotaCheck.reason }, { status: 403 });
     }
 
     // Build key for article banner
-    const cleanedName = sanitizeFileName(file.name)
-    const ext = cleanedName.includes(".") ? cleanedName.split(".").pop() : undefined
-    const safeExt = ext ? ext.toLowerCase() : "bin"
-    const timestamp = Date.now()
+    const cleanedName = sanitizeFileName(file.name);
+    const ext = cleanedName.includes(".")
+      ? cleanedName.split(".").pop()
+      : undefined;
 
-    const key = `public/${projectId}/${postId}/b/banner-${timestamp}.${safeExt}`
+    const safeExt = ext ? ext.toLowerCase() : "bin";
+    const mediaId = randomUUID();
+
+    const key = `public/${projectId}/${postId}/b/${mediaId}.${safeExt}`;
 
     // Upload to R2
-    const arrayBuffer = await file.arrayBuffer()
-    const processedBuffer = Buffer.from(arrayBuffer)
+    const arrayBuffer = await file.arrayBuffer();
+    const processedBuffer = Buffer.from(arrayBuffer);
 
-    const s3 = await createR2Client()
+    const s3 = await createR2Client();
     const { R2_BUCKET_NAME } = {
       R2_BUCKET_NAME: process.env.R2_BUCKET_NAME as string,
-    }
+    };
 
     await s3.send(
       new PutObjectCommand({
@@ -103,17 +116,33 @@ export const POST = async (req: Request) => {
         Key: key,
         Body: processedBuffer,
         ContentType: file.type,
-      })
-    )
+      }),
+    );
+
+    // Get public URL
+    const publicUrl = await getPublicUrlForKey(key);
+
+    // Create media record in database
+    await prisma.media.create({
+      data: {
+        id: mediaId,
+        projectId: project.id,
+        filename: cleanedName,
+        key,
+        url: publicUrl,
+        mimeType: file.type,
+        size: file.size,
+        type: "BANNER",
+        uploadedById: user.id,
+      },
+    });
 
     // Update storage usage
-    await updateStorageUsage(project.id, file.size)
+    await updateStorageUsage(project.id, file.size);
 
-    const publicUrl = await getPublicUrlForKey(key)
-
-    return NextResponse.json({ key, publicUrl })
+    return NextResponse.json({ key, publicUrl });
   } catch (error) {
-    console.error("Article banner upload error:", error)
-    return NextResponse.json({ error: "Upload failed" }, { status: 500 })
+    console.error("Article banner upload error:", error);
+    return NextResponse.json({ error: "Upload failed" }, { status: 500 });
   }
-}
+};
