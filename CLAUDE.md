@@ -635,6 +635,52 @@ Tests are located in `apps/api` and use Vitest. Run with `pnpm test` in the api 
 
 ---
 
+## Documentation CodeBlock Formatting
+
+When writing MDX documentation in `apps/docs/content/`, **CodeBlock components must follow this exact indentation pattern**:
+
+```jsx
+<CodeBlock language="typescript" filename="example.ts">
+  {`
+  import { SimplistClient } from '@simplist.blog/sdk'
+
+  const client = new SimplistClient({
+    apiKey: process.env.SIMPLIST_API_KEY,
+    path: 'blog'
+  })
+  `}
+</CodeBlock>
+```
+
+**Rules:**
+
+1. The `{` backtick must be indented 2 spaces from `<CodeBlock`
+2. **Every line of code inside** must have 2 spaces of indentation (the code's own indentation is additional)
+3. The closing backtick `}` must also be indented 2 spaces
+4. `</CodeBlock>` is at the same level as `<CodeBlock>`
+
+**WRONG:**
+
+```jsx
+<CodeBlock language="typescript">
+  {`
+const x = 1  // No indentation - WRONG
+`}
+</CodeBlock>
+```
+
+**CORRECT:**
+
+```jsx
+<CodeBlock language="typescript">
+  {`
+  const x = 1  // 2-space indentation - CORRECT
+  `}
+</CodeBlock>
+```
+
+---
+
 ## Data Flow
 
 ```
