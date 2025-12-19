@@ -1,27 +1,33 @@
-"use client";
-
-import { Blocks } from "@simplist/ui/components/animate-ui/icons/blocks";
-import { Cctv } from "@simplist/ui/components/animate-ui/icons/cctv";
-import { ChartNoAxesColumn } from "@simplist/ui/components/animate-ui/icons/chart-no-axes-column";
-import { ChevronLeftRight } from "@simplist/ui/components/animate-ui/icons/chevron-left-right";
-import { Fingerprint } from "@simplist/ui/components/animate-ui/icons/fingerprint";
-import { Lightbulb } from "@simplist/ui/components/animate-ui/icons/lightbulb";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@simplist/ui/components/card";
-import { Minus } from "lucide-react";
-import { cloneElement, type ReactElement, useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@simplist/ui/components/card";
+import {
+  Blocks,
+  Cctv,
+  ChartNoAxesColumn,
+  ChevronsLeftRight,
+  Fingerprint,
+  Lightbulb,
+  Minus,
+  type LucideIcon,
+} from "lucide-react";
 
 type Feature = {
   title: string;
   description: string;
-  icon: (animate: boolean) => ReactElement<{ className?: string }>;
+  icon: LucideIcon;
   list: string[];
-}
+};
 
 const features: Feature[] = [
   {
     title: "Global performance by default",
     description: "Your content loads instantly anywhere in the world.",
-    icon: (animate) => <Lightbulb animate={animate} />,
+    icon: Lightbulb,
     list: [
       "Sub-50ms response times worldwide",
       "Built-in caching for zero latency",
@@ -31,7 +37,7 @@ const features: Feature[] = [
   {
     title: "Security first",
     description: "Enterprise-grade security baked into every request.",
-    icon: (animate) => <Cctv animate={animate} />,
+    icon: Cctv,
     list: [
       "Secure API keys with granular permissions",
       "Rate limiting to prevent abuse",
@@ -41,7 +47,7 @@ const features: Feature[] = [
   {
     title: "SEO & feeds included",
     description: "Ship sitemaps, RSS and social cards without extra services.",
-    icon: (animate) => <Fingerprint animate={animate} />,
+    icon: Fingerprint,
     list: [
       "Auto-generated XML sitemaps",
       "Rich meta tags for social sharing",
@@ -51,7 +57,7 @@ const features: Feature[] = [
   {
     title: "Developer experience first",
     description: "Modern SDKs, great docs and an API that feels familiar.",
-    icon: (animate) => <ChevronLeftRight animate={animate} />,
+    icon: ChevronsLeftRight,
     list: [
       "TypeScript SDK with auto-completion",
       "Interactive API documentation",
@@ -61,7 +67,7 @@ const features: Feature[] = [
   {
     title: "Analytics that actually help",
     description: "Understand your readers and what they care about.",
-    icon: (animate) => <ChartNoAxesColumn animate={animate} />,
+    icon: ChartNoAxesColumn,
     list: [
       "Track views, time on page & engagement",
       "Geographic data of your readers",
@@ -71,18 +77,16 @@ const features: Feature[] = [
   {
     title: "Scales with your projects",
     description: "From side project to production-grade content platform.",
-    icon: (animate) => <Blocks animate={animate} />,
+    icon: Blocks,
     list: [
       "From side project to production",
       "Handle millions of requests effortlessly",
       "No infrastructure to manage",
     ],
-  }
+  },
 ];
 
 export const FeaturesSection = () => {
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-
   return (
     <section id="features" className="relative py-24 md:py-28 px-4 mb-10">
       <div className="container max-w-6xl mx-auto">
@@ -90,29 +94,25 @@ export const FeaturesSection = () => {
           <p className="text-sm font-medium text-primary mb-2 uppercase tracking-[0.18em]">
             Why Developers Pick Simplist
           </p>
-          <h2 className="text-3xl md:text-4xl font-semibold mb-2.5" style={{ fontFamily: "var(--font-syne)" }}>
+          <h2
+            className="text-3xl md:text-4xl font-semibold mb-2.5"
+            style={{ fontFamily: "var(--font-syne)" }}
+          >
             Everything you need to run a content platform
           </h2>
           <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
-            Content API, analytics, SEO and multi-tenant projects – all in one place,
-            without a custom backend to maintain.
+            Content API, analytics, SEO and multi-tenant projects – all in one
+            place, without a custom backend to maintain.
           </p>
         </div>
 
         <div className="flex justify-center">
           <div className="overflow-hidden rounded-2xl bg-muted/70 shadow-sm grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 sm:gap-0.5 space-y-0.5 sm:space-y-0 p-0.5 border">
-            {features.map((feature, index) => (
-              <Card
-                key={feature.title}
-                className="group relative border-0 p-0"
-                onMouseEnter={() => setHoveredIndex(index)}
-                onMouseLeave={() => setHoveredIndex(null)}
-              >
+            {features.map((feature) => (
+              <Card key={feature.title} className="group relative border-0 p-0">
                 <CardHeader className="space-y-2 px-4 pt-4 pb-2">
                   <div className="w-fit rounded-lg bg-secondary/70 p-1.5">
-                    {cloneElement(feature.icon(hoveredIndex === index), {
-                      className: "h-6 w-6 opacity-30 group-hover:opacity-100 transition-opacity duration-300"
-                    })}
+                    <feature.icon className="h-6 w-6 opacity-30 group-hover:opacity-100 transition-opacity duration-300" />
                   </div>
                   <CardTitle className="text-base md:text-lg">
                     {feature.title}
