@@ -9,6 +9,31 @@ order: 21
 
 Simplist provides **server-side analytics** that are privacy-friendly and adblocker-proof. Track page views, engagement metrics, and get detailed insights about your content performance.
 
+## Zero-Code Option: Drop-in Script
+
+For the simplest setup, use our drop-in analytics script. One line of HTML, no SDK required:
+
+<CodeBlock language="html" filename="index.html">
+  {`<script defer src="https://cdn.simplist.blog/analytics.js" data-project="your-project-slug"></script>`}
+</CodeBlock>
+
+This automatically tracks:
+
+- Page views and unique visitors
+- Scroll depth milestones (25%, 50%, 75%, 90%)
+- Time on page
+- Referrers and UTM parameters
+- Geo location
+
+The script auto-detects article slugs from your URL and handles all engagement tracking. For full documentation, see the [Analytics Script Guide](/sdk/analytics-script).
+
+<Callout type="info" title="Script vs SDK">
+  Use the **script** for quick, zero-maintenance tracking. Use the **SDK** when
+  you need custom events, server-side tracking, or programmatic control.
+</Callout>
+
+---
+
 ## Why Server-Side Analytics?
 
 **Traditional client-side analytics** (like Google Analytics) face several challenges:
@@ -29,9 +54,21 @@ Simplist provides **server-side analytics** that are privacy-friendly and adbloc
 
 <ApiMethodTable
   methods={[
-    { method: "track", description: "Track initial page view", returns: "PageViewResponse" },
-    { method: "update", description: "Update engagement metrics", returns: "{ success: boolean }" },
-    { method: "getStats", description: "Get analytics statistics", returns: "AnalyticsStats" }
+    {
+      method: "track",
+      description: "Track initial page view",
+      returns: "PageViewResponse",
+    },
+    {
+      method: "update",
+      description: "Update engagement metrics",
+      returns: "{ success: boolean }",
+    },
+    {
+      method: "getStats",
+      description: "Get analytics statistics",
+      returns: "AnalyticsStats",
+    },
   ]}
 />
 
@@ -43,24 +80,25 @@ Track when a user views an article.
   {`
   import { SimplistClient } from '@simplist.blog/sdk'
 
-  // Uses SIMPLIST_API_KEY from environment variables
-  const client = new SimplistClient()
+// Uses SIMPLIST_API_KEY from environment variables
+const client = new SimplistClient()
 
-  const result = await client.analytics.track({
-    slug: 'my-article-slug',
-    sessionId: 'session_abc123',
-    referrer: 'https://google.com',
-    pageUrl: 'https://myblog.com/articles/my-article',
-    pageTitle: 'My Article Title',
-    screenWidth: 1920,
-    screenHeight: 1080,
-    fetchGeo: true
-  })
+const result = await client.analytics.track({
+slug: 'my-article-slug',
+sessionId: 'session_abc123',
+referrer: 'https://google.com',
+pageUrl: 'https://myblog.com/articles/my-article',
+pageTitle: 'My Article Title',
+screenWidth: 1920,
+screenHeight: 1080,
+fetchGeo: true
+})
 
-  console.log(result.pageViewId)    // 'pv_xyz789'
-  console.log(result.visitorId)     // 'visitor_def456'
-  console.log(result.sessionId)     // 'session_abc123'
-  `}
+console.log(result.pageViewId) // 'pv_xyz789'
+console.log(result.visitorId) // 'visitor_def456'
+console.log(result.sessionId) // 'session_abc123'
+`}
+
 </CodeBlock>
 
 ### Page View Parameters
@@ -68,25 +106,70 @@ Track when a user views an article.
 <TypeTable
   title="PageViewData"
   properties={[
-    { name: "slug", type: "string", description: "Article slug to track", required: true },
-    { name: "sessionId", type: "string", description: "Unique session identifier" },
+    {
+      name: "slug",
+      type: "string",
+      description: "Article slug to track",
+      required: true,
+    },
+    {
+      name: "sessionId",
+      type: "string",
+      description: "Unique session identifier",
+    },
     { name: "pageUrl", type: "string", description: "Full page URL" },
     { name: "pageTitle", type: "string", description: "Page title" },
     { name: "referrer", type: "string", description: "Referrer URL" },
     { name: "utmSource", type: "string", description: "UTM source parameter" },
     { name: "utmMedium", type: "string", description: "UTM medium parameter" },
-    { name: "utmCampaign", type: "string", description: "UTM campaign parameter" },
+    {
+      name: "utmCampaign",
+      type: "string",
+      description: "UTM campaign parameter",
+    },
     { name: "utmTerm", type: "string", description: "UTM term parameter" },
-    { name: "utmContent", type: "string", description: "UTM content parameter" },
-    { name: "screenWidth", type: "number", description: "Browser viewport width" },
-    { name: "screenHeight", type: "number", description: "Browser viewport height" },
-    { name: "timeOnPage", type: "number", description: "Time spent on page (seconds)" },
-    { name: "scrollDepth", type: "number", description: "Max scroll depth (0-100)" },
-    { name: "exitPosition", type: "number", description: "Scroll position when leaving" },
+    {
+      name: "utmContent",
+      type: "string",
+      description: "UTM content parameter",
+    },
+    {
+      name: "screenWidth",
+      type: "number",
+      description: "Browser viewport width",
+    },
+    {
+      name: "screenHeight",
+      type: "number",
+      description: "Browser viewport height",
+    },
+    {
+      name: "timeOnPage",
+      type: "number",
+      description: "Time spent on page (seconds)",
+    },
+    {
+      name: "scrollDepth",
+      type: "number",
+      description: "Max scroll depth (0-100)",
+    },
+    {
+      name: "exitPosition",
+      type: "number",
+      description: "Scroll position when leaving",
+    },
     { name: "bounced", type: "boolean", description: "Whether user bounced" },
-    { name: "timestamp", type: "string", description: "Custom timestamp (ISO 8601)" },
+    {
+      name: "timestamp",
+      type: "string",
+      description: "Custom timestamp (ISO 8601)",
+    },
     { name: "events", type: "PageEvent[]", description: "Custom events" },
-    { name: "fetchGeo", type: "boolean", description: "Fetch geolocation data" }
+    {
+      name: "fetchGeo",
+      type: "boolean",
+      description: "Fetch geolocation data",
+    },
   ]}
 />
 
@@ -117,14 +200,15 @@ After tracking the initial page view, update it with engagement metrics when the
     sessionId: 'session_abc123'
   })
 
-  // Later, when user leaves the page
-  await client.analytics.update(result.pageViewId, {
-    timeOnPage: 245,      // User spent 245 seconds
-    scrollDepth: 85,      // Scrolled 85% of the page
-    exitPosition: 60,     // Left at 60% scroll position
-    bounced: false        // Did not bounce
-  })
-  `}
+// Later, when user leaves the page
+await client.analytics.update(result.pageViewId, {
+timeOnPage: 245, // User spent 245 seconds
+scrollDepth: 85, // Scrolled 85% of the page
+exitPosition: 60, // Left at 60% scroll position
+bounced: false // Did not bounce
+})
+`}
+
 </CodeBlock>
 
 ### Update Parameters
@@ -132,11 +216,31 @@ After tracking the initial page view, update it with engagement metrics when the
 <TypeTable
   title="Update Metrics"
   properties={[
-    { name: "timeOnPage", type: "number", description: "Total time on page (seconds)" },
-    { name: "scrollDepth", type: "number", description: "Maximum scroll depth reached (0-100)" },
-    { name: "exitPosition", type: "number", description: "Scroll position when exiting (0-100)" },
-    { name: "bounced", type: "boolean", description: "Whether user bounced (left immediately)" },
-    { name: "events", type: "PageEvent[]", description: "Custom events to add" }
+    {
+      name: "timeOnPage",
+      type: "number",
+      description: "Total time on page (seconds)",
+    },
+    {
+      name: "scrollDepth",
+      type: "number",
+      description: "Maximum scroll depth reached (0-100)",
+    },
+    {
+      name: "exitPosition",
+      type: "number",
+      description: "Scroll position when exiting (0-100)",
+    },
+    {
+      name: "bounced",
+      type: "boolean",
+      description: "Whether user bounced (left immediately)",
+    },
+    {
+      name: "events",
+      type: "PageEvent[]",
+      description: "Custom events to add",
+    },
   ]}
 />
 
@@ -165,17 +269,18 @@ Track user interactions like clicks, video plays, or form submissions.
     ]
   })
 
-  // Or update with events later
-  await client.analytics.update(result.pageViewId, {
-    events: [
-      {
-        type: 'link_click',
-        element: 'a.external',
-        data: { href: 'https://example.com' }
-      }
-    ]
-  })
-  `}
+// Or update with events later
+await client.analytics.update(result.pageViewId, {
+events: [
+{
+type: 'link_click',
+element: 'a.external',
+data: { href: 'https://example.com' }
+}
+]
+})
+`}
+
 </CodeBlock>
 
 ### Event Structure
@@ -202,12 +307,13 @@ Retrieve analytics data for your project.
   // Get last 30 days (default)
   const stats = await client.analytics.getStats()
 
-  // Get last 7 days
-  const weekStats = await client.analytics.getStats({ days: 7 })
+// Get last 7 days
+const weekStats = await client.analytics.getStats({ days: 7 })
 
-  // Get last 90 days
-  const quarterStats = await client.analytics.getStats({ days: 90 })
-  `}
+// Get last 90 days
+const quarterStats = await client.analytics.getStats({ days: 90 })
+`}
+
 </CodeBlock>
 
 ### Statistics Response
@@ -265,17 +371,17 @@ Here's a full implementation for a Next.js blog:
       filename: "components/article-analytics.tsx",
       code: `'use client'
 
-  import { useEffect, useRef } from 'react'
-  import { SimplistClient } from '@simplist.blog/sdk'
-  import { getOrCreateSessionId } from '../lib/session'
+import { useEffect, useRef } from "react";
+import { SimplistClient } from "@simplist.blog/sdk";
+import { getOrCreateSessionId } from "../lib/session";
 
-  // Uses SIMPLIST_API_KEY from environment variables
-  const client = new SimplistClient()
+// Uses SIMPLIST_API_KEY from environment variables
+const client = new SimplistClient()
 
-  export function ArticleAnalytics({ slug }: { slug: string }) {
-    const pageViewIdRef = useRef<string | null>(null)
-    const startTimeRef = useRef<number>(Date.now())
-    const maxScrollRef = useRef<number>(0)
+export function ArticleAnalytics({ slug }: { slug: string }) {
+const pageViewIdRef = useRef<string | null>(null)
+const startTimeRef = useRef<number>(Date.now())
+const maxScrollRef = useRef<number>(0)
 
     useEffect(() => {
       const sessionId = getOrCreateSessionId()
@@ -346,15 +452,15 @@ Here's a full implementation for a Next.js blog:
     }, [slug])
 
     return null
-  }`
-    },
+
+}`    },
     {
       label: "session.ts",
       language: "typescript",
       filename: "lib/session.ts",
-      code: `export function getOrCreateSessionId(): string {
-    const SESSION_KEY = 'simplist_session'
-    const SESSION_DURATION = 30 * 60 * 1000 // 30 minutes
+      code:`export function getOrCreateSessionId(): string {
+const SESSION*KEY = 'simplist_session'
+const SESSION_DURATION = 30 * 60 \_ 1000 // 30 minutes
 
     const stored = sessionStorage.getItem(SESSION_KEY)
 
@@ -376,24 +482,24 @@ Here's a full implementation for a Next.js blog:
     )
 
     return newId
-  }`
-    },
+
+}`    },
     {
       label: "page.tsx",
       language: "tsx",
       filename: "articles/[slug]/page.tsx",
-      code: `import { SimplistClient } from '@simplist.blog/sdk'
-  import { ArticleAnalytics } from '@/components/article-analytics'
+      code:`import { SimplistClient } from '@simplist.blog/sdk'
+import { ArticleAnalytics } from '@/components/article-analytics'
 
-  // Uses SIMPLIST_API_KEY from environment variables
-  const client = new SimplistClient()
+// Uses SIMPLIST_API_KEY from environment variables
+const client = new SimplistClient()
 
-  type ArticlePageProps = {
-    params: Promise<{ slug: string[] }>
-  }
+type ArticlePageProps = {
+params: Promise<{ slug: string[] }>
+}
 
-  const ArticlePage = async ({ params }: ArticlePageProps) => {
-    const { slug } = await params
+const ArticlePage = async ({ params }: ArticlePageProps) => {
+const { slug } = await params
 
     const { data: article } = await client.articles.get(slug)
 
@@ -406,11 +512,12 @@ Here's a full implementation for a Next.js blog:
         </article>
       </>
     )
-  }
 
-  export default ArticlePage`
-    }
-  ]}
+}
+
+export default ArticlePage`
+}
+]}
 />
 
 ## Best Practices
@@ -452,19 +559,20 @@ Automatically track marketing campaigns with UTM parameters:
   // Parse URL parameters
   const params = new URLSearchParams(window.location.search)
 
-  await client.analytics.track({
-    slug: 'my-article',
-    sessionId: getSessionId(),
-    utmSource: params.get('utm_source') ?? undefined,
-    utmMedium: params.get('utm_medium') ?? undefined,
-    utmCampaign: params.get('utm_campaign') ?? undefined,
-    utmTerm: params.get('utm_term') ?? undefined,
-    utmContent: params.get('utm_content') ?? undefined
-  })
+await client.analytics.track({
+slug: 'my-article',
+sessionId: getSessionId(),
+utmSource: params.get('utm_source') ?? undefined,
+utmMedium: params.get('utm_medium') ?? undefined,
+utmCampaign: params.get('utm_campaign') ?? undefined,
+utmTerm: params.get('utm_term') ?? undefined,
+utmContent: params.get('utm_content') ?? undefined
+})
 
-  // Example URL:
-  // https://myblog.com/article?utm_source=twitter&utm_medium=social&utm_campaign=launch
-  `}
+// Example URL:
+// https://myblog.com/article?utm_source=twitter&utm_medium=social&utm_campaign=launch
+`}
+
 </CodeBlock>
 
 ## Next Steps
@@ -480,15 +588,18 @@ Automatically track marketing campaigns with UTM parameters:
   items={[
     {
       question: "Do I need to track every single page view?",
-      answer: "Track page views for content pages (articles, blog posts). Skip tracking for admin pages, API routes, or frequently visited pages like home. Focus on measuring content performance."
+      answer:
+        "Track page views for content pages (articles, blog posts). Skip tracking for admin pages, API routes, or frequently visited pages like home. Focus on measuring content performance.",
     },
     {
       question: "How do I avoid double-counting in React Strict Mode?",
-      answer: "Use useRef to track if analytics was already sent. In development, React Strict Mode mounts components twice, so add a ref check to prevent double tracking."
+      answer:
+        "Use useRef to track if analytics was already sent. In development, React Strict Mode mounts components twice, so add a ref check to prevent double tracking.",
     },
     {
       question: "Should analytics tracking block page rendering?",
-      answer: "No! Always track analytics asynchronously. Don't await the track() call in your component render. Use fire-and-forget pattern or background requests."
-    }
+      answer:
+        "No! Always track analytics asynchronously. Don't await the track() call in your component render. Use fire-and-forget pattern or background requests.",
+    },
   ]}
 />

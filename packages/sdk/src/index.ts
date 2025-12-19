@@ -1,9 +1,9 @@
 // Main exports
-export { SimplistClient } from './client'
-export type { SimplistClientOptions } from './client'
+export { SimplistClient } from "./client";
+export type { SimplistClientOptions } from "./client";
 
 // Error classes
-export { SimplistApiError } from './utils/http'
+export { SimplistApiError } from "./utils/http";
 
 // Type exports
 export type {
@@ -19,8 +19,8 @@ export type {
   TagListItem,
   Project,
   ProjectStats,
-  ProjectInfo
-} from './types/api'
+  ProjectInfo,
+} from "./types/api";
 
 // Language types and utilities
 export {
@@ -28,8 +28,8 @@ export {
   type LanguageCode,
   isValidLanguageCode,
   getAllLanguageCodes,
-  POPULAR_LANGUAGES
-} from './types/languages'
+  POPULAR_LANGUAGES,
+} from "./types/languages";
 
 // Variant helpers
 export {
@@ -41,16 +41,17 @@ export {
   getVariantCount,
   isMultilingual,
   getVariantMetadata,
-  VariantSelector
-} from './utils/variant-helpers'
+  VariantSelector,
+} from "./utils/variant-helpers";
 
 // Analytics types
 export type {
   PageViewData,
   PageEvent,
   PageViewResponse,
-  AnalyticsStats
-} from './resources/analytics'
+  AnalyticsStats,
+  AnalyticsFunnel,
+} from "./resources/analytics";
 
 // SEO types
 export type {
@@ -58,6 +59,5 @@ export type {
   ArticleWithSeo,
   SitemapEntry,
   Sitemap,
-  StructuredDataResponse
-} from './resources/seo'
-
+  StructuredDataResponse,
+} from "./resources/seo";

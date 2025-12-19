@@ -14,9 +14,21 @@ Simplist provides server-side analytics that are privacy-friendly, adblocker-pro
 
 <ApiMethodTable
   methods={[
-    { method: "track", description: "Track a new page view", returns: "Promise<PageViewResponse>" },
-    { method: "update", description: "Update an existing page view", returns: "Promise<{ success: boolean }>" },
-    { method: "getStats", description: "Get analytics statistics", returns: "Promise<ApiResponse<AnalyticsStats>>" }
+    {
+      method: "track",
+      description: "Track a new page view",
+      returns: "Promise<PageViewResponse>",
+    },
+    {
+      method: "update",
+      description: "Update an existing page view",
+      returns: "Promise<{ success: boolean }>",
+    },
+    {
+      method: "getStats",
+      description: "Get analytics statistics",
+      returns: "Promise<ApiResponse<AnalyticsStats>>",
+    },
   ]}
 />
 
@@ -26,9 +38,7 @@ Initialize tracking for a new page view. Call this when a user lands on an artic
 
 <MethodSignature
   name="client.analytics.track"
-  parameters={[
-    { name: "data", type: "PageViewData", required: true }
-  ]}
+  parameters={[{ name: "data", type: "PageViewData", required: true }]}
   returnType="Promise<PageViewResponse>"
   async={true}
 />
@@ -38,22 +48,55 @@ Initialize tracking for a new page view. Call this when a user lands on an artic
 <TypeTable
   title="PageViewData"
   properties={[
-    { name: "slug", type: "string", description: "Article slug (required)", required: true },
-    { name: "sessionId", type: "string", description: "Unique session identifier" },
+    {
+      name: "slug",
+      type: "string",
+      description: "Article slug (required)",
+      required: true,
+    },
+    {
+      name: "sessionId",
+      type: "string",
+      description: "Unique session identifier",
+    },
     { name: "pageUrl", type: "string", description: "Full page URL" },
     { name: "pageTitle", type: "string", description: "Page title" },
     { name: "referrer", type: "string", description: "Referrer URL" },
     { name: "utmSource", type: "string", description: "UTM source" },
     { name: "utmMedium", type: "string", description: "UTM medium" },
     { name: "utmCampaign", type: "string", description: "UTM campaign" },
-    { name: "screenWidth", type: "number", description: "Screen width in pixels" },
-    { name: "screenHeight", type: "number", description: "Screen height in pixels" },
-    { name: "timeOnPage", type: "number", description: "Time spent in seconds" },
-    { name: "scrollDepth", type: "number", description: "Scroll depth (0-100%)" },
-    { name: "exitPosition", type: "number", description: "Exit position (0-100%)" },
+    {
+      name: "screenWidth",
+      type: "number",
+      description: "Screen width in pixels",
+    },
+    {
+      name: "screenHeight",
+      type: "number",
+      description: "Screen height in pixels",
+    },
+    {
+      name: "timeOnPage",
+      type: "number",
+      description: "Time spent in seconds",
+    },
+    {
+      name: "scrollDepth",
+      type: "number",
+      description: "Scroll depth (0-100%)",
+    },
+    {
+      name: "exitPosition",
+      type: "number",
+      description: "Exit position (0-100%)",
+    },
     { name: "bounced", type: "boolean", description: "Whether user bounced" },
     { name: "events", type: "PageEvent[]", description: "Custom events" },
-    { name: "fetchGeo", type: "boolean", description: "Fetch geolocation from IP" }
+    {
+      name: "fetchGeo",
+      type: "boolean",
+      description: "Fetch geolocation from IP",
+    },
   ]}
 />
 
@@ -62,15 +105,25 @@ Initialize tracking for a new page view. Call this when a user lands on an artic
 <TypeTable
   title="PageViewResponse"
   properties={[
-    { name: "id", type: "string", description: "Page view ID for updates", required: true },
-    { name: "success", type: "boolean", description: "Whether tracking succeeded", required: true }
+    {
+      name: "id",
+      type: "string",
+      description: "Page view ID for updates",
+      required: true,
+    },
+    {
+      name: "success",
+      type: "boolean",
+      description: "Whether tracking succeeded",
+      required: true,
+    },
   ]}
 />
 
 ### Example
 
 <CodeBlock language="typescript">
-{`
+  {`
   const response = await client.analytics.track({
     slug: 'getting-started',
     sessionId: generateSessionId(), // Your session ID logic
@@ -84,9 +137,10 @@ Initialize tracking for a new page view. Call this when a user lands on an artic
     fetchGeo: true
   })
 
-  // Store the ID for later updates
-  const { pageViewId, visitorId, sessionId } = response
+// Store the ID for later updates
+const { pageViewId, visitorId, sessionId } = response
 `}
+
 </CodeBlock>
 
 ## update()
@@ -97,7 +151,7 @@ Update an existing page view with engagement metrics. Call this periodically or 
   name="client.analytics.update"
   parameters={[
     { name: "pageViewId", type: "string", required: true },
-    { name: "data", type: "Partial<PageViewData>", required: true }
+    { name: "data", type: "Partial<PageViewData>", required: true },
   ]}
   returnType="Promise<{ success: boolean }>"
   async={true}
@@ -106,7 +160,7 @@ Update an existing page view with engagement metrics. Call this periodically or 
 ### Example
 
 <CodeBlock language="typescript">
-{`
+  {`
   // Update every 30 seconds
   setInterval(async () => {
     await client.analytics.update(pageViewId, {
@@ -116,16 +170,17 @@ Update an existing page view with engagement metrics. Call this periodically or 
     })
   }, 30000)
 
-  // Final update on page unload
-  window.addEventListener('beforeunload', async () => {
-    await client.analytics.update(pageViewId, {
-      timeOnPage: getTimeOnPage(),
-      scrollDepth: getScrollDepth(),
-      exitPosition: getScrollDepth(),
-      bounced: getTimeOnPage() < 5
-    })
-  })
+// Final update on page unload
+window.addEventListener('beforeunload', async () => {
+await client.analytics.update(pageViewId, {
+timeOnPage: getTimeOnPage(),
+scrollDepth: getScrollDepth(),
+exitPosition: getScrollDepth(),
+bounced: getTimeOnPage() < 5
+})
+})
 `}
+
 </CodeBlock>
 
 ## getStats()
@@ -134,9 +189,7 @@ Retrieve analytics statistics for your project.
 
 <MethodSignature
   name="client.analytics.getStats"
-  parameters={[
-    { name: "options", type: "{ days?: number }", optional: true }
-  ]}
+  parameters={[{ name: "options", type: "{ days?: number }", optional: true }]}
   returnType="Promise<ApiResponse<AnalyticsStats>>"
   async={true}
 />
@@ -145,7 +198,12 @@ Retrieve analytics statistics for your project.
 
 <TypeTable
   properties={[
-    { name: "days", type: "number", description: "Number of days to include", defaultValue: "30" }
+    {
+      name: "days",
+      type: "number",
+      description: "Number of days to include",
+      defaultValue: "30",
+    },
   ]}
 />
 
@@ -154,35 +212,56 @@ Retrieve analytics statistics for your project.
 <TypeTable
   title="AnalyticsStats"
   properties={[
-    { name: "period", type: "{ days: number, startDate: string, endDate: string }", required: true },
-    { name: "summary", type: "{ totalViews: number, uniqueVisitors: number, avgViewsPerVisitor: number }", required: true },
-    { name: "requestSource", type: "{ sdk: number, direct: number }", description: "Percentage breakdown" },
-    { name: "topArticles", type: "Array<{ articleId: string, title: string, slug: string, views: number }>", required: true },
-    { name: "topCountries", type: "Array<{ country: string, views: number }>", required: true }
+    {
+      name: "period",
+      type: "{ days: number, startDate: string, endDate: string }",
+      required: true,
+    },
+    {
+      name: "summary",
+      type: "{ totalViews: number, uniqueVisitors: number, avgViewsPerVisitor: number }",
+      required: true,
+    },
+    {
+      name: "requestSource",
+      type: "{ sdk: number, direct: number }",
+      description: "Percentage breakdown",
+    },
+    {
+      name: "topArticles",
+      type: "Array<{ articleId: string, title: string, slug: string, views: number }>",
+      required: true,
+    },
+    {
+      name: "topCountries",
+      type: "Array<{ country: string, views: number }>",
+      required: true,
+    },
   ]}
 />
 
 ### Example
 
 <CodeBlock language="tsx">
-{`
+  {`
   const { data: stats } = await client.analytics.getStats({ days: 7 })
 
-  console.log(\`Period: \${stats.period.days} days\`)
-  console.log(\`Total views: \${stats.summary.totalViews}\`)
-  console.log(\`Unique visitors: \${stats.summary.uniqueVisitors}\`)
-  console.log(\`Avg views per visitor: \${stats.summary.avgViewsPerVisitor.toFixed(2)}\`)
+console.log(\`Period: \${stats.period.days} days\`)
+console.log(\`Total views: \${stats.summary.totalViews}\`)
+console.log(\`Unique visitors: \${stats.summary.uniqueVisitors}\`)
+console.log(\`Avg views per visitor: \${stats.summary.avgViewsPerVisitor.toFixed(2)}\`)
 
-  console.log('\nTop 5 Articles:')
-  stats.topArticles.slice(0, 5).forEach((article, i) => {
-    console.log(\`\${i + 1}. \${article.title} (\${article.views} views)\`)
-  })
+console.log('\\nTop 5 Articles:')
+stats.topArticles.slice(0, 5).forEach((article, i) => {
+console.log(\`\${i + 1}. \${article.title} (\${article.views} views)\`)
+})
 
-  console.log('\nTop Countries:')
-  stats.topCountries.forEach(country => {
-    console.log(\`- \${country.country}: \${country.views} views\`)
-  })
+console.log('\\nTop Countries:')
+stats.topCountries.forEach(country => {
+console.log(\`- \${country.country}: \${country.views} views\`)
+})
 `}
+
 </CodeBlock>
 
 ## Custom Events
@@ -192,18 +271,35 @@ Track custom events like button clicks, video plays, or form submissions.
 <TypeTable
   title="PageEvent"
   properties={[
-    { name: "type", type: "string", description: "Event type (e.g., 'click', 'video_play')", required: true },
-    { name: "data", type: "Record<string, any>", description: "Event-specific data" },
-    { name: "position", type: "number", description: "Scroll position when event occurred" },
+    {
+      name: "type",
+      type: "string",
+      description: "Event type (e.g., 'click', 'video_play')",
+      required: true,
+    },
+    {
+      name: "data",
+      type: "Record<string, any>",
+      description: "Event-specific data",
+    },
+    {
+      name: "position",
+      type: "number",
+      description: "Scroll position when event occurred",
+    },
     { name: "element", type: "string", description: "Element identifier" },
-    { name: "timeOffset", type: "number", description: "Time since page load (ms)" }
+    {
+      name: "timeOffset",
+      type: "number",
+      description: "Time since page load (ms)",
+    },
   ]}
 />
 
 ### Example
 
 <CodeBlock language="typescript">
-{`
+  {`
   const events: PageEvent[] = [
     {
       type: 'button_click',
@@ -226,11 +322,12 @@ Track custom events like button clicks, video plays, or form submissions.
     }
   ]
 
-  await client.analytics.track({
-    slug: 'my-article',
-    events
-  })
+await client.analytics.track({
+slug: 'my-article',
+events
+})
 `}
+
 </CodeBlock>
 
 ## Complete Example
@@ -238,16 +335,16 @@ Track custom events like button clicks, video plays, or form submissions.
 ### Next.js App Router
 
 <CodeBlock language="tsx">
-{`
+  {`
   'use client'
 
-  import { SimplistClient } from '@simplist.blog/sdk'
-  import { useEffect, useState } from 'react'
-  import { v4 as uuid } from 'uuid'
+import { SimplistClient } from '@simplist.blog/sdk'
+import { useEffect, useState } from 'react'
+import { v4 as uuid } from 'uuid'
 
-  export function AnalyticsTracker({ slug }: { slug: string }) {
-    const [pageViewId, setPageViewId] = useState<string | null>(null)
-    const [startTime] = useState(Date.now())
+export function AnalyticsTracker({ slug }: { slug: string }) {
+const [pageViewId, setPageViewId] = useState<string | null>(null)
+const [startTime] = useState(Date.now())
 
     useEffect(() => {
       // Uses SIMPLIST_API_KEY from environment variables
@@ -319,8 +416,10 @@ Track custom events like button clicks, video plays, or form submissions.
     }, [slug, pageViewId, startTime])
 
     return null
-  }
+
+}
 `}
+
 </CodeBlock>
 
 ## HTTP Endpoints
@@ -348,15 +447,18 @@ See the [REST API documentation](/api) for direct HTTP access.
   items={[
     {
       question: "How do I track analytics in client components?",
-      answer: "Use useEffect to call track() on mount, or create a Server Action wrapper. The SDK is server-side only, but you can send data from the client to a server endpoint that calls the SDK."
+      answer:
+        "Use useEffect to call track() on mount, or create a Server Action wrapper. The SDK is server-side only, but you can send data from the client to a server endpoint that calls the SDK.",
     },
     {
       question: "Should I call update() for every page view?",
-      answer: "Only call update() when the user leaves the page to send final metrics (time on page, scroll depth). Call track() once on page load to create the initial pageview."
+      answer:
+        "Only call update() when the user leaves the page to send final metrics (time on page, scroll depth). Call track() once on page load to create the initial pageview.",
     },
     {
       question: "Does analytics work without JavaScript?",
-      answer: "Yes! Server-side tracking in Next.js Server Components works without client JavaScript. Analytics are captured during SSR, making them reliable and ad-blocker-proof."
-    }
+      answer:
+        "Yes! Server-side tracking in Next.js Server Components works without client JavaScript. Analytics are captured during SSR, making them reliable and ad-blocker-proof.",
+    },
   ]}
 />

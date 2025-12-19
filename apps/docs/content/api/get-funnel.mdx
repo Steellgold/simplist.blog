@@ -1,0 +1,218 @@
+---
+title: /v1/analytics/funnel
+description: Get engagement funnel data for your project
+category: REST API
+order: 57
+icon: GET
+---
+
+# /v1/analytics/funnel
+
+Get engagement funnel data showing how many visitors reached each scroll milestone (25%, 50%, 75%, 90%). Use this to understand reader engagement and identify content drop-off points.
+
+## Endpoint
+
+<ApiPath
+  method="GET"
+  path="/v1/analytics/funnel"
+  baseUrl="https://api.simplist.blog"
+  testable={true}
+  requiresAuth={true}
+  parameters={[
+    {
+      name: "days",
+      type: "number",
+      required: false,
+      description: "Number of days to include (default: 30)",
+    },
+    {
+      name: "slug",
+      type: "string",
+      required: false,
+      description: "Filter by specific article slug",
+    },
+  ]}
+/>
+
+## Query Parameters
+
+<TypeTable
+  properties={[
+    {
+      name: "days",
+      type: "number",
+      description: "Number of days to include in stats",
+      defaultValue: "30",
+    },
+    {
+      name: "slug",
+      type: "string",
+      description: "Filter results to a specific article by slug",
+    },
+  ]}
+/>
+
+## Response
+
+<TypeTable
+  title="AnalyticsFunnel"
+  properties={[
+    {
+      name: "period",
+      type: "{ days: number, startDate: string, endDate: string }",
+      required: true,
+    },
+    {
+      name: "funnel.pageViews",
+      type: "number",
+      description: "Total page views in period",
+      required: true,
+    },
+    {
+      name: "funnel.reached25",
+      type: "number",
+      description: "Count of visitors who scrolled 25%",
+      required: true,
+    },
+    {
+      name: "funnel.reached50",
+      type: "number",
+      description: "Count of visitors who scrolled 50%",
+      required: true,
+    },
+    {
+      name: "funnel.reached75",
+      type: "number",
+      description: "Count of visitors who scrolled 75%",
+      required: true,
+    },
+    {
+      name: "funnel.reached90",
+      type: "number",
+      description: "Count of visitors who scrolled 90%",
+      required: true,
+    },
+    {
+      name: "funnel.percentages",
+      type: "{ reached25, reached50, reached75, reached90 }",
+      description: "Percentage values",
+      required: true,
+    },
+    {
+      name: "engagement.avgTimeOnPage",
+      type: "number",
+      description: "Average time on page in seconds",
+      required: true,
+    },
+    {
+      name: "engagement.avgScrollDepth",
+      type: "number",
+      description: "Average scroll depth (0-100)",
+      required: true,
+    },
+    {
+      name: "engagement.bounceRate",
+      type: "number",
+      description: "Bounce rate percentage",
+      required: true,
+    },
+    {
+      name: "engagement.engagementRate",
+      type: "number",
+      description: "Engagement rate percentage",
+      required: true,
+    },
+  ]}
+/>
+
+## Example Request
+
+<CurlCommand
+  method="GET"
+  url="https://api.simplist.blog/v1/analytics/funnel?days=7"
+  headers={{
+    "X-API-Key": "YOUR_API_KEY",
+  }}
+/>
+
+### Filter by Article
+
+<CurlCommand
+  method="GET"
+  url="https://api.simplist.blog/v1/analytics/funnel?days=30&slug=getting-started"
+  headers={{
+    "X-API-Key": "YOUR_API_KEY",
+  }}
+/>
+
+## Example Response
+
+<CodeBlock language="json">
+  {`
+  {
+    "period": {
+      "days": 7,
+      "startDate": "2025-12-12T00:00:00.000Z",
+      "endDate": "2025-12-19T12:00:00.000Z"
+    },
+    "funnel": {
+      "pageViews": 1250,
+      "reached25": 987,
+      "reached50": 654,
+      "reached75": 432,
+      "reached90": 321,
+      "percentages": {
+        "reached25": 79,
+        "reached50": 52,
+        "reached75": 35,
+        "reached90": 26
+      }
+    },
+    "engagement": {
+      "avgTimeOnPage": 145,
+      "avgScrollDepth": 58,
+      "bounceRate": 23,
+      "engagementRate": 77
+    }
+  }
+  `}
+</CodeBlock>
+
+## Understanding the Funnel
+
+The funnel shows progressive engagement:
+
+<ComparisonTable
+  headers={["Milestone", "Meaning"]}
+  rows={[
+    { label: "25%", values: ["Visitor started reading past the intro"] },
+    { label: "50%", values: ["Visitor is engaged with the content"] },
+    { label: "75%", values: ["Visitor read most of the article"] },
+    { label: "90%", values: ["Visitor reached the conclusion"] },
+  ]}
+/>
+
+**Healthy funnel benchmarks:**
+
+- 25%: 60-80% of visitors
+- 50%: 40-60% of visitors
+- 75%: 25-40% of visitors
+- 90%: 15-30% of visitors
+
+Low percentages may indicate:
+
+- Content is too long
+- Poor intro hook
+- Missing visuals or formatting
+- Content doesn't match expectations
+
+## Use Cases
+
+- **Content optimization**: Identify where readers drop off
+- **A/B testing**: Compare funnel performance between articles
+- **Editorial decisions**: Prioritize improving low-performing content
+- **Reader insights**: Understand engagement patterns
+
+## SDK Equivalent
+
+If you're using TypeScript/JavaScript, use the SDK instead: [client.analytics.getFunnel()](/sdk/analytics#getfunnel)
