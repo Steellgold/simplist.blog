@@ -294,9 +294,31 @@ export const updateStorageUsage = async (
   });
 };
 
+/** Decrement storage usage when deleting media */
+export const decrementStorageUsage = async (
+  projectId: string,
+  bytesToRemove: number,
+): Promise<void> => {
+  // Ensure we don't go below 0
+  const project = await prisma.project.findUnique({
+    where: { id: projectId },
+    select: { totalStorageUsed: true },
+  });
+
+  if (!project) return;
+
+  const newTotal = Math.max(0, project.totalStorageUsed - bytesToRemove);
+
+  await prisma.project.update({
+    where: { id: projectId },
+    data: {
+      totalStorageUsed: newTotal,
+    },
+  });
+};
+
 /** Check if user has access to a feature */
 export const checkFeatureAccess = async (
-  userId: string,
   projectId: string,
   feature: keyof ReturnType<typeof getPlanLimits>["features"],
 ): Promise<boolean> => {

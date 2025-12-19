@@ -700,6 +700,7 @@ export const updateArticle = async (
     excerpt: string;
     content: string;
     status: "draft" | "published" | "scheduled";
+    coverImage?: string | null;
     scheduledPublishAt?: Date | null;
     variants?: ArticleVariantInput[];
     tags?: string[];
@@ -792,6 +793,8 @@ export const updateArticle = async (
         excerpt: formData.excerpt,
         content: formData.content,
         status: formData.status,
+        coverImage:
+          formData.coverImage !== undefined ? formData.coverImage : undefined,
         published: formData.status === "published",
         publishedAt:
           formData.status === "published" && !article.publishedAt
@@ -938,11 +941,8 @@ export const bulkDeleteArticles = async (articleIds: string[]) => {
   const { user } = await requirePermission(projectId, "canManageArticles");
 
   // Check if user has access to bulk operations
-  const hasBulkAccess = await checkFeatureAccess(
-    user.id,
-    projectId,
-    "bulkOperations",
-  );
+  const hasBulkAccess = await checkFeatureAccess(projectId, "bulkOperations");
+
   if (!hasBulkAccess) {
     throw new Error(
       "Bulk delete is a Pro feature. Upgrade to Pro to delete multiple articles at once.",

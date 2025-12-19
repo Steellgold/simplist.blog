@@ -33,7 +33,7 @@ const NewWebhookPage: FC<PageParams> = async ({ params }) => {
   await requirePermission(project.id, "canManageWebhooks")
 
   // Feature gate
-  const hasFeature = await checkFeatureAccess(user.id, project.id, "webhooks")
+  const hasFeature = await checkFeatureAccess(project.id, "webhooks")
   if (!hasFeature) {
     redirect(`/${projectSlug}/webhooks`)
   }

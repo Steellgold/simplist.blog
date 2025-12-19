@@ -60,7 +60,7 @@ export const createApiKey = async (projectId: string, input: { name: string; per
 
   // Check if custom expiration is allowed (Pro feature)
   if (validatedData.expiresInDays && validatedData.expiresInDays > 0) {
-    const hasCustomExpiration = await checkFeatureAccess(user.id, projectId, "bulkOperations");
+    const hasCustomExpiration = await checkFeatureAccess(projectId, "bulkOperations");
     if (!hasCustomExpiration) {
       throw new Error("Custom expiration is a Pro feature");
     }
