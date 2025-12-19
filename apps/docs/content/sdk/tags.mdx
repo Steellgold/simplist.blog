@@ -14,10 +14,26 @@ The Tags API provides methods to fetch tags and their metadata from your Simplis
 
 <ApiMethodTable
   methods={[
-    { method: "list", description: "List all tags with article counts", returns: "ApiResponse<TagListItem[]>" },
-    { method: "get", description: "Get a specific tag by name", returns: "ApiResponse<TagListItem>" },
-    { method: "names", description: "Get all tag names", returns: "Promise<string[]>" },
-    { method: "popular", description: "Get tags sorted by article count", returns: "Promise<TagListItem[]>" }
+    {
+      method: "list",
+      description: "List all tags with article counts",
+      returns: "ApiResponse<TagListItem[]>",
+    },
+    {
+      method: "get",
+      description: "Get a specific tag by name",
+      returns: "ApiResponse<TagListItem>",
+    },
+    {
+      method: "names",
+      description: "Get all tag names",
+      returns: "Promise<string[]>",
+    },
+    {
+      method: "popular",
+      description: "Get tags sorted by article count",
+      returns: "Promise<TagListItem[]>",
+    },
   ]}
 />
 
@@ -27,9 +43,34 @@ Retrieve all tags with their metadata and article counts.
 
 <MethodSignature
   name="client.tags.list"
-  parameters={[]}
+  parameters={[{ name: "params", type: "TagListParams", optional: true }]}
   returnType="Promise<ApiResponse<TagListItem[]>>"
   async={true}
+/>
+
+### Parameters
+
+<TypeTable
+  title="TagListParams"
+  properties={[
+    {
+      name: "sort",
+      type: "'name' | 'createdAt' | 'articleCount'",
+      description: "Field to sort by",
+      defaultValue: "name",
+    },
+    {
+      name: "order",
+      type: "'asc' | 'desc'",
+      description: "Sort direction",
+      defaultValue: "asc",
+    },
+    {
+      name: "limit",
+      type: "number",
+      description: "Maximum number of tags to return",
+    },
+  ]}
 />
 
 ### Response Type
@@ -37,13 +78,41 @@ Retrieve all tags with their metadata and article counts.
 <TypeTable
   title="TagListItem"
   properties={[
-    { name: "id", type: "string", description: "Unique tag identifier", required: true },
+    {
+      name: "id",
+      type: "string",
+      description: "Unique tag identifier",
+      required: true,
+    },
     { name: "name", type: "string", description: "Tag name", required: true },
-    { name: "icon", type: "string | null", description: "Icon name (e.g., 'code', 'book')" },
-    { name: "color", type: "string | null", description: "Hex color code (e.g., '#3B82F6')" },
-    { name: "articleCount", type: "number", description: "Number of articles with this tag", required: true },
-    { name: "createdAt", type: "string", description: "ISO 8601 creation timestamp", required: true },
-    { name: "updatedAt", type: "string", description: "ISO 8601 last update timestamp", required: true }
+    {
+      name: "icon",
+      type: "string | null",
+      description: "Icon name (e.g., 'code', 'book')",
+    },
+    {
+      name: "color",
+      type: "string | null",
+      description: "Hex color code (e.g., '#3B82F6')",
+    },
+    {
+      name: "articleCount",
+      type: "number",
+      description: "Number of articles with this tag",
+      required: true,
+    },
+    {
+      name: "createdAt",
+      type: "string",
+      description: "ISO 8601 creation timestamp",
+      required: true,
+    },
+    {
+      name: "updatedAt",
+      type: "string",
+      description: "ISO 8601 last update timestamp",
+      required: true,
+    },
   ]}
 />
 
@@ -51,20 +120,29 @@ Retrieve all tags with their metadata and article counts.
 
 <CodeBlock language="tsx">
 {`
+  // Basic list (all tags)
   const { data: tags, meta } = await client.tags.list()
 
-  console.log(\`Total tags: \${meta.total}\`)
+console.log(\`Total tags: \${meta.total}\`)
 
-  tags.forEach(tag => {
-    console.log(\`- \${tag.name}: \${tag.articleCount} articles\`)
-    if (tag.color) {
-      console.log(\`  Color: \${tag.color}\`)
-    }
-    if (tag.icon) {
-      console.log(\`  Icon: \${tag.icon}\`)
-    }
-  })
+tags.forEach(tag => {
+console.log(\`- \${tag.name}: \${tag.articleCount} articles\`)
+if (tag.color) {
+console.log(\` Color: \${tag.color}\`)
+}
+if (tag.icon) {
+console.log(\` Icon: \${tag.icon}\`)
+}
+})
+
+// With sorting and limit
+const { data: topTags } = await client.tags.list({
+sort: 'articleCount',
+order: 'desc',
+limit: 10
+})
 `}
+
 </CodeBlock>
 
 ## get()
@@ -74,7 +152,12 @@ Retrieve a specific tag by its name.
 <MethodSignature
   name="client.tags.get"
   parameters={[
-    { name: "name", type: "string", required: true, description: "Tag name to retrieve" }
+    {
+      name: "name",
+      type: "string",
+      required: true,
+      description: "Tag name to retrieve",
+    },
   ]}
   returnType="Promise<ApiResponse<TagListItem>>"
   async={true}
@@ -86,13 +169,14 @@ Retrieve a specific tag by its name.
 {`
   const { data: tag } = await client.tags.get('JavaScript')
 
-  console.log(\`Tag: \${tag.name}\`)
-  console.log(\`Articles: \${tag.articleCount}\`)
-  console.log(\`Color: \${tag.color}\`)
+console.log(\`Tag: \${tag.name}\`)
+console.log(\`Articles: \${tag.articleCount}\`)
+console.log(\`Color: \${tag.color}\`)
 
-  // Tags with spaces are automatically URL-encoded
-  const { data: mlTag } = await client.tags.get('Machine Learning')
+// Tags with spaces are automatically URL-encoded
+const { data: mlTag } = await client.tags.get('Machine Learning')
 `}
+
 </CodeBlock>
 
 ## names()
@@ -112,15 +196,16 @@ Get an array of all tag names (convenience method).
 {`
   const tagNames = await client.tags.names()
 
-  console.log('Available tags:', tagNames.join(', '))
-  // Output: "JavaScript, TypeScript, Tutorial, Advanced"
+console.log('Available tags:', tagNames.join(', '))
+// Output: "JavaScript, TypeScript, Tutorial, Advanced"
 
-  // Use for dropdowns or autocomplete
-  const tagOptions = tagNames.map(name => ({
-    label: name,
-    value: name
-  }))
+// Use for dropdowns or autocomplete
+const tagOptions = tagNames.map(name => ({
+label: name,
+value: name
+}))
 `}
+
 </CodeBlock>
 
 ## popular()
@@ -130,7 +215,12 @@ Get tags sorted by article count (most popular first).
 <MethodSignature
   name="client.tags.popular"
   parameters={[
-    { name: "limit", type: "number", optional: true, description: "Maximum number of tags to return" }
+    {
+      name: "limit",
+      type: "number",
+      optional: true,
+      description: "Maximum number of tags to return",
+    },
   ]}
   returnType="Promise<TagListItem[]>"
   async={true}
@@ -143,13 +233,14 @@ Get tags sorted by article count (most popular first).
   // Get top 5 most used tags
   const topTags = await client.tags.popular(5)
 
-  topTags.forEach((tag, i) => {
-    console.log(\`\${i + 1}. \${tag.name} (\${tag.articleCount} articles)\`)
-  })
+topTags.forEach((tag, i) => {
+console.log(\`\${i + 1}. \${tag.name} (\${tag.articleCount} articles)\`)
+})
 
-  // Get all tags sorted by popularity
-  const allPopularTags = await client.tags.popular()
+// Get all tags sorted by popularity
+const allPopularTags = await client.tags.popular()
 `}
+
 </CodeBlock>
 
 ## Using Tags with Articles
@@ -165,17 +256,18 @@ Get articles with at least one of the specified tags.
   // Get all tags first
   const { data: tags } = await client.tags.list()
 
-  // Filter articles by specific tag
-  const { data: jsArticles } = await client.articles.list({
-    tags: ['JavaScript']
-  })
+// Filter articles by specific tag
+const { data: jsArticles } = await client.articles.list({
+tags: ['JavaScript']
+})
 
-  // Filter by multiple tags (OR logic)
-  const { data: webArticles } = await client.articles.list({
-    tags: ['JavaScript', 'TypeScript', 'HTML']
-  })
-  // Returns articles tagged with JavaScript OR TypeScript OR HTML
+// Filter by multiple tags (OR logic)
+const { data: webArticles } = await client.articles.list({
+tags: ['JavaScript', 'TypeScript', 'HTML']
+})
+// Returns articles tagged with JavaScript OR TypeScript OR HTML
 `}
+
 </CodeBlock>
 
 ### Filter by All Tags (AND logic)
@@ -183,7 +275,7 @@ Get articles with at least one of the specified tags.
 Get articles that have all specified tags.
 
 <CodeBlock language="tsx">
-{`
+  {`
   // Articles that are BOTH tutorials AND about JavaScript
   const { data: jsTutorials } = await client.articles.list({
     tagsAll: ['JavaScript', 'Tutorial']
@@ -197,7 +289,7 @@ Get articles that have all specified tags.
 Get articles that don't have specific tags.
 
 <CodeBlock language="tsx">
-{`
+  {`
   // Articles without Advanced or Deprecated tags
   const { data: beginnerArticles } = await client.articles.list({
     excludeTags: ['Advanced', 'Deprecated']
@@ -219,11 +311,11 @@ You can combine multiple tag filters for complex queries.
     published: true
   })
 
-  // Example: Get the most popular tags and articles for each
-  const popularTags = await client.tags.popular(3)
+// Example: Get the most popular tags and articles for each
+const popularTags = await client.tags.popular(3)
 
-  for (const tag of popularTags) {
-    console.log(\`\\nTag: \${tag.name} (\${tag.articleCount} articles)\`)
+for (const tag of popularTags) {
+console.log(\`\\nTag: \${tag.name} (\${tag.articleCount} articles)\`)
 
     const { data: articles } = await client.articles.list({
       tags: [tag.name],
@@ -233,8 +325,10 @@ You can combine multiple tag filters for complex queries.
     articles.forEach(article => {
       console.log(\`  - \${article.title}\`)
     })
-  }
+
+}
 `}
+
 </CodeBlock>
 
 ## Common Use Cases
@@ -245,10 +339,10 @@ You can combine multiple tag filters for complex queries.
 {`
   import { SimplistClient } from '@simplist/sdk'
 
-  const client = new SimplistClient({ apiKey: process.env.SIMPLIST_API_KEY })
+const client = new SimplistClient({ apiKey: process.env.SIMPLIST_API_KEY })
 
-  export async function TagCloud() {
-    const { data: tags } = await client.tags.list()
+export async function TagCloud() {
+const { data: tags } = await client.tags.list()
 
     return (
       <div className="flex flex-wrap gap-2">
@@ -267,8 +361,10 @@ You can combine multiple tag filters for complex queries.
         ))}
       </div>
     )
-  }
+
+}
 `}
+
 </CodeBlock>
 
 ### Popular Tags Widget
@@ -294,8 +390,10 @@ You can combine multiple tag filters for complex queries.
         </ul>
       </aside>
     )
-  }
+
+}
 `}
+
 </CodeBlock>
 
 ### Tag-based Navigation
@@ -325,14 +423,16 @@ You can combine multiple tag filters for complex queries.
         <ArticleList articles={articles} />
       </div>
     )
-  }
+
+}
 `}
+
 </CodeBlock>
 
 ## Error Handling
 
 <CodeBlock language="tsx">
-{`
+  {`
   try {
     const { data: tag } = await client.tags.get('NonExistentTag')
   } catch (error) {
@@ -347,7 +447,9 @@ You can combine multiple tag filters for complex queries.
 
 ## See Also
 
-- <InlineRouteLink method="GET" path="/v1/tags" href="/api/get-tags" /> - REST API endpoint for listing tags
-- <InlineRouteLink method="GET" path="/v1/tags/:name" href="/api/get-tag" /> - REST API endpoint for getting a tag
+- <InlineRouteLink method="GET" path="/v1/tags" href="/api/get-tags" /> - REST
+  API endpoint for listing tags
+- <InlineRouteLink method="GET" path="/v1/tags/:name" href="/api/get-tag" /> -
+  REST API endpoint for getting a tag
 - [Articles API](/sdk/articles) - Using tags to filter articles
 - [Articles Types](/sdk/types) - TypeScript type definitions

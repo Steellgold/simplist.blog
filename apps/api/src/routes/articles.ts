@@ -1,86 +1,132 @@
-import * as db from "@simplist/db"
-import { FastifyPluginAsync } from "fastify"
+import * as db from "@simplist/db";
+import { FastifyPluginAsync } from "fastify";
 import {
   cacheArticle,
   cacheArticlesList,
   getCachedArticle,
-  getCachedArticlesList
-} from "../utils/article-cache"
-import { formatArticle } from "../utils/format"
-import { generateSeoMetadata } from "../utils/seo-generator"
+  getCachedArticlesList,
+} from "../utils/article-cache";
+import { formatArticle } from "../utils/format";
+import { generateSeoMetadata } from "../utils/seo-generator";
 
-const { prisma } = db
+const { prisma } = db;
 
 const parseOptionalFields = (param?: string): Record<string, boolean> => {
-  if (!param) return {}
+  if (!param) return {};
   return param.split(",").reduce<Record<string, boolean>>((acc, field) => {
-    const trimmed = field.trim()
-    if (trimmed) acc[trimmed] = true
-    return acc
-  }, {})
-}
+    const trimmed = field.trim();
+    if (trimmed) acc[trimmed] = true;
+    return acc;
+  }, {});
+};
 
 const articlesRoutes: FastifyPluginAsync = async (fastify) => {
   // GET /articles - List articles with pagination
   fastify.get("/articles", async (request, reply) => {
-    const query = request.query as any
-    const page = Number(query.page) || 1
-    const limit = Number(query.limit) || 20
-    const sort = query.sort || "createdAt"
-    const order = query.order || "desc"
-    const published = query.published !== undefined ? Boolean(query.published) : true
-    const search = query.search
-    const status = query.status
-    const projectId = request.apiKey!.projectId
+    // Check if key has read permissions
+    if (!request.checkPermission!("read")) {
+      return reply.status(403 as any).send({
+        error: "Forbidden",
+        message: "API key does not have read permissions.",
+        statusCode: 403,
+      });
+    }
+
+    const query = request.query as any;
+    const page = Number(query.page) || 1;
+    const limit = Number(query.limit) || 20;
+    // Validate sort field - allow viewCount for popularity sorting
+    const allowedSortFields = [
+      "createdAt",
+      "updatedAt",
+      "title",
+      "publishedAt",
+      "viewCount",
+    ];
+    const sort = allowedSortFields.includes(query.sort)
+      ? query.sort
+      : "createdAt";
+    const order = query.order || "desc";
+    const published =
+      query.published !== undefined ? Boolean(query.published) : true;
+    const search = query.search;
+    const status = query.status;
+    const projectId = request.apiKey!.projectId;
 
     // Parse optional fields from query string (e.g., ?optionalFields=tagColor,tagIcon)
-    const optionalFieldsParam = query.optionalFields as string | undefined
-    const optionalFields = parseOptionalFields(optionalFieldsParam)
+    const optionalFieldsParam = query.optionalFields as string | undefined;
+    const optionalFields = parseOptionalFields(optionalFieldsParam);
 
     // Parse tag filters
-    const tags = query.tags ? (Array.isArray(query.tags) ? query.tags : query.tags.split(',')) : undefined
-    const tagsAll = query.tagsAll ? (Array.isArray(query.tagsAll) ? query.tagsAll : query.tagsAll.split(',')) : undefined
-    const excludeTags = query.excludeTags ? (Array.isArray(query.excludeTags) ? query.excludeTags : query.excludeTags.split(',')) : undefined
+    const tags = query.tags
+      ? Array.isArray(query.tags)
+        ? query.tags
+        : query.tags.split(",")
+      : undefined;
+    const tagsAll = query.tagsAll
+      ? Array.isArray(query.tagsAll)
+        ? query.tagsAll
+        : query.tagsAll.split(",")
+      : undefined;
+    const excludeTags = query.excludeTags
+      ? Array.isArray(query.excludeTags)
+        ? query.excludeTags
+        : query.excludeTags.split(",")
+      : undefined;
 
     try {
       // Create cache key parameters
-      const cacheParams = { page, limit, sort, order, published, search, status, tags, tagsAll, excludeTags }
-      
+      const cacheParams = {
+        page,
+        limit,
+        sort,
+        order,
+        published,
+        search,
+        status,
+        tags,
+        tagsAll,
+        excludeTags,
+      };
+
       // Try to get from cache first
-      const cachedArticles = await getCachedArticlesList(projectId, cacheParams)
+      const cachedArticles = await getCachedArticlesList(
+        projectId,
+        cacheParams,
+      );
       if (cachedArticles) {
-        fastify.log.info(`Cache hit for articles list (project: ${projectId})`)
-        
+        fastify.log.info(`Cache hit for articles list (project: ${projectId})`);
+
         // Calculate pagination meta (we need total count which might not be cached)
-        const totalPages = Math.ceil(cachedArticles.length / limit)
-        
+        const totalPages = Math.ceil(cachedArticles.length / limit);
+
         return {
           data: cachedArticles,
           meta: {
             page,
             limit,
             total: cachedArticles.length,
-            totalPages
-          }
-        }
+            totalPages,
+          },
+        };
       }
 
-      fastify.log.info(`Cache miss for articles list (project: ${projectId})`)
+      fastify.log.info(`Cache miss for articles list (project: ${projectId})`);
 
       // Build where clause
       const where: any = {
         projectId,
-        status: { notIn: ["deleted", "scheduled"] } // Exclude soft-deleted and scheduled articles
-      }
+        status: { notIn: ["deleted", "scheduled"] }, // Exclude soft-deleted and scheduled articles
+      };
 
       // Filter by published status if specified
       if (published !== undefined) {
-        where.published = published
+        where.published = published;
       }
 
       // Filter by status if specified
       if (status) {
-        where.status = status
+        where.status = status;
       }
 
       // Add search filter if provided
@@ -88,33 +134,33 @@ const articlesRoutes: FastifyPluginAsync = async (fastify) => {
         where.OR = [
           { title: { contains: search, mode: "insensitive" } },
           { excerpt: { contains: search, mode: "insensitive" } },
-          { content: { contains: search, mode: "insensitive" } }
-        ]
+          { content: { contains: search, mode: "insensitive" } },
+        ];
       }
 
       // Filter by tags (OR logic - at least one tag)
       if (tags && tags.length > 0) {
-        where.tags = { some: { name: { in: tags } } }
+        where.tags = { some: { name: { in: tags } } };
       }
 
       // Filter by tagsAll (AND logic - all tags required)
       if (tagsAll && tagsAll.length > 0) {
         where.AND = tagsAll.map((tagName: string) => ({
-          tags: { some: { name: tagName } }
-        }))
+          tags: { some: { name: tagName } },
+        }));
       }
 
       // Exclude tags
       if (excludeTags && excludeTags.length > 0) {
         if (where.tags) {
-          where.tags = { ...where.tags, none: { name: { in: excludeTags } } }
+          where.tags = { ...where.tags, none: { name: { in: excludeTags } } };
         } else {
-          where.tags = { none: { name: { in: excludeTags } } }
+          where.tags = { none: { name: { in: excludeTags } } };
         }
       }
 
       // Get total count for pagination
-      const total = await prisma.article.count({ where })
+      const total = await prisma.article.count({ where });
 
       // Get articles
       const articles = await prisma.article.findMany({
@@ -140,37 +186,37 @@ const articlesRoutes: FastifyPluginAsync = async (fastify) => {
               name: true,
               firstName: true,
               lastName: true,
-              image: true
-            }
+              image: true,
+            },
           },
           lastUpdatedBy: {
             select: {
               name: true,
               firstName: true,
               lastName: true,
-              image: true
-            }
+              image: true,
+            },
           },
           tags: {
             select: {
               name: true,
               ...(optionalFields.tagColor ? { color: true } : {}),
-              ...(optionalFields.tagIcon ? { icon: true } : {})
-            }
-          }
+              ...(optionalFields.tagIcon ? { icon: true } : {}),
+            },
+          },
         },
         orderBy: { [sort]: order },
         skip: (page - 1) * limit,
-        take: limit
-      })
+        take: limit,
+      });
 
-      const totalPages = Math.ceil(total / limit)
-      const formattedArticles = articles.map(formatArticle)
+      const totalPages = Math.ceil(total / limit);
+      const formattedArticles = articles.map(formatArticle);
 
       // Cache the articles list (async, don't wait)
-      cacheArticlesList(projectId, cacheParams, formattedArticles).catch(err => 
-        fastify.log.error(err, "Failed to cache articles list")
-      )
+      cacheArticlesList(projectId, cacheParams, formattedArticles).catch(
+        (err) => fastify.log.error(err, "Failed to cache articles list"),
+      );
 
       return {
         data: formattedArticles,
@@ -178,136 +224,161 @@ const articlesRoutes: FastifyPluginAsync = async (fastify) => {
           page,
           limit,
           total,
-          totalPages
-        }
-      }
+          totalPages,
+        },
+      };
     } catch (error) {
-      fastify.log.error(error, "Error fetching articles")
+      fastify.log.error(error, "Error fetching articles");
       return reply.status(500 as any).send({
         error: "Internal Server Error",
         message: "Failed to fetch articles",
-        statusCode: 500
-      })
+        statusCode: 500,
+      });
     }
-  })
+  });
 
   // GET /articles/:slug - Get single article by slug
-  fastify.get("/articles/:slug", {
-    schema: {
-      querystring: {
-        type: "object",
-        properties: {
-          includeSeo: { type: "boolean" },
-          baseUrl: { type: "string", format: "uri" },
-          optionalFields: { type: "string" }
-        }
+  fastify.get(
+    "/articles/:slug",
+    {
+      schema: {
+        querystring: {
+          type: "object",
+          properties: {
+            includeSeo: { type: "boolean" },
+            baseUrl: { type: "string", format: "uri" },
+            optionalFields: { type: "string" },
+          },
+        },
+      },
+    },
+    async (request, reply) => {
+      // Check if key has read permissions
+      if (!request.checkPermission!("read")) {
+        return reply.status(403 as any).send({
+          error: "Forbidden",
+          message: "API key does not have read permissions.",
+          statusCode: 403,
+        });
       }
-    }
-  }, async (request, reply) => {
-    const { slug } = request.params as { slug: string }
-    const query = request.query as any
-    const { includeSeo = false, baseUrl } = query
-    const projectId = request.apiKey!.projectId
 
-    // Parse optional fields from query string (e.g., ?optionalFields=tagColor,tagIcon)
-    const optionalFieldsParam = query.optionalFields as string | undefined
-    const optionalFields = parseOptionalFields(optionalFieldsParam)
+      const { slug } = request.params as { slug: string };
+      const query = request.query as any;
+      const { includeSeo = false, baseUrl } = query;
+      const projectId = request.apiKey!.projectId;
 
-    try {
-      // Try to get from cache first
-      const cachedArticle = await getCachedArticle(projectId, slug)
-      if (cachedArticle) {
-        fastify.log.info(`Cache hit for article ${slug} (project: ${projectId})`)
+      // Parse optional fields from query string (e.g., ?optionalFields=tagColor,tagIcon)
+      const optionalFieldsParam = query.optionalFields as string | undefined;
+      const optionalFields = parseOptionalFields(optionalFieldsParam);
 
-        let responseData = formatArticle(cachedArticle)
+      try {
+        // Try to get from cache first
+        const cachedArticle = await getCachedArticle(projectId, slug);
+        if (cachedArticle) {
+          fastify.log.info(
+            `Cache hit for article ${slug} (project: ${projectId})`,
+          );
+
+          let responseData = formatArticle(cachedArticle);
+
+          // Add SEO metadata if requested
+          if (includeSeo) {
+            const project = await prisma.project.findUnique({
+              where: { id: projectId },
+            });
+            if (project) {
+              const seoMetadata = generateSeoMetadata(
+                cachedArticle,
+                project,
+                baseUrl,
+              );
+              responseData = { ...responseData, seo: seoMetadata };
+            }
+          }
+
+          return {
+            data: responseData,
+          };
+        }
+
+        fastify.log.info(
+          `Cache miss for article ${slug} (project: ${projectId})`,
+        );
+
+        const article = await prisma.article.findFirst({
+          where: {
+            slug,
+            projectId,
+            status: { notIn: ["deleted", "scheduled"] },
+            published: true, // Only return published articles via public API
+          },
+          include: {
+            variants: true,
+            author: {
+              select: {
+                name: true,
+                firstName: true,
+                lastName: true,
+                image: true,
+              },
+            },
+            lastUpdatedBy: {
+              select: {
+                name: true,
+                firstName: true,
+                lastName: true,
+                image: true,
+              },
+            },
+            tags: {
+              select: {
+                name: true,
+                ...(optionalFields.tagColor ? { color: true } : {}),
+                ...(optionalFields.tagIcon ? { icon: true } : {}),
+              },
+            },
+            ...(includeSeo ? { project: true } : {}),
+          },
+        });
+
+        if (!article) {
+          return reply.status(404 as any).send({
+            error: "Not Found",
+            message: "Article not found or not published",
+            statusCode: 404,
+          });
+        }
+
+        // Cache the article with full content (async, don't wait)
+        cacheArticle(projectId, article).catch((err) =>
+          fastify.log.error(err, "Failed to cache article"),
+        );
+
+        let responseData = formatArticle(article);
 
         // Add SEO metadata if requested
-        if (includeSeo) {
-          const project = await prisma.project.findUnique({
-            where: { id: projectId }
-          })
-          if (project) {
-            const seoMetadata = generateSeoMetadata(cachedArticle, project, baseUrl)
-            responseData = { ...responseData, seo: seoMetadata }
-          }
+        if (includeSeo && "project" in article && article.project) {
+          const seoMetadata = generateSeoMetadata(
+            article,
+            article.project,
+            baseUrl,
+          );
+          responseData = { ...responseData, seo: seoMetadata };
         }
 
         return {
-          data: responseData
-        }
+          data: responseData,
+        };
+      } catch (error) {
+        fastify.log.error(error, "Error fetching article");
+        return reply.status(500 as any).send({
+          error: "Internal Server Error",
+          message: "Failed to fetch article",
+          statusCode: 500,
+        });
       }
+    },
+  );
+};
 
-      fastify.log.info(`Cache miss for article ${slug} (project: ${projectId})`)
-
-      const article = await prisma.article.findFirst({
-        where: {
-          slug,
-          projectId,
-          status: { notIn: ["deleted", "scheduled"] },
-          published: true // Only return published articles via public API
-        },
-        include: {
-          variants: true,
-          author: {
-            select: {
-              name: true,
-              firstName: true,
-              lastName: true,
-              image: true
-            }
-          },
-          lastUpdatedBy: {
-            select: {
-              name: true,
-              firstName: true,
-              lastName: true,
-              image: true
-            }
-          },
-          tags: {
-            select: {
-              name: true,
-              ...(optionalFields.tagColor ? { color: true } : {}),
-              ...(optionalFields.tagIcon ? { icon: true } : {})
-            }
-          },
-          ...(includeSeo ? { project: true } : {})
-        }
-      })
-
-      if (!article) {
-        return reply.status(404 as any).send({
-          error: "Not Found",
-          message: "Article not found or not published",
-          statusCode: 404
-        })
-      }
-
-      // Cache the article with full content (async, don't wait)
-      cacheArticle(projectId, article).catch(err => 
-        fastify.log.error(err, "Failed to cache article")
-      )
-
-      let responseData = formatArticle(article)
-
-      // Add SEO metadata if requested
-      if (includeSeo && "project" in article && article.project) {
-        const seoMetadata = generateSeoMetadata(article, article.project, baseUrl)
-        responseData = { ...responseData, seo: seoMetadata }
-      }
-
-      return {
-        data: responseData
-      }
-    } catch (error) {
-      fastify.log.error(error, "Error fetching article")
-      return reply.status(500 as any).send({
-        error: "Internal Server Error",
-        message: "Failed to fetch article",
-        statusCode: 500
-      })
-    }
-  })
-}
-
-export default articlesRoutes
+export default articlesRoutes;

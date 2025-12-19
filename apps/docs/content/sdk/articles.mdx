@@ -14,13 +14,36 @@ The Articles API provides methods to fetch, filter, search, and list articles fr
 
 <ApiMethodTable
   methods={[
-    { method: "list", description: "List articles with pagination and filters", returns: "ApiResponse<ArticleListItem[]>" },
-    { method: "get", description: "Get a single article by slug", returns: "ApiResponse<Article>" },
-    { method: "search", description: "Search articles by query", returns: "ApiResponse<ArticleListItem[]>" },
-    { method: "published", description: "Get only published articles", returns: "ApiResponse<ArticleListItem[]>" },
-    { method: "latest", description: "Get latest articles", returns: "ApiResponse<ArticleListItem[]>" },
-    { method: "popular", description: "Get most popular articles", returns: "ApiResponse<ArticleListItem[]>" },
-    { method: "rss", description: "Generate RSS feed", returns: "Promise<string>" }
+    {
+      method: "list",
+      description: "List articles with pagination and filters",
+      returns: "ApiResponse<ArticleListItem[]>",
+    },
+    {
+      method: "get",
+      description: "Get a single article by slug",
+      returns: "ApiResponse<Article>",
+    },
+    {
+      method: "search",
+      description: "Search articles by query",
+      returns: "ApiResponse<ArticleListItem[]>",
+    },
+    {
+      method: "published",
+      description: "Get only published articles",
+      returns: "ApiResponse<ArticleListItem[]>",
+    },
+    {
+      method: "latest",
+      description: "Get latest articles",
+      returns: "ApiResponse<ArticleListItem[]>",
+    },
+    {
+      method: "popular",
+      description: "Get most popular articles",
+      returns: "ApiResponse<ArticleListItem[]>",
+    },
   ]}
 />
 
@@ -30,9 +53,7 @@ Retrieve a paginated list of articles with filtering and sorting options.
 
 <MethodSignature
   name="client.articles.list"
-  parameters={[
-    { name: "params", type: "ArticleListParams", optional: true }
-  ]}
+  parameters={[{ name: "params", type: "ArticleListParams", optional: true }]}
   returnType="Promise<ApiResponse<ArticleListItem[]>>"
   async={true}
 />
@@ -42,17 +63,65 @@ Retrieve a paginated list of articles with filtering and sorting options.
 <TypeTable
   title="ArticleListParams"
   properties={[
-    { name: "page", type: "number", description: "Page number", defaultValue: "1" },
-    { name: "limit", type: "number", description: "Items per page (max 100)", defaultValue: "10" },
-    { name: "sort", type: "'createdAt' | 'updatedAt' | 'title'", description: "Sort field", defaultValue: "createdAt" },
-    { name: "order", type: "'asc' | 'desc'", description: "Sort direction", defaultValue: "desc" },
-    { name: "published", type: "boolean", description: "Filter by published status" },
-    { name: "search", type: "string", description: "Search in title and content" },
-    { name: "status", type: "'draft' | 'published'", description: "Filter by status" },
-    { name: "optionalFields", type: "ArticleOptionalFields", description: "Request optional tag fields (color, icon)" },
-    { name: "tags", type: "string[]", description: "Filter by tags (OR logic: at least one)" },
-    { name: "tagsAll", type: "string[]", description: "Filter by tags (AND logic: all required)" },
-    { name: "excludeTags", type: "string[]", description: "Exclude articles with these tags" }
+    {
+      name: "page",
+      type: "number",
+      description: "Page number",
+      defaultValue: "1",
+    },
+    {
+      name: "limit",
+      type: "number",
+      description: "Items per page (max 100)",
+      defaultValue: "10",
+    },
+    {
+      name: "sort",
+      type: "'createdAt' | 'updatedAt' | 'title' | 'publishedAt' | 'viewCount'",
+      description: "Sort field",
+      defaultValue: "createdAt",
+    },
+    {
+      name: "order",
+      type: "'asc' | 'desc'",
+      description: "Sort direction",
+      defaultValue: "desc",
+    },
+    {
+      name: "published",
+      type: "boolean",
+      description: "Filter by published status",
+    },
+    {
+      name: "search",
+      type: "string",
+      description: "Search in title and content",
+    },
+    {
+      name: "status",
+      type: "'draft' | 'published'",
+      description: "Filter by status",
+    },
+    {
+      name: "optionalFields",
+      type: "ArticleOptionalFields",
+      description: "Request optional tag fields (color, icon)",
+    },
+    {
+      name: "tags",
+      type: "string[]",
+      description: "Filter by tags (OR logic: at least one)",
+    },
+    {
+      name: "tagsAll",
+      type: "string[]",
+      description: "Filter by tags (AND logic: all required)",
+    },
+    {
+      name: "excludeTags",
+      type: "string[]",
+      description: "Exclude articles with these tags",
+    },
   ]}
 />
 
@@ -61,37 +130,38 @@ Retrieve a paginated list of articles with filtering and sorting options.
 <CodeBlock language="tsx">
 {`
 
-  // Basic list
-  const { data, meta } = await client.articles.list({
-    page: 1,
-    limit: 20,
-    sort: 'createdAt',
-    order: 'desc',
-    published: true
-  })
+// Basic list
+const { data, meta } = await client.articles.list({
+page: 1,
+limit: 20,
+sort: 'createdAt',
+order: 'desc',
+published: true
+})
 
-  console.log(\`Found \${data.length} articles\`)
-  console.log(\`Total: \${meta.total} (Page \${meta.page}/\${meta.totalPages})\`)
+console.log(\`Found \${data.length} articles\`)
+console.log(\`Total: \${meta.total} (Page \${meta.page}/\${meta.totalPages})\`)
 
-  data.forEach(article => {
-    console.log(\`- \${article.title} (\${article.readTimeMinutes}min read)\`)
-    console.log(\`  Tags: \${article.tags.map(t => t.name).join(', ')}\`)
-  })
+data.forEach(article => {
+console.log(\`- \${article.title} (\${article.readTimeMinutes}min read)\`)
+console.log(\` Tags: \${article.tags.map(t => t.name).join(', ')}\`)
+})
 
-  // With optional tag fields (color and icon)
-  const { data: articlesWithTags } = await client.articles.list({
-    optionalFields: {
-      tagColor: true,  // Include hex color codes
-      tagIcon: true    // Include icon names
-    }
-  })
+// With optional tag fields (color and icon)
+const { data: articlesWithTags } = await client.articles.list({
+optionalFields: {
+tagColor: true, // Include hex color codes
+tagIcon: true // Include icon names
+}
+})
 
-  articlesWithTags.forEach(article => {
-    article.tags.forEach(tag => {
-      console.log(\`Tag: \${tag.name}, Color: \${tag.color}, Icon: \${tag.icon}\`)
-    })
-  })
+articlesWithTags.forEach(article => {
+article.tags.forEach(tag => {
+console.log(\`Tag: \${tag.name}, Color: \${tag.color}, Icon: \${tag.icon}\`)
+})
+})
 `}
+
 </CodeBlock>
 
 ## Filtering by Tags
@@ -107,12 +177,13 @@ Get articles with at least one of the specified tags:
     tags: ['JavaScript', 'TypeScript']
   })
 
-  // Articles with web development tags
-  const { data: webArticles } = await client.articles.list({
-    tags: ['JavaScript', 'HTML', 'CSS'],
-    published: true
-  })
+// Articles with web development tags
+const { data: webArticles } = await client.articles.list({
+tags: ['JavaScript', 'HTML', 'CSS'],
+published: true
+})
 `}
+
 </CodeBlock>
 
 ### Tags All Filter (AND Logic)
@@ -126,11 +197,12 @@ Get articles that have all specified tags:
     tagsAll: ['Tutorial', 'JavaScript']
   })
 
-  // Complex requirements: beginner tutorials about web development
-  const { data: beginnerWeb } = await client.articles.list({
-    tagsAll: ['Tutorial', 'Beginner', 'Web Development']
-  })
+// Complex requirements: beginner tutorials about web development
+const { data: beginnerWeb } = await client.articles.list({
+tagsAll: ['Tutorial', 'Beginner', 'Web Development']
+})
 `}
+
 </CodeBlock>
 
 ### Exclude Tags
@@ -144,12 +216,13 @@ Get articles that don't have specific tags:
     excludeTags: ['Advanced', 'Deprecated']
   })
 
-  // Published articles, excluding work in progress
-  const { data: finishedArticles } = await client.articles.list({
-    published: true,
-    excludeTags: ['WIP', 'Draft']
-  })
+// Published articles, excluding work in progress
+const { data: finishedArticles } = await client.articles.list({
+published: true,
+excludeTags: ['WIP', 'Draft']
+})
 `}
+
 </CodeBlock>
 
 ### Combining Tag Filters
@@ -166,31 +239,33 @@ Combine multiple tag filters for complex queries:
     published: true
   })
 
-  // Real-world example: Build a filtered article list
-  async function getFilteredArticles(options: {
-    topics: string[]
-    requiredCategories: string[]
-    exclude: string[]
-  }) {
-    const { data: articles } = await client.articles.list({
-      tags: options.topics,
-      tagsAll: options.requiredCategories,
-      excludeTags: options.exclude,
-      published: true,
-      sort: 'publishedAt',
-      order: 'desc'
-    })
+// Real-world example: Build a filtered article list
+async function getFilteredArticles(options: {
+topics: string[]
+requiredCategories: string[]
+exclude: string[]
+}) {
+const { data: articles } = await client.articles.list({
+tags: options.topics,
+tagsAll: options.requiredCategories,
+excludeTags: options.exclude,
+published: true,
+sort: 'publishedAt',
+order: 'desc'
+})
 
     return articles
-  }
 
-  // Usage
-  const articles = await getFilteredArticles({
-    topics: ['JavaScript', 'TypeScript', 'React'],
-    requiredCategories: ['Tutorial'],
-    exclude: ['Advanced', 'Experimental']
-  })
+}
+
+// Usage
+const articles = await getFilteredArticles({
+topics: ['JavaScript', 'TypeScript', 'React'],
+requiredCategories: ['Tutorial'],
+exclude: ['Advanced', 'Experimental']
+})
 `}
+
 </CodeBlock>
 
 ## get()
@@ -201,7 +276,11 @@ Retrieve a single article by its slug, including full content.
   name="client.articles.get"
   parameters={[
     { name: "slug", type: "string", required: true },
-    { name: "options", type: "{ optionalFields?: ArticleOptionalFields }", optional: true }
+    {
+      name: "options",
+      type: "{ optionalFields?: ArticleOptionalFields }",
+      optional: true,
+    },
   ]}
   returnType="Promise<ApiResponse<Article>>"
   async={true}
@@ -217,22 +296,21 @@ Retrieve a single article by its slug, including full content.
       code: `const { data: article } = await client.articles.get('getting-started')
 
 console.log(article.title)
-console.log(article.content)  // Full Markdown content
+console.log(article.content) // Full Markdown content
 console.log(article.author.name)
 console.log(article.viewCount)
 
 // Tags names are always included
 console.log(article.tags.map(t => t.name))
-// Output: ['JavaScript', 'TypeScript', 'React']`
-    },
+// Output: ['JavaScript', 'TypeScript', 'React']`    },
     {
       label: "Tags with Infos",
       language: "typescript",
-      code: `const { data: article } = await client.articles.get('getting-started', {
-  optionalFields: {
-    tagColor: true,  // Include hex color
-    tagIcon: true    // Include icon name
-  }
+      code:`const { data: article } = await client.articles.get('getting-started', {
+optionalFields: {
+tagColor: true, // Include hex color
+tagIcon: true // Include icon name
+}
 })
 
 console.log(article.title)
@@ -240,14 +318,14 @@ console.log(article.content)
 
 // Tags with color and icon
 article.tags.forEach(tag => {
-  console.log(\`\${tag.name}: \${tag.color} (\${tag.icon})\`)
+console.log(\`\${tag.name}: \${tag.color} (\${tag.icon})\`)
 })
 // Output:
 // JavaScript: #EAB308 (code)
 // TypeScript: #3B82F6 (code)
 // React: #06B6D4 (component)`
-    }
-  ]}
+}
+]}
 />
 
 ## search()
@@ -258,7 +336,7 @@ Search articles by query string (searches in title and content).
   name="client.articles.search"
   parameters={[
     { name: "query", type: "string", required: true },
-    { name: "params", type: "ArticleListParams", optional: true }
+    { name: "params", type: "ArticleListParams", optional: true },
   ]}
   returnType="Promise<ApiResponse<ArticleListItem[]>>"
   async={true}
@@ -273,8 +351,9 @@ Search articles by query string (searches in title and content).
     published: true
   })
 
-  console.log(\`Found \${results.length} articles matching "typescript"\`)
+console.log(\`Found \${results.length} articles matching "typescript"\`)
 `}
+
 </CodeBlock>
 
 ## published()
@@ -283,9 +362,7 @@ Get only published articles (shorthand for `list({ published: true })`).
 
 <MethodSignature
   name="client.articles.published"
-  parameters={[
-    { name: "params", type: "ArticleListParams", optional: true }
-  ]}
+  parameters={[{ name: "params", type: "ArticleListParams", optional: true }]}
   returnType="Promise<ApiResponse<ArticleListItem[]>>"
   async={true}
 />
@@ -293,7 +370,7 @@ Get only published articles (shorthand for `list({ published: true })`).
 ### Example
 
 <CodeBlock language="typescript">
-{`
+  {`
   const { data: articles } = await client.articles.published({
     limit: 10,
     sort: 'createdAt',
@@ -308,9 +385,7 @@ Get the most recently created articles.
 
 <MethodSignature
   name="client.articles.latest"
-  parameters={[
-    { name: "limit", type: "number", defaultValue: "10" }
-  ]}
+  parameters={[{ name: "limit", type: "number", defaultValue: "10" }]}
   returnType="Promise<ApiResponse<ArticleListItem[]>>"
   async={true}
 />
@@ -321,11 +396,12 @@ Get the most recently created articles.
 {`
   const { data: latest } = await client.articles.latest(5)
 
-  console.log('Latest 5 articles:')
-  latest.forEach(article => {
-    console.log(\`- \${article.title}\`)
-  })
+console.log('Latest 5 articles:')
+latest.forEach(article => {
+console.log(\`- \${article.title}\`)
+})
 `}
+
 </CodeBlock>
 
 ## popular()
@@ -334,9 +410,7 @@ Get the most popular articles by view count.
 
 <MethodSignature
   name="client.articles.popular"
-  parameters={[
-    { name: "limit", type: "number", defaultValue: "10" }
-  ]}
+  parameters={[{ name: "limit", type: "number", defaultValue: "10" }]}
   returnType="Promise<ApiResponse<ArticleListItem[]>>"
   async={true}
 />
@@ -347,52 +421,12 @@ Get the most popular articles by view count.
 {`
   const { data: popular } = await client.articles.popular(3)
 
-  console.log('Top 3 articles:')
-  popular.forEach((article, i) => {
-    console.log(\`\${i + 1}. \${article.title} (\${article.viewCount} views)\`)
-  })
+console.log('Top 3 articles:')
+popular.forEach((article, i) => {
+console.log(\`\${i + 1}. \${article.title} (\${article.viewCount} views)\`)
+})
 `}
-</CodeBlock>
 
-## rss()
-
-Generate an RSS 2.0 feed for your articles.
-
-<MethodSignature
-  name="client.articles.rss"
-  parameters={[
-    { name: "options", type: "RssOptions", optional: true }
-  ]}
-  returnType="Promise<string>"
-  async={true}
-/>
-
-### Parameters
-
-<TypeTable
-  title="RssOptions"
-  properties={[
-    { name: "hostname", type: "string", description: "Base URL for article links (e.g., 'https://myblog.com')", required: true },
-    { name: "title", type: "string", description: "Feed title", defaultValue: "'Blog Feed'" },
-    { name: "description", type: "string", description: "Feed description", defaultValue: "'Latest articles'" },
-    { name: "limit", type: "number", description: "Number of articles to include", defaultValue: "50" }
-  ]}
-/>
-
-### Example
-
-<CodeBlock language="typescript">
-{`
-  const rssXml = await client.articles.rss({
-    hostname: 'https://myblog.com',
-    title: 'My Blog',
-    description: 'Latest articles from my blog',
-    limit: 50
-  })
-
-  // Save to file or serve as HTTP response
-  await fs.writeFile('feed.xml', rssXml)
-`}
 </CodeBlock>
 
 ## Complete Example
@@ -403,13 +437,13 @@ Generate an RSS 2.0 feed for your articles.
 {`
   import { SimplistClient } from '@simplist.blog/sdk'
 
-  export default async function BlogPage({
-    searchParams
-  }: {
-    searchParams: { page?: string }
-  }) {
-    // Uses SIMPLIST_API_KEY from environment variables
-    const client = new SimplistClient()
+export default async function BlogPage({
+searchParams
+}: {
+searchParams: { page?: string }
+}) {
+// Uses SIMPLIST_API_KEY from environment variables
+const client = new SimplistClient()
 
     const page = Number(searchParams.page) || 1
 
@@ -442,8 +476,10 @@ Generate an RSS 2.0 feed for your articles.
         />
       </div>
     )
-  }
+
+}
 `}
+
 </CodeBlock>
 
 ### Article Detail Page
@@ -453,13 +489,13 @@ Generate an RSS 2.0 feed for your articles.
   import { SimplistClient } from '@simplist.blog/sdk'
   import { notFound } from 'next/navigation'
 
-  export default async function ArticlePage({
-    params
-  }: {
-    params: { slug: string }
-  }) {
-    // Uses SIMPLIST_API_KEY from environment variables
-    const client = new SimplistClient()
+export default async function ArticlePage({
+params
+}: {
+params: { slug: string }
+}) {
+// Uses SIMPLIST_API_KEY from environment variables
+const client = new SimplistClient()
 
     try {
       const { data: article } = await client.articles.get(params.slug)
@@ -483,8 +519,10 @@ Generate an RSS 2.0 feed for your articles.
     } catch (error) {
       notFound()
     }
-  }
+
+}
 `}
+
 </CodeBlock>
 
 ## HTTP Endpoints
@@ -503,15 +541,18 @@ See the [REST API documentation](/api) for direct HTTP access.
   items={[
     {
       question: "What's the difference between list() and published()?",
-      answer: "list() returns all articles (including drafts if you have permissions), while published() filters to only return published articles. Use published() for public-facing content."
+      answer:
+        "list() returns all articles (including drafts if you have permissions), while published() filters to only return published articles. Use published() for public-facing content.",
     },
     {
       question: "How do I implement pagination?",
-      answer: "Use the page and limit parameters in list() or published(). The response includes meta.totalPages to help you build pagination UI. Example: client.articles.published({ page: 2, limit: 10 })."
+      answer:
+        "Use the page and limit parameters in list() or published(). The response includes meta.totalPages to help you build pagination UI. Example: client.articles.published({ page: 2, limit: 10 }).",
     },
     {
       question: "Can I search articles by content, not just title?",
-      answer: "Yes, the search() method performs full-text search across title, excerpt, and content fields. It returns ranked results based on relevance."
-    }
+      answer:
+        "Yes, the search() method performs full-text search across title, excerpt, and content fields. It returns ranked results based on relevance.",
+    },
   ]}
 />
