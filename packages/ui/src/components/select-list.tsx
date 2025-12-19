@@ -321,10 +321,19 @@ function SelectListItemMeta({ children, className }: SelectListItemMetaProps) {
  * SelectListItemThumbnail - Thumbnail/image for an item
  * -------------------------------------------------------------------------- */
 
+type SelectListItemThumbnailVariant = "square" | "landscape" | "portrait";
+
+const thumbnailVariants: Record<SelectListItemThumbnailVariant, string> = {
+  square: "size-8",
+  landscape: "w-16 h-10",
+  portrait: "w-10 h-14",
+};
+
 interface SelectListItemThumbnailProps {
   src?: string;
   alt?: string;
   fallback?: React.ReactNode;
+  variant?: SelectListItemThumbnailVariant;
   className?: string;
 }
 
@@ -332,12 +341,14 @@ function SelectListItemThumbnail({
   src,
   alt = "",
   fallback,
+  variant = "square",
   className,
 }: SelectListItemThumbnailProps) {
   return (
     <div
       className={cn(
-        "size-8 rounded-md border overflow-hidden bg-muted shrink-0 flex items-center justify-center",
+        "rounded-md border overflow-hidden bg-muted shrink-0 flex items-center justify-center",
+        thumbnailVariants[variant],
         className,
       )}
     >
