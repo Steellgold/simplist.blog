@@ -2,23 +2,6 @@
 
 import { DataTableViewOptions } from "@/components/data-table/data-table-view-options";
 import {
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-  type ColumnDef,
-  type ColumnFiltersState,
-  type RowSelectionState,
-  type SortingState,
-  type VisibilityState,
-} from "@tanstack/react-table";
-import { Trash } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-
-import {
   ExportDropdown,
   type ExportColumn,
 } from "@/components/export-dropdown";
@@ -32,17 +15,27 @@ import {
 import { Button } from "@simplist/ui/components/button";
 import { ButtonGroup } from "@simplist/ui/components/button-group";
 import { ConfirmDialog } from "@simplist/ui/components/confirm-dialog";
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@simplist/ui/components/empty";
 import { Input } from "@simplist/ui/components/input";
 import { toast } from "@simplist/ui/components/sonner";
 import { Spinner } from "@simplist/ui/components/spinner";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@simplist/ui/components/table";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@simplist/ui/components/table";
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+  type ColumnDef,
+  type ColumnFiltersState,
+  type RowSelectionState,
+  type SortingState,
+  type VisibilityState,
+} from "@tanstack/react-table";
+import { SearchX, Trash } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { FC, useEffect, useState } from "react";
 
 interface TagsDataTableProps {
   columns: ColumnDef<TagWithMetadata, unknown>[];
@@ -52,13 +45,13 @@ interface TagsDataTableProps {
   isPro: boolean;
 }
 
-export const TagsDataTable = ({
+export const TagsDataTable: FC<TagsDataTableProps> = ({
   columns,
   data,
   projectId,
   canManageTags,
   isPro,
-}: TagsDataTableProps) => {
+}) => {
   const router = useRouter();
 
   const STORAGE_KEY = "tags-table-column-visibility";
@@ -104,6 +97,7 @@ export const TagsDataTable = ({
 
   const selectedRows = table.getFilteredSelectedRowModel().rows;
   const selectedCount = selectedRows.length;
+  const isFiltered = table.getState().columnFilters.length > 0;
 
   const handleBulkDelete = async () => {
     const ids = selectedRows.map((row) => row.original.id);
@@ -166,6 +160,7 @@ export const TagsDataTable = ({
     if (result.success) {
       router.refresh();
     }
+
     return result;
   };
 
@@ -264,11 +259,28 @@ export const TagsDataTable = ({
                 ))
               ) : (
                 <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
-                  >
-                    No tags found.
+                  <TableCell colSpan={columns.length} className="h-64">
+                    <Empty className="border-none">
+                      <EmptyHeader>
+                        <EmptyMedia variant="icon">
+                          <SearchX />
+                        </EmptyMedia>
+                        <EmptyTitle>No tags found</EmptyTitle>
+                        <EmptyDescription>
+                          No tags match your current filters.
+                        </EmptyDescription>
+                      </EmptyHeader>
+                      {isFiltered && (
+                        <EmptyContent>
+                          <Button
+                            variant="outline"
+                            onClick={() => table.resetColumnFilters()}
+                          >
+                            Clear filters
+                          </Button>
+                        </EmptyContent>
+                      )}
+                    </Empty>
                   </TableCell>
                 </TableRow>
               )}
@@ -289,6 +301,7 @@ export const TagsDataTable = ({
           >
             Previous
           </Button>
+
           <Button
             variant="outline"
             onClick={() => table.nextPage()}

@@ -13,19 +13,21 @@ import {
   useReactTable,
   type VisibilityState,
 } from "@tanstack/react-table";
+import { SearchX } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Button } from "@simplist/ui/components/button";
 import { ButtonGroup } from "@simplist/ui/components/button-group";
-import { Input } from "@simplist/ui/components/input";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@simplist/ui/components/table";
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@simplist/ui/components/empty";
+import { Input } from "@simplist/ui/components/input";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@simplist/ui/components/table";
 import type { WebhookListItem } from "./types";
 
 interface WebhooksDataTableProps {
@@ -71,6 +73,8 @@ export const WebhooksDataTable = ({
       columnVisibility,
     },
   });
+
+  const isFiltered = table.getState().columnFilters.length > 0;
 
   return (
     <div className="flex flex-col gap-4">
@@ -125,11 +129,28 @@ export const WebhooksDataTable = ({
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No webhooks found.
+                <TableCell colSpan={columns.length} className="h-64">
+                  <Empty className="border-none">
+                    <EmptyHeader>
+                      <EmptyMedia variant="icon">
+                        <SearchX />
+                      </EmptyMedia>
+                      <EmptyTitle>No webhooks found</EmptyTitle>
+                      <EmptyDescription>
+                        No webhooks match your current filters.
+                      </EmptyDescription>
+                    </EmptyHeader>
+                    {isFiltered && (
+                      <EmptyContent>
+                        <Button
+                          variant="outline"
+                          onClick={() => table.resetColumnFilters()}
+                        >
+                          Clear filters
+                        </Button>
+                      </EmptyContent>
+                    )}
+                  </Empty>
                 </TableCell>
               </TableRow>
             )}

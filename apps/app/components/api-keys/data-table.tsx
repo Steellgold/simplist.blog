@@ -13,10 +13,19 @@ import {
   useReactTable,
   type VisibilityState,
 } from "@tanstack/react-table";
+import { SearchX } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Button } from "@simplist/ui/components/button";
 import { ButtonGroup } from "@simplist/ui/components/button-group";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@simplist/ui/components/empty";
 import { Input } from "@simplist/ui/components/input";
 import {
   Table,
@@ -76,6 +85,8 @@ export const ApiKeysDataTable = <TData, TValue>({
     },
   });
 
+  const isFiltered = table.getState().columnFilters.length > 0;
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between gap-2">
@@ -132,11 +143,28 @@ export const ApiKeysDataTable = <TData, TValue>({
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No API keys found.
+                <TableCell colSpan={columns.length} className="h-64">
+                  <Empty className="border-none">
+                    <EmptyHeader>
+                      <EmptyMedia variant="icon">
+                        <SearchX />
+                      </EmptyMedia>
+                      <EmptyTitle>No API keys found</EmptyTitle>
+                      <EmptyDescription>
+                        No API keys match your current filters.
+                      </EmptyDescription>
+                    </EmptyHeader>
+                    {isFiltered && (
+                      <EmptyContent>
+                        <Button
+                          variant="outline"
+                          onClick={() => table.resetColumnFilters()}
+                        >
+                          Clear filters
+                        </Button>
+                      </EmptyContent>
+                    )}
+                  </Empty>
                 </TableCell>
               </TableRow>
             )}

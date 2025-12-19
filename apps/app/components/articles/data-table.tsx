@@ -18,7 +18,7 @@ import {
   type SortingState,
   type VisibilityState,
 } from "@tanstack/react-table";
-import { Trash, TrendingUp, X } from "lucide-react";
+import { SearchX, Trash, TrendingUp, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
@@ -35,6 +35,14 @@ import {
 import { Button, buttonVariants } from "@simplist/ui/components/button";
 import { ButtonGroup } from "@simplist/ui/components/button-group";
 import { ConfirmDialog } from "@simplist/ui/components/confirm-dialog";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@simplist/ui/components/empty";
 import { IconRender } from "@simplist/ui/components/icon-renderer";
 import { Input } from "@simplist/ui/components/input";
 import { toast } from "@simplist/ui/components/sonner";
@@ -301,10 +309,7 @@ export const ArticlesDataTable = <
           )}
 
           {isFiltered && (
-            <Button
-              variant="ghost"
-              onClick={() => table.resetColumnFilters()}
-            >
+            <Button variant="ghost" onClick={() => table.resetColumnFilters()}>
               Reset
               <X />
             </Button>
@@ -327,7 +332,6 @@ export const ArticlesDataTable = <
 
               <Button
                 variant="outline-destructive"
-                
                 onClick={() => setShowBulkDeleteDialog(true)}
               >
                 <Trash />
@@ -395,11 +399,28 @@ export const ArticlesDataTable = <
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No articles found.
+                <TableCell colSpan={columns.length} className="h-64">
+                  <Empty className="border-none">
+                    <EmptyHeader>
+                      <EmptyMedia variant="icon">
+                        <SearchX />
+                      </EmptyMedia>
+                      <EmptyTitle>No articles found</EmptyTitle>
+                      <EmptyDescription>
+                        No articles match your current filters.
+                      </EmptyDescription>
+                    </EmptyHeader>
+                    {isFiltered && (
+                      <EmptyContent>
+                        <Button
+                          variant="outline"
+                          onClick={() => table.resetColumnFilters()}
+                        >
+                          Clear filters
+                        </Button>
+                      </EmptyContent>
+                    )}
+                  </Empty>
                 </TableCell>
               </TableRow>
             )}
@@ -415,7 +436,6 @@ export const ArticlesDataTable = <
         <ButtonGroup>
           <Button
             variant="outline"
-            
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
@@ -423,7 +443,6 @@ export const ArticlesDataTable = <
           </Button>
           <Button
             variant="outline"
-            
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
