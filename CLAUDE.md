@@ -7,6 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Simplist is a headless CMS and content analytics platform for blogs and technical documentation. It's a multi-tenant SaaS application where users manage multiple projects, publish articles via an API-first architecture, and track analytics.
 
 **Key Technologies:**
+
 - Node.js >= 20
 - PNPM 10.4.1 (package manager)
 - TypeScript 5.9.3 (strict mode)
@@ -20,29 +21,30 @@ This is a pnpm workspace managed by Turbo with 4 main applications and 6 shared 
 
 ### Applications
 
-| App | Port | Purpose | Stack |
-|-----|------|---------|-------|
-| **apps/app** | 3000 (HTTPS) | Main SaaS dashboard | Next.js 16, React 19, Better-Auth, Stripe |
-| **apps/web** | 3001 (HTTPS) | Marketing website | Next.js 16, React 19, Motion |
-| **apps/api** | 4000 | REST API backend | Fastify 5.6, Zod, Cron |
-| **apps/docs** | 3002 | Documentation site | Next.js 16, MDX, Shiki |
+| App           | Port         | Purpose             | Stack                                     |
+| ------------- | ------------ | ------------------- | ----------------------------------------- |
+| **apps/app**  | 3000 (HTTPS) | Main SaaS dashboard | Next.js 16, React 19, Better-Auth, Stripe |
+| **apps/web**  | 3001 (HTTPS) | Marketing website   | Next.js 16, React 19, Motion              |
+| **apps/api**  | 4000         | REST API backend    | Fastify 5.6, Zod, Cron                    |
+| **apps/docs** | 3002         | Documentation site  | Next.js 16, MDX, Shiki                    |
 
 ### Packages
 
-| Package | Purpose |
-|---------|---------|
-| **packages/db** | Prisma ORM with PostgreSQL schema, migrations, and Redis caching |
-| **packages/ui** | 84+ shared React components (Radix UI + shadcn/ui + Tailwind) |
-| **packages/sdk** | Published TypeScript SDK (`@simplist.blog/sdk` on npm) |
-| **packages/limits** | Subscription tier definitions and quota limits |
-| **packages/eslint-config** | Shared ESLint configurations |
-| **packages/typescript-config** | Shared TypeScript configurations |
+| Package                        | Purpose                                                          |
+| ------------------------------ | ---------------------------------------------------------------- |
+| **packages/db**                | Prisma ORM with PostgreSQL schema, migrations, and Redis caching |
+| **packages/ui**                | 84+ shared React components (Radix UI + shadcn/ui + Tailwind)    |
+| **packages/sdk**               | Published TypeScript SDK (`@simplist.blog/sdk` on npm)           |
+| **packages/limits**            | Subscription tier definitions and quota limits                   |
+| **packages/eslint-config**     | Shared ESLint configurations                                     |
+| **packages/typescript-config** | Shared TypeScript configurations                                 |
 
 ---
 
 ## Common Commands
 
 ### Development
+
 ```bash
 # Start all apps in dev mode
 pnpm dev
@@ -60,6 +62,7 @@ pnpm api:dev
 ```
 
 ### Database
+
 ```bash
 # Push schema changes to database (development)
 pnpm db:push
@@ -78,6 +81,7 @@ pnpm db:build
 ```
 
 ### Build & Lint
+
 ```bash
 # Build all packages
 pnpm build
@@ -93,6 +97,7 @@ pnpm format
 ```
 
 ### Testing
+
 ```bash
 # Run tests for API
 cd apps/api && pnpm test
@@ -107,6 +112,7 @@ cd apps/api && pnpm test
 The main admin dashboard for managing projects, articles, billing, and analytics.
 
 #### Directory Structure
+
 ```
 apps/app/
 ├── app/                          # Next.js App Router
@@ -173,6 +179,7 @@ apps/app/
 ```
 
 #### Key Features
+
 - **Article Management**: Create, edit, schedule, soft-delete articles
 - **Multi-language Support**: 80+ languages with variant system
 - **Team Collaboration**: Invite members with custom roles (8 permissions)
@@ -181,17 +188,18 @@ apps/app/
 - **Authentication**: Email/password, GitHub, Google, 2FA, passkeys
 
 #### Permissions System
+
 ```typescript
 // lib/auth/permissions.ts
 type Permission =
-  | 'canManageProject'
-  | 'canManageMembers'
-  | 'canManageRoles'
-  | 'canManageArticles'
-  | 'canManageApiKeys'
-  | 'canViewAnalytics'
-  | 'canManageBilling'
-  | 'canDeleteProject'
+  | "canManageProject"
+  | "canManageMembers"
+  | "canManageRoles"
+  | "canManageArticles"
+  | "canManageApiKeys"
+  | "canViewAnalytics"
+  | "canManageBilling"
+  | "canDeleteProject";
 ```
 
 ---
@@ -201,6 +209,7 @@ type Permission =
 The public API backend for article delivery, analytics tracking, and SEO generation.
 
 #### Directory Structure
+
 ```
 apps/api/src/
 ├── server.ts                     # Main Fastify server
@@ -231,34 +240,41 @@ apps/api/src/
 #### API Endpoints
 
 **Articles**
+
 - `GET /v1/articles` - List with pagination, filtering, sorting
 - `GET /v1/articles/:slug` - Single article with optional SEO
 
 **Analytics**
+
 - `POST /v1/analytics/track` - Track page view
 - `PUT /v1/analytics/track/:pageViewId` - Update engagement metrics
 - `GET /v1/analytics/stats` - Aggregated statistics (requires "read" permission)
 
 **SEO**
+
 - `GET /v1/seo/sitemap` - XML/JSON sitemap
 - `GET /v1/seo/rss` - RSS feed
 - `GET /v1/seo/structured-data` - JSON-LD schema
 - `GET /v1/seo/article/:slug` - Article SEO metadata
 
 **Tags**
+
 - `GET /v1/tags` - All tags with article counts
 - `GET /v1/tags/:name` - Single tag details
 
 **Project**
+
 - `GET /v1/project` - Project info and statistics
 
 #### Authentication
+
 - Header: `X-API-Key`
 - Keys prefixed with `prj_`
 - Cached in Redis for performance
 - Quota tracking: 1,000/month (STARTER), 500,000/month (PRO)
 
 #### Caching Strategy
+
 ```typescript
 // Redis keys with versioning (5-min TTL)
 articles:version:{projectId}
@@ -275,6 +291,7 @@ seo:rss:{projectId}:{limit}
 Public-facing landing page and pricing information.
 
 #### Directory Structure
+
 ```
 apps/web/app/
 ├── page.tsx                      # Home page
@@ -290,6 +307,7 @@ apps/web/app/
 ```
 
 #### Key Components
+
 - **Navbar**: Sticky header with links to Features, Pricing, Docs
 - **Footer**: Product links, legal pages, theme switcher
 - **Pricing**: Monthly/yearly toggle with animated price transitions
@@ -301,6 +319,7 @@ apps/web/app/
 Interactive documentation with SDK and REST API reference.
 
 #### Directory Structure
+
 ```
 apps/docs/
 ├── content/                      # MDX documentation
@@ -329,6 +348,7 @@ apps/docs/
 ```
 
 #### Features
+
 - **Dual-mode navigation**: Toggle between SDK and REST API docs
 - **Full-text search**: Cmd+K powered search across all content
 - **Code highlighting**: Shiki with language tabs
@@ -343,6 +363,7 @@ Prisma ORM with PostgreSQL and Redis caching.
 #### Key Models (20 total)
 
 **User & Auth**
+
 ```prisma
 model User {
   id, name, email, emailVerified, image
@@ -352,6 +373,7 @@ model User {
 ```
 
 **Project & Content**
+
 ```prisma
 model Project {
   id, name, slug, icon, color, timezone, defaultLanguage
@@ -379,6 +401,7 @@ model Tag {
 ```
 
 **Analytics**
+
 ```prisma
 model PageView {
   visitorId, sessionId
@@ -391,6 +414,7 @@ model PageView {
 ```
 
 **Team & Permissions**
+
 ```prisma
 model ProjectMember {
   userId, projectId, roleId
@@ -411,6 +435,7 @@ model ProjectRole {
 84+ React components based on Radix UI and Tailwind CSS.
 
 #### Component Categories
+
 - **Basic**: button, card, dialog, input, select, table, tabs, etc.
 - **Forms**: form, input-group, password-input, textarea
 - **Navigation**: sidebar, menubar, breadcrumb, pagination
@@ -419,13 +444,15 @@ model ProjectRole {
 - **Animated Icons**: 17 animated icons (settings, chart-line, star, etc.)
 
 #### Usage
+
 ```tsx
-import { Button } from "@simplist/ui/components/button"
-import { Card } from "@simplist/ui/components/card"
-import { useIsMobile } from "@simplist/ui/hooks/use-mobile"
+import { Button } from "@simplist/ui/components/button";
+import { Card } from "@simplist/ui/components/card";
+import { useIsMobile } from "@simplist/ui/hooks/use-mobile";
 ```
 
 #### Adding Components
+
 ```bash
 pnpm dlx shadcn@latest add button -c apps/web
 ```
@@ -437,37 +464,40 @@ pnpm dlx shadcn@latest add button -c apps/web
 Published npm package for external API consumption.
 
 #### Installation
+
 ```bash
 npm install @simplist.blog/sdk
 ```
 
 #### Usage
+
 ```typescript
-import { SimplistClient } from '@simplist.blog/sdk'
+import { SimplistClient } from "@simplist.blog/sdk";
 
 const client = new SimplistClient({
-  apiKey: 'prj_...',  // or SIMPLIST_API_KEY env var
-  baseUrl: 'https://api.simplist.blog',
-  apiVersion: '1'
-})
+  apiKey: "prj_...", // or SIMPLIST_API_KEY env var
+  baseUrl: "https://api.simplist.blog",
+  apiVersion: "1",
+});
 
 // Articles
-const articles = await client.articles.list({ limit: 10 })
-const article = await client.articles.get('my-article-slug')
+const articles = await client.articles.list({ limit: 10 });
+const article = await client.articles.get("my-article-slug");
 
 // Analytics
 await client.analytics.track({
-  slug: 'my-article',
-  sessionId: 'unique-session-id',
-  pageUrl: 'https://example.com/blog/my-article'
-})
+  slug: "my-article",
+  sessionId: "unique-session-id",
+  pageUrl: "https://example.com/blog/my-article",
+});
 
 // SEO
-const sitemap = await client.seo.getSitemap()
-const rss = await client.seo.getRssFeed()
+const sitemap = await client.seo.getSitemap();
+const rss = await client.seo.getRssFeed();
 ```
 
 #### Resources
+
 - `client.articles` - Article listing and retrieval
 - `client.tags` - Tag management
 - `client.project` - Project info and stats
@@ -481,32 +511,41 @@ const rss = await client.seo.getRssFeed()
 Defines plan limits and features.
 
 #### Plans
+
 ```typescript
 // STARTER (Free)
 {
   maxArticles: 5,
-  maxStorageBytes: 50MB,
+  maxStorageBytes: 15 * 1024 * 1024,  // 15MB
   maxApiCallsPerMonth: 1000,
   maxVariantsPerArticle: 0,
   maxMembers: 1,
+  maxWebhooks: 1,
   features: {
     analytics: false,
     postVariants: false,
-    scheduledPublishing: false
+    scheduledPublishing: false,
+    prioritySupport: true,
+    bulkOperations: false,
+    webhooks: true
   }
 }
 
-// PRO ($19/month or $14/month yearly)
+// PRO ($9.99/month or $7.99/month yearly)
 {
   maxArticles: -1,  // Unlimited
-  maxStorageBytes: 1GB,
-  maxApiCallsPerMonth: 500000,
+  maxStorageBytes: 1024 * 1024 * 1024,  // 1GB
+  maxApiCallsPerMonth: -1,  // Unlimited
   maxVariantsPerArticle: -1,  // Unlimited
   maxMembers: 10,
+  maxWebhooks: 20,
   features: {
     analytics: true,
     postVariants: true,
-    scheduledPublishing: true
+    scheduledPublishing: true,
+    prioritySupport: true,
+    bulkOperations: true,
+    webhooks: true
   }
 }
 ```
@@ -524,14 +563,14 @@ Defines plan limits and features.
 
 ## External Integrations
 
-| Service | Purpose | Config Location |
-|---------|---------|-----------------|
-| PostgreSQL | Primary database | `DATABASE_URL` |
-| Upstash Redis | API key cache, analytics cache | `UPSTASH_REDIS_REST_*` |
-| Stripe | Subscriptions, billing | `STRIPE_*` |
-| Cloudflare R2 | Image storage (S3-compatible) | `R2_*` |
-| AWS SES | Email sending | `AWS_ACCESS_KEY_ID`, `SES_FROM_EMAIL` |
-| GitHub/Google | OAuth providers | `GITHUB_CLIENT_ID`, `GOOGLE_CLIENT_ID` |
+| Service       | Purpose                        | Config Location                        |
+| ------------- | ------------------------------ | -------------------------------------- |
+| PostgreSQL    | Primary database               | `DATABASE_URL`                         |
+| Upstash Redis | API key cache, analytics cache | `UPSTASH_REDIS_REST_*`                 |
+| Stripe        | Subscriptions, billing         | `STRIPE_*`                             |
+| Cloudflare R2 | Image storage (S3-compatible)  | `R2_*`                                 |
+| AWS SES       | Email sending                  | `AWS_ACCESS_KEY_ID`, `SES_FROM_EMAIL`  |
+| GitHub/Google | OAuth providers                | `GITHUB_CLIENT_ID`, `GOOGLE_CLIENT_ID` |
 
 ---
 
