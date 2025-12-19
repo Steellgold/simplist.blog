@@ -1,4 +1,4 @@
-import { Plan, PlanId, PlanPrice, SubscriptionInterval } from "./types";
+import { Plan, PlanId, PlanPrice, SubscriptionInterval } from "./types.js";
 
 export const SUBSCRIPTION_PLANS: Record<PlanId, Plan> = {
   STARTER: {
@@ -39,7 +39,7 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, Plan> = {
   },
   PRO: {
     id: "PRO",
-    name: "Pro", 
+    name: "Pro",
     description: "Ideal for creators looking for advanced features.",
     highlight: "Most Popular",
     popular: true,
@@ -98,9 +98,12 @@ export const getPlan = (planId: PlanId): Plan => {
 /**
  * Get plan pricing for specific interval
  */
-export const getPlanPrice = (planId: PlanId, interval: SubscriptionInterval): PlanPrice | undefined => {
+export const getPlanPrice = (
+  planId: PlanId,
+  interval: SubscriptionInterval,
+): PlanPrice | undefined => {
   const plan = getPlan(planId);
-  return plan.prices.find(price => price.interval === interval);
+  return plan.prices.find((price) => price.interval === interval);
 };
 
 /**
@@ -113,7 +116,10 @@ export const getAllPlans = (): Plan[] => {
 /**
  * Check if a plan has a specific feature
  */
-export const planHasFeature = (planId: PlanId, featureName: keyof Plan['limits']['features']): boolean => {
+export const planHasFeature = (
+  planId: PlanId,
+  featureName: keyof Plan["limits"]["features"],
+): boolean => {
   const plan = getPlan(planId);
   return plan.limits.features[featureName];
 };
@@ -129,7 +135,10 @@ export function isPlanFree(planId: PlanId): boolean {
   return planId === "STARTER";
 }
 
-export function canUpgradeFrom(currentPlan: PlanId, targetPlan: PlanId): boolean {
+export function canUpgradeFrom(
+  currentPlan: PlanId,
+  targetPlan: PlanId,
+): boolean {
   if (currentPlan === "STARTER" && targetPlan === "PRO") return true;
   return false;
 }
