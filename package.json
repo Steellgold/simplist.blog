@@ -12,7 +12,7 @@
     "db:deploy": "pnpm --filter @simplist/db run db:deploy",
     "db:studio": "pnpm --filter @simplist/db run db:studio",
     "db:build": "pnpm --filter @simplist/db run build",
-    "api:build": "pnpm --filter @simplist/db --filter @simplist/api --filter @simplist/eslint-config --filter @simplist/typescript-config --filter api run build",
+    "api:build": "pnpm --filter @simplist/db --filter @simplist/limits --filter @simplist/api --filter @simplist/eslint-config --filter @simplist/typescript-config --filter api run build",
     "api:dev": "pnpm --filter api run dev",
     "api:start": "pnpm --filter api run start"
   },
