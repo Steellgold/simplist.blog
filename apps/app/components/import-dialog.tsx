@@ -10,10 +10,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@simplist/ui/components/dialog";
+import { Dropzone } from "@simplist/ui/components/dropzone";
 import { toast } from "@simplist/ui/components/sonner";
 import { Spinner } from "@simplist/ui/components/spinner";
-import { cn } from "@simplist/ui/lib/utils";
-import { FileUp, Upload, X } from "lucide-react";
+import { Upload } from "lucide-react";
 import { type ReactNode, useCallback, useState } from "react";
 
 export type ImportFormat = "csv" | "json" | "xml";
@@ -175,7 +175,6 @@ export function ImportDialog<T extends Record<string, unknown>>({
   const [file, setFile] = useState<File | null>(null);
   const [parsedData, setParsedData] = useState<Record<string, unknown>[]>([]);
   const [isImporting, setIsImporting] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const reset = () => {
@@ -243,19 +242,6 @@ export function ImportDialog<T extends Record<string, unknown>>({
     [columns],
   );
 
-  const handleDrop = useCallback(
-    (e: React.DragEvent) => {
-      e.preventDefault();
-      setIsDragging(false);
-
-      const droppedFile = e.dataTransfer.files[0];
-      if (droppedFile) {
-        handleFile(droppedFile);
-      }
-    },
-    [handleFile],
-  );
-
   const handleImport = async () => {
     if (parsedData.length === 0) return;
 
@@ -304,55 +290,25 @@ export function ImportDialog<T extends Record<string, unknown>>({
 
         <div className="space-y-4">
           {/* Drop zone */}
-          <label
-            className={cn(
-              "flex items-center justify-center w-full h-20 border-2 border-dashed rounded-lg cursor-pointer bg-muted/50 hover:bg-muted/80 transition-colors",
-              isDragging && "border-primary bg-primary/5",
-              file && "border-primary/50 bg-primary/5",
-            )}
-            onDragOver={(e) => {
-              e.preventDefault();
-              setIsDragging(true);
+          <Dropzone
+            size="sm"
+            onDrop={(files) => {
+              const droppedFile = files[0];
+              if (droppedFile) handleFile(droppedFile);
             }}
-            onDragLeave={() => setIsDragging(false)}
-            onDrop={handleDrop}
-          >
-            {file ? (
-              <div className="flex items-center gap-2">
-                <FileUp className="size-4 text-primary" />
-                <span className="text-sm font-medium">{file.name}</span>
-                <Button
-                  variant="ghost"
-                  size="icon-xs"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    reset();
-                  }}
-                >
-                  <X className="size-3" />
-                </Button>
-              </div>
-            ) : (
-              <div className="flex items-center gap-3">
-                <Upload className="size-4 text-muted-foreground" />
-                <div className="text-sm text-muted-foreground">
-                  <span className="font-semibold">Upload file</span> or drag and
-                  drop
-                  <span className="text-xs ml-2">(CSV, JSON, XML)</span>
-                </div>
-              </div>
-            )}
-            <input
-              type="file"
-              accept=".csv,.json,.xml"
-              className="hidden"
-              onChange={(e) => {
-                const selectedFile = e.target.files?.[0];
-                if (selectedFile) handleFile(selectedFile);
-              }}
-            />
-          </label>
+            accept={{
+              "text/csv": [".csv"],
+              "application/json": [".json"],
+              "text/xml": [".xml"],
+              "application/xml": [".xml"],
+            }}
+            multiple={false}
+            file={file ? { file, name: file.name } : null}
+            onClear={reset}
+            label="Upload file"
+            description="or drag and drop"
+            hint="CSV, JSON, XML"
+          />
 
           {/* Preview */}
           {parsedData.length > 0 && (
