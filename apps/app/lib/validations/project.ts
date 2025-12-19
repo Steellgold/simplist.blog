@@ -4,23 +4,27 @@ import { IconsEnum } from "@simplist/ui/lib/icons.enum";
 import { z } from "zod";
 
 // Project name max length constant
-export const PROJECT_NAME_MAX_LENGTH = 32
+export const PROJECT_NAME_MAX_LENGTH = 32;
 
 // Step constants
-export const STEP_NAME = 0
-export const STEP_ICON = 1
-export const STEP_URLS = 2
-export const STEP_PLAN = 3
+export const STEP_NAME = 0;
+export const STEP_ICON = 1;
+export const STEP_URLS = 2;
+export const STEP_PLAN = 3;
 
 // Default pattern for article URLs
-export const DEFAULT_ARTICLE_URL_PATTERN = "posts/{slug}"
-export const DEFAULT_BASE_URL = "https://acme.com"
+export const DEFAULT_ARTICLE_URL_PATTERN = "posts/{slug}";
+export const DEFAULT_BASE_URL = "https://acme.com";
 
 // Wildcard domain prefix
-export type WILDCARD_PROTOCOLS = "https://" | "https://*."
+export type WILDCARD_PROTOCOLS = "https://" | "https://*.";
 
 // Step type
-export type ProjectStep = typeof STEP_NAME | typeof STEP_ICON | typeof STEP_URLS | typeof STEP_PLAN
+export type ProjectStep =
+  | typeof STEP_NAME
+  | typeof STEP_ICON
+  | typeof STEP_URLS
+  | typeof STEP_PLAN;
 
 // Reserved slugs that cannot be used for project names
 export const RESERVED_SLUGS = [
@@ -182,59 +186,61 @@ export const createProjectSchema = z.object({
     .max(100, "Project name must be less than 100 characters"),
   icon: IconsEnum.optional(),
   color: ColorsEnum.optional(),
-  allowedOrigins: z
-    .array(
-      z.object({
-        value: z.string()
-          .min(1, "Domain is required")
-          .max(200, "Domain must be less than 200 characters")
-          .transform((val) => {
-            // Normalize the input first
-            let normalized = val.trim();
+  allowedOrigins: z.array(
+    z.object({
+      value: z
+        .string()
+        .min(1, "Domain is required")
+        .max(200, "Domain must be less than 200 characters")
+        .transform((val) => {
+          // Normalize the input first
+          let normalized = val.trim();
 
-            // Handle wildcard domains like *.example.com
-            if (normalized.startsWith("*.")) {
-              // If it already has https://, remove it before processing
-              if (normalized.startsWith("https://*.")) {
-                normalized = normalized.replace("https://*.", "*.");
-              }
-              return `https://${normalized.replace("*.", "subdomain.")}`;
+          // Handle wildcard domains like *.example.com
+          if (normalized.startsWith("*.")) {
+            // If it already has https://, remove it before processing
+            if (normalized.startsWith("https://*.")) {
+              normalized = normalized.replace("https://*.", "*.");
             }
+            return `https://${normalized.replace("*.", "subdomain.")}`;
+          }
 
-            // If it already starts with https://, don't add it again
-            if (normalized.startsWith("https://") || normalized.startsWith("http://")) {
-              return normalized.startsWith("http://") ? normalized.replace("http://", "https://") : normalized;
-            }
+          // If it already starts with https://, don't add it again
+          if (
+            normalized.startsWith("https://") ||
+            normalized.startsWith("http://")
+          ) {
+            return normalized.startsWith("http://")
+              ? normalized.replace("http://", "https://")
+              : normalized;
+          }
 
-            return `https://${normalized}`;
-          })
-          .pipe(z.url("Please enter a valid domain (supports *.domain.com)"))
-          .transform((url) => {
-            // Transform back to original format if it was a wildcard
-            if (url.includes("subdomain.")) {
-              return url.replace("https://subdomain.", "https://*.");
-            }
-            return url;
-          })
-      })
-    ),
+          return `https://${normalized}`;
+        })
+        .pipe(z.url("Please enter a valid domain (supports *.domain.com)"))
+        .transform((url) => {
+          // Transform back to original format if it was a wildcard
+          if (url.includes("subdomain.")) {
+            return url.replace("https://subdomain.", "https://*.");
+          }
+          return url;
+        }),
+    }),
+  ),
   baseUrl: z
-    .url("Please enter a valid URL")
-    .optional()
-    .or(z.literal(""))
-    .transform((val) => (val === "" ? null : val))
-    .nullable(),
+    .union([z.url("Please enter a valid URL"), z.literal(""), z.null()])
+    .transform((val) => (val === "" ? null : val)),
   articleUrlPattern: z
     .string()
     .max(200, "URL pattern must be less than 200 characters")
     .refine(
       (val) => !val || val.includes("{slug}"),
-      "URL pattern must include {slug}"
+      "URL pattern must include {slug}",
     )
     .optional(),
-})
+});
 
-export type CreateProjectInput = z.infer<typeof createProjectSchema>
+export type CreateProjectInput = z.infer<typeof createProjectSchema>;
 
 export const createProjectActionSchema = z.object({
   name: z.string(),
@@ -246,9 +252,11 @@ export const createProjectActionSchema = z.object({
   avatarUrl: z.string().optional().nullable(),
   baseUrl: z.string().optional().nullable(),
   articleUrlPattern: z.string().optional(),
-})
+});
 
-export type CreateProjectActionInput = z.infer<typeof createProjectActionSchema>
+export type CreateProjectActionInput = z.infer<
+  typeof createProjectActionSchema
+>;
 
 export const updateProjectSettingsSchema = z.object({
   name: z
@@ -259,26 +267,30 @@ export const updateProjectSettingsSchema = z.object({
     .string()
     .min(1, "Project slug is required")
     .max(100, "Project slug must be less than 100 characters")
-    .regex(/^[a-z0-9-]+$/, "Slug can only contain lowercase letters, numbers, and hyphens")
+    .regex(
+      /^[a-z0-9-]+$/,
+      "Slug can only contain lowercase letters, numbers, and hyphens",
+    )
     .refine(
       (slug) => !isReservedSlug(slug),
-      "This slug is reserved and cannot be used"
+      "This slug is reserved and cannot be used",
     ),
   icon: IconsEnum.optional(),
   color: ColorsEnum.optional(),
-  avatarUrl: z.union([
-    z.url(),
-    z.literal(""),
-    z.literal("pending"),
-    z.null()
-  ]).optional(),
+  avatarUrl: z
+    .union([z.url(), z.literal(""), z.literal("pending"), z.null()])
+    .optional(),
   defaultLanguage: z
     .string()
-    .refine((val) => LANGUAGES.some(lang => lang.code === val), "Please select a valid language"),
+    .refine(
+      (val) => LANGUAGES.some((lang) => lang.code === val),
+      "Please select a valid language",
+    ),
   allowedOrigins: z
     .array(
       z.object({
-        value: z.string()
+        value: z
+          .string()
           .min(1, "Domain is required")
           .max(200, "Domain must be less than 200 characters")
           .transform((val) => {
@@ -295,8 +307,13 @@ export const updateProjectSettingsSchema = z.object({
             }
 
             // If it already starts with https://, don't add it again
-            if (normalized.startsWith("https://") || normalized.startsWith("http://")) {
-              return normalized.startsWith("http://") ? normalized.replace("http://", "https://") : normalized;
+            if (
+              normalized.startsWith("https://") ||
+              normalized.startsWith("http://")
+            ) {
+              return normalized.startsWith("http://")
+                ? normalized.replace("http://", "https://")
+                : normalized;
             }
 
             return `https://${normalized}`;
@@ -308,23 +325,21 @@ export const updateProjectSettingsSchema = z.object({
               return url.replace("https://subdomain.", "https://*.");
             }
             return url;
-          })
-      })
+          }),
+      }),
     )
     .optional(),
   baseUrl: z
-    .url("Please enter a valid URL")
-    .optional()
-    .nullable(),
+    .union([z.url("Please enter a valid URL"), z.literal(""), z.null()])
+    .optional(),
   articleUrlPattern: z
     .string()
     .min(1, "URL pattern is required")
     .max(200, "URL pattern must be less than 200 characters")
-    .refine(
-      (val) => val.includes("{slug}"),
-      "URL pattern must include {slug}"
-    )
+    .refine((val) => val.includes("{slug}"), "URL pattern must include {slug}")
     .optional(),
-})
+});
 
-export type UpdateProjectSettingsInput = z.infer<typeof updateProjectSettingsSchema>
+export type UpdateProjectSettingsInput = z.infer<
+  typeof updateProjectSettingsSchema
+>;

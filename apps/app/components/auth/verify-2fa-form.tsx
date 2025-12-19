@@ -20,7 +20,7 @@ import { z } from "zod"
 
 const verify2FASchema = z.object({
   code: z.string().min(1, "Code is required"),
-  trustDevice: z.boolean(),
+  trustDevice: z.boolean()
 })
 
 type Verify2FAInput = z.infer<typeof verify2FASchema>

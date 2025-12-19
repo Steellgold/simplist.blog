@@ -41,7 +41,7 @@ export const AccountDeletionCard = ({ user, ownedProjects }: Props) => {
   const timeRemaining = useMemo(() => formatTimeRemaining(scheduledAt), [scheduledAt])
 
   const { register, handleSubmit, reset } = useForm<RequestAccountDeletionInput>({
-    resolver: zodResolver(requestAccountDeletionSchema),
+    resolver: zodResolver(requestAccountDeletionSchema as any),
     defaultValues: { confirmation: "" },
   })
 
