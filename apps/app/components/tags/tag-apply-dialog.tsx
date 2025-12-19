@@ -9,7 +9,6 @@ import {
 } from "@/lib/actions/tags";
 import { Badge } from "@simplist/ui/components/badge";
 import { Button } from "@simplist/ui/components/button";
-import { Checkbox } from "@simplist/ui/components/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -18,13 +17,18 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@simplist/ui/components/dialog";
-import { Input } from "@simplist/ui/components/input";
-import { ScrollArea } from "@simplist/ui/components/scroll-area";
+import {
+  SelectListContent,
+  SelectListItem,
+  SelectListItemMeta,
+  SelectListItemSubtitle,
+  SelectListItemTitle,
+  SelectListSearch,
+} from "@simplist/ui/components/select-list";
 import { toast } from "@simplist/ui/components/sonner";
 import { Spinner } from "@simplist/ui/components/spinner";
-import { Search } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { FC, useEffect, useState } from "react";
 
 interface TagApplyDialogProps {
   open: boolean;
@@ -33,12 +37,10 @@ interface TagApplyDialogProps {
   projectId: string;
 }
 
-export function TagApplyDialog({
-  open,
-  onOpenChange,
-  tag,
-  projectId,
-}: TagApplyDialogProps) {
+export const TagApplyDialog: FC<TagApplyDialogProps> = ({
+  open, onOpenChange,
+  tag, projectId,
+}) => {
   const router = useRouter();
   const [articles, setArticles] = useState<ArticleForTagAssignment[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -202,55 +204,43 @@ export function TagApplyDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
-          {/* Search */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="Search articles..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
-            />
-          </div>
+        <div className="flex flex-col gap-4">
+          <SelectListSearch
+            value={searchQuery}
+            onChange={setSearchQuery}
+            placeholder="Search articles..."
+          />
 
-          {/* Articles list */}
-          <ScrollArea className="h-[300px] rounded-md border">
-            {isLoading ? (
-              <div className="flex items-center justify-center py-8">
-                <Spinner />
-              </div>
-            ) : filteredArticles.length === 0 ? (
-              <div className="py-8 text-center text-sm text-muted-foreground">
-                {searchQuery ? "No articles found" : "No articles in project"}
-              </div>
-            ) : (
-              <div className="p-2">
-                {filteredArticles.map((article) => (
-                  <label
-                    key={article.id}
-                    className="flex cursor-pointer items-center gap-3 rounded-md p-2 hover:bg-muted"
-                  >
-                    <Checkbox
-                      checked={isArticleSelected(article)}
-                      onCheckedChange={() =>
-                        toggleArticle(article.id, article.hasTag)
-                      }
-                    />
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-medium">
-                        {article.title}
-                      </div>
-                      <div className="truncate text-xs text-muted-foreground">
-                        /{article.slug}
-                      </div>
-                    </div>
+          <SelectListContent
+            isLoading={isLoading}
+            isEmpty={filteredArticles.length === 0}
+            emptyMessage={
+              searchQuery ? "No articles found" : "No articles in project"
+            }
+          >
+            {filteredArticles.map((article) => (
+              <SelectListItem
+                key={article.id}
+                id={article.id}
+                checked={isArticleSelected(article)}
+                onCheckedChange={() =>
+                  toggleArticle(article.id, article.hasTag)
+                }
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <SelectListItemTitle>{article.title}</SelectListItemTitle>
+                    <SelectListItemSubtitle>
+                      /{article.slug}
+                    </SelectListItemSubtitle>
+                  </div>
+                  <SelectListItemMeta>
                     {getStatusBadge(article.status)}
-                  </label>
-                ))}
-              </div>
-            )}
-          </ScrollArea>
+                  </SelectListItemMeta>
+                </div>
+              </SelectListItem>
+            ))}
+          </SelectListContent>
         </div>
 
         <DialogFooter>
