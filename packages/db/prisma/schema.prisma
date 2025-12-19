@@ -49,6 +49,7 @@ model User {
   projectMembers  ProjectMember[]
   articles        Article[]       @relation("ArticleAuthor")
   updatedArticles Article[]       @relation("ArticleLastUpdatedBy")
+  media           Media[]
 
   twoFactorEnabled Boolean?    @default(false)
   twofactors       TwoFactor[]
@@ -124,6 +125,13 @@ enum InvitationStatus {
   EXPIRED
 }
 
+enum MediaType {
+  BANNER
+  CONTENT
+  AVATAR
+  OTHER
+}
+
 model Project {
   id                    String              @id @default(cuid())
   name                  String
@@ -152,6 +160,7 @@ model Project {
   roles                 ProjectRole[]
   invitations           ProjectInvitation[]
   webhooks              Webhook[]
+  media                 Media[]
   createdAt             DateTime            @default(now())
   updatedAt             DateTime            @updatedAt
 
@@ -510,4 +519,32 @@ model ProjectInvitation {
   @@index([token])
   @@index([projectId, status])
   @@map("project_invitation")
+}
+
+model Media {
+  id        String    @id @default(cuid())
+  projectId String
+  project   Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  filename String    // Original filename (e.g., "photo-vacances.jpg")
+  key      String    @unique // R2 path (e.g., "public/proj123/media/abc123.jpg")
+  url      String    // Full public URL
+  mimeType String    // "image/jpeg", "image/png", etc.
+  size     Int       // Size in bytes
+  width    Int?      // Width in pixels (optional)
+  height   Int?      // Height in pixels (optional)
+
+  type MediaType @default(CONTENT)
+
+  uploadedById String
+  uploadedBy   User   @relation(fields: [uploadedById], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([projectId])
+  @@index([projectId, type])
+  @@index([projectId, createdAt(sort: Desc)])
+  @@index([uploadedById])
+  @@map("media")
 }

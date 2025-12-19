@@ -7,18 +7,27 @@ export {
   sendTestWebhook,
   sendWebhookEvent,
   testWebhookFromData,
-  type WebhookEvent
+  type WebhookEvent,
 } from "./webhooks";
 
 // Re-export Prisma namespace explicitly
 export { Prisma } from "../generated/client";
 
 // Re-export useful types for the API and SDK
-export type { ApiKey, Article, Project, User } from "../generated/client";
+export type {
+  ApiKey,
+  Article,
+  Media,
+  Project,
+  User,
+} from "../generated/client";
+
+// Re-export enums
+export { MediaType } from "../generated/client";
 
 export type { ApiKeyWithProject } from "./types";
 
 export type {
   AnalyticsCacheData,
-  AnalyticsCacheMultiPeriod
+  AnalyticsCacheMultiPeriod,
 } from "./analytics-cache";
