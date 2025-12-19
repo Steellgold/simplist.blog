@@ -74,3 +74,22 @@ pnpm db:studio              # Open Prisma Studio
 - Vitest in `apps/api`
 - Test files: `*.test.ts` or `*.spec.ts`
 - Mock external services and databases
+
+## CRITICAL RULES
+
+### NEVER USE THESE COMMANDS
+
+**NEVER, EVER use `git clean` in any form.** This command deletes untracked files permanently and has caused catastrophic data loss in this project. There is NO recovery possible.
+
+Forbidden commands:
+
+- `git clean -fd` - DESTROYS all untracked files
+- `git clean -f` - DESTROYS all untracked files
+- `git clean -d` - DESTROYS untracked directories
+- `git clean` with ANY flags - FORBIDDEN
+
+If you need to reset changes, use ONLY:
+
+- `git checkout -- <file>` - Reverts tracked file changes
+- `git restore <file>` - Reverts tracked file changes
+- `git stash` - Temporarily saves changes (recoverable)
