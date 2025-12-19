@@ -1,4 +1,4 @@
-import { JavaScript, JSON, MarkdownDark, MarkdownLight, TypeScript, HTML5, CSS, Python, BashDark, ReactDark, ReactLight } from "@ridemountainpig/svgl-react"
+import { AstroDark, AstroLight, BashDark, CSS, HTML5, Hugo, JavaScript, JSON, MarkdownDark, MarkdownLight, Python, ReactDark, ReactLight, TypeScript } from "@ridemountainpig/svgl-react"
 import { IconThemed } from "@simplist/ui/components/icon-themed"
 
 export const languages = [
@@ -11,5 +11,7 @@ export const languages = [
   { label: "CSS", value: "css", icon: <CSS className="size-3.5" /> },
   { label: "Python", value: "python", icon: <Python className="size-3.5" /> },
   { label: "Bash", value: "bash", icon: <BashDark className="size-3.5" /> },
-  { label: "Markdown", value: "markdown", icon: <IconThemed light={<MarkdownLight className="size-3.5" />} dark={<MarkdownDark className="size-3.5" />} /> }
+  { label: "Markdown", value: "markdown", icon: <IconThemed light={<MarkdownLight className="size-3.5" />} dark={<MarkdownDark className="size-3.5" />} /> },
+  { label: "Astro", value: "astro", icon: <IconThemed light={<AstroLight className="size-3.5" />} dark={<AstroDark className="size-3.5" />} /> },
+  { label: "Hugo", value: "hugo", icon: <Hugo className="size-3.5" /> }
 ]

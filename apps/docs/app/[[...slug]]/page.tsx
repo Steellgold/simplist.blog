@@ -1,94 +1,155 @@
-import { ApiConfigButton } from "@/components/api-config-button"
-import { ApiPath } from "@/components/api-route"
-import { BlockLink } from "@/components/block-link"
-import { CodeBlock } from "@/components/code-block"
-import { CopyMarkdown } from "@/components/copy-markdown"
-import { CurlCommand } from "@/components/curl-command"
-import { EditOnGitHub } from "@/components/edit-on-github"
-import { EnvVars } from "@/components/env-vars"
-import { Faq } from "@/components/faq"
-import { FootNotes } from "@/components/footnotes"
-import { HeadingAnchor } from "@/components/heading-anchor"
-import { InlineRoute, InlineRouteLink } from "@/components/inline-route"
-import { InstallationTabs } from "@/components/installation-tabs"
-import { MethodSignature } from "@/components/method-signature"
-import { OpenIn } from "@/components/open-in"
-import { PageNavigation } from "@/components/page-navigation"
-import { Step, StepContent, Steps } from "@/components/steps"
-import { TableOfContents, TocHeading } from "@/components/table-of-contents"
-import { TestableApiProvider } from "@/components/testable-api-provider"
-import { ApiMethodTable, ErrorTable, LanguageTable, TypeTable } from "@/components/type-table"
-import { WebhookBuilder } from "@/components/webhook-builder"
-import { getPageImage } from "@/lib/content"
-import { GITHUB_DOCS_URL } from "@/lib/info"
-import { generateUniqueId, textToId } from "@/lib/utils"
-import { Alert, AlertDescription, AlertTitle } from "@simplist/ui/components/alert"
-import { Badge } from "@simplist/ui/components/badge"
-import { Button } from "@simplist/ui/components/button"
-import { ButtonGroup } from "@simplist/ui/components/button-group"
-import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@simplist/ui/components/card"
-import { Input } from "@simplist/ui/components/input"
-import { Separator } from "@simplist/ui/components/separator"
-import { Skeleton } from "@simplist/ui/components/skeleton"
-import { Spinner } from "@simplist/ui/components/spinner"
-import { existsSync } from "fs"
-import { readFile } from "fs/promises"
-import type { Metadata } from "next"
-import { MDXRemote } from "next-mdx-remote/rsc"
-import Link from "next/link"
-import { join } from "path"
-import { ComponentType, FC } from "react"
+import { ApiConfigButton } from "@/components/api-config-button";
+import { ApiPath } from "@/components/api-route";
+import { BlockLink } from "@/components/block-link";
+import { CodeBlock } from "@/components/code-block";
+import { ComparisonTable } from "@/components/comparison-table";
+import { CopyMarkdown } from "@/components/copy-markdown";
+import { CurlCommand } from "@/components/curl-command";
+import { EditOnGitHub } from "@/components/edit-on-github";
+import { EnvVars } from "@/components/env-vars";
+import { Faq } from "@/components/faq";
+import { FootNotes } from "@/components/footnotes";
+import { HeadingAnchor } from "@/components/heading-anchor";
+import { InlineRoute, InlineRouteLink } from "@/components/inline-route";
+import { InstallationTabs } from "@/components/installation-tabs";
+import { MethodSignature } from "@/components/method-signature";
+import { OpenIn } from "@/components/open-in";
+import { PageNavigation } from "@/components/page-navigation";
+import { Step, StepContent, Steps } from "@/components/steps";
+import { TableOfContents, TocHeading } from "@/components/table-of-contents";
+import { TestableApiProvider } from "@/components/testable-api-provider";
+import {
+  ApiMethodTable,
+  ErrorTable,
+  LanguageTable,
+  TypeTable,
+} from "@/components/type-table";
+import { WebhookBuilder } from "@/components/webhook-builder";
+import { getPageImage } from "@/lib/content";
+import { GITHUB_DOCS_URL } from "@/lib/info";
+import { generateUniqueId, textToId } from "@/lib/utils";
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@simplist/ui/components/alert";
+import { Badge } from "@simplist/ui/components/badge";
+import { Button } from "@simplist/ui/components/button";
+import { ButtonGroup } from "@simplist/ui/components/button-group";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@simplist/ui/components/card";
+import { Input } from "@simplist/ui/components/input";
+import { Separator } from "@simplist/ui/components/separator";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@simplist/ui/components/table";
+import { Skeleton } from "@simplist/ui/components/skeleton";
+import { Spinner } from "@simplist/ui/components/spinner";
+import { existsSync } from "fs";
+import { readFile } from "fs/promises";
+import type { Metadata } from "next";
+import { MDXRemote } from "next-mdx-remote/rsc";
+import Link from "next/link";
+import { join } from "path";
+import { ComponentType, FC } from "react";
 
-const createHeadingComponents = (headings: TocHeading[]): Record<string, ComponentType<any>> => {
-  const textToIdMap = new Map<string, string[]>()
-  
+const createHeadingComponents = (
+  headings: TocHeading[],
+): Record<string, ComponentType<any>> => {
+  const textToIdMap = new Map<string, string[]>();
+
   headings.forEach(({ text, id }) => {
-    const existing = textToIdMap.get(text) || []
-    existing.push(id)
-    textToIdMap.set(text, existing)
-  })
+    const existing = textToIdMap.get(text) || [];
+    existing.push(id);
+    textToIdMap.set(text, existing);
+  });
 
-  const usageCount = new Map<string, number>()
+  const usageCount = new Map<string, number>();
 
   const getIdForText = (text: string): string => {
-    const ids = textToIdMap.get(text)
+    const ids = textToIdMap.get(text);
     if (!ids || ids.length === 0) {
-      return textToId(text)
+      return textToId(text);
     }
 
-    const currentCount = usageCount.get(text) || 0
-    const id = ids[currentCount] || ids[0]
-    usageCount.set(text, currentCount + 1)
-    
-    return id
-  }
+    const currentCount = usageCount.get(text) || 0;
+    const id = ids[currentCount] || ids[0];
+    usageCount.set(text, currentCount + 1);
+
+    return id;
+  };
 
   return {
     h1: (props: any) => {
-      const id = props.children ? getIdForText(String(props.children)) : undefined
-      return <HeadingAnchor id={id} level={1} className="mb-6 text-4xl font-bold" {...props} />
+      const id = props.children
+        ? getIdForText(String(props.children))
+        : undefined;
+      return (
+        <HeadingAnchor
+          id={id}
+          level={1}
+          className="mb-6 text-4xl font-bold"
+          {...props}
+        />
+      );
     },
     h2: (props: any) => {
-      const id = props.children ? getIdForText(String(props.children)) : undefined
-      return <HeadingAnchor id={id} level={2} className="mb-4 mt-8 text-2xl font-semibold" {...props} />
+      const id = props.children
+        ? getIdForText(String(props.children))
+        : undefined;
+      return (
+        <HeadingAnchor
+          id={id}
+          level={2}
+          className="mb-4 mt-8 text-2xl font-semibold"
+          {...props}
+        />
+      );
     },
     h3: (props: any) => {
-      const id = props.children ? getIdForText(String(props.children)) : undefined
-      return <HeadingAnchor id={id} level={3} className="mb-3 mt-6 text-xl font-semibold" {...props} />
+      const id = props.children
+        ? getIdForText(String(props.children))
+        : undefined;
+      return (
+        <HeadingAnchor
+          id={id}
+          level={3}
+          className="mb-3 mt-6 text-xl font-semibold"
+          {...props}
+        />
+      );
     },
-  }
-}
+  };
+};
 
-const createSeparatedComponent = <T,>(Component: ComponentType<T>, displayName: string): ComponentType<T> => {
+const createSeparatedComponent = <T,>(
+  Component: ComponentType<T>,
+  displayName: string,
+): ComponentType<T> => {
   const WrappedComponent = (props: any) => (
-    <div className="[&+div[data-component]]:mt-6 mb-2" data-component={displayName}>
+    <div
+      className="[&+div[data-component]]:mt-6 mb-2"
+      data-component={displayName}
+    >
       <Component {...props} />
     </div>
-  )
+  );
 
-  WrappedComponent.displayName = `Separated(${displayName})`
-  return WrappedComponent
-}
+  WrappedComponent.displayName = `Separated(${displayName})`;
+  return WrappedComponent;
+};
 
 const staticComponents = {
   Card,
@@ -110,7 +171,10 @@ const staticComponents = {
   BlockLink,
   ApiPath: createSeparatedComponent(ApiPath, "ApiPath"),
   CodeBlock: createSeparatedComponent(CodeBlock, "CodeBlock"),
-  InstallationTabs: createSeparatedComponent(InstallationTabs, "InstallationTabs"),
+  InstallationTabs: createSeparatedComponent(
+    InstallationTabs,
+    "InstallationTabs",
+  ),
   EnvVars: createSeparatedComponent(EnvVars, "EnvVars"),
   TypeTable: createSeparatedComponent(TypeTable, "TypeTable"),
   ApiMethodTable: createSeparatedComponent(ApiMethodTable, "ApiMethodTable"),
@@ -124,136 +188,167 @@ const staticComponents = {
   Faq: createSeparatedComponent(Faq, "Faq"),
   FootNotes: createSeparatedComponent(FootNotes, "FootNotes"),
   WebhookBuilder: createSeparatedComponent(WebhookBuilder, "WebhookBuilder"),
+  ComparisonTable: createSeparatedComponent(ComparisonTable, "ComparisonTable"),
   InlineRoute,
   InlineRouteLink,
-  p: (props: any) => (
-    <p className="mb-4" {...props} />
-  ),
+  p: (props: any) => <p className="mb-4" {...props} />,
   ul: (props: any) => (
     <ul className="mb-4 list-inside list-disc space-y-1" {...props} />
   ),
   ol: (props: any) => (
     <ol className="mb-4 list-inside list-decimal space-y-1" {...props} />
   ),
-  li: (props: any) => (
-    <li {...props} />
-  ),
+  li: (props: any) => <li {...props} />,
   code: (props: any) => (
-    <code className="rounded bg-muted px-1.5 py-0.5 text-sm font-mono" {...props} />
+    <code
+      className="rounded bg-muted px-1.5 py-0.5 text-sm font-mono"
+      {...props}
+    />
   ),
   pre: (props: any) => (
     <pre className="mb-4 overflow-x-auto rounded-lg bg-muted p-4" {...props} />
   ),
   blockquote: (props: any) => (
-    <blockquote className="mb-4 border-l-4 border-muted-foreground pl-4 italic" {...props} />
+    <blockquote
+      className="mb-4 border-l-4 border-muted-foreground pl-4 italic"
+      {...props}
+    />
   ),
   a: (props: any) => (
     <Link className="text-primary underline hover:text-primary/80" {...props} />
   ),
-}
+  table: (props: any) => (
+    <div className="mb-4 overflow-x-auto">
+      <Table {...props} />
+    </div>
+  ),
+  thead: (props: any) => <TableHeader {...props} />,
+  tbody: (props: any) => <TableBody {...props} />,
+  tr: (props: any) => <TableRow {...props} />,
+  th: (props: any) => (
+    <TableHead className="font-medium whitespace-nowrap" {...props} />
+  ),
+  td: (props: any) => <TableCell {...props} />,
+};
 
 type PageProps = {
   params: Promise<{
-    slug?: string[]
-  }>
-}
+    slug?: string[];
+  }>;
+};
 
 const CONTENT_ROOTS = [
   join(process.cwd(), "apps", "docs", "content"),
   join(process.cwd(), "content"),
-]
+];
 
 const buildPossiblePaths = (slug: string[]): string[] => {
-  const slugPath = join(...slug)
+  const slugPath = join(...slug);
   return CONTENT_ROOTS.flatMap((root) => [
     join(root, `${slugPath}.mdx`),
     join(root, slugPath, "index.mdx"),
-  ])
-}
+  ]);
+};
 
 const readMdxFile = async (slug: string[]): Promise<string> => {
-  const possiblePaths = buildPossiblePaths(slug)
+  const possiblePaths = buildPossiblePaths(slug);
 
   for (const contentPath of possiblePaths) {
-    if (!existsSync(contentPath)) continue
+    if (!existsSync(contentPath)) continue;
 
     try {
-      const content = await readFile(contentPath, "utf-8")
-      return content
+      const content = await readFile(contentPath, "utf-8");
+      return content;
     } catch {
-      continue
+      continue;
     }
   }
 
-  return ""
-}
+  return "";
+};
 
 const getMdxContent = async (slug: string[]) => {
-  const rawContent = await readMdxFile(slug)
-  
-  const frontmatterRegex = /^---\s*\n([\s\S]*?)\n---\s*\n([\s\S]*)$/
-  const match = rawContent.match(frontmatterRegex)
-  
-  if (match) {
-    return match[2]
-  }
-  
-  return rawContent
-}
+  const rawContent = await readMdxFile(slug);
 
-const getMdxFrontmatter = async (slug: string[]): Promise<{ category?: string; title?: string }> => {
-  const rawContent = await readMdxFile(slug)
-  
-  const frontmatterRegex = /^---\s*\n([\s\S]*?)\n---\s*\n/
-  const frontmatterMatch = rawContent.match(frontmatterRegex)
-  
-  if (frontmatterMatch) {
-    const frontmatter = frontmatterMatch[1]
-    const categoryMatch = frontmatter.match(/category:\s*(.+)/i)
-    const titleMatch = frontmatter.match(/title:\s*(.+)/i)
-    
-    return {
-      category: categoryMatch ? categoryMatch[1].replace(/^[""]|[""]$/g, "").trim() : undefined,
-      title: titleMatch ? titleMatch[1].replace(/^[""]|[""]$/g, "").trim() : undefined,
-    }
+  const frontmatterRegex = /^---\s*\n([\s\S]*?)\n---\s*\n([\s\S]*)$/;
+  const match = rawContent.match(frontmatterRegex);
+
+  if (match) {
+    return match[2];
   }
-  
-  return {}
-}
+
+  return rawContent;
+};
+
+const getMdxFrontmatter = async (
+  slug: string[],
+): Promise<{ category?: string; title?: string }> => {
+  const rawContent = await readMdxFile(slug);
+
+  const frontmatterRegex = /^---\s*\n([\s\S]*?)\n---\s*\n/;
+  const frontmatterMatch = rawContent.match(frontmatterRegex);
+
+  if (frontmatterMatch) {
+    const frontmatter = frontmatterMatch[1];
+    const categoryMatch = frontmatter.match(/category:\s*(.+)/i);
+    const titleMatch = frontmatter.match(/title:\s*(.+)/i);
+
+    return {
+      category: categoryMatch
+        ? categoryMatch[1].replace(/^[""]|[""]$/g, "").trim()
+        : undefined,
+      title: titleMatch
+        ? titleMatch[1].replace(/^[""]|[""]$/g, "").trim()
+        : undefined,
+    };
+  }
+
+  return {};
+};
 
 const getMdxMetadata = async (slug: string[]): Promise<Metadata> => {
-  const rawContent = await readMdxFile(slug)
+  const rawContent = await readMdxFile(slug);
 
-  const frontmatterRegex = /^---\s*\n([\s\S]*?)\n---\s*\n/
-  const frontmatterMatch = rawContent.match(frontmatterRegex)
+  const frontmatterRegex = /^---\s*\n([\s\S]*?)\n---\s*\n/;
+  const frontmatterMatch = rawContent.match(frontmatterRegex);
 
-  let title = slug[slug.length - 1] || "Documentation"
-  let description = "Documentation for Simplist"
+  let title = slug[slug.length - 1] || "Documentation";
+  let description = "Documentation for Simplist";
 
   if (frontmatterMatch) {
-    const frontmatter = frontmatterMatch[1]
-    const titleMatch = frontmatter.match(/title:\s*(.+)/i)
-    const descMatch = frontmatter.match(/description:\s*(.+)/i)
+    const frontmatter = frontmatterMatch[1];
+    const titleMatch = frontmatter.match(/title:\s*(.+)/i);
+    const descMatch = frontmatter.match(/description:\s*(.+)/i);
 
-    if (titleMatch) title = titleMatch[1].replace(/^[""]|[""]$/g, "").trim()
-    if (descMatch) description = descMatch[1].replace(/^[""]|[""]$/g, "").trim()
+    if (titleMatch) title = titleMatch[1].replace(/^[""]|[""]$/g, "").trim();
+    if (descMatch)
+      description = descMatch[1].replace(/^[""]|[""]$/g, "").trim();
 
     if (title.includes("/") && title.includes(":")) {
-      title = description
+      title = description;
     }
   } else {
-    const h1Match = rawContent.match(/^#\s+(.+)$/m)
-    if (h1Match) title = h1Match[1]
+    const h1Match = rawContent.match(/^#\s+(.+)$/m);
+    if (h1Match) title = h1Match[1];
   }
 
   return {
     title: `${title} | Simplist Documentation`,
     description,
-    keywords: ["simplist", "documentation", "api", "sdk", "rest", "content", "management", "blog"],
+    keywords: [
+      "simplist",
+      "documentation",
+      "api",
+      "sdk",
+      "rest",
+      "content",
+      "management",
+      "blog",
+    ],
     openGraph: {
       title: `${title} | Simplist Documentation`,
       description,
-      images: getPageImage(slug).url
+      images: getPageImage(slug).url,
     },
     twitter: {
       card: "summary_large_image",
@@ -261,56 +356,62 @@ const getMdxMetadata = async (slug: string[]): Promise<Metadata> => {
       description,
       images: getPageImage(slug).url,
     },
-  }
-}
+  };
+};
 
 const extractHeadings = (content: string): TocHeading[] => {
-  const headingRegex = /^(#{1,2})\s+(.+)$/gm
-  const headings: TocHeading[] = []
-  const usedIds = new Set<string>()
-  let match
+  const headingRegex = /^(#{1,2})\s+(.+)$/gm;
+  const headings: TocHeading[] = [];
+  const usedIds = new Set<string>();
+  let match;
 
   while ((match = headingRegex.exec(content)) !== null) {
-    const level = match[1].length as 1 | 2
-    const text = match[2].trim()
-    const id = generateUniqueId(text, usedIds)
+    const level = match[1].length as 1 | 2;
+    const text = match[2].trim();
+    const id = generateUniqueId(text, usedIds);
 
-    headings.push({ id, text, level })
+    headings.push({ id, text, level });
   }
 
-  return headings
-}
+  return headings;
+};
 
-export const generateMetadata = async ({ params }: PageProps): Promise<Metadata> => {
-  const { slug = [] } = await params
-  const contentPath = slug.length === 0 ? ["index"] : slug
-  return getMdxMetadata(contentPath)
-}
+export const generateMetadata = async ({
+  params,
+}: PageProps): Promise<Metadata> => {
+  const { slug = [] } = await params;
+  const contentPath = slug.length === 0 ? ["index"] : slug;
+  return getMdxMetadata(contentPath);
+};
 
 const ContentPage: FC<PageProps> = async ({ params }) => {
-  const { slug = [] } = await params
+  const { slug = [] } = await params;
 
-  const contentPath = slug.length === 0 ? ["index"] : slug
+  const contentPath = slug.length === 0 ? ["index"] : slug;
 
-  const rawContent = await readMdxFile(contentPath)
-  const content = await getMdxContent(contentPath)
-  
-  const headings = extractHeadings(content)
-  
-  const headingComponents = createHeadingComponents(headings)
-  
+  const rawContent = await readMdxFile(contentPath);
+  const content = await getMdxContent(contentPath);
+
+  const headings = extractHeadings(content);
+
+  const headingComponents = createHeadingComponents(headings);
+
   const components = {
     ...staticComponents,
     ...headingComponents,
-  }
+  };
 
-  const frontmatter = await getMdxFrontmatter(contentPath) ?? {}
+  const frontmatter = (await getMdxFrontmatter(contentPath)) ?? {};
 
-  const currentHref = contentPath.length === 0 || (contentPath.length === 1 && contentPath[0] === "index") ? "/" : `/${contentPath.join("/")}`
+  const currentHref =
+    contentPath.length === 0 ||
+    (contentPath.length === 1 && contentPath[0] === "index")
+      ? "/"
+      : `/${contentPath.join("/")}`;
 
-  const githubPath = contentPath.join("/")
-  const githubUrl = `${GITHUB_DOCS_URL}/${githubPath}.mdx`
-  const markdownUrl = `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3002"}${currentHref}.mdx`
+  const githubPath = contentPath.join("/");
+  const githubUrl = `${GITHUB_DOCS_URL}/${githubPath}.mdx`;
+  const markdownUrl = `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3002"}${currentHref}.mdx`;
 
   return (
     <TestableApiProvider>
@@ -331,10 +432,7 @@ const ContentPage: FC<PageProps> = async ({ params }) => {
           )}
 
           <div className="max-w-full overflow-x-hidden">
-            <MDXRemote
-              source={content}
-              components={components}
-            />
+            <MDXRemote source={content} components={components} />
           </div>
 
           <div className="mt-8 py-4 flex flex-row items-center justify-between border-t">
@@ -347,7 +445,7 @@ const ContentPage: FC<PageProps> = async ({ params }) => {
         <TableOfContents headings={headings} />
       </div>
     </TestableApiProvider>
-  )
-}
+  );
+};
 
 export default ContentPage;
