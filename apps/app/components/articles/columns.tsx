@@ -3,7 +3,14 @@
 import { useProjectContext } from "@/components/projects/context-provider";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
-import { Copy, Edit, MoreVertical, Trash, TrendingUp } from "lucide-react";
+import {
+  Copy,
+  Edit,
+  ImageIcon,
+  MoreVertical,
+  Trash,
+  TrendingUp,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -240,8 +247,8 @@ export const useArticlesColumns = ({
                 className="object-cover"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">
-                No image
+              <div className="w-full h-full flex items-center justify-center">
+                <ImageIcon className="h-4 w-4 text-muted-foreground" />
               </div>
             )}
           </div>

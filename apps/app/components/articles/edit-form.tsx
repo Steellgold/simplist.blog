@@ -63,6 +63,8 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({
   const router = useRouter();
   const { currentProject } = useProject();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isBannerUploading, setIsBannerUploading] = useState(false);
+  const [bannerUploadProgress, setBannerUploadProgress] = useState(0);
   const [imagesToDelete, setImagesToDelete] = useState<Set<LanguageCode>>(
     new Set(),
   );
@@ -187,6 +189,24 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({
     reader.readAsDataURL(file);
   };
 
+  // Handle image selection from media library
+  const handleImageSelect = (url: string) => {
+    // Clear any pending file upload for this variant
+    setImageFiles((prev) => {
+      const next = new Map(prev);
+      next.delete(activeVariant);
+      return next;
+    });
+    // Remove from images to delete if it was marked
+    setImagesToDelete((prev) => {
+      const next = new Set(prev);
+      next.delete(activeVariant);
+      return next;
+    });
+    setImagePreview(url);
+    updateActiveVariant({ coverImage: url });
+  };
+
   // Remove image (deferred deletion - only marks for deletion)
   const handleRemoveImage = () => {
     const currentVariant = variants.find((v) => v.lang === activeVariant);
@@ -244,6 +264,7 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({
       }
 
       // Prepare variants (exclude default language as it goes to main article)
+      // Only include coverImage if it's a URL from library (not a data URL) and no file pending
       const articleVariants = variants
         .filter((v) => v.lang !== defaultLanguage)
         .map((v) => ({
@@ -251,7 +272,10 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({
           title: v.title,
           excerpt: v.excerpt,
           content: v.content,
-          coverImage: v.coverImage,
+          coverImage:
+            v.coverImage?.startsWith("http") && !imageFiles.has(v.lang)
+              ? v.coverImage
+              : undefined,
         }));
 
       // Process tags (create new ones and update appearances)
@@ -294,11 +318,20 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({
 
       toast.loading("Updating article...", { id: toastId });
 
+      // Determine if we should update coverImage directly (from library selection)
+      // Only pass coverImage if it's a URL (not a data URL from file upload) and no file is pending
+      const shouldUpdateCoverImage =
+        defaultVariant.coverImage?.startsWith("http") &&
+        !imageFiles.has(defaultLanguage);
+
       await updateArticle(article.id, {
         title: defaultVariant.title,
         excerpt: defaultVariant.excerpt,
         content: defaultVariant.content,
         status,
+        coverImage: shouldUpdateCoverImage
+          ? defaultVariant.coverImage
+          : undefined,
         scheduledPublishAt: status === "scheduled" ? scheduledPublishAt : null,
         variants: articleVariants,
         tags: tagIds.length > 0 ? tagIds : undefined,
@@ -337,21 +370,50 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({
             { id: toastId },
           );
 
+          setIsBannerUploading(true);
+          setBannerUploadProgress(0);
+
           const form = new FormData();
           form.append("file", file);
           form.append("projectId", article.projectId);
           form.append("postId", article.id);
 
-          const res = await fetch("/api/uploads/banner", {
-            method: "POST",
-            body: form,
+          // Use XMLHttpRequest for progress tracking
+          const data = await new Promise<{ key: string }>((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+
+            xhr.upload.addEventListener("progress", (event) => {
+              if (event.lengthComputable) {
+                const percentComplete = Math.round(
+                  (event.loaded / event.total) * 100,
+                );
+                setBannerUploadProgress(percentComplete);
+              }
+            });
+
+            xhr.addEventListener("load", () => {
+              if (xhr.status >= 200 && xhr.status < 300) {
+                try {
+                  const response = JSON.parse(xhr.responseText);
+                  resolve(response);
+                } catch {
+                  reject(new Error("Failed to parse response"));
+                }
+              } else {
+                reject(new Error(`Upload failed with status ${xhr.status}`));
+              }
+            });
+
+            xhr.addEventListener("error", () => {
+              reject(new Error("Upload failed"));
+            });
+
+            xhr.open("POST", "/api/uploads/banner");
+            xhr.send(form);
           });
 
-          if (!res.ok) {
-            throw new Error(`Failed to upload image for ${lang}`);
-          }
-
-          const data = await res.json();
+          setIsBannerUploading(false);
+          setBannerUploadProgress(0);
 
           await updateArticleCoverImage({
             articleId: article.id,
@@ -372,6 +434,8 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({
         id: toastId,
       });
       setIsSubmitting(false);
+      setIsBannerUploading(false);
+      setBannerUploadProgress(0);
     }
   };
 
@@ -400,6 +464,7 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({
             }}
             textareaId="content"
             placeholder="Write your article content..."
+            projectId={article.projectId}
           />
         </div>
 
@@ -429,9 +494,13 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({
           />
 
           <ArticleBannerUpload
+            projectId={article.projectId}
             imagePreview={imagePreview}
             onImageChange={handlePickedImage}
+            onImageSelect={handleImageSelect}
             onRemoveImage={handleRemoveImage}
+            isUploading={isBannerUploading}
+            uploadProgress={bannerUploadProgress}
             uploadLabel={
               activeVariant === defaultLanguage
                 ? "Change Image"

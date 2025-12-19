@@ -33,6 +33,8 @@ export const CreateArticleForm = ({
   const router = useRouter();
   const { currentProject } = useProject();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isBannerUploading, setIsBannerUploading] = useState(false);
+  const [bannerUploadProgress, setBannerUploadProgress] = useState(0);
 
   // Default language from project or fallback to English
   const defaultLanguage: LanguageCode =
@@ -106,6 +108,18 @@ export const CreateArticleForm = ({
     reader.readAsDataURL(file);
   };
 
+  // Handle image selection from media library
+  const handleImageSelect = (url: string) => {
+    // Clear any pending file upload for this variant
+    setImageFiles((prev) => {
+      const next = new Map(prev);
+      next.delete(activeVariant);
+      return next;
+    });
+    setImagePreview(url);
+    updateActiveVariant({ coverImage: url });
+  };
+
   // Remove image
   const handleRemoveImage = () => {
     setImagePreview(null);
@@ -154,6 +168,7 @@ export const CreateArticleForm = ({
       }
 
       // Prepare variants (exclude default language as it goes to main article)
+      // Only include coverImage if it's a URL from library (not a data URL)
       const articleVariants = variants
         .filter((v) => v.lang !== defaultLanguage)
         .map((v) => ({
@@ -161,7 +176,9 @@ export const CreateArticleForm = ({
           title: v.title,
           excerpt: v.excerpt,
           content: v.content,
-          coverImage: v.coverImage,
+          coverImage: v.coverImage?.startsWith("http")
+            ? v.coverImage
+            : undefined,
         }));
 
       // Step 1a: Create new tags and get their IDs
@@ -207,12 +224,19 @@ export const CreateArticleForm = ({
       // Step 1b: Create article
       toast.loading("Creating article...", { id: toastId });
 
+      // Only pass coverImage if it's a URL from the library (not a data URL from file picker)
+      const coverImageFromLibrary = defaultVariant.coverImage?.startsWith(
+        "http",
+      )
+        ? defaultVariant.coverImage
+        : undefined;
+
       const article = await createArticle({
         title: defaultVariant.title,
         excerpt: defaultVariant.excerpt,
         content: defaultVariant.content,
         status,
-        coverImage: defaultVariant.coverImage,
+        coverImage: coverImageFromLibrary,
         scheduledPublishAt:
           status === "scheduled" ? scheduledPublishAt || undefined : undefined,
         projectId,
@@ -232,21 +256,50 @@ export const CreateArticleForm = ({
             { id: toastId },
           );
 
+          setIsBannerUploading(true);
+          setBannerUploadProgress(0);
+
           const form = new FormData();
           form.append("file", file);
           form.append("projectId", article.projectId);
           form.append("postId", article.id);
 
-          const res = await fetch("/api/uploads/banner", {
-            method: "POST",
-            body: form,
+          // Use XMLHttpRequest for progress tracking
+          const data = await new Promise<{ key: string }>((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+
+            xhr.upload.addEventListener("progress", (event) => {
+              if (event.lengthComputable) {
+                const percentComplete = Math.round(
+                  (event.loaded / event.total) * 100,
+                );
+                setBannerUploadProgress(percentComplete);
+              }
+            });
+
+            xhr.addEventListener("load", () => {
+              if (xhr.status >= 200 && xhr.status < 300) {
+                try {
+                  const response = JSON.parse(xhr.responseText);
+                  resolve(response);
+                } catch {
+                  reject(new Error("Failed to parse response"));
+                }
+              } else {
+                reject(new Error(`Upload failed with status ${xhr.status}`));
+              }
+            });
+
+            xhr.addEventListener("error", () => {
+              reject(new Error("Upload failed"));
+            });
+
+            xhr.open("POST", "/api/uploads/banner");
+            xhr.send(form);
           });
 
-          if (!res.ok) {
-            throw new Error(`Failed to upload image for ${lang}`);
-          }
-
-          const data = await res.json();
+          setIsBannerUploading(false);
+          setBannerUploadProgress(0);
 
           await updateArticleCoverImage({
             articleId: article.id,
@@ -267,6 +320,8 @@ export const CreateArticleForm = ({
         id: toastId,
       });
       setIsSubmitting(false);
+      setIsBannerUploading(false);
+      setBannerUploadProgress(0);
     }
   };
 
@@ -295,6 +350,7 @@ export const CreateArticleForm = ({
             }}
             textareaId="content"
             placeholder="Write your article content..."
+            projectId={projectId}
           />
         </div>
 
@@ -324,9 +380,13 @@ export const CreateArticleForm = ({
           />
 
           <ArticleBannerUpload
+            projectId={projectId}
             imagePreview={imagePreview}
             onImageChange={handlePickedImage}
+            onImageSelect={handleImageSelect}
             onRemoveImage={handleRemoveImage}
+            isUploading={isBannerUploading}
+            uploadProgress={bannerUploadProgress}
             uploadLabel={
               activeVariant === defaultLanguage
                 ? "Upload Image"

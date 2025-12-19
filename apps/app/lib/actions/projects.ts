@@ -14,6 +14,7 @@ import {
   isReservedSlug,
   UpdateProjectSettingsInput,
 } from "../validations/project";
+import { deleteAllProjectFilesFromR2 } from "./images";
 
 export const getUserProjects = async () => {
   const user = await getCurrentUser();
@@ -215,6 +216,14 @@ export const deleteProject = async (projectId: string) => {
     throw new Error("Project not found");
   }
 
+  // Delete all R2 files for this project
+  try {
+    await deleteAllProjectFilesFromR2(projectId);
+  } catch (error) {
+    console.error("Failed to delete R2 files for project:", error);
+    // Continue with deletion even if R2 cleanup fails
+  }
+
   // Hard delete the project (cascades) and mark API keys as deleted before removal
   await prisma.$transaction([
     prisma.apiKey.updateMany({
@@ -313,6 +322,39 @@ export const updateProject = async (
     revalidatePath(`/${project.slug}/settings`, "page");
   }
   return updated;
+};
+
+export type ProjectStats = {
+  articles: number;
+  tags: number;
+  storageBytes: number;
+  members: number;
+};
+
+export const getProjectStats = async (
+  projectId: string,
+): Promise<ProjectStats> => {
+  const [articlesCount, tagsCount, storageUsed, membersCount] =
+    await Promise.all([
+      prisma.article.count({
+        where: { projectId, status: { not: "deleted" } },
+      }),
+      prisma.tag.count({ where: { projectId } }),
+      prisma.media.aggregate({
+        where: { projectId },
+        _sum: { size: true },
+      }),
+      prisma.projectMember.count({
+        where: { projectId, joinedAt: { not: null } },
+      }),
+    ]);
+
+  return {
+    articles: articlesCount,
+    tags: tagsCount,
+    storageBytes: storageUsed._sum.size || 0,
+    members: membersCount,
+  };
 };
 
 export const updateProjectSettings = async (

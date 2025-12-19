@@ -9,8 +9,11 @@ import { Button } from "@simplist/ui/components/button"
 import { ColorSelector } from "@simplist/ui/components/color-selector"
 import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel, FieldSet, FieldTitle } from "@simplist/ui/components/field"
 import { IconPicker } from "@simplist/ui/components/icon-picker"
+import { IconRender } from "@simplist/ui/components/icon-renderer"
+import { InfoTooltip } from "@simplist/ui/components/info-tooltip"
 import { Input } from "@simplist/ui/components/input"
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput, InputGroupSelect } from "@simplist/ui/components/input-group"
+import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "@simplist/ui/components/item"
 import { Label } from "@simplist/ui/components/label"
 import { RadioGroup, RadioGroupItem } from "@simplist/ui/components/radio-group"
 import { Select, SelectContent, SelectItem, SelectValue } from "@simplist/ui/components/select"
@@ -21,9 +24,6 @@ import { ChevronRight, Plus, X } from "lucide-react"
 import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react"
 import { useFieldArray, useForm } from "react-hook-form"
 import { z } from "zod"
-import { InfoTooltip } from "@simplist/ui/components/info-tooltip"
-import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "@simplist/ui/components/item"
-import { IconRender } from "@simplist/ui/components/icon-renderer"
 
 type CreateProjectFormValues = z.infer<typeof createProjectSchema>
 
@@ -53,7 +53,7 @@ export const CreateProjectForm = forwardRef<
   const [originPrefixes, setOriginPrefixes] = useState<Record<string, WILDCARD_PROTOCOLS>>({})
 
   const form = useForm<CreateProjectFormValues>({
-    resolver: zodResolver(createProjectSchema) as any,
+    resolver: zodResolver(createProjectSchema),
     defaultValues: {
       name: "",
       allowedOrigins: [],

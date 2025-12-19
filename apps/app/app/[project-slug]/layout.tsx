@@ -1,9 +1,9 @@
 import { AppSidebarWrapper } from "@/components/layout/sidebar-wrapper";
 import { ProjectContextProvider } from "@/components/projects/context-provider";
-import { getUserProjects } from "@/lib/actions/projects";
+import { getProjectStats, getUserProjects } from "@/lib/actions/projects";
 import { getCurrentUser } from "@/lib/auth-helper";
-import { getUserProjectMembership } from "@/lib/auth/permissions";
 import { redirectIfPendingDeletion } from "@/lib/auth/deletion-guard";
+import { getUserProjectMembership } from "@/lib/auth/permissions";
 import { type LanguageCode } from "@/lib/types/languages";
 import { ThemeSwitcher } from "@simplist/ui/components/shared/switch-theme";
 import { SidebarProvider, SidebarTrigger } from "@simplist/ui/components/sidebar";
@@ -26,8 +26,8 @@ export const metadata: Metadata = {
 
 type Props = {
   params: Promise<{
-    "project-slug": string
-  }>
+    "project-slug": string;
+  }>;
 } & PropsWithChildren;
 
 const ProjectLayout: FC<Props> = async ({ params, children }) => {
@@ -64,24 +64,40 @@ const ProjectLayout: FC<Props> = async ({ params, children }) => {
   }
 
   // Get current user's membership for this project
-  const currentMembership = await getUserProjectMembership(currentProject.id, user.id);
+  const currentMembership = await getUserProjectMembership(
+    currentProject.id,
+    user.id,
+  );
   const currentMember = currentMembership || null;
   const currentMemberId = currentMember?.id || null;
   const currentRole = currentMembership?.role || null;
 
+  // Get project stats for sidebar badges
+  const projectStats = await getProjectStats(currentProject.id);
+
   return (
     <SidebarProvider>
-      <AppSidebarWrapper user={user} projects={typedProjects} currentProject={currentProject} currentRole={currentRole} />
-      <ProjectContextProvider projects={typedProjects} currentProject={currentProject} currentMember={currentMember} currentMemberId={currentMemberId}>
+      <AppSidebarWrapper
+        user={user}
+        projects={typedProjects}
+        currentProject={currentProject}
+        currentRole={currentRole}
+        stats={projectStats}
+      />
+
+      <ProjectContextProvider
+        projects={typedProjects}
+        currentProject={currentProject}
+        currentMember={currentMember}
+        currentMemberId={currentMemberId}
+      >
         <main className="flex-1 w-full overflow-x-hidden">
           <div className="flex h-14 items-center justify-between border-b px-4 lg:h-16">
             <SidebarTrigger />
             <ThemeSwitcher />
           </div>
 
-          <div className="flex-1 p-4 lg:p-6">
-            {children}
-          </div>
+          <div className="flex-1 p-4 lg:p-6">{children}</div>
         </main>
       </ProjectContextProvider>
     </SidebarProvider>
