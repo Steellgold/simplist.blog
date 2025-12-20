@@ -1,5 +1,9 @@
 # AGENTS.md
 
+## MCP Tools
+
+When you need to search documentation for external libraries or frameworks, use the `context7` tool.
+
 ## Commands
 
 ### Development
