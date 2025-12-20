@@ -11,6 +11,7 @@ import {
   checkArticleQuota,
   checkFeatureAccess,
   checkVariantQuota,
+  getProjectSubscription,
 } from "@/lib/subscription/quota-check";
 import { isValidLanguageCode, type LanguageCode } from "@/lib/types/languages";
 import { generateSlug } from "@/lib/utils";
@@ -471,9 +472,7 @@ export const getProjectArticles = async (
   const articles = await prisma.article.findMany({
     where: {
       projectId,
-      status: {
-        not: "deleted", // Exclude soft-deleted articles
-      },
+      // Include all articles including deleted ones (for filtering in UI)
     },
     select: {
       id: true,
@@ -752,14 +751,15 @@ export const updateArticle = async (
       }
     }
 
-    // Check variant quota for the existing article
-    const variantQuotaCheck = await checkVariantQuota(
-      user.id,
-      article.project.id,
-      articleId,
-    );
-    if (!variantQuotaCheck.allowed) {
-      throw new Error(variantQuotaCheck.reason);
+    // Check variant quota based on the number of variants being saved (not existing in DB)
+    const subscription = await getProjectSubscription(article.project.id);
+    const maxVariants = subscription.limits.maxVariantsPerArticle;
+
+    // -1 means unlimited
+    if (maxVariants !== -1 && formData.variants.length > maxVariants) {
+      throw new Error(
+        `Variant limit reached. Your ${subscription.tier} plan allows up to ${maxVariants} variant${maxVariants === 1 ? "" : "s"} per article.${subscription.tier === "STARTER" ? " Upgrade to Pro for unlimited variants." : ""}`,
+      );
     }
 
     // Check for duplicate languages
@@ -899,6 +899,61 @@ export const deleteArticle = async (articleId: string) => {
   triggerArticleWebhook(article.projectId, "article.deleted", articleId).catch(
     () => {},
   );
+};
+
+export const permanentlyDeleteArticle = async (articleId: string) => {
+  // Verify the article exists and is already soft-deleted
+  const article = await prisma.article.findUnique({
+    where: {
+      id: articleId,
+    },
+    select: {
+      id: true,
+      status: true,
+      projectId: true,
+      project: {
+        select: {
+          slug: true,
+        },
+      },
+    },
+  });
+
+  if (!article) {
+    throw new Error("Article not found");
+  }
+
+  if (article.status !== "deleted") {
+    throw new Error("Article must be in trash before permanent deletion");
+  }
+
+  await requirePermission(article.projectId, "canManageArticles");
+
+  // Permanently delete the article and all related data
+  await prisma.$transaction(async (tx) => {
+    // Delete variants first
+    await tx.articleVariant.deleteMany({
+      where: { articleId },
+    });
+
+    // Delete page events
+    await tx.pageEvent.deleteMany({
+      where: { articleId },
+    });
+
+    // Delete page views
+    await tx.pageView.deleteMany({
+      where: { articleId },
+    });
+
+    // Finally delete the article
+    await tx.article.delete({
+      where: { id: articleId },
+    });
+  });
+
+  revalidatePath(`/${article.project.slug}`, "layout");
+  revalidatePath(`/${article.project.slug}/articles`, "page");
 };
 
 export const bulkDeleteArticles = async (articleIds: string[]) => {
