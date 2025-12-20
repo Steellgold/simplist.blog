@@ -31,6 +31,7 @@ interface DataTableFacetedFilterProps<TData, TValue> {
     value: string;
     icon?: React.ComponentType<{ className?: string }>;
     iconNode?: React.ReactNode;
+    count?: number;
   }[];
 }
 
@@ -121,11 +122,17 @@ export function DataTableFacetedFilter<TData, TValue>({
                       <option.icon className="text-muted-foreground size-4" />
                     )}
                     <span>{option.label}</span>
-                    {facets?.get(option.value) && (
+                    {(
+                      option.count !== undefined
+                        ? option.count
+                        : facets?.get(option.value)
+                    ) ? (
                       <span className="text-muted-foreground ml-auto flex size-4 items-center justify-center font-mono text-xs">
-                        {facets.get(option.value)}
+                        {option.count !== undefined
+                          ? option.count
+                          : facets?.get(option.value)}
                       </span>
-                    )}
+                    ) : null}
                   </CommandItem>
                 );
               })}

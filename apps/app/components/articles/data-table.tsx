@@ -115,10 +115,28 @@ export const ArticlesDataTable = <
   }, [columnVisibility]);
 
   // Build filter options
+  const statusCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    data.forEach((item) => {
+      const status = (item as any).status as string;
+      counts[status] = (counts[status] || 0) + 1;
+    });
+    return counts;
+  }, [data]);
+
   const statusOptions = [
-    { label: "Draft", value: "draft" },
-    { label: "Published", value: "published" },
-    { label: "Scheduled", value: "scheduled" },
+    { label: "Draft", value: "draft", count: statusCounts["draft"] || 0 },
+    {
+      label: "Published",
+      value: "published",
+      count: statusCounts["published"] || 0,
+    },
+    {
+      label: "Scheduled",
+      value: "scheduled",
+      count: statusCounts["scheduled"] || 0,
+    },
+    { label: "Deleted", value: "deleted", count: statusCounts["deleted"] || 0 },
   ];
 
   const tagOptions = useMemo(() => {
@@ -158,8 +176,20 @@ export const ArticlesDataTable = <
     new Date(currentProject.subscriptionExpiresAt) > new Date(),
   );
 
+  // Filter out deleted articles unless explicitly selected in status filter
+  const statusFilter = columnFilters.find((f) => f.id === "status");
+  const statusValues = statusFilter?.value as string[] | undefined;
+  const showDeleted = statusValues?.includes("deleted") ?? false;
+
+  const filteredData = useMemo(() => {
+    if (showDeleted) {
+      return data;
+    }
+    return data.filter((item) => (item as any).status !== "deleted");
+  }, [data, showDeleted]);
+
   const table = useReactTable({
-    data,
+    data: filteredData,
     columns,
     initialState: {
       pagination: {

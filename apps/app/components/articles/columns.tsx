@@ -161,6 +161,7 @@ const statusConfig = {
   published: { label: "Published", variant: "default" as const },
   scheduled: { label: "Scheduled", variant: "outline" as const },
   archived: { label: "Archived", variant: "outline" as const },
+  deleted: { label: "Deleted", variant: "destructive" as const },
 };
 
 type UseArticlesColumnsOptions = {
