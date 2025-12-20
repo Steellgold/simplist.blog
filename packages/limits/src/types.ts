@@ -18,7 +18,7 @@ export interface PlanPrice {
 
 export interface PlanFeature {
   name: string;
-  included: boolean;
+  included: boolean | number;
   limit?: string | number;
 }
 

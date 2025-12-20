@@ -18,18 +18,18 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, Plan> = {
       { name: "Basic analytics", included: true },
       { name: "50MB storage", included: true },
       { name: "1,000 API calls/month", included: true },
-      { name: "Language variants", included: false },
+      { name: "Language variants", included: 1 },
     ],
     limits: {
       maxArticles: 5,
       maxStorageBytes: 15 * 1024 * 1024, // 15MB
       maxApiCallsPerMonth: 1000,
-      maxVariantsPerArticle: 0, // STARTER: No variants allowed
+      maxVariantsPerArticle: 1, // STARTER: 1 variant allowed
       maxMembers: 1, // STARTER: Solo mode only (owner)
       maxWebhooks: 1,
       features: {
         analytics: false, // Advanced analytics are PRO only
-        postVariants: false, // Not available on STARTER
+        postVariants: true, // 1 variant on STARTER
         scheduledPublishing: false,
         prioritySupport: true,
         bulkOperations: false,
