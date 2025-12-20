@@ -1,40 +1,65 @@
-"use client"
+"use client";
 
-import { changePassword } from "@/lib/actions/security"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Button } from "@simplist/ui/components/button"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@simplist/ui/components/dialog"
-import { Field, FieldError, FieldGroup, FieldLabel } from "@simplist/ui/components/field"
-import { PasswordInput } from "@simplist/ui/components/password-input"
-import { Spinner } from "@simplist/ui/components/spinner"
-import { useRouter } from "next/navigation"
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import { toast } from "sonner"
-import { z } from "zod"
+import { changePassword } from "@/lib/actions/security";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Button } from "@simplist/ui/components/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@simplist/ui/components/dialog";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@simplist/ui/components/field";
+import { PasswordInput } from "@simplist/ui/components/password-input";
+import { Spinner } from "@simplist/ui/components/spinner";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
 
-const changePasswordSchema = z.object({
-  currentPassword: z.string().optional(),
-  newPassword: z.string().min(8, "Password must be at least 8 characters"),
-  confirmPassword: z.string().min(8, "Password must be at least 8 characters"),
-}).refine((data) => data.newPassword === data.confirmPassword, {
-  message: "Passwords do not match",
-  path: ["confirmPassword"],
-})
+const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().optional(),
+    newPassword: z.string().min(8, "Password must be at least 8 characters"),
+    confirmPassword: z
+      .string()
+      .min(8, "Password must be at least 8 characters"),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
-type ChangePasswordInput = z.infer<typeof changePasswordSchema>
+type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
 
 interface ChangePasswordDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  hasPassword: boolean
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  hasPassword: boolean;
 }
 
-export const ChangePasswordDialog = ({ open, onOpenChange, hasPassword }: ChangePasswordDialogProps) => {
-  const router = useRouter()
-  const [isSubmitting, setIsSubmitting] = useState(false)
+export const ChangePasswordDialog = ({
+  open,
+  onOpenChange,
+  hasPassword,
+}: ChangePasswordDialogProps) => {
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { register, handleSubmit, formState: { errors }, reset } = useForm<ChangePasswordInput>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<ChangePasswordInput>({
     resolver: zodResolver(changePasswordSchema),
     mode: "onSubmit",
     defaultValues: {
@@ -42,10 +67,10 @@ export const ChangePasswordDialog = ({ open, onOpenChange, hasPassword }: Change
       newPassword: "",
       confirmPassword: "",
     },
-  })
+  });
 
   const onSubmit = async (data: ChangePasswordInput) => {
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
     try {
       toast.promise(
@@ -53,34 +78,39 @@ export const ChangePasswordDialog = ({ open, onOpenChange, hasPassword }: Change
         {
           loading: hasPassword ? "Changing password..." : "Setting password...",
           success: () => {
-            reset()
-            onOpenChange(false)
-            router.refresh()
-            return hasPassword ? "Password changed successfully" : "Password set successfully"
+            reset();
+            onOpenChange(false);
+            router.refresh();
+            return hasPassword
+              ? "Password changed successfully"
+              : "Password set successfully";
           },
           error: (err) => {
-            const message = err instanceof Error ? err.message : "Failed to change password"
-            return message
+            const message =
+              err instanceof Error ? err.message : "Failed to change password";
+            return message;
           },
-        }
-      )
+        },
+      );
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const handleClose = () => {
     if (!isSubmitting) {
-      reset()
-      onOpenChange(false)
+      reset();
+      onOpenChange(false);
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{hasPassword ? "Change Password" : "Set Password"}</DialogTitle>
+          <DialogTitle>
+            {hasPassword ? "Change Password" : "Set Password"}
+          </DialogTitle>
           <DialogDescription>
             {hasPassword
               ? "Enter your current password and choose a new password"
@@ -92,7 +122,9 @@ export const ChangePasswordDialog = ({ open, onOpenChange, hasPassword }: Change
           <FieldGroup>
             {hasPassword && (
               <Field>
-                <FieldLabel htmlFor="currentPassword">Current Password</FieldLabel>
+                <FieldLabel htmlFor="currentPassword">
+                  Current Password
+                </FieldLabel>
                 <PasswordInput
                   id="currentPassword"
                   {...register("currentPassword")}
@@ -106,7 +138,9 @@ export const ChangePasswordDialog = ({ open, onOpenChange, hasPassword }: Change
             )}
 
             <Field orientation="responsive">
-              <FieldLabel htmlFor="newPassword">{hasPassword ? "New Password" : "Password"}</FieldLabel>
+              <FieldLabel htmlFor="newPassword">
+                {hasPassword ? "New Password" : "Password"}
+              </FieldLabel>
 
               <PasswordInput
                 id="newPassword"
@@ -121,7 +155,9 @@ export const ChangePasswordDialog = ({ open, onOpenChange, hasPassword }: Change
             </Field>
 
             <Field>
-              <FieldLabel htmlFor="confirmPassword">Confirm New Password</FieldLabel>
+              <FieldLabel htmlFor="confirmPassword">
+                Confirm New Password
+              </FieldLabel>
               <PasswordInput
                 id="confirmPassword"
                 {...register("confirmPassword")}
@@ -157,5 +193,5 @@ export const ChangePasswordDialog = ({ open, onOpenChange, hasPassword }: Change
         </form>
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};

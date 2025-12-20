@@ -1,6 +1,6 @@
-import { PageLayout } from "@/components/layout/page-layout"
-import { Card, CardContent, CardHeader } from "@simplist/ui/components/card"
-import { Skeleton } from "@simplist/ui/components/skeleton"
+import { PageLayout } from "@/components/layout/page-layout";
+import { Card, CardContent, CardHeader } from "@simplist/ui/components/card";
+import { Skeleton } from "@simplist/ui/components/skeleton";
 
 const MembersLoading = () => {
   return (
@@ -28,10 +28,13 @@ const MembersLoading = () => {
                 <Skeleton className="h-10 w-32" />
                 <Skeleton className="h-10 w-24" />
               </div>
-              
+
               <div className="space-y-2">
                 {Array.from({ length: 2 }).map((_, i) => (
-                  <div key={i} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div
+                    key={i}
+                    className="flex items-center justify-between rounded-lg border p-3"
+                  >
                     <div className="flex items-center gap-3">
                       <Skeleton className="size-8 rounded-full" />
                       <div className="space-y-1">
@@ -61,7 +64,10 @@ const MembersLoading = () => {
           <CardContent>
             <div className="space-y-3">
               {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="flex items-center justify-between p-3 border rounded-lg">
+                <div
+                  key={i}
+                  className="flex items-center justify-between rounded-lg border p-3"
+                >
                   <div className="flex items-center gap-3">
                     <Skeleton className="size-10 rounded-full" />
                     <div className="space-y-1">
@@ -80,7 +86,7 @@ const MembersLoading = () => {
         </Card>
       </div>
     </PageLayout>
-  )
-}
+  );
+};
 
-export default MembersLoading
+export default MembersLoading;

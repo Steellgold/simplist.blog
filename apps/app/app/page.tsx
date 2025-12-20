@@ -19,6 +19,6 @@ const RootPage = async () => {
   }
 
   redirect(`/${projects[0].slug}`);
-}
+};
 
 export default RootPage;

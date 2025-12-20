@@ -1,11 +1,11 @@
-import { ForgotPasswordForm } from "@/components/auth/forgot-password-form"
-import { SimplistIcon } from "@/components/icon"
-import type { Metadata } from "next"
+import { ForgotPasswordForm } from "@/components/auth/forgot-password-form";
+import { SimplistIcon } from "@/components/icon";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Forgot Password",
   robots: { index: false, follow: false },
-}
+};
 
 const LoginPage = () => {
   return (
@@ -18,7 +18,7 @@ const LoginPage = () => {
         <ForgotPasswordForm />
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default LoginPage
+export default LoginPage;

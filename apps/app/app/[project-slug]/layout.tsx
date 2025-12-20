@@ -6,7 +6,10 @@ import { redirectIfPendingDeletion } from "@/lib/auth/deletion-guard";
 import { getUserProjectMembership } from "@/lib/auth/permissions";
 import { type LanguageCode } from "@/lib/types/languages";
 import { ThemeSwitcher } from "@simplist/ui/components/shared/switch-theme";
-import { SidebarProvider, SidebarTrigger } from "@simplist/ui/components/sidebar";
+import {
+  SidebarProvider,
+  SidebarTrigger,
+} from "@simplist/ui/components/sidebar";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { FC, PropsWithChildren } from "react";
@@ -91,7 +94,7 @@ const ProjectLayout: FC<Props> = async ({ params, children }) => {
         currentMember={currentMember}
         currentMemberId={currentMemberId}
       >
-        <main className="flex-1 w-full overflow-x-hidden">
+        <main className="w-full flex-1 overflow-x-hidden">
           <div className="flex h-14 items-center justify-between border-b px-4 lg:h-16">
             <SidebarTrigger />
             <ThemeSwitcher />

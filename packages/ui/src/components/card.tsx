@@ -1,9 +1,9 @@
 "use client";
 
-import * as React from "react"
-import { cva, type VariantProps } from "class-variance-authority"
+import * as React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
 
-import { cn } from "@simplist/ui/lib/utils"
+import { cn } from "@simplist/ui/lib/utils";
 
 const cardVariants = cva(
   "bg-card text-card-foreground flex flex-col rounded-xl border shadow-sm",
@@ -18,14 +18,13 @@ const cardVariants = cva(
     defaultVariants: {
       variant: "default",
     },
-  }
-)
+  },
+);
 
-type CardVariant = "default" | "form" | "form-danger"
+type CardVariant = "default" | "form" | "form-danger";
 
 interface CardProps
-  extends React.ComponentProps<"div">,
-    VariantProps<typeof cardVariants> {}
+  extends React.ComponentProps<"div">, VariantProps<typeof cardVariants> {}
 
 function Card({ className, variant, ...props }: CardProps) {
   return (
@@ -35,7 +34,7 @@ function Card({ className, variant, ...props }: CardProps) {
       className={cn(cardVariants({ variant }), className)}
       {...props}
     />
-  )
+  );
 }
 
 const cardHeaderVariants = cva(
@@ -51,16 +50,16 @@ const cardHeaderVariants = cva(
     defaultVariants: {
       variant: "default",
     },
-  }
-)
+  },
+);
 
 interface CardHeaderProps extends React.ComponentProps<"div"> {
-  variant?: CardVariant
+  variant?: CardVariant;
 }
 
 function CardHeader({ className, variant, ...props }: CardHeaderProps) {
-  const parentVariant = React.useContext(CardContext)
-  const finalVariant: CardVariant = variant || parentVariant || "default"
+  const parentVariant = React.useContext(CardContext);
+  const finalVariant: CardVariant = variant || parentVariant || "default";
 
   return (
     <div
@@ -68,7 +67,7 @@ function CardHeader({ className, variant, ...props }: CardHeaderProps) {
       className={cn(cardHeaderVariants({ variant: finalVariant }), className)}
       {...props}
     />
-  )
+  );
 }
 
 function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
@@ -78,7 +77,7 @@ function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
       className={cn("leading-none font-semibold", className)}
       {...props}
     />
-  )
+  );
 }
 
 function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
@@ -88,7 +87,7 @@ function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
       className={cn("text-muted-foreground text-sm", className)}
       {...props}
     />
-  )
+  );
 }
 
 function CardAction({ className, ...props }: React.ComponentProps<"div">) {
@@ -97,36 +96,33 @@ function CardAction({ className, ...props }: React.ComponentProps<"div">) {
       data-slot="card-action"
       className={cn(
         "col-start-2 row-span-2 row-start-1 self-start justify-self-end",
-        className
+        className,
       )}
       {...props}
     />
-  )
+  );
 }
 
-const cardContentVariants = cva(
-  "px-5",
-  {
-    variants: {
-      variant: {
-        default: "",
-        form: "py-2.5 pb-2.5 pt-2!",
-        "form-danger": "py-2.5 pb-2.5 pt-2!",
-      },
+const cardContentVariants = cva("px-5", {
+  variants: {
+    variant: {
+      default: "",
+      form: "py-2.5 pb-2.5 pt-2!",
+      "form-danger": "py-2.5 pb-2.5 pt-2!",
     },
-    defaultVariants: {
-      variant: "default",
-    },
-  }
-)
+  },
+  defaultVariants: {
+    variant: "default",
+  },
+});
 
 interface CardContentProps extends React.ComponentProps<"div"> {
-  variant?: CardVariant
+  variant?: CardVariant;
 }
 
 function CardContent({ className, variant, ...props }: CardContentProps) {
-  const parentVariant = React.useContext(CardContext)
-  const finalVariant: CardVariant = variant || parentVariant || "default"
+  const parentVariant = React.useContext(CardContext);
+  const finalVariant: CardVariant = variant || parentVariant || "default";
 
   return (
     <div
@@ -134,32 +130,30 @@ function CardContent({ className, variant, ...props }: CardContentProps) {
       className={cn(cardContentVariants({ variant: finalVariant }), className)}
       {...props}
     />
-  )
+  );
 }
 
-const cardFooterVariants = cva(
-  "flex items-center px-5",
-  {
-    variants: {
-      variant: {
-        default: "",
-        form: "justify-between bg-muted/50 rounded-b-xl py-2.5 border-t",
-        "form-danger": "justify-between bg-destructive/5 rounded-b-xl border-t border-destructive/20 py-2.5",
-      },
+const cardFooterVariants = cva("flex items-center px-5", {
+  variants: {
+    variant: {
+      default: "",
+      form: "justify-between bg-muted/50 rounded-b-xl py-2.5 border-t",
+      "form-danger":
+        "justify-between bg-destructive/5 rounded-b-xl border-t border-destructive/20 py-2.5",
     },
-    defaultVariants: {
-      variant: "default",
-    },
-  }
-)
+  },
+  defaultVariants: {
+    variant: "default",
+  },
+});
 
 interface CardFooterProps extends React.ComponentProps<"div"> {
-  variant?: CardVariant
+  variant?: CardVariant;
 }
 
 function CardFooter({ className, variant, ...props }: CardFooterProps) {
-  const parentVariant = React.useContext(CardContext)
-  const finalVariant: CardVariant = variant || parentVariant || "default"
+  const parentVariant = React.useContext(CardContext);
+  const finalVariant: CardVariant = variant || parentVariant || "default";
 
   return (
     <div
@@ -167,10 +161,10 @@ function CardFooter({ className, variant, ...props }: CardFooterProps) {
       className={cn(cardFooterVariants({ variant: finalVariant }), className)}
       {...props}
     />
-  )
+  );
 }
 
-const CardContext = React.createContext<CardVariant | undefined>(undefined)
+const CardContext = React.createContext<CardVariant | undefined>(undefined);
 
 const CardWithContext = React.forwardRef<HTMLDivElement, CardProps>(
   ({ variant, children, ...props }, ref) => {
@@ -180,10 +174,10 @@ const CardWithContext = React.forwardRef<HTMLDivElement, CardProps>(
           {children}
         </Card>
       </CardContext.Provider>
-    )
-  }
-)
-CardWithContext.displayName = "Card"
+    );
+  },
+);
+CardWithContext.displayName = "Card";
 
 export {
   CardWithContext as Card,
@@ -193,4 +187,4 @@ export {
   CardFooter,
   CardHeader,
   CardTitle,
-}
+};

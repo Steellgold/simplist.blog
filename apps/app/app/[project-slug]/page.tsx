@@ -18,7 +18,9 @@ import DashboardLoading from "./loading";
 const ProjectPage = () => {
   const { currentProject } = useProject();
   const { limits } = useSubscriptionLimits(currentProject?.id);
-  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(
+    null,
+  );
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -42,7 +44,8 @@ const ProjectPage = () => {
   if (!currentProject) return <EmptyProject />;
   if (isLoading || !dashboardData) return <DashboardLoading />;
 
-  const planLimits = limits || getPlanLimits(dashboardData.project.subscriptionTier);
+  const planLimits =
+    limits || getPlanLimits(dashboardData.project.subscriptionTier);
   const isPro = dashboardData.project.subscriptionTier === "PRO";
 
   // Show welcome screen if no articles
@@ -69,7 +72,7 @@ const ProjectPage = () => {
           storageLimit={planLimits.maxStorageBytes}
         />
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <RecentArticlesCard
             articles={dashboardData.articles.recent}
             projectSlug={currentProject.slug}
@@ -84,7 +87,7 @@ const ProjectPage = () => {
           />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <SubscriptionCard
             projectSlug={currentProject.slug}
             subscriptionTier={dashboardData.project.subscriptionTier}

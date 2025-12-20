@@ -1,39 +1,49 @@
-"use client"
+"use client";
 
-import { createContext, useContext, useEffect, useState } from "react"
-import { ButtonGroup } from "@simplist/ui/components/button-group"
-import { Field } from "@simplist/ui/components/field"
-import { ProviderButton } from "./provider-button"
-import { PasskeyButton } from "./passkey-button"
-import { authClient } from "@/lib/auth-client"
+import { createContext, useContext, useEffect, useState } from "react";
+import { ButtonGroup } from "@simplist/ui/components/button-group";
+import { Field } from "@simplist/ui/components/field";
+import { ProviderButton } from "./provider-button";
+import { PasskeyButton } from "./passkey-button";
+import { authClient } from "@/lib/auth-client";
 
 interface OAuthProvidersContextType {
-  isAuthenticating: boolean
-  setIsAuthenticating: (value: boolean) => void
+  isAuthenticating: boolean;
+  setIsAuthenticating: (value: boolean) => void;
 }
 
-const OAuthProvidersContext = createContext<OAuthProvidersContextType | null>(null)
+const OAuthProvidersContext = createContext<OAuthProvidersContextType | null>(
+  null,
+);
 
 export const useOAuthProviders = () => {
-  const context = useContext(OAuthProvidersContext)
+  const context = useContext(OAuthProvidersContext);
   if (!context) {
-    throw new Error("useOAuthProviders must be used within OAuthProvidersProvider")
+    throw new Error(
+      "useOAuthProviders must be used within OAuthProvidersProvider",
+    );
   }
-  return context
-}
+  return context;
+};
 
-export const OAuthProvidersProvider = ({ children }: { children: React.ReactNode }) => {
-  const [isAuthenticating, setIsAuthenticating] = useState(false)
+export const OAuthProvidersProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
 
   return (
-    <OAuthProvidersContext.Provider value={{ isAuthenticating, setIsAuthenticating }}>
+    <OAuthProvidersContext.Provider
+      value={{ isAuthenticating, setIsAuthenticating }}
+    >
       {children}
     </OAuthProvidersContext.Provider>
-  )
-}
+  );
+};
 
 interface OAuthProvidersProps {
-  variant?: "login" | "register"
+  variant?: "login" | "register";
 }
 
 export const OAuthProviders = ({ variant = "login" }: OAuthProvidersProps) => {
@@ -76,5 +86,5 @@ export const OAuthProviders = ({ variant = "login" }: OAuthProvidersProps) => {
         </>
       )}
     </Field>
-  )
-}
+  );
+};

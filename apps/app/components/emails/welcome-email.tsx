@@ -13,15 +13,16 @@ export const WelcomeEmail = ({ name, projectName }: WelcomeEmailProps) => {
       <p>Hi {name},</p>
 
       <p>
-        Your email has been verified and your account is now active. You're all set to start
-        building your blog with Simplist.
+        Your email has been verified and your account is now active. You're all
+        set to start building your blog with Simplist.
       </p>
 
       {projectName && (
         <div className="highlight">
           <p>
-            <strong>Your project "{projectName}"</strong> has been created successfully.
-            You can now start writing articles, managing API keys, and tracking analytics.
+            <strong>Your project "{projectName}"</strong> has been created
+            successfully. You can now start writing articles, managing API keys,
+            and tracking analytics.
           </p>
         </div>
       )}
@@ -31,29 +32,35 @@ export const WelcomeEmail = ({ name, projectName }: WelcomeEmailProps) => {
       <div className="feature-list">
         <div className="feature-item">
           <p>
-            <strong>Write Your First Article</strong><br />
+            <strong>Write Your First Article</strong>
+            <br />
             Create engaging content with our intuitive Markdown editor.
           </p>
         </div>
 
         <div className="feature-item">
           <p>
-            <strong>Generate API Keys</strong><br />
-            Connect your blog to your website or application using our powerful API.
+            <strong>Generate API Keys</strong>
+            <br />
+            Connect your blog to your website or application using our powerful
+            API.
           </p>
         </div>
 
         <div className="feature-item">
           <p>
-            <strong>Track Analytics</strong><br />
+            <strong>Track Analytics</strong>
+            <br />
             Monitor your content performance with real-time analytics.
           </p>
         </div>
 
         <div className="feature-item">
           <p>
-            <strong>Explore Pro Features</strong><br />
-            Unlock unlimited articles, scheduled publishing, and more with Simplist Pro.
+            <strong>Explore Pro Features</strong>
+            <br />
+            Unlock unlimited articles, scheduled publishing, and more with
+            Simplist Pro.
           </p>
         </div>
       </div>

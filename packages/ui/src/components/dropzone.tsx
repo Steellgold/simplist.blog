@@ -156,7 +156,7 @@ export function Dropzone({
       >
         <input {...getInputProps()} />
         <div className="flex items-center gap-2">
-          <FileUp className="size-4 text-foreground" />
+          <FileUp className="text-foreground size-4" />
           <span className="text-sm font-medium">{file.name}</span>
           {onClear && (
             <Button
@@ -186,9 +186,9 @@ export function Dropzone({
         <input {...getInputProps()} />
         <div className="flex items-center gap-3">
           <div className="text-muted-foreground">{IconComponent}</div>
-          <div className="text-sm text-muted-foreground">
+          <div className="text-muted-foreground text-sm">
             <span className="font-semibold">{label}</span> {description}
-            {hint && <span className="text-xs ml-2">({hint})</span>}
+            {hint && <span className="ml-2 text-xs">({hint})</span>}
           </div>
         </div>
       </label>
@@ -205,21 +205,21 @@ export function Dropzone({
 
       {isLoading ? (
         <div className="flex flex-col items-center gap-2">
-          <Loader2 className="size-8 animate-spin text-muted-foreground" />
-          <p className="text-sm text-muted-foreground">Uploading...</p>
+          <Loader2 className="text-muted-foreground size-8 animate-spin" />
+          <p className="text-muted-foreground text-sm">Uploading...</p>
         </div>
       ) : isDragActive ? (
         <div className="flex flex-col items-center gap-2">
           <div className="text-foreground">{IconComponent}</div>
-          <p className="text-sm font-medium text-foreground">Drop files here</p>
+          <p className="text-foreground text-sm font-medium">Drop files here</p>
         </div>
       ) : (
         <div className="flex flex-col items-center gap-2">
           <div className="text-muted-foreground">{IconComponent}</div>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             {label}, {description}
           </p>
-          {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
+          {hint && <p className="text-muted-foreground text-xs">{hint}</p>}
         </div>
       )}
     </div>

@@ -32,7 +32,7 @@ const DeliveryResponseCell = ({ delivery }: { delivery: Delivery }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   if (typeof delivery.response !== "object" || delivery.response === null) {
-    return <span className="text-xs text-muted-foreground">No response</span>;
+    return <span className="text-muted-foreground text-xs">No response</span>;
   }
 
   return (
@@ -48,8 +48,8 @@ const DeliveryResponseCell = ({ delivery }: { delivery: Delivery }) => {
         </Button>
       </CollapsibleTrigger>
       <CollapsibleContent className="absolute z-50 mt-1">
-        <ScrollArea className="max-h-64 w-96 rounded-md border bg-background p-3 shadow-lg">
-          <pre className="text-xs font-mono whitespace-pre-wrap break-all">
+        <ScrollArea className="bg-background max-h-64 w-96 rounded-md border p-3 shadow-lg">
+          <pre className="font-mono text-xs break-all whitespace-pre-wrap">
             {formatResponse(delivery.response)}
           </pre>
         </ScrollArea>
@@ -74,7 +74,7 @@ const DeliveryTypeCell = ({ delivery }: { delivery: DeliveryWithProject }) => {
           <Badge variant="outline" className="text-xs">
             Test
           </Badge>
-          <div className="text-xs text-muted-foreground">
+          <div className="text-muted-foreground text-xs">
             {event?.replace("article.", "")}
           </div>
         </div>
@@ -91,7 +91,7 @@ const DeliveryTypeCell = ({ delivery }: { delivery: DeliveryWithProject }) => {
         {article?.slug && (
           <Link
             href={`/${delivery.projectSlug}/articles/${article.slug}/edit`}
-            className="text-xs text-blue-600 hover:text-blue-800 truncate block max-w-[120px]"
+            className="block max-w-[120px] truncate text-xs text-blue-600 hover:text-blue-800"
             title={article.title}
           >
             <ExternalLink />
@@ -180,13 +180,13 @@ export const useDeliveriesColumns = (
         const delivery = row.original;
 
         if (!delivery.error) {
-          return <span className="text-xs text-muted-foreground">-</span>;
+          return <span className="text-muted-foreground text-xs">-</span>;
         }
 
         return (
           <div className="max-w-[200px]">
             <span
-              className="text-xs text-destructive truncate block"
+              className="text-destructive block truncate text-xs"
               title={delivery.error}
             >
               {delivery.error}

@@ -2,7 +2,14 @@
 
 import { restoreArticle } from "@/lib/actions/articles";
 import { Button, buttonVariants } from "@simplist/ui/components/button";
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@simplist/ui/components/empty";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@simplist/ui/components/empty";
 import { Spinner } from "@simplist/ui/components/spinner";
 import { ArrowLeftIcon, File, RotateCcwIcon } from "lucide-react";
 import Link from "next/link";
@@ -11,9 +18,9 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 type Props = {
-  slug: string
-  articleId: string
-}
+  slug: string;
+  articleId: string;
+};
 
 export const ArticleRestore = ({ slug, articleId }: Props) => {
   const router = useRouter();
@@ -53,7 +60,8 @@ export const ArticleRestore = ({ slug, articleId }: Props) => {
           </EmptyMedia>
           <EmptyTitle>Article is in trash</EmptyTitle>
           <EmptyDescription>
-            This article is in trash and is not accessible. You can restore it to make it available again.
+            This article is in trash and is not accessible. You can restore it
+            to make it available again.
           </EmptyDescription>
         </EmptyHeader>
 
@@ -73,11 +81,14 @@ export const ArticleRestore = ({ slug, articleId }: Props) => {
           </Button>
         </EmptyContent>
 
-        <Link className={buttonVariants({ variant: "link" })} href={`/${slug}/articles`}>
+        <Link
+          className={buttonVariants({ variant: "link" })}
+          href={`/${slug}/articles`}
+        >
           <ArrowLeftIcon />
           Back to Articles
         </Link>
       </Empty>
     </div>
-  )
-}
+  );
+};

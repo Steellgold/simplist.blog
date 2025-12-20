@@ -1,13 +1,20 @@
 "use client";
 
 import { buttonVariants } from "@simplist/ui/components/button";
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@simplist/ui/components/empty";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@simplist/ui/components/empty";
 import { ArrowRightIcon, File, PlusIcon } from "lucide-react";
 import Link from "next/link";
 
 type Props = {
-  slug: string
-}
+  slug: string;
+};
 
 export const ArticleNotFound = ({ slug }: Props) => {
   return (
@@ -23,12 +30,15 @@ export const ArticleNotFound = ({ slug }: Props) => {
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
-          <Link className={buttonVariants({ variant: "default", size: "sm" })} href={`/${slug}/articles/new`}>
+          <Link
+            className={buttonVariants({ variant: "default", size: "sm" })}
+            href={`/${slug}/articles/new`}
+          >
             Create New Article
             <PlusIcon />
           </Link>
         </EmptyContent>
       </Empty>
     </div>
-  )
-}
+  );
+};

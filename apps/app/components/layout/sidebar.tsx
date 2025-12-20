@@ -278,7 +278,7 @@ export const AppSidebar = ({
                           disabled={isDisabled}
                           isActive={isActive}
                           className={
-                            isDisabled ? "opacity-50 cursor-not-allowed" : ""
+                            isDisabled ? "cursor-not-allowed opacity-50" : ""
                           }
                           tooltip={
                             !userHasAccess
@@ -289,7 +289,7 @@ export const AppSidebar = ({
                           }
                         >
                           {isDisabled ? (
-                            <div className="flex items-center gap-2 w-full [&>svg]:size-4">
+                            <div className="flex w-full items-center gap-2 [&>svg]:size-4">
                               {userHasAccess ? <Icon /> : <Ban />}
                               <span className="flex-1 group-data-[collapsible=icon]:hidden">
                                 {item.title}

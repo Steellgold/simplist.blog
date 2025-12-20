@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useProjectContext } from "@/components/projects/context-provider"
+import { useProjectContext } from "@/components/projects/context-provider";
 
 export const useProject = () => {
   const {
@@ -10,8 +10,8 @@ export const useProject = () => {
     currentMemberId,
     refreshProjects,
     updateProject,
-    isRefreshing
-  } = useProjectContext()
+    isRefreshing,
+  } = useProjectContext();
 
   return {
     currentProject,
@@ -20,6 +20,6 @@ export const useProject = () => {
     currentMemberId,
     refreshProjects,
     updateProject,
-    isRefreshing
-  }
-}
+    isRefreshing,
+  };
+};

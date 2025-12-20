@@ -1,6 +1,6 @@
-import { PageLayout } from "@/components/layout/page-layout"
-import { Card, CardContent, CardHeader } from "@simplist/ui/components/card"
-import { Skeleton } from "@simplist/ui/components/skeleton"
+import { PageLayout } from "@/components/layout/page-layout";
+import { Card, CardContent, CardHeader } from "@simplist/ui/components/card";
+import { Skeleton } from "@simplist/ui/components/skeleton";
 
 const WebhookDetailsLoading = () => {
   return (
@@ -26,22 +26,22 @@ const WebhookDetailsLoading = () => {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Skeleton className="h-4 w-16 mb-2" />
+                <Skeleton className="mb-2 h-4 w-16" />
                 <Skeleton className="h-6 w-full" />
               </div>
               <div>
-                <Skeleton className="h-4 w-12 mb-2" />
+                <Skeleton className="mb-2 h-4 w-12" />
                 <Skeleton className="h-6 w-20 rounded-full" />
               </div>
             </div>
-            
+
             <div>
-              <Skeleton className="h-4 w-12 mb-2" />
+              <Skeleton className="mb-2 h-4 w-12" />
               <Skeleton className="h-6 w-full" />
             </div>
-            
+
             <div>
-              <Skeleton className="h-4 w-16 mb-2" />
+              <Skeleton className="mb-2 h-4 w-16" />
               <div className="flex gap-1">
                 <Skeleton className="h-6 w-16 rounded-full" />
                 <Skeleton className="h-6 w-20 rounded-full" />
@@ -61,9 +61,9 @@ const WebhookDetailsLoading = () => {
           <CardContent>
             <div className="grid grid-cols-3 gap-4">
               {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="text-center space-y-2">
-                  <Skeleton className="h-8 w-16 mx-auto" />
-                  <Skeleton className="h-4 w-20 mx-auto" />
+                <div key={i} className="space-y-2 text-center">
+                  <Skeleton className="mx-auto h-8 w-16" />
+                  <Skeleton className="mx-auto h-4 w-20" />
                 </div>
               ))}
             </div>
@@ -83,7 +83,10 @@ const WebhookDetailsLoading = () => {
           <CardContent>
             <div className="space-y-3">
               {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="flex items-center justify-between p-3 border rounded-lg">
+                <div
+                  key={i}
+                  className="flex items-center justify-between rounded-lg border p-3"
+                >
                   <div className="flex items-center gap-3">
                     <Skeleton className="h-6 w-16 rounded-full" />
                     <div className="space-y-1">
@@ -92,7 +95,7 @@ const WebhookDetailsLoading = () => {
                     </div>
                   </div>
 
-                  <div className="text-right space-y-1">
+                  <div className="space-y-1 text-right">
                     <Skeleton className="h-4 w-20" />
                     <Skeleton className="h-3 w-16" />
                   </div>
@@ -103,7 +106,7 @@ const WebhookDetailsLoading = () => {
         </Card>
       </div>
     </PageLayout>
-  )
-}
+  );
+};
 
-export default WebhookDetailsLoading
+export default WebhookDetailsLoading;

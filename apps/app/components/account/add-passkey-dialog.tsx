@@ -1,33 +1,53 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@simplist/ui/components/dialog"
-import { Button } from "@simplist/ui/components/button"
-import { Field, FieldError, FieldGroup, FieldLabel } from "@simplist/ui/components/field"
-import { Input } from "@simplist/ui/components/input"
-import { toast } from "sonner"
-import { Spinner } from "@simplist/ui/components/spinner"
-import { authClient } from "@/lib/auth-client"
-import { useRouter } from "next/navigation"
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@simplist/ui/components/dialog";
+import { Button } from "@simplist/ui/components/button";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@simplist/ui/components/field";
+import { Input } from "@simplist/ui/components/input";
+import { toast } from "sonner";
+import { Spinner } from "@simplist/ui/components/spinner";
+import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 
 const addPasskeySchema = z.object({
-  name: z.string().min(1, "Name is required").max(50, "Name must be less than 50 characters"),
-})
+  name: z
+    .string()
+    .min(1, "Name is required")
+    .max(50, "Name must be less than 50 characters"),
+});
 
-type AddPasskeyInput = z.infer<typeof addPasskeySchema>
+type AddPasskeyInput = z.infer<typeof addPasskeySchema>;
 
 interface AddPasskeyDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  userName: string
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  userName: string;
 }
 
-export const AddPasskeyDialog = ({ open, onOpenChange, userName }: AddPasskeyDialogProps) => {
-  const router = useRouter()
-  const [isSubmitting, setIsSubmitting] = useState(false)
+export const AddPasskeyDialog = ({
+  open,
+  onOpenChange,
+  userName,
+}: AddPasskeyDialogProps) => {
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
     register,
@@ -40,11 +60,11 @@ export const AddPasskeyDialog = ({ open, onOpenChange, userName }: AddPasskeyDia
     defaultValues: {
       name: `${userName}'s Device`,
     },
-  })
+  });
 
   const onSubmit = async (data: AddPasskeyInput) => {
-    const toastId = toast.loading("Adding passkey...")
-    setIsSubmitting(true)
+    const toastId = toast.loading("Adding passkey...");
+    setIsSubmitting(true);
 
     try {
       await authClient.passkey.addPasskey({
@@ -52,54 +72,56 @@ export const AddPasskeyDialog = ({ open, onOpenChange, userName }: AddPasskeyDia
         authenticatorAttachment: "cross-platform",
         fetchOptions: {
           onSuccess: () => {
-            toast.success("Passkey added successfully", { id: toastId })
-            reset()
-            onOpenChange(false)
-            router.refresh()
-            toast.dismiss(toastId)
+            toast.success("Passkey added successfully", { id: toastId });
+            reset();
+            onOpenChange(false);
+            router.refresh();
+            toast.dismiss(toastId);
           },
           onResponse: () => {
-            setIsSubmitting(false)
-            toast.dismiss(toastId)
+            setIsSubmitting(false);
+            toast.dismiss(toastId);
           },
           onError: (e) => {
-            toast.error(e.error.message, { id: toastId })
-            setIsSubmitting(false)
-            return
+            toast.error(e.error.message, { id: toastId });
+            setIsSubmitting(false);
+            return;
           },
         },
-      })
+      });
     } catch (error) {
-      console.error(error)
-      toast.error("Unable to add passkey", { id: toastId })
+      console.error(error);
+      toast.error("Unable to add passkey", { id: toastId });
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const handleClose = () => {
     if (isSubmitting) return;
 
-    reset()
-    onOpenChange(false)
-  }
+    reset();
+    onOpenChange(false);
+  };
 
   return (
     <Dialog
       open={open}
       onOpenChange={(nextOpen) => {
         if (!nextOpen) {
-          handleClose()
-          return
+          handleClose();
+          return;
         }
 
-        onOpenChange(nextOpen)
+        onOpenChange(nextOpen);
       }}
     >
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Add Passkey</DialogTitle>
-          <DialogDescription>Give your passkey a name to identify it later</DialogDescription>
+          <DialogDescription>
+            Give your passkey a name to identify it later
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -113,9 +135,7 @@ export const AddPasskeyDialog = ({ open, onOpenChange, userName }: AddPasskeyDia
                 disabled={isSubmitting}
               />
 
-              {errors.name && (
-                <FieldError>{errors.name.message}</FieldError>
-              )}
+              {errors.name && <FieldError>{errors.name.message}</FieldError>}
             </Field>
           </FieldGroup>
 
@@ -138,5 +158,5 @@ export const AddPasskeyDialog = ({ open, onOpenChange, userName }: AddPasskeyDia
         </form>
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};

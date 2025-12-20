@@ -148,7 +148,7 @@ function SelectListSearch({
 }: SelectListSearchProps) {
   return (
     <div className={cn("relative", className)}>
-      <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+      <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
       <Input
         placeholder={placeholder}
         value={value}
@@ -185,7 +185,7 @@ function SelectListContent({
           <Spinner />
         </div>
       ) : isEmpty ? (
-        <div className="py-8 text-center text-sm text-muted-foreground">
+        <div className="text-muted-foreground py-8 text-center text-sm">
           {emptyMessage}
         </div>
       ) : (
@@ -230,14 +230,14 @@ function SelectListItemComponent({
         aria-selected={isChecked}
         onClick={() => !disabled && handleChange(!isChecked)}
         className={cn(
-          "flex cursor-pointer items-center gap-3 rounded-md p-2 hover:bg-muted",
+          "hover:bg-muted flex cursor-pointer items-center gap-3 rounded-md p-2",
           isChecked && "bg-muted",
           disabled && "cursor-not-allowed opacity-60",
           className,
         )}
       >
         <div className="min-w-0 flex-1">{children}</div>
-        {isChecked && <Check className="h-4 w-4 shrink-0 text-primary" />}
+        {isChecked && <Check className="text-primary h-4 w-4 shrink-0" />}
       </div>
     );
   }
@@ -245,7 +245,7 @@ function SelectListItemComponent({
   return (
     <label
       className={cn(
-        "flex cursor-pointer items-center gap-3 rounded-md p-2 hover:bg-muted",
+        "hover:bg-muted flex cursor-pointer items-center gap-3 rounded-md p-2",
         disabled && "cursor-not-allowed opacity-60",
         className,
       )}
@@ -294,7 +294,7 @@ function SelectListItemSubtitle({
   className,
 }: SelectListItemSubtitleProps) {
   return (
-    <div className={cn("truncate text-xs text-muted-foreground", className)}>
+    <div className={cn("text-muted-foreground truncate text-xs", className)}>
       {children}
     </div>
   );
@@ -311,7 +311,7 @@ interface SelectListItemMetaProps {
 
 function SelectListItemMeta({ children, className }: SelectListItemMetaProps) {
   return (
-    <div className={cn("flex items-center gap-2 shrink-0", className)}>
+    <div className={cn("flex shrink-0 items-center gap-2", className)}>
       {children}
     </div>
   );
@@ -347,7 +347,7 @@ function SelectListItemThumbnail({
   return (
     <div
       className={cn(
-        "rounded-md border overflow-hidden bg-muted shrink-0 flex items-center justify-center",
+        "bg-muted flex shrink-0 items-center justify-center overflow-hidden rounded-md border",
         thumbnailVariants[variant],
         className,
       )}
@@ -376,7 +376,7 @@ function SelectListItemActions({
 }: SelectListItemActionsProps) {
   return (
     <div
-      className={cn("flex items-center gap-1 shrink-0", className)}
+      className={cn("flex shrink-0 items-center gap-1", className)}
       onClick={(e) => e.stopPropagation()}
     >
       {children}
@@ -402,7 +402,7 @@ function SelectListGroup({
   return (
     <div className={cn("py-1", className)}>
       {heading && (
-        <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
+        <div className="text-muted-foreground px-2 py-1.5 text-xs font-medium">
           {heading}
         </div>
       )}
@@ -446,7 +446,7 @@ function SelectListAction({
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        "flex w-full cursor-pointer items-center gap-3 rounded-md p-2 text-left hover:bg-muted",
+        "hover:bg-muted flex w-full cursor-pointer items-center gap-3 rounded-md p-2 text-left",
         disabled && "cursor-not-allowed opacity-60",
         className,
       )}

@@ -72,15 +72,15 @@ export const InstallationTabs: FC<InstallationTabsProps> = ({
 
   return (
     <TooltipProvider delayDuration={300}>
-      <Card className="p-[2.5px] rounded-2xl">
-        <Card className={cn("overflow-hidden p-0 max-w-full", className)}>
+      <Card className="rounded-2xl p-[2.5px]">
+        <Card className={cn("max-w-full overflow-hidden p-0", className)}>
           <Tabs
             value={activeTab}
             onValueChange={(v) => setActiveTab(v as PackageManagerKey)}
             defaultValue="pnpm"
           >
-            <div className="flex items-center justify-between bg-muted/50 px-2 py-2 border-b">
-              <TabsList className="bg-transparent overflow-x-auto flex-shrink min-w-0">
+            <div className="bg-muted/50 flex items-center justify-between border-b px-2 py-2">
+              <TabsList className="min-w-0 flex-shrink overflow-x-auto bg-transparent">
                 {managers.map((manager) => (
                   <TabsTrigger
                     key={manager.key}
@@ -104,8 +104,8 @@ export const InstallationTabs: FC<InstallationTabsProps> = ({
                 value={manager.key}
                 className="-mt-2.5"
               >
-                <div className="py-3 px-4 overflow-x-auto">
-                  <code className="text-sm text-foreground whitespace-nowrap">
+                <div className="overflow-x-auto px-4 py-3">
+                  <code className="text-foreground text-sm whitespace-nowrap">
                     {resolvedCommands[manager.key]}
                   </code>
                 </div>

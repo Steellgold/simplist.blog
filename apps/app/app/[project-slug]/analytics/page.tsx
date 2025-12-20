@@ -55,7 +55,7 @@ const AnalyticsPage = async ({ params }: AnalyticsPageProps) => {
   // Show empty state if no data (without PageLayout)
   if (hasNoData) {
     return (
-      <Empty className="flex min-h-[calc(90vh-4rem)] items-center justify-center h-full">
+      <Empty className="flex h-full min-h-[calc(90vh-4rem)] items-center justify-center">
         <EmptyHeader>
           <EmptyMedia variant="icon">
             <BarChart3 />

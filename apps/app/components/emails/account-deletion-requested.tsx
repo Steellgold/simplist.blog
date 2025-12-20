@@ -6,7 +6,11 @@ type Props = {
   manageUrl: string;
 };
 
-export const AccountDeletionRequestedEmail = ({ name, scheduledAt, manageUrl }: Props) => {
+export const AccountDeletionRequestedEmail = ({
+  name,
+  scheduledAt,
+  manageUrl,
+}: Props) => {
   return (
     <EmailLayout previewText="Your account deletion has been scheduled">
       <h1>Account deletion scheduled</h1>
@@ -14,18 +18,19 @@ export const AccountDeletionRequestedEmail = ({ name, scheduledAt, manageUrl }: 
       <p>Hi {name},</p>
 
       <p>
-        We received a request to delete your Simplist account. A 14-day grace period has started. If you change your
-        mind, you can cancel before the deadline.
+        We received a request to delete your Simplist account. A 14-day grace
+        period has started. If you change your mind, you can cancel before the
+        deadline.
       </p>
 
       <div className="info-box">
         <p>
-          <strong>Scheduled deletion date:</strong>{" "}
-          {scheduledAt.toUTCString()}
+          <strong>Scheduled deletion date:</strong> {scheduledAt.toUTCString()}
         </p>
         <p>
-          <strong>What gets deleted:</strong> projects, articles, API keys, analytics data, uploads, and sessions. Billing
-          records may be retained as required by law.
+          <strong>What gets deleted:</strong> projects, articles, API keys,
+          analytics data, uploads, and sessions. Billing records may be retained
+          as required by law.
         </p>
       </div>
 
@@ -36,8 +41,9 @@ export const AccountDeletionRequestedEmail = ({ name, scheduledAt, manageUrl }: 
       </p>
 
       <p className="muted">
-        You will receive reminders on day 7, day 10, and 1 hour before deletion. If you take no action, your account
-        will be permanently deleted on the date above.
+        You will receive reminders on day 7, day 10, and 1 hour before deletion.
+        If you take no action, your account will be permanently deleted on the
+        date above.
       </p>
     </EmailLayout>
   );

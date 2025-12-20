@@ -179,7 +179,7 @@ export const ArticleContentEditor = ({
             <InputGroup className="min-w-0 overflow-hidden">
               <InputGroupAddon align="block-start" className="w-full">
                 {/* Desktop: affiche tous les boutons */}
-                <ButtonGroup className="hidden sm:flex flex-wrap gap-2">
+                <ButtonGroup className="hidden flex-wrap gap-2 sm:flex">
                   {Object.entries(markdownActions).map(
                     ([groupName, actions]) => (
                       <ButtonGroup key={groupName}>
@@ -207,7 +207,7 @@ export const ArticleContentEditor = ({
                                   <span className="font-semibold">
                                     H{level}
                                   </span>
-                                  <span className="ml-2 text-muted-foreground text-xs">
+                                  <span className="text-muted-foreground ml-2 text-xs">
                                     Heading {level}
                                   </span>
                                 </DropdownMenuItem>
@@ -268,7 +268,7 @@ export const ArticleContentEditor = ({
                           className="cursor-pointer"
                         >
                           <span className="font-semibold">H{level}</span>
-                          <span className="ml-2 text-muted-foreground text-xs">
+                          <span className="text-muted-foreground ml-2 text-xs">
                             Heading {level}
                           </span>
                         </DropdownMenuItem>
@@ -305,7 +305,7 @@ export const ArticleContentEditor = ({
                           onClick={action.action}
                           className="cursor-pointer"
                         >
-                          <action.icon className="h-4 w-4 mr-2" />
+                          <action.icon className="mr-2 h-4 w-4" />
                           <span>{action.label}</span>
                         </DropdownMenuItem>
                       ))}
@@ -314,7 +314,7 @@ export const ArticleContentEditor = ({
                           onClick={() => setIsMediaCommandOpen(true)}
                           className="cursor-pointer"
                         >
-                          <ImagePlus className="h-4 w-4 mr-2" />
+                          <ImagePlus className="mr-2 h-4 w-4" />
                           <span>Insert from library</span>
                         </DropdownMenuItem>
                       )}
@@ -329,13 +329,13 @@ export const ArticleContentEditor = ({
                 value={content}
                 onChange={(e) => onContentChange(e.target.value)}
                 required
-                className="font-mono text-sm resize-none min-h-[450px] sm:min-h-[450px] min-w-0"
+                className="min-h-[450px] min-w-0 resize-none font-mono text-sm sm:min-h-[450px]"
               />
 
               <InputGroupAddon align="block-end" className="w-full">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between w-full text-xs gap-1 sm:gap-0">
-                  <div className="flex items-center flex-wrap *:bg-muted">
-                    <span className="text-muted-foreground border-t border-b border-l px-1.5 py-0.5 rounded-l-sm">
+                <div className="flex w-full flex-col items-start justify-between gap-1 text-xs sm:flex-row sm:items-center sm:gap-0">
+                  <div className="*:bg-muted flex flex-wrap items-center">
+                    <span className="text-muted-foreground rounded-l-sm border-t border-b border-l px-1.5 py-0.5">
                       {contentStats.words}{" "}
                       {contentStats.words === 1 ? "word" : "words"}
                     </span>
@@ -347,7 +347,7 @@ export const ArticleContentEditor = ({
                         : "characters"}
                     </span>
 
-                    <span className="text-muted-foreground border-t border-b border-r px-1.5 py-0.5 rounded-r-sm">
+                    <span className="text-muted-foreground rounded-r-sm border-t border-r border-b px-1.5 py-0.5">
                       {contentStats.lines}{" "}
                       {contentStats.lines === 1 ? "line" : "lines"}
                     </span>

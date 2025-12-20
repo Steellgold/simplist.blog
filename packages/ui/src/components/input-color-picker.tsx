@@ -1,14 +1,15 @@
 "use client";
 
 import {
-  ColorPicker, ColorPickerArea,
+  ColorPicker,
+  ColorPickerArea,
   ColorPickerContent,
   ColorPickerEyeDropper,
   ColorPickerFormatSelect,
   ColorPickerHueSlider,
   ColorPickerInput,
   ColorPickerSwatch,
-  ColorPickerTrigger
+  ColorPickerTrigger,
 } from "@simplist/ui/components/color-picker";
 import {
   InputGroup,
@@ -31,9 +32,9 @@ export const ColorPickerInputGroup = ({
   const [internalValue, setInternalValue] = React.useState(defaultValue);
   const [inputValue, setInputValue] = React.useState(defaultValue);
   const [isTyping, setIsTyping] = React.useState(false);
-  
+
   const value = controlledValue ?? internalValue;
-  
+
   // Synchronise l'input avec la valeur du ColorPicker uniquement si on ne tape pas
   React.useEffect(() => {
     if (!isTyping) {
@@ -51,16 +52,19 @@ export const ColorPickerInputGroup = ({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsTyping(true);
     let newValue = e.target.value;
-    
+
     // Ajoute automatiquement le # si l'utilisateur commence à taper sans
-    if (newValue.length > 0 && !newValue.startsWith('#')) {
-      newValue = '#' + newValue;
+    if (newValue.length > 0 && !newValue.startsWith("#")) {
+      newValue = "#" + newValue;
     }
-    
+
     setInputValue(newValue);
-    
+
     // Met à jour uniquement si la couleur est complète et valide
-    if (/^#([0-9A-F]{6})$/i.test(newValue) || /^#([0-9A-F]{3})$/i.test(newValue)) {
+    if (
+      /^#([0-9A-F]{6})$/i.test(newValue) ||
+      /^#([0-9A-F]{3})$/i.test(newValue)
+    ) {
       if (controlledValue === undefined) {
         setInternalValue(newValue);
       }
@@ -95,10 +99,10 @@ export const ColorPickerInputGroup = ({
       <InputGroup>
         <InputGroupAddon>
           <ColorPickerTrigger asChild>
-            <ColorPickerSwatch className="w-5 h-5 cursor-pointer px-4 -ml-0.5" />
+            <ColorPickerSwatch className="-ml-0.5 h-5 w-5 cursor-pointer px-4" />
           </ColorPickerTrigger>
         </InputGroupAddon>
-        
+
         <InputGroupInput
           value={inputValue}
           onChange={handleInputChange}
@@ -107,7 +111,7 @@ export const ColorPickerInputGroup = ({
           placeholder="#000000"
         />
       </InputGroup>
-      
+
       <ColorPickerContent>
         <ColorPickerArea />
 
@@ -123,4 +127,4 @@ export const ColorPickerInputGroup = ({
       </ColorPickerContent>
     </ColorPicker>
   );
-}
+};

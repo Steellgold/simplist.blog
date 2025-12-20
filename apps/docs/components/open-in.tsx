@@ -1,30 +1,39 @@
-"use client"
+"use client";
 
-import { ClaudeAI, GitHubDark, MicrosoftCopilot, OpenAIDark } from "@ridemountainpig/svgl-react"
-import { Button } from "@simplist/ui/components/button"
+import {
+  ClaudeAI,
+  GitHubDark,
+  MicrosoftCopilot,
+  OpenAIDark,
+} from "@ridemountainpig/svgl-react";
+import { Button } from "@simplist/ui/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@simplist/ui/components/dropdown-menu"
-import { ChevronDown, ExternalLink } from "lucide-react"
-import { FC } from "react"
+} from "@simplist/ui/components/dropdown-menu";
+import { ChevronDown, ExternalLink } from "lucide-react";
+import { FC } from "react";
 
 interface OpenInProps {
-  githubUrl: string
-  markdownUrl: string
-  className?: string
+  githubUrl: string;
+  markdownUrl: string;
+  className?: string;
 }
 
 const buildSearchUrl = (url: string) => {
-  return `Read ${url}, I want to ask questions about it.`
-  }
+  return `Read ${url}, I want to ask questions about it.`;
+};
 
-export const OpenIn: FC<OpenInProps> = ({ githubUrl, markdownUrl, className }) => {
+export const OpenIn: FC<OpenInProps> = ({
+  githubUrl,
+  markdownUrl,
+  className,
+}) => {
   const openInService = (url: string) => {
-    window.open(url, "_blank", "noopener,noreferrer")
-  }
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
 
   const services = [
     {
@@ -46,8 +55,8 @@ export const OpenIn: FC<OpenInProps> = ({ githubUrl, markdownUrl, className }) =
       name: "Copilot",
       url: `https://copilot.microsoft.com/?q=${encodeURIComponent(buildSearchUrl(markdownUrl))}`,
       icon: <MicrosoftCopilot />,
-    }
-  ]
+    },
+  ];
 
   return (
     <DropdownMenu>
@@ -62,14 +71,14 @@ export const OpenIn: FC<OpenInProps> = ({ githubUrl, markdownUrl, className }) =
           <DropdownMenuItem
             key={service.name}
             onClick={() => openInService(service.url)}
-            className="flex items-center gap-2 group transition-colors"
+            className="group flex items-center gap-2 transition-colors"
           >
             {service.icon}
             <span>Open in {service.name}</span>
-            <ExternalLink className="ml-auto size-4 text-muted-foreground" />
+            <ExternalLink className="text-muted-foreground ml-auto size-4" />
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
-  )
-}
+  );
+};

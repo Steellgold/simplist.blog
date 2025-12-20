@@ -1,41 +1,42 @@
-import { Slot } from "@radix-ui/react-slot"
-import { cva, type VariantProps } from "class-variance-authority"
-import { type AnchorHTMLAttributes, type ButtonHTMLAttributes, forwardRef } from "react"
-import { cn } from "../lib/utils"
-import { buttonVariants } from "./button"
+import { Slot } from "@radix-ui/react-slot";
+import { cva, type VariantProps } from "class-variance-authority";
+import {
+  type AnchorHTMLAttributes,
+  type ButtonHTMLAttributes,
+  forwardRef,
+} from "react";
+import { cn } from "../lib/utils";
+import { buttonVariants } from "./button";
 
-const progressVariants = cva(
-  "relative overflow-hidden pt-2.5 pb-2.5",
-  {
-    variants: {
-      variant: {
-        default: "[&_.progress-bar]:bg-primary-foreground",
-        destructive: "[&_.progress-bar]:bg-destructive-foreground",
-        outline: "[&_.progress-bar]:bg-foreground",
-        secondary: "[&_.progress-bar]:bg-secondary-foreground",
-        ghost: "[&_.progress-bar]:bg-foreground",
-        link: "[&_.progress-bar]:bg-primary",
-      },
+const progressVariants = cva("relative overflow-hidden pt-2.5 pb-2.5", {
+  variants: {
+    variant: {
+      default: "[&_.progress-bar]:bg-primary-foreground",
+      destructive: "[&_.progress-bar]:bg-destructive-foreground",
+      outline: "[&_.progress-bar]:bg-foreground",
+      secondary: "[&_.progress-bar]:bg-secondary-foreground",
+      ghost: "[&_.progress-bar]:bg-foreground",
+      link: "[&_.progress-bar]:bg-primary",
     },
-    defaultVariants: {
-      variant: "default",
-    },
-  }
-)
+  },
+  defaultVariants: {
+    variant: "default",
+  },
+});
 
 interface ProgressBaseProps extends VariantProps<typeof buttonVariants> {
-  min?: number
-  max?: number
-  value: number
-  asChild?: boolean
+  min?: number;
+  max?: number;
+  value: number;
+  asChild?: boolean;
 }
 
 interface ProgressPrimitiveProps extends ProgressBaseProps {
-  as?: "button" | "a" | "div"
-  className?: string
-  children?: React.ReactNode
-  disabled?: boolean
-  [key: string]: any
+  as?: "button" | "a" | "div";
+  className?: string;
+  children?: React.ReactNode;
+  disabled?: boolean;
+  [key: string]: any;
 }
 
 const ProgressPrimitive = forwardRef<HTMLElement, ProgressPrimitiveProps>(
@@ -55,8 +56,11 @@ const ProgressPrimitive = forwardRef<HTMLElement, ProgressPrimitiveProps>(
     },
     ref,
   ) => {
-    const percentage = Math.min(Math.max(((value - min) / (max - min)) * 100, 0), 100)
-    const Comp = asChild ? Slot : as
+    const percentage = Math.min(
+      Math.max(((value - min) / (max - min)) * 100, 0),
+      100,
+    );
+    const Comp = asChild ? Slot : as;
 
     if (asChild) {
       return (
@@ -65,14 +69,14 @@ const ProgressPrimitive = forwardRef<HTMLElement, ProgressPrimitiveProps>(
           className={cn(
             buttonVariants({ variant, size }),
             progressVariants({ variant }),
-            className
+            className,
           )}
           {...props}
         >
           <div>
             <span className="flex items-center gap-2">{children}</span>
             {max !== -1 && (
-              <div className="absolute bottom-0 left-0 right-0 h-1 md:h-0.5 bg-black/10 dark:bg-white/10">
+              <div className="absolute right-0 bottom-0 left-0 h-1 bg-black/10 md:h-0.5 dark:bg-white/10">
                 <div
                   className="progress-bar h-full transition-all duration-300 ease-in-out"
                   style={{ width: `${percentage}%` }}
@@ -81,7 +85,7 @@ const ProgressPrimitive = forwardRef<HTMLElement, ProgressPrimitiveProps>(
             )}
           </div>
         </Comp>
-      )
+      );
     }
 
     return (
@@ -90,13 +94,13 @@ const ProgressPrimitive = forwardRef<HTMLElement, ProgressPrimitiveProps>(
         className={cn(
           buttonVariants({ variant, size }),
           progressVariants({ variant }),
-          className
+          className,
         )}
         {...props}
       >
         <span className="flex items-center gap-2">{children}</span>
         {max !== -1 && (
-          <div className="absolute bottom-0 left-0 right-0 h-1 md:h-0.5 bg-black/10 dark:bg-white/10">
+          <div className="absolute right-0 bottom-0 left-0 h-1 bg-black/10 md:h-0.5 dark:bg-white/10">
             <div
               className="progress-bar h-full transition-all duration-300 ease-in-out"
               style={{ width: `${percentage}%` }}
@@ -104,29 +108,23 @@ const ProgressPrimitive = forwardRef<HTMLElement, ProgressPrimitiveProps>(
           </div>
         )}
       </Comp>
-    )
+    );
   },
-)
+);
 
-ProgressPrimitive.displayName = "ProgressPrimitive"
+ProgressPrimitive.displayName = "ProgressPrimitive";
 
-interface ProgressButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'value'>, ProgressBaseProps {}
+interface ProgressButtonProps
+  extends
+    Omit<ButtonHTMLAttributes<HTMLButtonElement>, "value">,
+    ProgressBaseProps {}
 
 const ProgressButton = forwardRef<HTMLButtonElement, ProgressButtonProps>(
   (
-    {
-      min = 0,
-      max = 100,
-      value,
-      disabled,
-      variant,
-      size,
-      className,
-      ...props
-    },
+    { min = 0, max = 100, value, disabled, variant, size, className, ...props },
     ref,
   ) => {
-    const isDisabled = disabled || (max !== -1 && value >= max)
+    const isDisabled = disabled || (max !== -1 && value >= max);
 
     return (
       <ProgressPrimitive
@@ -141,31 +139,25 @@ const ProgressButton = forwardRef<HTMLButtonElement, ProgressButtonProps>(
         disabled={isDisabled}
         {...props}
       />
-    )
+    );
   },
-)
+);
 
-ProgressButton.displayName = "ProgressButton"
+ProgressButton.displayName = "ProgressButton";
 
-interface ProgressLinkProps extends Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'value'>, ProgressBaseProps {
-  as?: "a" | "button" | React.ComponentType<any>
+interface ProgressLinkProps
+  extends
+    Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "value">,
+    ProgressBaseProps {
+  as?: "a" | "button" | React.ComponentType<any>;
 }
 
 const ProgressLink = forwardRef<HTMLAnchorElement, ProgressLinkProps>(
   (
-    {
-      min = 0,
-      max = 100,
-      value,
-      as = "a",
-      variant,
-      size,
-      className,
-      ...props
-    },
+    { min = 0, max = 100, value, as = "a", variant, size, className, ...props },
     ref,
   ) => {
-    const isDisabled = max !== -1 && value >= max
+    const isDisabled = max !== -1 && value >= max;
 
     return (
       <ProgressPrimitive
@@ -178,16 +170,15 @@ const ProgressLink = forwardRef<HTMLAnchorElement, ProgressLinkProps>(
         size={size}
         className={cn(
           isDisabled && "pointer-events-none opacity-50",
-          className
+          className,
         )}
         aria-disabled={isDisabled}
         {...props}
       />
-    )
+    );
   },
-)
+);
 
-ProgressLink.displayName = "ProgressLink"
+ProgressLink.displayName = "ProgressLink";
 
-export { ProgressButton, ProgressLink, ProgressPrimitive, progressVariants }
-
+export { ProgressButton, ProgressLink, ProgressPrimitive, progressVariants };

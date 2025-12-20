@@ -1,8 +1,8 @@
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
 export default function proxy(_request: NextRequest) {
-  return NextResponse.next()
+  return NextResponse.next();
 }
 
 export const config = {
@@ -15,6 +15,6 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      */
-    '/((?!og|api|_next/static|_next/image|favicon.ico).*)',
+    "/((?!og|api|_next/static|_next/image|favicon.ico).*)",
   ],
-}
+};

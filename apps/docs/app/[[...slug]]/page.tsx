@@ -113,7 +113,7 @@ const createHeadingComponents = (
         <HeadingAnchor
           id={id}
           level={2}
-          className="mb-4 mt-8 text-2xl font-semibold"
+          className="mt-8 mb-4 text-2xl font-semibold"
           {...props}
         />
       );
@@ -126,7 +126,7 @@ const createHeadingComponents = (
         <HeadingAnchor
           id={id}
           level={3}
-          className="mb-3 mt-6 text-xl font-semibold"
+          className="mt-6 mb-3 text-xl font-semibold"
           {...props}
         />
       );
@@ -140,7 +140,7 @@ const createSeparatedComponent = <T,>(
 ): ComponentType<T> => {
   const WrappedComponent = (props: any) => (
     <div
-      className="[&+div[data-component]]:mt-6 mb-2"
+      className="mb-2 [&+div[data-component]]:mt-6"
       data-component={displayName}
     >
       <Component {...props} />
@@ -201,21 +201,21 @@ const staticComponents = {
   li: (props: any) => <li {...props} />,
   code: (props: any) => (
     <code
-      className="rounded bg-muted px-1.5 py-0.5 text-sm font-mono"
+      className="bg-muted rounded px-1.5 py-0.5 font-mono text-sm"
       {...props}
     />
   ),
   pre: (props: any) => (
-    <pre className="mb-4 overflow-x-auto rounded-lg bg-muted p-4" {...props} />
+    <pre className="bg-muted mb-4 overflow-x-auto rounded-lg p-4" {...props} />
   ),
   blockquote: (props: any) => (
     <blockquote
-      className="mb-4 border-l-4 border-muted-foreground pl-4 italic"
+      className="border-muted-foreground mb-4 border-l-4 pl-4 italic"
       {...props}
     />
   ),
   a: (props: any) => (
-    <Link className="text-primary underline hover:text-primary/80" {...props} />
+    <Link className="text-primary hover:text-primary/80 underline" {...props} />
   ),
   table: (props: any) => (
     <div className="mb-4 overflow-x-auto">
@@ -415,9 +415,9 @@ const ContentPage: FC<PageProps> = async ({ params }) => {
 
   return (
     <TestableApiProvider>
-      <div className="flex justify-center items-start gap-8 w-full min-h-screen container mx-auto px-4 overflow-x-hidden">
-        <main className="flex-1 max-w-3xl w-full min-w-0 overflow-x-hidden">
-          <div className="mb-6 flex items-center justify-end gap-2 flex-wrap">
+      <div className="container mx-auto flex min-h-screen w-full items-start justify-center gap-8 overflow-x-hidden px-4">
+        <main className="w-full max-w-3xl min-w-0 flex-1 overflow-x-hidden">
+          <div className="mb-6 flex flex-wrap items-center justify-end gap-2">
             <ApiConfigButton />
             <ButtonGroup>
               <CopyMarkdown content={rawContent} />
@@ -435,7 +435,7 @@ const ContentPage: FC<PageProps> = async ({ params }) => {
             <MDXRemote source={content} components={components} />
           </div>
 
-          <div className="mt-8 py-4 flex flex-row items-center justify-between border-t">
+          <div className="mt-8 flex flex-row items-center justify-between border-t py-4">
             <EditOnGitHub githubUrl={githubUrl} />
           </div>
 

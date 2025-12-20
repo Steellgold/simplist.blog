@@ -13,10 +13,13 @@ export const GET = async (request: Request) => {
 
     // Get project ID from query params
     const { searchParams } = new URL(request.url);
-    const projectId = searchParams.get('projectId');
+    const projectId = searchParams.get("projectId");
 
     if (!projectId) {
-      return NextResponse.json({ error: "Project ID is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Project ID is required" },
+        { status: 400 },
+      );
     }
 
     // Verify user has access to this project (either as owner or member)
@@ -62,7 +65,7 @@ export const GET = async (request: Request) => {
     console.error("Error fetching subscription limits:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 };

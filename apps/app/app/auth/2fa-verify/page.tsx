@@ -1,11 +1,11 @@
-import { Verify2FAForm } from "@/components/auth/verify-2fa-form"
-import { SimplistIcon } from "@/components/icon"
-import type { Metadata } from "next"
+import { Verify2FAForm } from "@/components/auth/verify-2fa-form";
+import { SimplistIcon } from "@/components/icon";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "2FA Verification",
-  robots: { index: false, follow: false }
-}
+  robots: { index: false, follow: false },
+};
 
 const Verify2FAPage = () => {
   return (
@@ -18,7 +18,7 @@ const Verify2FAPage = () => {
         <Verify2FAForm />
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Verify2FAPage
+export default Verify2FAPage;

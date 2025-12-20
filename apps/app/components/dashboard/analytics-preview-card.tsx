@@ -47,7 +47,7 @@ export const AnalyticsPreviewCard = ({
   const router = useRouter();
 
   return (
-    <div className="relative group">
+    <div className="group relative">
       <Card>
         <CardHeader>
           <CardTitle>Analytics Overview</CardTitle>
@@ -103,7 +103,10 @@ export const AnalyticsPreviewCard = ({
         <CardFooter>
           <Link
             href={`/${projectSlug}/analytics`}
-            className={buttonVariants({ variant: "secondary", className: "w-full" })}
+            className={buttonVariants({
+              variant: "secondary",
+              className: "w-full",
+            })}
           >
             View detailed analytics
             <ArrowUpRight />

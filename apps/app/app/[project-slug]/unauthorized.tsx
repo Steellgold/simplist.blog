@@ -1,15 +1,22 @@
 "use client";
 
-import { ShieldAlert } from "lucide-react"
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@simplist/ui/components/empty"
+import { ShieldAlert } from "lucide-react";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@simplist/ui/components/empty";
 
 type Props = {
   actions?: React.ReactNode[];
-}
+};
 
 export function Unauthorized({ actions }: Props) {
   return (
-    <Empty className="flex min-h-[calc(90vh-4rem)] items-center justify-center h-full">
+    <Empty className="flex h-full min-h-[calc(90vh-4rem)] items-center justify-center">
       <EmptyHeader>
         <EmptyMedia variant="icon">
           <ShieldAlert />
@@ -30,7 +37,7 @@ export function Unauthorized({ actions }: Props) {
         </EmptyContent>
       )}
     </Empty>
-  )
+  );
 }
 
 export default Unauthorized;

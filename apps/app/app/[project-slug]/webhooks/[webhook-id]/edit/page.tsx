@@ -1,36 +1,36 @@
-import { PageLayout } from "@/components/layout/page-layout"
-import { WebhookForm } from "@/components/webhooks/form"
-import { WebhookFormActions } from "@/components/webhooks/form/form-actions"
-import { WebhookFormProvider } from "@/components/webhooks/form/form-context"
-import { getCurrentUser } from "@/lib/auth-helper"
-import { requirePermission } from "@/lib/auth/permissions"
-import { prisma } from "@simplist/db"
-import { notFound, redirect } from "next/navigation"
-import { FC } from "react"
+import { PageLayout } from "@/components/layout/page-layout";
+import { WebhookForm } from "@/components/webhooks/form";
+import { WebhookFormActions } from "@/components/webhooks/form/form-actions";
+import { WebhookFormProvider } from "@/components/webhooks/form/form-context";
+import { getCurrentUser } from "@/lib/auth-helper";
+import { requirePermission } from "@/lib/auth/permissions";
+import { prisma } from "@simplist/db";
+import { notFound, redirect } from "next/navigation";
+import { FC } from "react";
 
 type PageParams = {
   params: Promise<{
-    "project-slug": string
-    "webhook-id": string
-  }>
-}
+    "project-slug": string;
+    "webhook-id": string;
+  }>;
+};
 
 const EditWebhookPage: FC<PageParams> = async ({ params }) => {
-  const { "project-slug": projectSlug, "webhook-id": webhookId } = await params
+  const { "project-slug": projectSlug, "webhook-id": webhookId } = await params;
 
-  const user = await getCurrentUser()
-  if (!user) redirect("/auth/login")
+  const user = await getCurrentUser();
+  if (!user) redirect("/auth/login");
 
   const project = await prisma.project.findUnique({
     where: { slug: projectSlug },
     select: { id: true, slug: true, name: true },
-  })
+  });
 
   if (!project) {
-    redirect("/")
+    redirect("/");
   }
 
-  await requirePermission(project.id, "canManageWebhooks")
+  await requirePermission(project.id, "canManageWebhooks");
 
   const webhook = await prisma.webhook.findUnique({
     where: { id: webhookId },
@@ -46,10 +46,10 @@ const EditWebhookPage: FC<PageParams> = async ({ params }) => {
       templateId: true,
       projectId: true,
     },
-  })
+  });
 
   if (!webhook || webhook.projectId !== project.id) {
-    notFound()
+    notFound();
   }
 
   return (
@@ -58,12 +58,7 @@ const EditWebhookPage: FC<PageParams> = async ({ params }) => {
         title="Edit webhook"
         description={`Update the configuration for "${webhook.name}" webhook.`}
         centered="md"
-        actions={
-          <WebhookFormActions
-            mode="edit"
-            formId="webhook-form-edit"
-          />
-        }
+        actions={<WebhookFormActions mode="edit" formId="webhook-form-edit" />}
       >
         <WebhookForm
           projectId={project.id}
@@ -78,7 +73,7 @@ const EditWebhookPage: FC<PageParams> = async ({ params }) => {
         />
       </PageLayout>
     </WebhookFormProvider>
-  )
-}
+  );
+};
 
-export default EditWebhookPage
+export default EditWebhookPage;

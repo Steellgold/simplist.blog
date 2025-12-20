@@ -146,11 +146,11 @@ export const getUserPendingInvitations = async () => {
  */
 export const inviteProjectMember = async (
   projectId: string,
-  input: { email: string; roleId: string }
+  input: { email: string; roleId: string },
 ) => {
   const { user, membership } = await requirePermission(
     projectId,
-    "canManageMembers"
+    "canManageMembers",
   );
 
   // Validate input
@@ -181,7 +181,7 @@ export const inviteProjectMember = async (
 
   if (existingInvitation) {
     throw new Error(
-      "An invitation has already been sent to this email address"
+      "An invitation has already been sent to this email address",
     );
   }
 
@@ -206,7 +206,7 @@ export const inviteProjectMember = async (
 
   if (currentMemberCount >= maxMembers) {
     throw new Error(
-      `Member limit reached. Your ${tier} plan allows up to ${maxMembers} member${maxMembers > 1 ? "s" : ""}.`
+      `Member limit reached. Your ${tier} plan allows up to ${maxMembers} member${maxMembers > 1 ? "s" : ""}.`,
     );
   }
 
@@ -256,7 +256,7 @@ export const inviteProjectMember = async (
         inviterName={user.name}
         roleName={role.name}
         invitationUrl={invitationUrl}
-      />
+      />,
     );
 
     await sendEmail({
@@ -329,7 +329,13 @@ export const getInvitationDetails = async (token: string) => {
   const [project, role, inviter] = await Promise.all([
     prisma.project.findUnique({
       where: { id: invitation.projectId },
-      select: { name: true, slug: true, icon: true, avatarUrl: true, color: true },
+      select: {
+        name: true,
+        slug: true,
+        icon: true,
+        avatarUrl: true,
+        color: true,
+      },
     }),
     prisma.projectRole.findUnique({
       where: { id: invitation.roleId },
@@ -462,7 +468,7 @@ export const acceptProjectInvitation = async (token: string) => {
 export const updateMemberRole = async (
   projectId: string,
   memberId: string,
-  newRoleId: string
+  newRoleId: string,
 ) => {
   const { user } = await requirePermission(projectId, "canManageMembers");
 
@@ -483,7 +489,7 @@ export const updateMemberRole = async (
   // Cannot change the role of the OWNER
   if (member.role.isOwner) {
     throw new Error(
-      "Cannot change the role of the project owner. Transfer ownership first."
+      "Cannot change the role of the project owner. Transfer ownership first.",
     );
   }
 
@@ -497,7 +503,9 @@ export const updateMemberRole = async (
   }
 
   if (newRole.isOwner) {
-    throw new Error("Cannot assign OWNER role. Use transfer ownership instead.");
+    throw new Error(
+      "Cannot assign OWNER role. Use transfer ownership instead.",
+    );
   }
 
   await prisma.projectMember.update({
@@ -518,7 +526,7 @@ export const updateMemberRole = async (
  */
 export const removeProjectMember = async (
   projectId: string,
-  memberId: string
+  memberId: string,
 ) => {
   await requirePermission(projectId, "canManageMembers");
 
@@ -572,7 +580,7 @@ export const leaveProject = async (projectId: string) => {
   // OWNER cannot leave without transferring ownership
   if (membership.role.isOwner) {
     throw new Error(
-      "As the project owner, you must transfer ownership before leaving"
+      "As the project owner, you must transfer ownership before leaving",
     );
   }
 
@@ -588,7 +596,7 @@ export const leaveProject = async (projectId: string) => {
  */
 export const transferProjectOwnership = async (
   projectId: string,
-  newOwnerId: string
+  newOwnerId: string,
 ) => {
   const user = await getCurrentUser();
   if (!user) redirect("/auth/login");
@@ -683,7 +691,7 @@ export const transferProjectOwnership = async (
  */
 export const revokeProjectInvitation = async (
   projectId: string,
-  invitationId: string
+  invitationId: string,
 ) => {
   await requirePermission(projectId, "canManageMembers");
 

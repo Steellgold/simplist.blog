@@ -1,12 +1,12 @@
-import { cn } from "@/lib/utils"
-import { FC } from "react"
+import { cn } from "@/lib/utils";
+import { FC } from "react";
 
-type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
+type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 interface HttpMethodIconProps {
-  method: HttpMethod
-  size?: "sm" | "md" | "lg"
-  className?: string
+  method: HttpMethod;
+  size?: "sm" | "md" | "lg";
+  className?: string;
 }
 
 const methodStyles: Record<HttpMethod, { bg: string; text: string }> = {
@@ -30,21 +30,25 @@ const methodStyles: Record<HttpMethod, { bg: string; text: string }> = {
     bg: "bg-red-500/15",
     text: "text-red-600 dark:text-red-400",
   },
-}
+};
 
 const sizeStyles = {
   sm: "text-[9px] px-1.5 py-0.5 min-w-[32px]",
   md: "text-[10px] px-2 py-1 min-w-[42px]",
   lg: "text-xs px-2.5 py-1.5 min-w-[52px]",
-}
+};
 
-export const HttpMethodIcon: FC<HttpMethodIconProps> = ({ method, size = "md", className }) => {
-  const styles = methodStyles[method]
+export const HttpMethodIcon: FC<HttpMethodIconProps> = ({
+  method,
+  size = "md",
+  className,
+}) => {
+  const styles = methodStyles[method];
 
   return (
     <span
       className={cn(
-        "inline-flex items-center justify-center rounded-md font-bold uppercase tracking-wide font-mono",
+        "inline-flex items-center justify-center rounded-md font-mono font-bold tracking-wide uppercase",
         styles.bg,
         styles.text,
         sizeStyles[size],
@@ -53,5 +57,5 @@ export const HttpMethodIcon: FC<HttpMethodIconProps> = ({ method, size = "md", c
     >
       {method}
     </span>
-  )
-}
+  );
+};

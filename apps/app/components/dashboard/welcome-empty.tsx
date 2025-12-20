@@ -1,31 +1,42 @@
-"use client"
+"use client";
 
-import { UpgradeOverlay } from "@/components/ui/upgrade-overlay"
-import type { SubscriptionTier } from "@simplist/db/types"
-import { buttonVariants } from "@simplist/ui/components/button"
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@simplist/ui/components/empty"
-import { ArrowUpRightIcon, FileText, Key, LineChart } from "lucide-react"
-import Link from "next/link"
+import { UpgradeOverlay } from "@/components/ui/upgrade-overlay";
+import type { SubscriptionTier } from "@simplist/db/types";
+import { buttonVariants } from "@simplist/ui/components/button";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@simplist/ui/components/empty";
+import { ArrowUpRightIcon, FileText, Key, LineChart } from "lucide-react";
+import Link from "next/link";
 
 interface WelcomeEmptyProps {
-  projectSlug: string
-  subscriptionTier: SubscriptionTier
+  projectSlug: string;
+  subscriptionTier: SubscriptionTier;
 }
 
-export const WelcomeEmpty = ({ projectSlug, subscriptionTier }: WelcomeEmptyProps) => {
-  const isStarter = subscriptionTier === "STARTER"
+export const WelcomeEmpty = ({
+  projectSlug,
+  subscriptionTier,
+}: WelcomeEmptyProps) => {
+  const isStarter = subscriptionTier === "STARTER";
 
   return (
-    <div className="max-w-2xl mx-auto flex flex-col min-h-[calc(90vh-4rem)] items-center justify-center">
+    <div className="mx-auto flex min-h-[calc(90vh-4rem)] max-w-2xl flex-col items-center justify-center">
       <div className="w-full">
-        <Empty className="border from-muted/20 to-background h-full bg-gradient-to-b from-30%">
+        <Empty className="from-muted/20 to-background h-full border bg-gradient-to-b from-30%">
           <EmptyHeader>
             <EmptyMedia variant="icon">
               <FileText />
             </EmptyMedia>
             <EmptyTitle>Create Your First Article</EmptyTitle>
             <EmptyDescription>
-              Share your thoughts, stories, or tutorials with the world. It only takes a few minutes.
+              Share your thoughts, stories, or tutorials with the world. It only
+              takes a few minutes.
             </EmptyDescription>
           </EmptyHeader>
           <EmptyContent>
@@ -52,8 +63,8 @@ export const WelcomeEmpty = ({ projectSlug, subscriptionTier }: WelcomeEmptyProp
       </div>
 
       <div className="w-full">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
-          <Empty className="border from-muted/20 to-background h-full bg-gradient-to-l from-30%">
+        <div className="grid grid-cols-1 gap-4 pt-4 sm:grid-cols-2">
+          <Empty className="from-muted/20 to-background h-full border bg-gradient-to-l from-30%">
             <EmptyHeader>
               <EmptyMedia variant="icon">
                 <Key />
@@ -73,14 +84,16 @@ export const WelcomeEmpty = ({ projectSlug, subscriptionTier }: WelcomeEmptyProp
             </EmptyContent>
           </Empty>
 
-          <div className="relative group">
-            <Empty className="border from-muted/20 to-background h-full bg-gradient-to-r from-30%">
+          <div className="group relative">
+            <Empty className="from-muted/20 to-background h-full border bg-gradient-to-r from-30%">
               <EmptyHeader>
                 <EmptyMedia variant="icon">
                   <LineChart />
                 </EmptyMedia>
                 <EmptyTitle>Track Analytics</EmptyTitle>
-                <EmptyDescription>Monitor your audience engagement</EmptyDescription>
+                <EmptyDescription>
+                  Monitor your audience engagement
+                </EmptyDescription>
               </EmptyHeader>
               <EmptyContent>
                 <Link
@@ -103,5 +116,5 @@ export const WelcomeEmpty = ({ projectSlug, subscriptionTier }: WelcomeEmptyProp
         </div>
       </div>
     </div>
-  )
-}
+  );
+};

@@ -263,13 +263,13 @@ export const useWebhooksColumns = (
         return (
           <div className="space-y-1">
             <div
-              className="font-medium truncate max-w-[200px]"
+              className="max-w-[200px] truncate font-medium"
               title={webhook.name}
             >
               {webhook.name}
             </div>
             <div
-              className="text-sm text-muted-foreground truncate max-w-[200px] hidden sm:block"
+              className="text-muted-foreground hidden max-w-[200px] truncate text-sm sm:block"
               title={webhook.url}
             >
               {webhook.url}
@@ -294,7 +294,7 @@ export const useWebhooksColumns = (
               </Badge>
             ))}
             {webhook.events.length > 2 && (
-              <span className="text-xs text-muted-foreground">
+              <span className="text-muted-foreground text-xs">
                 +{webhook.events.length - 2}
               </span>
             )}

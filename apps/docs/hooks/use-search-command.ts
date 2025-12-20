@@ -1,10 +1,10 @@
-import { create } from "zustand"
+import { create } from "zustand";
 
 type SearchCommandState = {
-  open: boolean
-  setOpen: (open: boolean) => void
-  toggle: () => void
-}
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  toggle: () => void;
+};
 
 export const useSearchCommand = create<SearchCommandState>((set) => ({
   open: false,

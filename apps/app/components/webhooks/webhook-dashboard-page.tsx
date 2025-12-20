@@ -1,26 +1,38 @@
-"use client"
+"use client";
 
-import { PageLayout } from "@/components/layout/page-layout"
-import { useDeliveriesColumns } from "@/components/webhooks/deliveries-columns"
-import { DeliveriesDataTable } from "@/components/webhooks/deliveries-data-table"
-import { deleteWebhook, getWebhookDeliveries, testWebhook, updateWebhook } from "@/lib/actions/webhooks"
-import { Badge } from "@simplist/ui/components/badge"
-import { Button, buttonVariants } from "@simplist/ui/components/button"
-import { ButtonGroup } from "@simplist/ui/components/button-group"
-import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@simplist/ui/components/card"
-import { ConfirmDialog } from "@simplist/ui/components/confirm-dialog"
+import { PageLayout } from "@/components/layout/page-layout";
+import { useDeliveriesColumns } from "@/components/webhooks/deliveries-columns";
+import { DeliveriesDataTable } from "@/components/webhooks/deliveries-data-table";
+import {
+  deleteWebhook,
+  getWebhookDeliveries,
+  testWebhook,
+  updateWebhook,
+} from "@/lib/actions/webhooks";
+import { Badge } from "@simplist/ui/components/badge";
+import { Button, buttonVariants } from "@simplist/ui/components/button";
+import { ButtonGroup } from "@simplist/ui/components/button-group";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@simplist/ui/components/card";
+import { ConfirmDialog } from "@simplist/ui/components/confirm-dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuItemLink,
   DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from "@simplist/ui/components/dropdown-menu"
-import { toast } from "@simplist/ui/components/sonner"
+  DropdownMenuTrigger,
+} from "@simplist/ui/components/dropdown-menu";
+import { toast } from "@simplist/ui/components/sonner";
 import {
   AlertTriangle,
-  CheckCircle, ChevronLeft,
+  CheckCircle,
+  ChevronLeft,
   Copy,
   ExternalLink,
   MoreVertical,
@@ -29,68 +41,73 @@ import {
   Trash2,
   Webhook,
   WebhookOff,
-  XCircle
-} from "lucide-react"
-import Link from "next/link"
-import { FC, useState, useTransition } from "react"
-import type { WebhookFormData } from "./types"
-import { formatDate } from "./utils"
+  XCircle,
+} from "lucide-react";
+import Link from "next/link";
+import { FC, useState, useTransition } from "react";
+import type { WebhookFormData } from "./types";
+import { formatDate } from "./utils";
 
 type Delivery = {
-  id: string
-  status: string
-  statusCode: number | null
-  error: string | null
-  response: unknown
-  attemptedAt: Date
-}
+  id: string;
+  status: string;
+  statusCode: number | null;
+  error: string | null;
+  response: unknown;
+  attemptedAt: Date;
+};
 
 type Props = {
   webhook: WebhookFormData & {
-    url: string
-    failureCount: number
-    lastSentAt?: Date | null
-    createdAt: Date
-    projectId: string
-  }
-  projectSlug: string
-  initialDeliveries: Delivery[]
-  initialTotal: number
-}
+    url: string;
+    failureCount: number;
+    lastSentAt?: Date | null;
+    createdAt: Date;
+    projectId: string;
+  };
+  projectSlug: string;
+  initialDeliveries: Delivery[];
+  initialTotal: number;
+};
 
-const ITEMS_PER_PAGE = 10
+const ITEMS_PER_PAGE = 10;
 
-const StatCard = ({ 
-  title, 
-  value, 
-  description, 
+const StatCard = ({
+  title,
+  value,
+  description,
   icon: Icon,
-  suffix = '',
-  variant = "default"
+  suffix = "",
+  variant = "default",
 }: {
-  title: string
-  value: number | string
-  description: string
-  icon: React.ComponentType<{ className?: string }>
-  suffix?: string
-  variant?: "default" | "destructive"
+  title: string;
+  value: number | string;
+  description: string;
+  icon: React.ComponentType<{ className?: string }>;
+  suffix?: string;
+  variant?: "default" | "destructive";
 }) => (
   <Card>
     <CardHeader className="-mb-6">
       <CardTitle className="text-sm font-medium">{title}</CardTitle>
       <CardAction>
-        <Icon className={`h-4 w-4 ${variant === "destructive" ? "text-destructive" : "text-muted-foreground"}`} />
+        <Icon
+          className={`h-4 w-4 ${variant === "destructive" ? "text-destructive" : "text-muted-foreground"}`}
+        />
       </CardAction>
     </CardHeader>
 
     <CardContent>
-      <div className={`text-2xl font-bold ${variant === "destructive" ? "text-destructive" : ""}`}>
-        {value}{suffix}
+      <div
+        className={`text-2xl font-bold ${variant === "destructive" ? "text-destructive" : ""}`}
+      >
+        {value}
+        {suffix}
       </div>
-      <p className="text-xs text-muted-foreground">{description}</p>
+      <p className="text-muted-foreground text-xs">{description}</p>
     </CardContent>
   </Card>
-)
+);
 
 export const WebhookDashboardPage: FC<Props> = ({
   webhook,
@@ -98,49 +115,53 @@ export const WebhookDashboardPage: FC<Props> = ({
   initialDeliveries,
   initialTotal,
 }) => {
-  const [deliveries, setDeliveries] = useState<Delivery[]>(initialDeliveries)
-  const [total, setTotal] = useState(initialTotal)
-  const [offset, setOffset] = useState(0)
-  const [isPending, startTransition] = useTransition()
-  const [isLoadingMore, setIsLoadingMore] = useState(false)
-  const [deleteDialog, setDeleteDialog] = useState(false)
-  const [isDeleting, setIsDeleting] = useState(false)
+  const [deliveries, setDeliveries] = useState<Delivery[]>(initialDeliveries);
+  const [total, setTotal] = useState(initialTotal);
+  const [offset, setOffset] = useState(0);
+  const [isPending, startTransition] = useTransition();
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [deleteDialog, setDeleteDialog] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const columns = useDeliveriesColumns(projectSlug)
+  const columns = useDeliveriesColumns(projectSlug);
 
   const loadMore = async () => {
-    setIsLoadingMore(true)
+    setIsLoadingMore(true);
     try {
-      const newOffset = offset + ITEMS_PER_PAGE
+      const newOffset = offset + ITEMS_PER_PAGE;
       const result = await getWebhookDeliveries(webhook.id, {
         limit: ITEMS_PER_PAGE,
         offset: newOffset,
-      })
-      setDeliveries([...deliveries, ...result.deliveries])
-      setTotal(result.total)
-      setOffset(newOffset)
+      });
+      setDeliveries([...deliveries, ...result.deliveries]);
+      setTotal(result.total);
+      setOffset(newOffset);
     } catch (error) {
-      toast.error("Failed to load more deliveries")
+      toast.error("Failed to load more deliveries");
     } finally {
-      setIsLoadingMore(false)
+      setIsLoadingMore(false);
     }
-  }
+  };
 
   const handleToggleStatus = () => {
-    const newStatus = webhook.status === "active" ? "disabled" : "active"
+    const newStatus = webhook.status === "active" ? "disabled" : "active";
 
     startTransition(() => {
       toast.promise(
-        updateWebhook(webhook.id, webhook.projectId, { status: newStatus }), {
+        updateWebhook(webhook.id, webhook.projectId, { status: newStatus }),
+        {
           loading: newStatus === "active" ? "Enabling..." : "Disabling...",
           success: () => {
-            return newStatus === "active" ? "Webhook enabled" : "Webhook disabled"
+            return newStatus === "active"
+              ? "Webhook enabled"
+              : "Webhook disabled";
           },
-          error: (err) => (err instanceof Error ? err.message : "Failed to update"),
-        }
-      )
-    })
-  }
+          error: (err) =>
+            err instanceof Error ? err.message : "Failed to update",
+        },
+      );
+    });
+  };
 
   const handleTest = () => {
     startTransition(() => {
@@ -148,38 +169,38 @@ export const WebhookDashboardPage: FC<Props> = ({
         loading: "Sending test...",
         success: (result) => {
           if (result.success) {
-            return `Test sent successfully (HTTP ${result.statusCode})`
+            return `Test sent successfully (HTTP ${result.statusCode})`;
           }
-          throw new Error(result.error)
+          throw new Error(result.error);
         },
         error: (err) => (err instanceof Error ? err.message : "Test failed"),
-      })
-    })
-  }
+      });
+    });
+  };
 
   const handleDelete = async () => {
-    setIsDeleting(true)
+    setIsDeleting(true);
 
     toast.promise(deleteWebhook(webhook.id), {
       loading: "Deleting webhook...",
       success: () => {
-        setDeleteDialog(false)
-        setIsDeleting(false)
-        return `Webhook "${webhook.name}" deleted`
+        setDeleteDialog(false);
+        setIsDeleting(false);
+        return `Webhook "${webhook.name}" deleted`;
       },
       error: (err) => {
-        setIsDeleting(false)
-        return err instanceof Error ? err.message : "Failed to delete webhook"
+        setIsDeleting(false);
+        return err instanceof Error ? err.message : "Failed to delete webhook";
       },
-    })
-  }
+    });
+  };
 
   const copyUrl = () => {
-    navigator.clipboard.writeText(webhook.url)
-    toast.success("URL copied to clipboard")
-  }
+    navigator.clipboard.writeText(webhook.url);
+    toast.success("URL copied to clipboard");
+  };
 
-  const hasMore = deliveries.length < total
+  const hasMore = deliveries.length < total;
 
   return (
     <>
@@ -203,7 +224,10 @@ export const WebhookDashboardPage: FC<Props> = ({
               </DropdownMenuTrigger>
 
               <DropdownMenuContent align="end">
-                <DropdownMenuItemLink as={Link} href={`/${projectSlug}/webhooks/${webhook.id}/edit`}>
+                <DropdownMenuItemLink
+                  as={Link}
+                  href={`/${projectSlug}/webhooks/${webhook.id}/edit`}
+                >
                   <Pencil />
                   Edit configuration
                 </DropdownMenuItemLink>
@@ -241,7 +265,7 @@ export const WebhookDashboardPage: FC<Props> = ({
         }
       >
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
           <StatCard
             title="Status"
             value={webhook.status === "active" ? "Active" : "Disabled"}
@@ -267,7 +291,11 @@ export const WebhookDashboardPage: FC<Props> = ({
 
           <StatCard
             title="Last Sent"
-            value={webhook.lastSentAt ? formatDate(webhook.lastSentAt) || "Never" : "Never"}
+            value={
+              webhook.lastSentAt
+                ? formatDate(webhook.lastSentAt) || "Never"
+                : "Never"
+            }
             description="Most recent delivery attempt"
             icon={CheckCircle}
           />
@@ -279,7 +307,7 @@ export const WebhookDashboardPage: FC<Props> = ({
             <CardTitle>Configuration</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-medium">Webhook URL</p>
@@ -298,7 +326,9 @@ export const WebhookDashboardPage: FC<Props> = ({
                     </Link>
                   </div>
                 </div>
-                <p className="text-sm text-muted-foreground break-all">{webhook.url}</p>
+                <p className="text-muted-foreground text-sm break-all">
+                  {webhook.url}
+                </p>
               </div>
 
               <div className="space-y-2">
@@ -313,17 +343,17 @@ export const WebhookDashboardPage: FC<Props> = ({
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <p className="text-sm font-medium">Secret</p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   {webhook.secret ? "Configured" : "Not configured"}
                 </p>
               </div>
 
               <div className="space-y-2">
                 <p className="text-sm font-medium">Custom Headers</p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   {webhook.headers && Object.keys(webhook.headers).length > 0
                     ? `${Object.keys(webhook.headers).length} header${
                         Object.keys(webhook.headers).length === 1 ? "" : "s"
@@ -335,8 +365,10 @@ export const WebhookDashboardPage: FC<Props> = ({
 
             <div className="space-y-2">
               <p className="text-sm font-medium">Custom Payload</p>
-              <p className="text-sm text-muted-foreground">
-                {webhook.customPayload ? "Custom payload configured" : "Using default payload"}
+              <p className="text-muted-foreground text-sm">
+                {webhook.customPayload
+                  ? "Custom payload configured"
+                  : "Using default payload"}
               </p>
             </div>
           </CardContent>
@@ -382,5 +414,5 @@ export const WebhookDashboardPage: FC<Props> = ({
         disabled={isDeleting}
       />
     </>
-  )
-}
+  );
+};

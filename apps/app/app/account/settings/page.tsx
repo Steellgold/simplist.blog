@@ -1,21 +1,21 @@
-import { PageLayout } from "@/components/layout/page-layout"
-import { AccountSettingsForm } from "@/components/account/account-settings-form"
-import { getCurrentUser } from "@/lib/auth-helper"
-import { redirect } from "next/navigation"
-import { prisma } from "@simplist/db"
+import { PageLayout } from "@/components/layout/page-layout";
+import { AccountSettingsForm } from "@/components/account/account-settings-form";
+import { getCurrentUser } from "@/lib/auth-helper";
+import { redirect } from "next/navigation";
+import { prisma } from "@simplist/db";
 
 const Page = async () => {
-  const user = await getCurrentUser()
-  if (!user) redirect("/auth/login")
+  const user = await getCurrentUser();
+  if (!user) redirect("/auth/login");
 
   const isOAuthUser = await prisma.account.findFirst({
     where: {
       userId: user.id,
       providerId: {
-        not: "credential"
-      }
-    }
-  })
+        not: "credential",
+      },
+    },
+  });
 
   return (
     <PageLayout
@@ -25,7 +25,7 @@ const Page = async () => {
     >
       <AccountSettingsForm user={user} isOAuthUser={!!isOAuthUser} />
     </PageLayout>
-  )
-}
+  );
+};
 
-export default Page
+export default Page;

@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import React from "react"
+import React from "react";
 
 // Payment method icons from react-pay-icons
 import {
@@ -129,7 +129,7 @@ import {
   Worldpay,
   WorldpayTransparent,
   Zip,
-} from "react-pay-icons"
+} from "react-pay-icons";
 
 // Crypto icons from react-pay-icons/crypto
 import {
@@ -235,7 +235,8 @@ import {
   Cred,
   Crpt,
   Crv,
-  Crw, Cs,
+  Crw,
+  Cs,
   Ctr,
   Ctxc,
   Cvc,
@@ -601,8 +602,8 @@ import {
   Zest,
   Zil,
   Zilla,
-  Zrx
-} from "react-pay-icons/crypto"
+  Zrx,
+} from "react-pay-icons/crypto";
 
 // Payment method icon mapping
 const paymentMethodIcons: Record<string, React.ComponentType<any>> = {
@@ -1204,24 +1205,26 @@ const paymentMethodIcons: Record<string, React.ComponentType<any>> = {
   zil: Zil,
   zilla: Zilla,
   zrx: Zrx,
-}
+};
 
-export const getPaymentMethodIcon = (brand: string | undefined, style?: React.CSSProperties) => {
-  if (!brand) return null
+export const getPaymentMethodIcon = (
+  brand: string | undefined,
+  style?: React.CSSProperties,
+) => {
+  if (!brand) return null;
 
-  const brandLower = brand.toLowerCase()
-  const IconComponent = paymentMethodIcons[brandLower]
+  const brandLower = brand.toLowerCase();
+  const IconComponent = paymentMethodIcons[brandLower];
 
-  if (!IconComponent) return null
+  if (!IconComponent) return null;
 
   const defaultStyle: React.CSSProperties = {
     width: 16,
     borderRadius: "20%",
     ...style,
-  }
+  };
 
-  return <IconComponent style={defaultStyle} />
-}
+  return <IconComponent style={defaultStyle} />;
+};
 
-export { paymentMethodIcons }
-
+export { paymentMethodIcons };

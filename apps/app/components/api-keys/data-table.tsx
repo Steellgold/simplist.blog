@@ -102,7 +102,7 @@ export const ApiKeysDataTable = <TData, TValue>({
         <DataTableViewOptions table={table} />
       </div>
 
-      <div className="rounded-md border overflow-hidden">
+      <div className="overflow-hidden rounded-md border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -173,7 +173,7 @@ export const ApiKeysDataTable = <TData, TValue>({
       </div>
 
       <div className="flex items-center justify-between">
-        <div className="text-sm text-muted-foreground">
+        <div className="text-muted-foreground text-sm">
           {table.getFilteredRowModel().rows.length} API key(s)
         </div>
         <ButtonGroup>

@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.7] - 2025-10-26
 
 ### Added
+
 - Documentation for `client.analytics.update()` method for updating page view metrics
 - Documentation for `client.articles.popular()` method for fetching popular articles
 - Complete multilingual support documentation with variant helpers
@@ -15,12 +16,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Additional TypeScript type exports in documentation
 
 ### Changed
+
 - Enhanced analytics tracking documentation with complete workflow (track + update)
 - Improved TypeScript support section with all exported types
 
 ### Fixed
+
 - Missing documentation for existing SDK features
 - Incomplete API reference sections
 
 ## [0.0.6] - Previous release
+
 - Initial public release with core functionality

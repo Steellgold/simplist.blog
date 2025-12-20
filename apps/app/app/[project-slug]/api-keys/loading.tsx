@@ -1,5 +1,5 @@
-import { PageLayout } from "@/components/layout/page-layout"
-import { Skeleton } from "@simplist/ui/components/skeleton"
+import { PageLayout } from "@/components/layout/page-layout";
+import { Skeleton } from "@simplist/ui/components/skeleton";
 
 const ApiKeysLoading = () => {
   return (
@@ -19,24 +19,27 @@ const ApiKeysLoading = () => {
               <Skeleton className="h-5 w-32" />
               <Skeleton className="h-5 w-32" />
               <Skeleton className="h-5 w-32" />
-              <Skeleton className="h-5 w-20 ml-auto" />
+              <Skeleton className="ml-auto h-5 w-20" />
             </div>
           </div>
 
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="flex items-center gap-4 p-4 border-b last:border-b-0">
+            <div
+              key={i}
+              className="flex items-center gap-4 border-b p-4 last:border-b-0"
+            >
               <Skeleton className="h-5 w-32" />
               <Skeleton className="h-5 w-48" />
               <Skeleton className="h-5 w-32" />
               <Skeleton className="h-5 w-32" />
               <Skeleton className="h-5 w-32" />
-              <Skeleton className="h-8 w-8 ml-auto" />
+              <Skeleton className="ml-auto h-8 w-8" />
             </div>
           ))}
         </div>
       </div>
     </PageLayout>
-  )
-}
+  );
+};
 
-export default ApiKeysLoading
+export default ApiKeysLoading;

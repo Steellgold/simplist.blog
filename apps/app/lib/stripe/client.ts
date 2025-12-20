@@ -20,11 +20,13 @@ export const STRIPE_PRODUCTS = {
 /**
  * Get subscription expiration date since current_period_end doesn't exist
  */
-export const getSubscriptionExpiryDate = (subscription: Stripe.Subscription): Date => {
+export const getSubscriptionExpiryDate = (
+  subscription: Stripe.Subscription,
+): Date => {
   // Calculate expiry based on subscription creation and billing cycle
   const createdAt = new Date(subscription.created * 1000);
   const interval = subscription.items.data[0]?.price?.recurring?.interval;
-  
+
   if (interval === "month") {
     // Add 1 month
     const expiry = new Date(createdAt);
@@ -36,7 +38,7 @@ export const getSubscriptionExpiryDate = (subscription: Stripe.Subscription): Da
     expiry.setFullYear(expiry.getFullYear() + 1);
     return expiry;
   }
-  
+
   // Default to 1 month if interval is unknown
   const expiry = new Date(createdAt);
   expiry.setMonth(expiry.getMonth() + 1);

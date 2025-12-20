@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import type { User } from "@/lib/auth-client"
+import type { User } from "@/lib/auth-client";
 import {
   Sidebar,
   SidebarContent,
@@ -11,16 +11,16 @@ import {
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
-  SidebarMenuItem
-} from "@simplist/ui/components/sidebar"
-import { ChevronLeft, Shield, Trash2, User as UserIcon } from "lucide-react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { FC } from "react"
-import { SidebarFooterItem } from "./sidebar-footer-item"
+  SidebarMenuItem,
+} from "@simplist/ui/components/sidebar";
+import { ChevronLeft, Shield, Trash2, User as UserIcon } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { FC } from "react";
+import { SidebarFooterItem } from "./sidebar-footer-item";
 
 interface AccountSidebarProps {
-  user: User
+  user: User;
 }
 
 const accountNavigationItems = [
@@ -39,27 +39,23 @@ const accountNavigationItems = [
     icon: Trash2,
     href: "/account/settings/account",
   },
-]
+];
 
 export const AccountSidebar: FC<AccountSidebarProps> = ({ user }) => {
-  const pathname = usePathname()
+  const pathname = usePathname();
 
   const isItemActive = (href: string) => {
-    return pathname === href
-  }
+    return pathname === href;
+  };
 
   return (
     <Sidebar variant="floating" collapsible="icon">
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton
-              size="lg"
-              className="cursor-pointer"
-              asChild
-            >
+            <SidebarMenuButton size="lg" className="cursor-pointer" asChild>
               <Link href="/">
-                <div className="flex aspect-square size-5.5 items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground">
+                <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-5.5 items-center justify-center rounded-md">
                   <ChevronLeft className="size-3" />
                 </div>
                 <span className="truncate font-semibold">Back to Projects</span>
@@ -75,21 +71,20 @@ export const AccountSidebar: FC<AccountSidebarProps> = ({ user }) => {
           <SidebarGroupContent>
             <SidebarMenu>
               {accountNavigationItems.map((item) => {
-                const isActive = isItemActive(item.href)
-                const Icon = item.icon
+                const isActive = isItemActive(item.href);
+                const Icon = item.icon;
                 return (
                   <SidebarMenuItem key={item.href}>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={isActive}
-                    >
+                    <SidebarMenuButton asChild isActive={isActive}>
                       <Link href={item.href}>
                         <Icon className="size-4" />
-                        <span className="group-data-[collapsible=icon]:hidden">{item.title}</span>
+                        <span className="group-data-[collapsible=icon]:hidden">
+                          {item.title}
+                        </span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
-                )
+                );
               })}
             </SidebarMenu>
           </SidebarGroupContent>
@@ -100,5 +95,5 @@ export const AccountSidebar: FC<AccountSidebarProps> = ({ user }) => {
         <SidebarFooterItem user={user} isVerified={user.emailVerified} />
       </SidebarFooter>
     </Sidebar>
-  )
-}
+  );
+};

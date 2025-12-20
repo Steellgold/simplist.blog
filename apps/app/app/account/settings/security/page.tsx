@@ -1,14 +1,14 @@
-import { PageLayout } from "@/components/layout/page-layout"
-import { SecuritySettingsForm } from "@/components/account/security-settings-form"
-import { getCurrentUser } from "@/lib/auth-helper"
-import { prisma } from "@simplist/db"
-import { unauthorized } from "next/navigation"
-import { auth } from "@/lib/auth"
-import { headers } from "next/headers"
+import { PageLayout } from "@/components/layout/page-layout";
+import { SecuritySettingsForm } from "@/components/account/security-settings-form";
+import { getCurrentUser } from "@/lib/auth-helper";
+import { prisma } from "@simplist/db";
+import { unauthorized } from "next/navigation";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 const Page = async () => {
-  const user = await getCurrentUser()
-  if (!user) unauthorized()
+  const user = await getCurrentUser();
+  if (!user) unauthorized();
 
   const [hasPassword, passkeys] = await Promise.all([
     prisma.account.findFirst({
@@ -16,9 +16,9 @@ const Page = async () => {
       select: { password: true },
     }),
     auth.api.listPasskeys({
-      headers: await headers()
-    })
-  ])
+      headers: await headers(),
+    }),
+  ]);
 
   return (
     <PageLayout
@@ -28,11 +28,13 @@ const Page = async () => {
     >
       <SecuritySettingsForm
         user={user}
-        hasPassword={Boolean(hasPassword?.password && hasPassword.password.length > 0)}
+        hasPassword={Boolean(
+          hasPassword?.password && hasPassword.password.length > 0,
+        )}
         passkeys={passkeys}
       />
     </PageLayout>
-  )
-}
+  );
+};
 
-export default Page
+export default Page;

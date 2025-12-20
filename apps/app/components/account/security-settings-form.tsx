@@ -1,68 +1,87 @@
-"use client"
+"use client";
 
-import { deletePasskey } from "@/lib/actions/security"
-import { User } from "@/lib/auth-client"
-import { Passkey } from "@better-auth/passkey"
-import { Button } from "@simplist/ui/components/button"
-import { Card, CardContent, CardHeader } from "@simplist/ui/components/card"
-import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel, FieldSeparator } from "@simplist/ui/components/field"
-import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemTitle } from "@simplist/ui/components/item"
-import { Switch } from "@simplist/ui/components/switch"
-import { Key, Trash2 } from "lucide-react"
-import { useRouter } from "next/navigation"
-import { useState } from "react"
-import { toast } from "sonner"
-import { AddPasskeyDialog } from "./add-passkey-dialog"
-import { ChangePasswordDialog } from "./change-password-dialog"
-import { Disable2FADialog } from "./disable-2fa-dialog"
-import { Enable2FADialog } from "./enable-2fa-dialog"
+import { deletePasskey } from "@/lib/actions/security";
+import { User } from "@/lib/auth-client";
+import { Passkey } from "@better-auth/passkey";
+import { Button } from "@simplist/ui/components/button";
+import { Card, CardContent, CardHeader } from "@simplist/ui/components/card";
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldSeparator,
+} from "@simplist/ui/components/field";
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemMedia,
+  ItemTitle,
+} from "@simplist/ui/components/item";
+import { Switch } from "@simplist/ui/components/switch";
+import { Key, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
+import { AddPasskeyDialog } from "./add-passkey-dialog";
+import { ChangePasswordDialog } from "./change-password-dialog";
+import { Disable2FADialog } from "./disable-2fa-dialog";
+import { Enable2FADialog } from "./enable-2fa-dialog";
 
 type Props = {
-  user: User
-  hasPassword: boolean
-  passkeys: Passkey[]
-}
+  user: User;
+  hasPassword: boolean;
+  passkeys: Passkey[];
+};
 
-export const SecuritySettingsForm = ({ user, hasPassword, passkeys }: Props) => {
-  const router = useRouter()
-  const [showPasswordDialog, setShowPasswordDialog] = useState(false)
-  const [showAddPasskeyDialog, setShowAddPasskeyDialog] = useState(false)
-  const [showEnable2FADialog, setShowEnable2FADialog] = useState(false)
-  const [showDisable2FADialog, setShowDisable2FADialog] = useState(false)
-  const [is2FAEnabled, setIs2FAEnabled] = useState(user.twoFactorEnabled ?? false)
+export const SecuritySettingsForm = ({
+  user,
+  hasPassword,
+  passkeys,
+}: Props) => {
+  const router = useRouter();
+  const [showPasswordDialog, setShowPasswordDialog] = useState(false);
+  const [showAddPasskeyDialog, setShowAddPasskeyDialog] = useState(false);
+  const [showEnable2FADialog, setShowEnable2FADialog] = useState(false);
+  const [showDisable2FADialog, setShowDisable2FADialog] = useState(false);
+  const [is2FAEnabled, setIs2FAEnabled] = useState(
+    user.twoFactorEnabled ?? false,
+  );
 
   const handleAddPasskey = () => {
-    setShowAddPasskeyDialog(true)
-  }
+    setShowAddPasskeyDialog(true);
+  };
 
   const handleDeletePasskey = async (passkeyId: string) => {
-    toast.promise(
-      deletePasskey(passkeyId),
-      {
-        loading: "Deleting passkey...",
-        success: () => {
-          router.refresh()
-          return "Passkey deleted successfully"
-        },
-        error: (err) => {
-          const message = err instanceof Error ? err.message : "Failed to delete passkey"
-          return message
-        },
-      }
-    )
-  }
+    toast.promise(deletePasskey(passkeyId), {
+      loading: "Deleting passkey...",
+      success: () => {
+        router.refresh();
+        return "Passkey deleted successfully";
+      },
+      error: (err) => {
+        const message =
+          err instanceof Error ? err.message : "Failed to delete passkey";
+        return message;
+      },
+    });
+  };
 
   const handleConfigure2FA = () => {
-    setShowEnable2FADialog(true)
-  }
+    setShowEnable2FADialog(true);
+  };
 
   const handleDisable2FA = () => {
-    setShowDisable2FADialog(true)
-  }
+    setShowDisable2FADialog(true);
+  };
 
   const formatDeviceType = (deviceType: string) => {
-    return deviceType.charAt(0).toUpperCase() + deviceType.slice(1)
-  }
+    return deviceType.charAt(0).toUpperCase() + deviceType.slice(1);
+  };
 
   return (
     <>
@@ -79,9 +98,7 @@ export const SecuritySettingsForm = ({ user, hasPassword, passkeys }: Props) => 
             {/* Change/Set Password */}
             <Field orientation="responsive">
               <FieldContent>
-                <FieldLabel>
-                  Password
-                </FieldLabel>
+                <FieldLabel>Password</FieldLabel>
                 <FieldDescription>
                   {hasPassword
                     ? "Change your account password."
@@ -89,7 +106,10 @@ export const SecuritySettingsForm = ({ user, hasPassword, passkeys }: Props) => 
                 </FieldDescription>
               </FieldContent>
 
-              <Button variant="outline" onClick={() => setShowPasswordDialog(true)}>
+              <Button
+                variant="outline"
+                onClick={() => setShowPasswordDialog(true)}
+              >
                 {hasPassword ? "Change Password" : "Set Password"}
               </Button>
             </Field>
@@ -99,9 +119,7 @@ export const SecuritySettingsForm = ({ user, hasPassword, passkeys }: Props) => 
             {/* Passkeys */}
             <Field orientation="responsive">
               <FieldContent>
-                <FieldLabel>
-                  Passkeys
-                </FieldLabel>
+                <FieldLabel>Passkeys</FieldLabel>
                 <FieldDescription>
                   {passkeys.length === 0
                     ? "Set up passkeys to sign in securely without a password."
@@ -124,7 +142,8 @@ export const SecuritySettingsForm = ({ user, hasPassword, passkeys }: Props) => 
                     </ItemMedia>
                     <ItemContent>
                       <ItemTitle>
-                        {passkey.name || `${formatDeviceType(passkey.deviceType)} Passkey`}
+                        {passkey.name ||
+                          `${formatDeviceType(passkey.deviceType)} Passkey`}
                       </ItemTitle>
                       <ItemDescription>
                         {formatDeviceType(passkey.deviceType)}
@@ -150,9 +169,7 @@ export const SecuritySettingsForm = ({ user, hasPassword, passkeys }: Props) => 
             {/* Two-Factor Authentication */}
             <Field orientation="responsive">
               <FieldContent>
-                <FieldLabel>
-                  Two-Factor Authentication
-                </FieldLabel>
+                <FieldLabel>Two-Factor Authentication</FieldLabel>
                 <FieldDescription>
                   {user.twoFactorEnabled
                     ? "You'll need to enter a code from your authenticator app when signing in."
@@ -163,15 +180,13 @@ export const SecuritySettingsForm = ({ user, hasPassword, passkeys }: Props) => 
               <div className="flex items-center gap-2">
                 <Switch
                   checked={is2FAEnabled}
-                  onCheckedChange={
-                    (checked) => {
-                      if (checked) {
-                        handleConfigure2FA()
-                      } else {
-                        handleDisable2FA()
-                      }
+                  onCheckedChange={(checked) => {
+                    if (checked) {
+                      handleConfigure2FA();
+                    } else {
+                      handleDisable2FA();
                     }
-                  }
+                  }}
                 />
               </div>
             </Field>
@@ -203,5 +218,5 @@ export const SecuritySettingsForm = ({ user, hasPassword, passkeys }: Props) => 
         onDisabled={() => setIs2FAEnabled(false)}
       />
     </>
-  )
-}
+  );
+};

@@ -1,7 +1,14 @@
 "use client";
 
 import { Button } from "@simplist/ui/components/button";
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@simplist/ui/components/empty";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@simplist/ui/components/empty";
 import { ArrowRightIcon, FolderIcon } from "lucide-react";
 
 export const UpgradeProject = () => {
@@ -14,7 +21,8 @@ export const UpgradeProject = () => {
           </EmptyMedia>
           <EmptyTitle>Upgrade Your Project</EmptyTitle>
           <EmptyDescription>
-            Upgrade your project to the Pro plan to unlock all features and continue using the app.
+            Upgrade your project to the Pro plan to unlock all features and
+            continue using the app.
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
@@ -35,5 +43,5 @@ export const UpgradeProject = () => {
         </Button>
       </Empty>
     </div>
-  )
-}
+  );
+};

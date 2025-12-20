@@ -33,15 +33,15 @@ export const CodeBlockTabsClient: FC<CodeBlockTabsClientProps> = ({
   const activeTabData = tabs.find((t) => t.label === activeTab) || tabs[0];
 
   return (
-    <Card className="p-[2.5px] rounded-2xl">
-      <Card className={cn("overflow-hidden p-0 max-w-full", className)}>
+    <Card className="rounded-2xl p-[2.5px]">
+      <Card className={cn("max-w-full overflow-hidden p-0", className)}>
         <Tabs
           value={activeTab}
           onValueChange={setActiveTab}
           defaultValue={tabs[0].label}
         >
-          <div className="flex items-center justify-between bg-muted/50 px-2 py-2 border-b gap-2 min-w-0">
-            <TabsList className="bg-transparent overflow-x-auto flex-shrink min-w-0">
+          <div className="bg-muted/50 flex min-w-0 items-center justify-between gap-2 border-b px-2 py-2">
+            <TabsList className="min-w-0 flex-shrink overflow-x-auto bg-transparent">
               {tabs.map((tab) => (
                 <TabsTrigger
                   key={tab.label}
@@ -55,16 +55,16 @@ export const CodeBlockTabsClient: FC<CodeBlockTabsClientProps> = ({
               ))}
             </TabsList>
 
-            <div className="flex items-center gap-2 flex-shrink-0 min-w-0">
+            <div className="flex min-w-0 flex-shrink-0 items-center gap-2">
               <CopyButton content={activeTabData.code} />
             </div>
           </div>
 
           {tabs.map((tab) => (
             <TabsContent key={tab.label} value={tab.label} className="-mt-2.5">
-              <div className="overflow-x-auto max-w-full">
+              <div className="max-w-full overflow-x-auto">
                 <div
-                  className="[&_pre]:p-4 [&_pre]:m-0 [&_pre]:bg-transparent [&_pre]:max-w-full [&_pre]:overflow-x-auto"
+                  className="[&_pre]:m-0 [&_pre]:max-w-full [&_pre]:overflow-x-auto [&_pre]:bg-transparent [&_pre]:p-4"
                   dangerouslySetInnerHTML={{ __html: tab.highlighted }}
                 />
               </div>

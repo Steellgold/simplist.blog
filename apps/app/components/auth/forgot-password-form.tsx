@@ -1,23 +1,45 @@
-"use client"
+"use client";
 
-import { authClient } from "@/lib/auth-client"
-import { cn } from "@/lib/utils"
-import { ForgotPasswordInput, forgotPasswordSchema } from "@/lib/validations/auth"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Alert, AlertDescription, AlertTitle } from "@simplist/ui/components/alert"
-import { Button } from "@simplist/ui/components/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@simplist/ui/components/card"
-import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@simplist/ui/components/field"
-import { Input } from "@simplist/ui/components/input"
-import { toast } from "@simplist/ui/components/sonner"
-import { AlertCircleIcon } from "lucide-react"
-import Link from "next/link"
-import { useState } from "react"
-import { useForm } from "react-hook-form"
+import { authClient } from "@/lib/auth-client";
+import { cn } from "@/lib/utils";
+import {
+  ForgotPasswordInput,
+  forgotPasswordSchema,
+} from "@/lib/validations/auth";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@simplist/ui/components/alert";
+import { Button } from "@simplist/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@simplist/ui/components/card";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@simplist/ui/components/field";
+import { Input } from "@simplist/ui/components/input";
+import { toast } from "@simplist/ui/components/sonner";
+import { AlertCircleIcon } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 
-export const ForgotPasswordForm = ({ className, ...props }: React.ComponentProps<"div">) => {
-  const [error, setError] = useState("")
-  const [success, setSuccess] = useState(false)
+export const ForgotPasswordForm = ({
+  className,
+  ...props
+}: React.ComponentProps<"div">) => {
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
 
   const {
     register,
@@ -27,31 +49,34 @@ export const ForgotPasswordForm = ({ className, ...props }: React.ComponentProps
   } = useForm<ForgotPasswordInput>({
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues: { email: "" },
-  })
+  });
 
   const onSubmit = async (data: ForgotPasswordInput) => {
-    setError("")
+    setError("");
 
     toast.promise(
-      authClient.requestPasswordReset({
-        email: data.email,
-        redirectTo: "/auth/reset-password"
-      }, {
-        onSuccess: () => {
-          setSuccess(true)
+      authClient.requestPasswordReset(
+        {
+          email: data.email,
+          redirectTo: "/auth/reset-password",
         },
-        onError: (ctx) => {
-          setError(ctx.error.message || "Failed to send reset link")
-          throw new Error(ctx.error.message)
-        }
-      }),
+        {
+          onSuccess: () => {
+            setSuccess(true);
+          },
+          onError: (ctx) => {
+            setError(ctx.error.message || "Failed to send reset link");
+            throw new Error(ctx.error.message);
+          },
+        },
+      ),
       {
         loading: "Sending reset link...",
         success: "Reset link sent",
         error: (err) => err?.message || "An error occurred",
-      }
-    )
-  }
+      },
+    );
+  };
 
   if (success) {
     return (
@@ -66,14 +91,17 @@ export const ForgotPasswordForm = ({ className, ...props }: React.ComponentProps
 
           <CardContent>
             <div className="text-center">
-              <Link href="/auth/login" className="text-sm underline-offset-4 hover:underline">
+              <Link
+                href="/auth/login"
+                className="text-sm underline-offset-4 hover:underline"
+              >
                 Back to login
               </Link>
             </div>
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   return (
@@ -82,7 +110,8 @@ export const ForgotPasswordForm = ({ className, ...props }: React.ComponentProps
         <CardHeader>
           <CardTitle>Forgot your password?</CardTitle>
           <CardDescription>
-            Enter your email address and we'll send you a link to reset your password
+            Enter your email address and we'll send you a link to reset your
+            password
           </CardDescription>
         </CardHeader>
 
@@ -117,7 +146,8 @@ export const ForgotPasswordForm = ({ className, ...props }: React.ComponentProps
                     {isSubmitting ? "Sending..." : "Send reset link"}
                   </Button>
                   <FieldDescription className="text-center">
-                    Remember your password? <Link href="/auth/login">Login</Link>
+                    Remember your password?{" "}
+                    <Link href="/auth/login">Login</Link>
                   </FieldDescription>
                 </Field>
               </div>
@@ -131,5 +161,5 @@ export const ForgotPasswordForm = ({ className, ...props }: React.ComponentProps
         and <a href="#">Privacy Policy</a>.
       </FieldDescription>
     </div>
-  )
-}
+  );
+};

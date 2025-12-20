@@ -8,8 +8,7 @@ import { PricingSection } from "./_sections/pricing-section";
 
 const HomePage = async () => {
   return (
-    <div className="min-h-screen bg-linear-to-br from-background via-background to-secondary/20">
-
+    <div className="from-background via-background to-secondary/20 min-h-screen bg-linear-to-br">
       <LightRays
         count={16}
         color="rgba(240, 187, 59, 0.3)"

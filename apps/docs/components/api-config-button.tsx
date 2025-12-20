@@ -1,26 +1,43 @@
-"use client"
+"use client";
 
-import { useApiKeyStore } from "@/lib/api-key-store"
-import { cn } from "@/lib/utils"
-import { Button } from "@simplist/ui/components/button"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@simplist/ui/components/dialog"
-import { Field, FieldLabel } from "@simplist/ui/components/field"
-import { InputGroup, InputGroupAddon } from "@simplist/ui/components/input-group"
-import { InputGroupPasswordInput } from "@simplist/ui/components/password-input"
-import { Check, Settings, X } from "lucide-react"
-import { useState } from "react"
-import { useTestableApi } from "./testable-api-provider"
+import { useApiKeyStore } from "@/lib/api-key-store";
+import { cn } from "@/lib/utils";
+import { Button } from "@simplist/ui/components/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@simplist/ui/components/dialog";
+import { Field, FieldLabel } from "@simplist/ui/components/field";
+import {
+  InputGroup,
+  InputGroupAddon,
+} from "@simplist/ui/components/input-group";
+import { InputGroupPasswordInput } from "@simplist/ui/components/password-input";
+import { Check, Settings, X } from "lucide-react";
+import { useState } from "react";
+import { useTestableApi } from "./testable-api-provider";
 
 export const ApiConfigButton = () => {
-  const { apiKey, setApiKey, clearApiKey } = useApiKeyStore()
-  const { hasTestableApi } = useTestableApi()
-  const [open, setOpen] = useState(false)
-  const [inputValue, setInputValue] = useState(apiKey)
+  const { apiKey, setApiKey, clearApiKey } = useApiKeyStore();
+  const { hasTestableApi } = useTestableApi();
+  const [open, setOpen] = useState(false);
+  const [inputValue, setInputValue] = useState(apiKey);
 
-  const handleSave = () => { setApiKey(inputValue); setOpen(false); };
-  const handleClear = () => { clearApiKey(); setInputValue(""); };
+  const handleSave = () => {
+    setApiKey(inputValue);
+    setOpen(false);
+  };
+  const handleClear = () => {
+    clearApiKey();
+    setInputValue("");
+  };
 
-  if (!hasTestableApi) return null
+  if (!hasTestableApi) return null;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -44,7 +61,13 @@ export const ApiConfigButton = () => {
           <Field>
             <FieldLabel htmlFor="api-key">API Key</FieldLabel>
             <InputGroup>
-              <InputGroupAddon className={cn(apiKey ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground")}>
+              <InputGroupAddon
+                className={cn(
+                  apiKey
+                    ? "text-emerald-600 dark:text-emerald-400"
+                    : "text-muted-foreground",
+                )}
+              >
                 {apiKey ? <Check /> : <X />}
               </InputGroupAddon>
 
@@ -67,5 +90,5 @@ export const ApiConfigButton = () => {
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};

@@ -1,4 +1,4 @@
-import type { Color } from "@simplist/db"
+import type { Color } from "@simplist/db";
 
 export const COLOR_HEX_MAP: Record<Color, string> = {
   RED: "#EF4444",
@@ -20,10 +20,10 @@ export const COLOR_HEX_MAP: Record<Color, string> = {
   ROSE: "#F43F5E",
   BLACK: "#000000",
   WHITE: "#FFFFFF",
-  GRAY: "#9CA3AF"
-}
+  GRAY: "#9CA3AF",
+};
 
 export const getColorHex = (color: Color | null): string | null => {
-  if (!color) return null
-  return COLOR_HEX_MAP[color] || null
-}
+  if (!color) return null;
+  return COLOR_HEX_MAP[color] || null;
+};

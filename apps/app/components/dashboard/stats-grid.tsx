@@ -1,4 +1,10 @@
-import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@simplist/ui/components/card";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@simplist/ui/components/card";
 import { Progress } from "@simplist/ui/components/progress";
 import { Eye, FileText, HardDrive, Key } from "lucide-react";
 
@@ -25,10 +31,11 @@ export const StatsGrid = ({
     return `${gb.toFixed(2)} GB`;
   };
 
-  const storagePercentage = storageLimit > 0 ? (storageUsed / storageLimit) * 100 : 0;
+  const storagePercentage =
+    storageLimit > 0 ? (storageUsed / storageLimit) * 100 : 0;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
       <Card>
         <CardHeader>
           <CardTitle>Published Articles</CardTitle>
@@ -39,8 +46,12 @@ export const StatsGrid = ({
 
         <CardContent>
           <div className="text-2xl font-bold">{publishedArticles}</div>
-          <p className="text-xs text-muted-foreground mt-1">
-            {publishedArticles === 0 ? "No articles yet" : publishedArticles === 1 ? "article published" : "articles published"}
+          <p className="text-muted-foreground mt-1 text-xs">
+            {publishedArticles === 0
+              ? "No articles yet"
+              : publishedArticles === 1
+                ? "article published"
+                : "articles published"}
           </p>
         </CardContent>
       </Card>
@@ -56,9 +67,7 @@ export const StatsGrid = ({
           <div className="text-2xl font-bold">
             {totalViews.toLocaleString()}
           </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            all-time views
-          </p>
+          <p className="text-muted-foreground mt-1 text-xs">all-time views</p>
         </CardContent>
       </Card>
 
@@ -70,10 +79,8 @@ export const StatsGrid = ({
           </CardAction>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">
-            {activeApiKeys}
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
+          <div className="text-2xl font-bold">{activeApiKeys}</div>
+          <p className="text-muted-foreground mt-1 text-xs">
             {activeApiKeys === 0 ? "No keys created" : "active keys"}
           </p>
         </CardContent>
@@ -89,7 +96,7 @@ export const StatsGrid = ({
 
         <CardContent>
           <div className="text-2xl font-bold">{formatStorage(storageUsed)}</div>
-          <p className="text-xs text-muted-foreground mt-1">
+          <p className="text-muted-foreground mt-1 text-xs">
             of {formatStorage(storageLimit)}
           </p>
           <Progress value={storagePercentage} className="mt-2 h-1" />

@@ -13,14 +13,16 @@ export const ResetPassword = ({ name, resetUrl }: ResetPasswordProps) => {
       <p>Hi {name},</p>
 
       <p>
-        We received a request to reset the password for your Simplist account. If you made this request,
-        click the button below to create a new password.
+        We received a request to reset the password for your Simplist account.
+        If you made this request, click the button below to create a new
+        password.
       </p>
 
       <div className="info-box">
         <p>
-          <strong>Security reminder:</strong> This link will expire in 1 hour for your security.
-          If you didn't request a password reset, please ignore this email and your password will remain unchanged.
+          <strong>Security reminder:</strong> This link will expire in 1 hour
+          for your security. If you didn't request a password reset, please
+          ignore this email and your password will remain unchanged.
         </p>
       </div>
 
@@ -30,9 +32,7 @@ export const ResetPassword = ({ name, resetUrl }: ResetPasswordProps) => {
         </a>
       </p>
 
-      <p className="muted">
-        Or copy and paste this link into your browser:
-      </p>
+      <p className="muted">Or copy and paste this link into your browser:</p>
 
       <p style={{ wordBreak: "break-all", fontSize: "13px", color: "#737373" }}>
         {resetUrl}
@@ -43,12 +43,13 @@ export const ResetPassword = ({ name, resetUrl }: ResetPasswordProps) => {
       <h2>Need Help?</h2>
 
       <p>
-        If you're having trouble accessing your account or didn't request this password reset,
-        please contact our support team. We're here to help.
+        If you're having trouble accessing your account or didn't request this
+        password reset, please contact our support team. We're here to help.
       </p>
 
       <p className="muted" style={{ marginTop: "24px" }}>
-        For security reasons, never share your password with anyone, including Simplist staff.
+        For security reasons, never share your password with anyone, including
+        Simplist staff.
       </p>
     </EmailLayout>
   );

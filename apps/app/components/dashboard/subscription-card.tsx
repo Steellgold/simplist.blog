@@ -2,7 +2,13 @@
 
 import { MiniBadge } from "@/components/ui/mini-badge";
 import { buttonVariants } from "@simplist/ui/components/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@simplist/ui/components/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@simplist/ui/components/card";
 import { Progress } from "@simplist/ui/components/progress";
 import { format } from "date-fns";
 import { CreditCard, TrendingUp } from "lucide-react";
@@ -26,7 +32,8 @@ export const SubscriptionCard = ({
   subscriptionExpiresAt,
 }: SubscriptionCardProps) => {
   const isPro = subscriptionTier === "PRO";
-  const apiCallsPercentage = apiCallsLimit > 0 ? (monthlyApiCalls / apiCallsLimit) * 100 : 0;
+  const apiCallsPercentage =
+    apiCallsLimit > 0 ? (monthlyApiCalls / apiCallsLimit) * 100 : 0;
 
   return (
     <Card>
@@ -38,7 +45,7 @@ export const SubscriptionCard = ({
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
-          <p className="text-sm text-muted-foreground mb-2">
+          <p className="text-muted-foreground mb-2 text-sm">
             {isPro
               ? "You're on the Pro plan with unlimited features"
               : "You're on the free Starter plan"}
@@ -49,20 +56,21 @@ export const SubscriptionCard = ({
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">API Calls This Month</span>
             <span className="font-medium">
-              {monthlyApiCalls.toLocaleString()} / {apiCallsLimit.toLocaleString()}
+              {monthlyApiCalls.toLocaleString()} /{" "}
+              {apiCallsLimit.toLocaleString()}
             </span>
           </div>
           <Progress value={apiCallsPercentage} className="h-2" />
-          <p className="text-xs text-muted-foreground">
+          <p className="text-muted-foreground text-xs">
             Resets on {format(new Date(apiCallsResetAt), "MMMM d, yyyy")}
           </p>
         </div>
 
         {isPro && subscriptionExpiresAt && (
-          <div className="pt-2 border-t">
-            <p className="text-sm text-muted-foreground">
+          <div className="border-t pt-2">
+            <p className="text-muted-foreground text-sm">
               Next billing date:{" "}
-              <span className="font-medium text-foreground">
+              <span className="text-foreground font-medium">
                 {format(new Date(subscriptionExpiresAt), "MMMM d, yyyy")}
               </span>
             </p>
@@ -72,7 +80,10 @@ export const SubscriptionCard = ({
       <CardFooter>
         {isPro ? (
           <Link
-            className={buttonVariants({ variant: "outline", className: "w-full" })}
+            className={buttonVariants({
+              variant: "outline",
+              className: "w-full",
+            })}
             href={`/${projectSlug}/settings/billing`}
           >
             <CreditCard />
@@ -80,7 +91,10 @@ export const SubscriptionCard = ({
           </Link>
         ) : (
           <Link
-            className={buttonVariants({ variant: "default", className: "w-full" })}
+            className={buttonVariants({
+              variant: "default",
+              className: "w-full",
+            })}
             href="/pricing"
           >
             <TrendingUp />

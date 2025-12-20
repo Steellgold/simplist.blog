@@ -1,23 +1,26 @@
-"use client"
+"use client";
 
-import { CurrentPlanCard } from "@/components/billing/current-plan-card"
-import { InvoicesCard } from "@/components/billing/invoices-card"
-import { PageLayout } from "@/components/layout/page-layout"
-import type { BillingEntry, SubscriptionInfo } from "@/lib/stripe/types"
-import type { SubscriptionTier } from "@simplist/db/types"
+import { CurrentPlanCard } from "@/components/billing/current-plan-card";
+import { InvoicesCard } from "@/components/billing/invoices-card";
+import { PageLayout } from "@/components/layout/page-layout";
+import type { BillingEntry, SubscriptionInfo } from "@/lib/stripe/types";
+import type { SubscriptionTier } from "@simplist/db/types";
 
 type BillingClientPageProps = {
   project: {
-    id: string
-    name: string
-    slug: string
-    subscriptionTier: SubscriptionTier
-  }
-  billingEntries: BillingEntry[]
-  subscriptionInfo: SubscriptionInfo | null
-}
+    id: string;
+    name: string;
+    slug: string;
+    subscriptionTier: SubscriptionTier;
+  };
+  billingEntries: BillingEntry[];
+  subscriptionInfo: SubscriptionInfo | null;
+};
 
-export const BillingClientPage = ({ project, billingEntries }: BillingClientPageProps) => {
+export const BillingClientPage = ({
+  project,
+  billingEntries,
+}: BillingClientPageProps) => {
   return (
     <PageLayout
       title="Billing"
@@ -32,5 +35,5 @@ export const BillingClientPage = ({ project, billingEntries }: BillingClientPage
 
       <InvoicesCard billingEntries={billingEntries} />
     </PageLayout>
-  )
-}
+  );
+};

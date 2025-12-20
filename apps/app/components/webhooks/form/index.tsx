@@ -1,28 +1,40 @@
-"use client"
+"use client";
 
-import { FC } from "react"
+import { FC } from "react";
 
-import type { WebhookEvent } from "@/lib/validations/webhooks"
-import { useWebhookForm } from "../hooks/use-webhook-form"
-import type { WebhookFormData, WebhookFormMode } from "../types"
+import type { WebhookEvent } from "@/lib/validations/webhooks";
+import { useWebhookForm } from "../hooks/use-webhook-form";
+import type { WebhookFormData, WebhookFormMode } from "../types";
 
-import { AdvancedSection } from "./advanced-section"
-import { ConfigSection } from "./config-section"
-import { PayloadSection } from "./payload-section"
+import { AdvancedSection } from "./advanced-section";
+import { ConfigSection } from "./config-section";
+import { PayloadSection } from "./payload-section";
 
 type WebhookFormProps = {
-  projectId: string
-  projectSlug: string
-  webhook?: WebhookFormData
-  mode: WebhookFormMode
-}
+  projectId: string;
+  projectSlug: string;
+  webhook?: WebhookFormData;
+  mode: WebhookFormMode;
+};
 
-export const WebhookForm: FC<WebhookFormProps> = ({ projectId, projectSlug, webhook, mode }) => {
+export const WebhookForm: FC<WebhookFormProps> = ({
+  projectId,
+  projectSlug,
+  webhook,
+  mode,
+}) => {
   const {
-    toggleEvent, handleCustomPayloadChange, setCustomPayloadText,
-    formId, errors, isPending, selectedEvents, customPayloadText,
-    register, handleSubmit
-  } = useWebhookForm({ projectId, projectSlug, webhook, mode })
+    toggleEvent,
+    handleCustomPayloadChange,
+    setCustomPayloadText,
+    formId,
+    errors,
+    isPending,
+    selectedEvents,
+    customPayloadText,
+    register,
+    handleSubmit,
+  } = useWebhookForm({ projectId, projectSlug, webhook, mode });
 
   return (
     <form id={formId} onSubmit={handleSubmit} className="space-y-3">
@@ -48,5 +60,5 @@ export const WebhookForm: FC<WebhookFormProps> = ({ projectId, projectSlug, webh
         defaultHeaders={webhook?.headers}
       />
     </form>
-  )
-}
+  );
+};

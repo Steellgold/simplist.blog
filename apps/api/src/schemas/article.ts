@@ -1,5 +1,5 @@
-import { z } from "zod"
-import { createResponseSchema, paginationQuerySchema } from "./common"
+import { z } from "zod";
+import { createResponseSchema, paginationQuerySchema } from "./common";
 
 // Article schema for API responses
 export const articleSchema = z.object({
@@ -18,23 +18,25 @@ export const articleSchema = z.object({
   readTimeMinutes: z.number(),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
-  publishedAt: z.iso.datetime().nullable()
-})
+  publishedAt: z.iso.datetime().nullable(),
+});
 
 // Article list item (without full content)
-export const articleListItemSchema = articleSchema.omit({ content: true })
+export const articleListItemSchema = articleSchema.omit({ content: true });
 
 // Query parameters for article list
 export const articleListQuerySchema = paginationQuerySchema.extend({
   published: z.coerce.boolean().default(true),
   search: z.string().optional(),
-  status: z.enum(["draft", "published"]).optional()
-})
+  status: z.enum(["draft", "published"]).optional(),
+});
 
 // Response schemas
-export const articleResponseSchema = createResponseSchema(articleSchema)
-export const articleListResponseSchema = createResponseSchema(z.array(articleListItemSchema))
+export const articleResponseSchema = createResponseSchema(articleSchema);
+export const articleListResponseSchema = createResponseSchema(
+  z.array(articleListItemSchema),
+);
 
-export type Article = z.infer<typeof articleSchema>
-export type ArticleListItem = z.infer<typeof articleListItemSchema>
-export type ArticleListQuery = z.infer<typeof articleListQuerySchema>
+export type Article = z.infer<typeof articleSchema>;
+export type ArticleListItem = z.infer<typeof articleListItemSchema>;
+export type ArticleListQuery = z.infer<typeof articleListQuerySchema>;

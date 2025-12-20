@@ -1,14 +1,14 @@
-"use client"
+"use client";
 
-import type { SubscriptionInfo } from "@/lib/stripe/types"
-import { Badge } from "@simplist/ui/components/badge"
-import { Card, CardContent, CardHeader } from "@simplist/ui/components/card"
-import { Calendar, CircleAlert, CircleCheck, CircleX } from "lucide-react"
-import type Stripe from "stripe"
+import type { SubscriptionInfo } from "@/lib/stripe/types";
+import { Badge } from "@simplist/ui/components/badge";
+import { Card, CardContent, CardHeader } from "@simplist/ui/components/card";
+import { Calendar, CircleAlert, CircleCheck, CircleX } from "lucide-react";
+import type Stripe from "stripe";
 
 type SubscriptionInfoCardProps = {
-  subscriptionInfo: SubscriptionInfo | null
-}
+  subscriptionInfo: SubscriptionInfo | null;
+};
 
 const getStatusBadge = (status: Stripe.Subscription.Status) => {
   switch (status) {
@@ -18,21 +18,21 @@ const getStatusBadge = (status: Stripe.Subscription.Status) => {
           <CircleCheck className="size-3" />
           Active
         </Badge>
-      )
+      );
     case "canceled":
       return (
         <Badge variant="destructive" className="gap-1">
           <CircleX className="size-3" />
           Canceled
         </Badge>
-      )
+      );
     case "past_due":
       return (
         <Badge variant="destructive" className="gap-1">
           <CircleAlert className="size-3" />
           Past Due
         </Badge>
-      )
+      );
     case "incomplete":
     case "incomplete_expired":
       return (
@@ -40,40 +40,43 @@ const getStatusBadge = (status: Stripe.Subscription.Status) => {
           <CircleAlert className="size-3" />
           Incomplete
         </Badge>
-      )
+      );
     case "trialing":
       return (
         <Badge variant="secondary" className="gap-1">
           <CircleCheck className="size-3" />
           Trial
         </Badge>
-      )
+      );
     case "unpaid":
       return (
         <Badge variant="destructive" className="gap-1">
           <CircleAlert className="size-3" />
           Unpaid
         </Badge>
-      )
+      );
     default:
-      return <Badge variant="secondary">{status}</Badge>
+      return <Badge variant="secondary">{status}</Badge>;
   }
-}
+};
 
 const formatDate = (date: Date) => {
   return new Intl.DateTimeFormat("en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
-  }).format(date)
-}
+  }).format(date);
+};
 
-export const SubscriptionInfoCard = ({ subscriptionInfo }: SubscriptionInfoCardProps) => {
+export const SubscriptionInfoCard = ({
+  subscriptionInfo,
+}: SubscriptionInfoCardProps) => {
   if (!subscriptionInfo) {
-    return null
+    return null;
   }
 
-  const { status, currentPeriodEnd, cancelAtPeriodEnd, canceledAt } = subscriptionInfo
+  const { status, currentPeriodEnd, cancelAtPeriodEnd, canceledAt } =
+    subscriptionInfo;
 
   return (
     <Card>
@@ -85,7 +88,7 @@ export const SubscriptionInfoCard = ({ subscriptionInfo }: SubscriptionInfoCardP
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="text-muted-foreground flex items-center gap-2 text-sm">
             <Calendar className="size-4" />
             <span>Next payment date</span>
           </div>
@@ -95,8 +98,8 @@ export const SubscriptionInfoCard = ({ subscriptionInfo }: SubscriptionInfoCardP
         </div>
 
         {cancelAtPeriodEnd && (
-          <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3">
-            <p className="text-sm text-destructive">
+          <div className="border-destructive/50 bg-destructive/10 rounded-md border p-3">
+            <p className="text-destructive text-sm">
               Your subscription will end on {formatDate(currentPeriodEnd)}
               {canceledAt && ` (canceled on ${formatDate(canceledAt)})`}
             </p>
@@ -104,5 +107,5 @@ export const SubscriptionInfoCard = ({ subscriptionInfo }: SubscriptionInfoCardP
         )}
       </CardContent>
     </Card>
-  )
-}
+  );
+};

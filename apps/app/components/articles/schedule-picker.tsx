@@ -1,10 +1,27 @@
 "use client";
 
-import { formatTime24to12, getDateFnsLocale, getLanguage, LanguageCode } from "@/lib/types/languages";
+import {
+  formatTime24to12,
+  getDateFnsLocale,
+  getLanguage,
+  LanguageCode,
+} from "@/lib/types/languages";
 import { Button } from "@simplist/ui/components/button";
 import { Calendar } from "@simplist/ui/components/calendar";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@simplist/ui/components/dialog";
-import { Item, ItemContent, ItemDescription, ItemTitle } from "@simplist/ui/components/item";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@simplist/ui/components/dialog";
+import {
+  Item,
+  ItemContent,
+  ItemDescription,
+  ItemTitle,
+} from "@simplist/ui/components/item";
 import { ScrollArea } from "@simplist/ui/components/scroll-area";
 import { format } from "date-fns";
 import { Clock, X } from "lucide-react";
@@ -19,19 +36,19 @@ type ArticleSchedulePickerProps = {
 };
 
 export const ArticleSchedulePicker = ({
-  scheduledPublishAt, onScheduleChange,
-  projectTimezone, projectDefaultLanguage,
+  scheduledPublishAt,
+  onScheduleChange,
+  projectTimezone,
+  projectDefaultLanguage,
   disabled = false,
 }: ArticleSchedulePickerProps) => {
   const [open, setOpen] = useState(false);
   const [date, setDate] = useState<Date | undefined>(
-    scheduledPublishAt ? new Date(scheduledPublishAt) : new Date()
+    scheduledPublishAt ? new Date(scheduledPublishAt) : new Date(),
   );
 
   const [selectedTime, setSelectedTime] = useState<string | null>(
-    scheduledPublishAt
-      ? format(new Date(scheduledPublishAt), "HH:mm")
-      : null
+    scheduledPublishAt ? format(new Date(scheduledPublishAt), "HH:mm") : null,
   );
 
   const now = new Date();
@@ -93,7 +110,11 @@ export const ArticleSchedulePicker = ({
           <ItemContent>
             <ItemTitle>Scheduled</ItemTitle>
             <ItemDescription>
-              {format(new Date(scheduledPublishAt), is12Hour ? "PPP 'at' h:mm a" : "PPP 'at' HH:mm", { locale })}
+              {format(
+                new Date(scheduledPublishAt),
+                is12Hour ? "PPP 'at' h:mm a" : "PPP 'at' HH:mm",
+                { locale },
+              )}
               <br />
               Timezone: {projectTimezone}
             </ItemDescription>
@@ -117,19 +138,24 @@ export const ArticleSchedulePicker = ({
               Choose a time
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[550px] p-0 gap-0" suppressHydrationWarning>
+          <DialogContent
+            className="gap-0 p-0 sm:max-w-[550px]"
+            suppressHydrationWarning
+          >
             <DialogHeader className="flex h-max justify-center border-b p-4">
               <DialogTitle>Schedule Publication</DialogTitle>
             </DialogHeader>
 
             <div className="relative md:pr-48">
-              <div className="p-4 w-full">
+              <div className="w-full p-4">
                 <Calendar
                   mode="single"
                   selected={date}
                   onSelect={handleDateSelect}
                   defaultMonth={date}
-                  disabled={(d) => d < new Date(new Date().setHours(0, 0, 0, 0))}
+                  disabled={(d) =>
+                    d < new Date(new Date().setHours(0, 0, 0, 0))
+                  }
                   showOutsideDays={false}
                   className="w-full bg-transparent p-0"
                 />
@@ -154,8 +180,8 @@ export const ArticleSchedulePicker = ({
               </div>
             </div>
 
-            <DialogFooter className="flex flex-col gap-4 border-t px-4 py-4 sm:flex-row justify-between items-center">
-              <div className="text-xs text-muted-foreground">
+            <DialogFooter className="flex flex-col items-center justify-between gap-4 border-t px-4 py-4 sm:flex-row">
+              <div className="text-muted-foreground text-xs">
                 Timezone: {projectTimezone}
               </div>
 

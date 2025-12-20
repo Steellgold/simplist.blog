@@ -15,7 +15,7 @@ export const POST = async (req: Request) => {
   if (!signature) {
     return NextResponse.json(
       { error: "No signature provided" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -25,7 +25,7 @@ export const POST = async (req: Request) => {
     console.error("STRIPE_WEBHOOK_SECRET is not configured");
     return NextResponse.json(
       { error: "Webhook secret not configured" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -35,10 +35,7 @@ export const POST = async (req: Request) => {
     event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
   } catch (err) {
     console.error("Webhook signature verification failed:", err);
-    return NextResponse.json(
-      { error: "Invalid signature" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
   try {
@@ -57,13 +54,13 @@ export const POST = async (req: Request) => {
           }
 
           const subscription = await stripe.subscriptions.retrieve(
-            session.subscription as string
+            session.subscription as string,
           );
 
           await prisma.project.update({
-            where: { 
+            where: {
               id: projectId,
-              userId: userId 
+              userId: userId,
             },
             data: {
               subscriptionTier: "PRO",
@@ -73,7 +70,9 @@ export const POST = async (req: Request) => {
             },
           });
 
-          console.log(`Subscription activated for project ${projectId} (user ${userId})`);
+          console.log(
+            `Subscription activated for project ${projectId} (user ${userId})`,
+          );
         }
         break;
       }
@@ -90,12 +89,13 @@ export const POST = async (req: Request) => {
 
         // Update subscription status and expiration
         await prisma.project.update({
-          where: { 
+          where: {
             id: projectId,
-            userId: userId 
+            userId: userId,
           },
           data: {
-            subscriptionTier: subscription.status === "active" ? "PRO" : "STARTER",
+            subscriptionTier:
+              subscription.status === "active" ? "PRO" : "STARTER",
             subscriptionExpiresAt:
               subscription.status === "active"
                 ? getSubscriptionExpiryDate(subscription)
@@ -103,7 +103,9 @@ export const POST = async (req: Request) => {
           },
         });
 
-        console.log(`Subscription updated for project ${projectId} (user ${userId}): ${subscription.status}`);
+        console.log(
+          `Subscription updated for project ${projectId} (user ${userId}): ${subscription.status}`,
+        );
         break;
       }
 
@@ -119,9 +121,9 @@ export const POST = async (req: Request) => {
 
         // Downgrade to free plan
         await prisma.project.update({
-          where: { 
+          where: {
             id: projectId,
-            userId: userId 
+            userId: userId,
           },
           data: {
             subscriptionTier: "STARTER",
@@ -130,7 +132,9 @@ export const POST = async (req: Request) => {
           },
         });
 
-        console.log(`Subscription canceled for project ${projectId} (user ${userId})`);
+        console.log(
+          `Subscription canceled for project ${projectId} (user ${userId})`,
+        );
         break;
       }
 
@@ -139,7 +143,7 @@ export const POST = async (req: Request) => {
 
         if (invoice.subscription) {
           const subscription = await stripe.subscriptions.retrieve(
-            invoice.subscription
+            invoice.subscription,
           );
 
           const userId = subscription.metadata?.userId;
@@ -152,9 +156,9 @@ export const POST = async (req: Request) => {
 
           // Update subscription expiration on successful payment
           await prisma.project.update({
-            where: { 
+            where: {
               id: projectId,
-              userId: userId 
+              userId: userId,
             },
             data: {
               subscriptionTier: "PRO",
@@ -162,7 +166,9 @@ export const POST = async (req: Request) => {
             },
           });
 
-          console.log(`Payment succeeded for project ${projectId} (user ${userId})`);
+          console.log(
+            `Payment succeeded for project ${projectId} (user ${userId})`,
+          );
         }
         break;
       }
@@ -172,14 +178,16 @@ export const POST = async (req: Request) => {
 
         if (invoice.subscription) {
           const subscription = await stripe.subscriptions.retrieve(
-            invoice.subscription
+            invoice.subscription,
           );
 
           const userId = subscription.metadata?.userId;
           const projectId = subscription.metadata?.projectId;
 
           if (userId && projectId) {
-            console.warn(`Payment failed for project ${projectId} (user ${userId})`);
+            console.warn(
+              `Payment failed for project ${projectId} (user ${userId})`,
+            );
             // Optionally send notification or handle failed payment
           }
         }
@@ -195,7 +203,7 @@ export const POST = async (req: Request) => {
     console.error("Error processing webhook:", error);
     return NextResponse.json(
       { error: "Webhook processing failed" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 };

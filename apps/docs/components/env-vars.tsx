@@ -63,11 +63,11 @@ const EnvVarsTable: FC<Pick<EnvVarsProps, "variables">> = ({
 
               <TableCell className="whitespace-nowrap">
                 {variable.required ? (
-                  <span className="text-xs text-destructive font-medium">
+                  <span className="text-destructive text-xs font-medium">
                     Required
                   </span>
                 ) : (
-                  <span className="text-xs text-muted-foreground font-medium">
+                  <span className="text-muted-foreground text-xs font-medium">
                     Optional
                   </span>
                 )}
@@ -75,7 +75,7 @@ const EnvVarsTable: FC<Pick<EnvVarsProps, "variables">> = ({
 
               <TableCell className="font-mono text-sm whitespace-nowrap">
                 {variable.default ? (
-                  <code className="bg-muted px-1.5 py-0.5 rounded text-xs">
+                  <code className="bg-muted rounded px-1.5 py-0.5 text-xs">
                     {variable.default}
                   </code>
                 ) : (
@@ -98,7 +98,7 @@ export const EnvVars: FC<EnvVarsProps> = ({ variables, title, className }) => {
   if (!title) {
     return (
       <TooltipProvider delayDuration={300}>
-        <Card className="p-[2.5px] rounded-2xl">
+        <Card className="rounded-2xl p-[2.5px]">
           <Card className={cn("overflow-hidden p-0", className)}>
             <CardContent className="p-0">
               <EnvVarsTable variables={variables} />
@@ -111,11 +111,11 @@ export const EnvVars: FC<EnvVarsProps> = ({ variables, title, className }) => {
 
   return (
     <TooltipProvider delayDuration={300}>
-      <Card className="p-[2.5px] rounded-2xl">
+      <Card className="rounded-2xl p-[2.5px]">
         <Card className={cn("overflow-hidden p-0", className)}>
-          <CardContent className="p-4 space-y-4">
+          <CardContent className="space-y-4 p-4">
             {title && (
-              <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              <h4 className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
                 {title}
               </h4>
             )}

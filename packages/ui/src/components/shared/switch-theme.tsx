@@ -13,7 +13,7 @@ export type Theme = "light" | "dark" | "system";
 const themes = [
   { key: "system", icon: Monitor, label: "System theme" },
   { key: "light", icon: Sun, label: "Light theme" },
-  { key: "dark", icon: Moon, label: "Dark theme"},
+  { key: "dark", icon: Moon, label: "Dark theme" },
 ];
 
 export type ThemeSwitcherProps = {
@@ -25,7 +25,14 @@ export type ThemeSwitcherProps = {
   with2XB?: boolean;
 };
 
-export const ThemeSwitcher: FC<ThemeSwitcherProps> = ({ value, onChange, defaultValue, className, variant = "default", with2XB = false }) => {
+export const ThemeSwitcher: FC<ThemeSwitcherProps> = ({
+  value,
+  onChange,
+  defaultValue,
+  className,
+  variant = "default",
+  with2XB = false,
+}) => {
   const { theme: currentTheme, setTheme: setT } = useTheme();
 
   const [theme, setTheme] = useControllableState({
@@ -41,7 +48,7 @@ export const ThemeSwitcher: FC<ThemeSwitcherProps> = ({ value, onChange, default
       setTheme(themeKey);
       setT(themeKey);
     },
-    [setTheme, setT]
+    [setTheme, setT],
   );
 
   // Prevent hydration mismatch
@@ -51,20 +58,20 @@ export const ThemeSwitcher: FC<ThemeSwitcherProps> = ({ value, onChange, default
 
   if (!mounted) {
     return (
-      <div className={cn(with2XB && "border rounded-full p-0.5")}>
-        <Skeleton className="w-20 h-8 rounded-full" />
+      <div className={cn(with2XB && "rounded-full border p-0.5")}>
+        <Skeleton className="h-8 w-20 rounded-full" />
       </div>
     );
   }
 
   return (
-    <div className={cn(with2XB && "border rounded-full p-0.5")}>
+    <div className={cn(with2XB && "rounded-full border p-0.5")}>
       <div
         className={cn(
-          "relative isolate flex h-8 rounded-full p-1 ring-1 ring-border",
+          "ring-border relative isolate flex h-8 rounded-full p-1 ring-1",
           variant === "card" && "bg-accent",
           variant === "default" && "bg-background",
-          className
+          className,
         )}
       >
         {themes.map(({ key, icon: Icon, label }) => {
@@ -79,12 +86,10 @@ export const ThemeSwitcher: FC<ThemeSwitcherProps> = ({ value, onChange, default
             >
               {isActive && (
                 <motion.div
-                  className={cn(
-                    "absolute inset-0 rounded-full", {
-                      "bg-primary": variant === "card" && isActive,
-                      "bg-accent": variant === "default" && isActive
-                    }
-                  )}
+                  className={cn("absolute inset-0 rounded-full", {
+                    "bg-primary": variant === "card" && isActive,
+                    "bg-accent": variant === "default" && isActive,
+                  })}
                   layoutId="activeTheme"
                   transition={{ type: "spring", duration: 0.5 }}
                 />
@@ -92,10 +97,12 @@ export const ThemeSwitcher: FC<ThemeSwitcherProps> = ({ value, onChange, default
 
               <Icon
                 className={cn(
-                  "relative z-10 m-auto h-4 w-4", {
-                    "text-primary-foreground dark:text-white": variant === "card" && isActive,
-                    "text-muted-foreground": variant === "card" && !isActive
-                  }
+                  "relative z-10 m-auto h-4 w-4",
+                  {
+                    "text-primary-foreground dark:text-white":
+                      variant === "card" && isActive,
+                    "text-muted-foreground": variant === "card" && !isActive,
+                  },
                   // isActive ? "text-primary-foreground" : "text-muted-foreground"
                 )}
               />

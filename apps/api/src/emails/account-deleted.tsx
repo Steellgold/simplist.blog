@@ -1,8 +1,8 @@
-import { EmailLayout } from "./email-layout"
+import { EmailLayout } from "./email-layout";
 
 type Props = {
-  name: string
-}
+  name: string;
+};
 
 export const AccountDeletedEmail = ({ name }: Props) => {
   return (
@@ -12,19 +12,20 @@ export const AccountDeletedEmail = ({ name }: Props) => {
       <p>Hi {name},</p>
 
       <p>
-        This email confirms that your Simplist account and all associated data (projects, articles, analytics, API keys,
-        uploads, and sessions) have been permanently deleted.
+        This email confirms that your Simplist account and all associated data
+        (projects, articles, analytics, API keys, uploads, and sessions) have
+        been permanently deleted.
       </p>
 
       <p>
-        Thank you for trying Simplist. If you would like to return, you can create a new account at any time.
+        Thank you for trying Simplist. If you would like to return, you can
+        create a new account at any time.
       </p>
 
       <p className="muted">
-        Note: Billing records may be retained where required by law. If you did not authorize this deletion, please
-        contact support immediately.
+        Note: Billing records may be retained where required by law. If you did
+        not authorize this deletion, please contact support immediately.
       </p>
     </EmailLayout>
-  )
-}
-
+  );
+};

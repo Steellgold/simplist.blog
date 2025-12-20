@@ -1,29 +1,36 @@
-import { Tooltip, TooltipContent, TooltipTrigger } from "@simplist/ui/components/tooltip"
-import { Kbd } from "@simplist/ui/components/kbd"
-import { Info } from "lucide-react"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@simplist/ui/components/tooltip";
+import { Kbd } from "@simplist/ui/components/kbd";
+import { Info } from "lucide-react";
 
 type InfoTooltipProps = {
-  content: string
-  showBrackets?: boolean
-}
+  content: string;
+  showBrackets?: boolean;
+};
 
 const parseContentWithKbd = (content: string, showBrackets = false) => {
-  const parts = content.split(/(\{\{[^}]+\}\})/)
+  const parts = content.split(/(\{\{[^}]+\}\})/);
 
   return parts.map((part, index) => {
     if (part.startsWith("{{") && part.endsWith("}}")) {
-      const kbdContent = showBrackets ? part : part.slice(2, -2).trim()
-      return <Kbd key={index}>{kbdContent}</Kbd>
+      const kbdContent = showBrackets ? part : part.slice(2, -2).trim();
+      return <Kbd key={index}>{kbdContent}</Kbd>;
     }
-    return part
-  })
-}
+    return part;
+  });
+};
 
-export const InfoTooltip = ({ content, showBrackets = false }: InfoTooltipProps) => {
+export const InfoTooltip = ({
+  content,
+  showBrackets = false,
+}: InfoTooltipProps) => {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <button className="p-0.5 rounded-full bg-muted">
+        <button className="bg-muted rounded-full p-0.5">
           <Info className="size-3.5" />
         </button>
       </TooltipTrigger>
@@ -31,5 +38,5 @@ export const InfoTooltip = ({ content, showBrackets = false }: InfoTooltipProps)
         <p>{parseContentWithKbd(content, showBrackets)}</p>
       </TooltipContent>
     </Tooltip>
-  )
-}
+  );
+};

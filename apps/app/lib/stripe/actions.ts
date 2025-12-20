@@ -11,7 +11,7 @@ import type Stripe from "stripe";
  * Extract payment method information from Stripe payment method object
  */
 const extractPaymentMethodInfo = (
-  paymentMethod: Stripe.PaymentMethod | string | null
+  paymentMethod: Stripe.PaymentMethod | string | null,
 ): PaymentMethodInfo | null => {
   if (!paymentMethod || typeof paymentMethod === "string") return null;
 
@@ -37,7 +37,7 @@ const extractPaymentMethodInfo = (
  */
 export const createCheckoutSession = async (
   interval: "monthly" | "yearly",
-  projectId?: string
+  projectId?: string,
 ): Promise<{ url: string }> => {
   const currentUser = await getCurrentUser();
 
@@ -116,7 +116,7 @@ export const createCheckoutSession = async (
 
   if (!priceId) {
     throw new Error(
-      `Stripe price ID not configured for ${interval} subscription`
+      `Stripe price ID not configured for ${interval} subscription`,
     );
   }
 
@@ -156,7 +156,9 @@ export const createCheckoutSession = async (
 /**
  * Create a Stripe billing portal session
  */
-export const createBillingPortalSession = async (projectId: string): Promise<{ url: string }> => {
+export const createBillingPortalSession = async (
+  projectId: string,
+): Promise<{ url: string }> => {
   const currentUser = await getCurrentUser();
 
   if (!currentUser) {
@@ -167,7 +169,7 @@ export const createBillingPortalSession = async (projectId: string): Promise<{ u
   const project = await prisma.project.findFirst({
     where: {
       id: projectId,
-      userId: currentUser.id
+      userId: currentUser.id,
     },
     select: {
       slug: true,
@@ -190,7 +192,9 @@ export const createBillingPortalSession = async (projectId: string): Promise<{ u
 /**
  * Get subscription information for a project
  */
-export const getProjectSubscription = async (projectId: string): Promise<SubscriptionInfo | null> => {
+export const getProjectSubscription = async (
+  projectId: string,
+): Promise<SubscriptionInfo | null> => {
   const currentUser = await getCurrentUser();
 
   if (!currentUser) {
@@ -201,7 +205,7 @@ export const getProjectSubscription = async (projectId: string): Promise<Subscri
   const project = await prisma.project.findFirst({
     where: {
       id: projectId,
-      userId: currentUser.id
+      userId: currentUser.id,
     },
     select: {
       stripeSubscriptionId: true,
@@ -213,14 +217,20 @@ export const getProjectSubscription = async (projectId: string): Promise<Subscri
   }
 
   // Fetch subscription from Stripe
-  const subscription = await stripe.subscriptions.retrieve(project.stripeSubscriptionId);
+  const subscription = await stripe.subscriptions.retrieve(
+    project.stripeSubscriptionId,
+  );
 
   return {
     status: subscription.status,
-    currentPeriodStart: new Date((subscription as any).current_period_start * 1000),
+    currentPeriodStart: new Date(
+      (subscription as any).current_period_start * 1000,
+    ),
     currentPeriodEnd: new Date((subscription as any).current_period_end * 1000),
     cancelAtPeriodEnd: (subscription as any).cancel_at_period_end,
-    canceledAt: (subscription as any).canceled_at ? new Date((subscription as any).canceled_at * 1000) : null,
+    canceledAt: (subscription as any).canceled_at
+      ? new Date((subscription as any).canceled_at * 1000)
+      : null,
   };
 };
 
@@ -239,7 +249,7 @@ export const getProjectBillingHistory = async (projectId: string) => {
   const project = await prisma.project.findFirst({
     where: {
       id: projectId,
-      userId: currentUser.id
+      userId: currentUser.id,
     },
     select: {
       stripeCustomerId: true,
@@ -275,12 +285,12 @@ export const getProjectBillingHistory = async (projectId: string) => {
 
   // Filter out standalone payments (EXACT FROM ARTICLE)
   const standalonePayments = paymentIntentsList.data.filter(
-    (payment) => !paymentIntentIdsInInvoices.includes(payment.id)
+    (payment) => !paymentIntentIdsInInvoices.includes(payment.id),
   );
 
   // Create a map of payment intents for combining data
   const paymentIntentsMap = new Map(
-    paymentIntentsList.data.map((pi) => [pi.id, pi])
+    paymentIntentsList.data.map((pi) => [pi.id, pi]),
   );
 
   // Combine invoice and payment data into single entries
@@ -300,7 +310,7 @@ export const getProjectBillingHistory = async (projectId: string) => {
     if (piId && paymentIntentsMap.has(piId)) {
       const matchingPI = paymentIntentsMap.get(piId)!;
       paymentMethod = extractPaymentMethodInfo(
-        matchingPI.payment_method as Stripe.PaymentMethod | null
+        matchingPI.payment_method as Stripe.PaymentMethod | null,
       );
     }
 
@@ -312,13 +322,15 @@ export const getProjectBillingHistory = async (projectId: string) => {
       // Find a payment with same amount and similar date (within 1 minute)
       const matchingPayment = paymentIntentsList.data.find((payment) => {
         const paymentDate = new Date(payment.created * 1000);
-        const timeDiff = Math.abs(paymentDate.getTime() - invoiceDate.getTime());
+        const timeDiff = Math.abs(
+          paymentDate.getTime() - invoiceDate.getTime(),
+        );
         return payment.amount === invoiceAmount && timeDiff < 60000; // 1 minute
       });
 
       if (matchingPayment) {
         paymentMethod = extractPaymentMethodInfo(
-          matchingPayment.payment_method as Stripe.PaymentMethod | null
+          matchingPayment.payment_method as Stripe.PaymentMethod | null,
         );
       }
     }
@@ -353,7 +365,7 @@ export const getProjectBillingHistory = async (projectId: string) => {
 
   const paymentEntries = unmatchedPayments.map((payment) => {
     const paymentMethod = extractPaymentMethodInfo(
-      payment.payment_method as Stripe.PaymentMethod | null
+      payment.payment_method as Stripe.PaymentMethod | null,
     );
 
     return {
@@ -371,7 +383,7 @@ export const getProjectBillingHistory = async (projectId: string) => {
 
   // Merge and sort
   const billingEntries = [...combinedEntries, ...paymentEntries].sort(
-    (a, b) => b.date.getTime() - a.date.getTime()
+    (a, b) => b.date.getTime() - a.date.getTime(),
   );
 
   return billingEntries;

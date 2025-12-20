@@ -44,7 +44,7 @@ export const columns: ColumnDef<ApiKey>[] = [
       return (
         <div className="space-y-1">
           <div className="font-medium">{row.getValue("name")}</div>
-          <code className="text-xs font-mono text-muted-foreground">
+          <code className="text-muted-foreground font-mono text-xs">
             {maskKey(apiKey.key)}
           </code>
         </div>
@@ -76,7 +76,7 @@ export const columns: ColumnDef<ApiKey>[] = [
     ),
     cell: ({ row }) => {
       return (
-        <div className="text-sm text-muted-foreground">
+        <div className="text-muted-foreground text-sm">
           {formatDate(row.getValue("createdAt"))}
         </div>
       );
@@ -90,7 +90,7 @@ export const columns: ColumnDef<ApiKey>[] = [
     cell: ({ row }) => {
       const expiresAt = row.getValue("expiresAt") as Date | null;
       if (!expiresAt) {
-        return <div className="text-sm text-muted-foreground">Never</div>;
+        return <div className="text-muted-foreground text-sm">Never</div>;
       }
 
       const now = new Date();
@@ -117,7 +117,7 @@ export const columns: ColumnDef<ApiKey>[] = [
     ),
     cell: ({ row }) => {
       return (
-        <div className="text-sm text-muted-foreground">
+        <div className="text-muted-foreground text-sm">
           {formatDate(row.getValue("lastUsedAt"))}
         </div>
       );

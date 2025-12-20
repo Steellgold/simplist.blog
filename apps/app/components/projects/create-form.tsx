@@ -1,199 +1,276 @@
-"use client"
+"use client";
 
-import { generateSlug } from "@/lib/utils"
-import { CreateProjectInput, createProjectSchema, DEFAULT_ARTICLE_URL_PATTERN, isReservedSlug, PROJECT_NAME_MAX_LENGTH, ProjectStep, STEP_ICON, STEP_NAME, STEP_PLAN, STEP_URLS, WILDCARD_PROTOCOLS } from "@/lib/validations/project"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { PlanIds, SUBSCRIPTION_PLANS, SubscriptionInterval } from "@simplist/limits"
-import { BillingToggle } from "@simplist/ui/components/billing-toggle"
-import { Button } from "@simplist/ui/components/button"
-import { ColorSelector } from "@simplist/ui/components/color-selector"
-import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel, FieldSet, FieldTitle } from "@simplist/ui/components/field"
-import { IconPicker } from "@simplist/ui/components/icon-picker"
-import { IconRender } from "@simplist/ui/components/icon-renderer"
-import { InfoTooltip } from "@simplist/ui/components/info-tooltip"
-import { Input } from "@simplist/ui/components/input"
-import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput, InputGroupSelect } from "@simplist/ui/components/input-group"
-import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from "@simplist/ui/components/item"
-import { Label } from "@simplist/ui/components/label"
-import { RadioGroup, RadioGroupItem } from "@simplist/ui/components/radio-group"
-import { Select, SelectContent, SelectItem, SelectValue } from "@simplist/ui/components/select"
-import { c, getColorValue, getIconTextColorWithBackgroundColorOf } from "@simplist/ui/lib/color"
-import { i } from "@simplist/ui/lib/icons.enum"
-import { cn } from "@simplist/ui/lib/utils"
-import { ChevronRight, Plus, X } from "lucide-react"
-import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react"
-import { useFieldArray, useForm } from "react-hook-form"
-import { z } from "zod"
+import { generateSlug } from "@/lib/utils";
+import {
+  CreateProjectInput,
+  createProjectSchema,
+  DEFAULT_ARTICLE_URL_PATTERN,
+  isReservedSlug,
+  PROJECT_NAME_MAX_LENGTH,
+  ProjectStep,
+  STEP_ICON,
+  STEP_NAME,
+  STEP_PLAN,
+  STEP_URLS,
+  WILDCARD_PROTOCOLS,
+} from "@/lib/validations/project";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  PlanIds,
+  SUBSCRIPTION_PLANS,
+  SubscriptionInterval,
+} from "@simplist/limits";
+import { BillingToggle } from "@simplist/ui/components/billing-toggle";
+import { Button } from "@simplist/ui/components/button";
+import { ColorSelector } from "@simplist/ui/components/color-selector";
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldSet,
+  FieldTitle,
+} from "@simplist/ui/components/field";
+import { IconPicker } from "@simplist/ui/components/icon-picker";
+import { IconRender } from "@simplist/ui/components/icon-renderer";
+import { InfoTooltip } from "@simplist/ui/components/info-tooltip";
+import { Input } from "@simplist/ui/components/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+  InputGroupSelect,
+} from "@simplist/ui/components/input-group";
+import {
+  Item,
+  ItemContent,
+  ItemDescription,
+  ItemMedia,
+  ItemTitle,
+} from "@simplist/ui/components/item";
+import { Label } from "@simplist/ui/components/label";
+import {
+  RadioGroup,
+  RadioGroupItem,
+} from "@simplist/ui/components/radio-group";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "@simplist/ui/components/select";
+import {
+  c,
+  getColorValue,
+  getIconTextColorWithBackgroundColorOf,
+} from "@simplist/ui/lib/color";
+import { i } from "@simplist/ui/lib/icons.enum";
+import { cn } from "@simplist/ui/lib/utils";
+import { ChevronRight, Plus, X } from "lucide-react";
+import React, {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useState,
+} from "react";
+import { useFieldArray, useForm } from "react-hook-form";
+import { z } from "zod";
 
-type CreateProjectFormValues = z.infer<typeof createProjectSchema>
+type CreateProjectFormValues = z.infer<typeof createProjectSchema>;
 
 interface CreateProjectFormProps {
-  className?: string
-  step: ProjectStep
-  onNext: () => void
-  onBack: () => void
-  onStepChange: (step: ProjectStep) => void
-  onSubmit: (data: CreateProjectInput & { selectedPlan: PlanIds, billingInterval: SubscriptionInterval }) => void
-  onFormChange?: (hasData: boolean) => void
-  isSubmitting: boolean
-  error: string
+  className?: string;
+  step: ProjectStep;
+  onNext: () => void;
+  onBack: () => void;
+  onStepChange: (step: ProjectStep) => void;
+  onSubmit: (
+    data: CreateProjectInput & {
+      selectedPlan: PlanIds;
+      billingInterval: SubscriptionInterval;
+    },
+  ) => void;
+  onFormChange?: (hasData: boolean) => void;
+  isSubmitting: boolean;
+  error: string;
 }
 
 export const CreateProjectForm = forwardRef<
   {
-    validateStep: (step: number) => Promise<boolean>
-    submitForm: () => void
-    resetForm: () => void
-    hasData: boolean
+    validateStep: (step: number) => Promise<boolean>;
+    submitForm: () => void;
+    resetForm: () => void;
+    hasData: boolean;
   },
   CreateProjectFormProps
->(({ className, step, onNext, onBack, onStepChange, onSubmit, onFormChange, isSubmitting, error, ...props }, ref) => {
-  const [selectedPlan, setSelectedPlan] = useState<PlanIds>("STARTER")
-  const [billingInterval, setBillingInterval] = useState<SubscriptionInterval>("monthly")
-  const [originPrefixes, setOriginPrefixes] = useState<Record<string, WILDCARD_PROTOCOLS>>({})
-
-  const form = useForm<CreateProjectFormValues>({
-    resolver: zodResolver(createProjectSchema),
-    defaultValues: {
-      name: "",
-      allowedOrigins: [],
-      color: "YELLOW",
-      icon: "building-2",
-      baseUrl: null,
-      articleUrlPattern: "posts/{slug}",
+>(
+  (
+    {
+      className,
+      step,
+      onNext,
+      onBack,
+      onStepChange,
+      onSubmit,
+      onFormChange,
+      isSubmitting,
+      error,
+      ...props
     },
-  })
+    ref,
+  ) => {
+    const [selectedPlan, setSelectedPlan] = useState<PlanIds>("STARTER");
+    const [billingInterval, setBillingInterval] =
+      useState<SubscriptionInterval>("monthly");
+    const [originPrefixes, setOriginPrefixes] = useState<
+      Record<string, WILDCARD_PROTOCOLS>
+    >({});
 
-  const {
-    register,
-    control,
-    handleSubmit,
-    watch,
-    trigger,
-    formState: {
-      errors
-    }
-  } = form
+    const form = useForm<CreateProjectFormValues>({
+      resolver: zodResolver(createProjectSchema),
+      defaultValues: {
+        name: "",
+        allowedOrigins: [],
+        color: "YELLOW",
+        icon: "building-2",
+        baseUrl: null,
+        articleUrlPattern: "posts/{slug}",
+      },
+    });
 
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "allowedOrigins"
-  })
+    const {
+      register,
+      control,
+      handleSubmit,
+      watch,
+      trigger,
+      formState: { errors },
+    } = form;
 
-  const checkHasData = () => {
-    const values = form.getValues()
-    return (
-      values.name !== "" ||
-      values.icon !== "building-2" ||
-      values.color !== "YELLOW" ||
-      values.baseUrl !== null ||
-      values.articleUrlPattern !== DEFAULT_ARTICLE_URL_PATTERN ||
-      (values.allowedOrigins && values.allowedOrigins.length > 0) ||
-      selectedPlan !== "STARTER" ||
-      billingInterval !== "monthly"
-    )
-  }
+    const { fields, append, remove } = useFieldArray({
+      control,
+      name: "allowedOrigins",
+    });
 
-  // Notify parent when form data changes
-  useEffect(() => {
-    if (onFormChange) {
-      const subscription = watch(() => {
-        onFormChange(checkHasData())
-      })
-      return () => subscription.unsubscribe()
-    }
-  }, [watch, onFormChange, selectedPlan, billingInterval])
+    const checkHasData = () => {
+      const values = form.getValues();
+      return (
+        values.name !== "" ||
+        values.icon !== "building-2" ||
+        values.color !== "YELLOW" ||
+        values.baseUrl !== null ||
+        values.articleUrlPattern !== DEFAULT_ARTICLE_URL_PATTERN ||
+        (values.allowedOrigins && values.allowedOrigins.length > 0) ||
+        selectedPlan !== "STARTER" ||
+        billingInterval !== "monthly"
+      );
+    };
 
-  useImperativeHandle(ref, () => ({
-    validateStep: async (stepToValidate: number) => {
-      if (stepToValidate === STEP_NAME) {
-        const nameIsValid = await trigger("name")
-        if (!nameIsValid) return false
-
-        const currentName = watch("name")
-        if (currentName && isReservedSlug(generateSlug(currentName))) {
-          return false
-        }
-
-        return true
+    // Notify parent when form data changes
+    useEffect(() => {
+      if (onFormChange) {
+        const subscription = watch(() => {
+          onFormChange(checkHasData());
+        });
+        return () => subscription.unsubscribe();
       }
-      return true
-    },
-    submitForm: handleCreateProject,
-    resetForm: () => {
-      form.reset()
-      setSelectedPlan("STARTER")
-      setBillingInterval("monthly")
-      setOriginPrefixes({})
-    },
-    get hasData() {
-      return checkHasData()
-    }
-  }))
+    }, [watch, onFormChange, selectedPlan, billingInterval]);
 
-  const handleFormSubmit = (e: React.FormEvent) => e.preventDefault()
+    useImperativeHandle(ref, () => ({
+      validateStep: async (stepToValidate: number) => {
+        if (stepToValidate === STEP_NAME) {
+          const nameIsValid = await trigger("name");
+          if (!nameIsValid) return false;
 
-  const handleCreateProject = () => {
-    handleSubmit((data) => {
-      // Combine prefix with origin values
-      const processedOrigins = data.allowedOrigins?.map((origin, index) => {
-        const fieldId = fields[index]?.id
-        const prefix = originPrefixes[fieldId] || "https://"
-        const value = origin.value.trim()
+          const currentName = watch("name");
+          if (currentName && isReservedSlug(generateSlug(currentName))) {
+            return false;
+          }
 
-        // If prefix is wildcard and value doesn't start with *., add it
-        if (prefix === "https://*." && !value.startsWith("*.")) {
-          return { value: `*.${value}` }
+          return true;
         }
+        return true;
+      },
+      submitForm: handleCreateProject,
+      resetForm: () => {
+        form.reset();
+        setSelectedPlan("STARTER");
+        setBillingInterval("monthly");
+        setOriginPrefixes({});
+      },
+      get hasData() {
+        return checkHasData();
+      },
+    }));
 
-        return origin
-      }) || []
+    const handleFormSubmit = (e: React.FormEvent) => e.preventDefault();
 
-      onSubmit({
-        ...data,
-        allowedOrigins: processedOrigins,
-        selectedPlan,
-        billingInterval
-      })
-    })()
-  }
+    const handleCreateProject = () => {
+      handleSubmit((data) => {
+        // Combine prefix with origin values
+        const processedOrigins =
+          data.allowedOrigins?.map((origin, index) => {
+            const fieldId = fields[index]?.id;
+            const prefix = originPrefixes[fieldId] || "https://";
+            const value = origin.value.trim();
 
-  return (
-    <form
-      id="create-project-form"
-      onSubmit={handleFormSubmit}
-      className={className}
-      {...props}
-    >
-      <FieldGroup>
-        <div className="flex flex-col gap-6">
-          {error && (
-            <div className="text-destructive text-sm text-center">{error}</div>
-          )}
+            // If prefix is wildcard and value doesn't start with *., add it
+            if (prefix === "https://*." && !value.startsWith("*.")) {
+              return { value: `*.${value}` };
+            }
 
-          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-            {["Name", "Icon", "URLs", "Plan"].map((stepName, index) => (
-              <React.Fragment key={index}>
-                <span
-                  className={cn(
-                    "cursor-pointer transition-colors hover:text-foreground",
-                    index === step && "font-semibold text-foreground"
-                  )}
-                  onClick={() => {
-                    onStepChange(index as ProjectStep)
-                  }}
-                >
-                  {index + 1}. {stepName}
-                </span>
-                {index < 3 && <ChevronRight size={12} />}
-              </React.Fragment>
-            ))}
-          </div>
+            return origin;
+          }) || [];
 
-          {step === STEP_NAME && (
-            <div className="space-y-4">
-              <Field>
-                <FieldLabel htmlFor="name">Project name *</FieldLabel>
+        onSubmit({
+          ...data,
+          allowedOrigins: processedOrigins,
+          selectedPlan,
+          billingInterval,
+        });
+      })();
+    };
+
+    return (
+      <form
+        id="create-project-form"
+        onSubmit={handleFormSubmit}
+        className={className}
+        {...props}
+      >
+        <FieldGroup>
+          <div className="flex flex-col gap-6">
+            {error && (
+              <div className="text-destructive text-center text-sm">
+                {error}
+              </div>
+            )}
+
+            <div className="text-muted-foreground flex items-center justify-center gap-2 text-xs">
+              {["Name", "Icon", "URLs", "Plan"].map((stepName, index) => (
+                <React.Fragment key={index}>
+                  <span
+                    className={cn(
+                      "hover:text-foreground cursor-pointer transition-colors",
+                      index === step && "text-foreground font-semibold",
+                    )}
+                    onClick={() => {
+                      onStepChange(index as ProjectStep);
+                    }}
+                  >
+                    {index + 1}. {stepName}
+                  </span>
+                  {index < 3 && <ChevronRight size={12} />}
+                </React.Fragment>
+              ))}
+            </div>
+
+            {step === STEP_NAME && (
+              <div className="space-y-4">
+                <Field>
+                  <FieldLabel htmlFor="name">Project name *</FieldLabel>
                   <InputGroup>
                     <InputGroupInput
                       id="name"
@@ -206,7 +283,7 @@ export const CreateProjectForm = forwardRef<
                       {watch("name")?.length ?? 0}/{PROJECT_NAME_MAX_LENGTH}
                     </InputGroupAddon>
                   </InputGroup>
-                  
+
                   {errors.name && (
                     <p className="text-destructive text-sm">
                       {errors.name.message}
@@ -215,12 +292,12 @@ export const CreateProjectForm = forwardRef<
                 </Field>
 
                 <Field>
-                  <FieldLabel htmlFor="slug-preview">
-                    Project slug
-                  </FieldLabel>
-                  
+                  <FieldLabel htmlFor="slug-preview">Project slug</FieldLabel>
+
                   <InputGroup>
-                    <InputGroupAddon align="inline-start">app.simplist.blog/</InputGroupAddon>
+                    <InputGroupAddon align="inline-start">
+                      app.simplist.blog/
+                    </InputGroupAddon>
                     <InputGroupInput
                       id="slug-preview"
                       type="text"
@@ -228,16 +305,20 @@ export const CreateProjectForm = forwardRef<
                       value={watch("name") ? generateSlug(watch("name")) : ""}
                       placeholder="my-awesome-blog"
                       className={cn({
-                        "border-destructive text-destructive": watch("name") && isReservedSlug(generateSlug(watch("name")))
+                        "border-destructive text-destructive":
+                          watch("name") &&
+                          isReservedSlug(generateSlug(watch("name"))),
                       })}
                     />
                   </InputGroup>
-                  
-                  {watch("name") && isReservedSlug(generateSlug(watch("name"))) && (
-                    <p className="text-destructive text-sm">
-                      This slug is reserved. Please choose a different project name.
-                    </p>
-                  )}
+
+                  {watch("name") &&
+                    isReservedSlug(generateSlug(watch("name"))) && (
+                      <p className="text-destructive text-sm">
+                        This slug is reserved. Please choose a different project
+                        name.
+                      </p>
+                    )}
                 </Field>
               </div>
             )}
@@ -250,8 +331,12 @@ export const CreateProjectForm = forwardRef<
                       variant="icon"
                       className="size-8"
                       style={{
-                        backgroundColor: getColorValue(watch("color") ?? "CYAN"),
-                        color: getIconTextColorWithBackgroundColorOf(watch("color") ?? "CYAN")
+                        backgroundColor: getColorValue(
+                          watch("color") ?? "CYAN",
+                        ),
+                        color: getIconTextColorWithBackgroundColorOf(
+                          watch("color") ?? "CYAN",
+                        ),
                       }}
                     >
                       <IconRender name={i(watch("icon") ?? "building-2")} />
@@ -259,65 +344,71 @@ export const CreateProjectForm = forwardRef<
 
                     <ItemContent>
                       <ItemTitle>Preview</ItemTitle>
-                      <ItemDescription className="text-xs line-clamp-2">
-                        You can upload a custom avatar / logo from your computer later in the project settings.
+                      <ItemDescription className="line-clamp-2 text-xs">
+                        You can upload a custom avatar / logo from your computer
+                        later in the project settings.
                       </ItemDescription>
                     </ItemContent>
                   </Item>
                 </Field>
 
                 <div className="flex flex-col gap-3">
-                    <Field>
-                      <FieldLabel className="text-sm">Icon</FieldLabel>
+                  <Field>
+                    <FieldLabel className="text-sm">Icon</FieldLabel>
 
-                      <IconPicker
-                        value={i(watch("icon") ?? "building-2")}
-                        onValueChange={(value) => {
-                          form.setValue("icon", value, { shouldDirty: true })
-                        }}
-                        className="w-full"
-                        dialog
-                      />
-                    </Field>
+                    <IconPicker
+                      value={i(watch("icon") ?? "building-2")}
+                      onValueChange={(value) => {
+                        form.setValue("icon", value, { shouldDirty: true });
+                      }}
+                      className="w-full"
+                      dialog
+                    />
+                  </Field>
 
-                    <Field>
-                      <FieldLabel className="text-sm">Color</FieldLabel>
-                      <ColorSelector
-                        value={watch("color") ? c(watch("color")!) : null}
-                        onValueChange={(value) => {
-                        form.setValue("color", value === null ? undefined : value, { shouldDirty: true })
-                        }}
-                        className="w-full"
-                        dialog
-                      />
+                  <Field>
+                    <FieldLabel className="text-sm">Color</FieldLabel>
+                    <ColorSelector
+                      value={watch("color") ? c(watch("color")!) : null}
+                      onValueChange={(value) => {
+                        form.setValue(
+                          "color",
+                          value === null ? undefined : value,
+                          { shouldDirty: true },
+                        );
+                      }}
+                      className="w-full"
+                      dialog
+                    />
                   </Field>
                 </div>
               </>
             )}
-            
+
             {step === STEP_URLS && (
               <>
                 <Field>
                   <FieldLabel htmlFor="baseUrl">URL</FieldLabel>
-            
+
                   <Input
                     id="baseUrl"
                     type="url"
                     placeholder="https://acme.com"
                     {...register("baseUrl")}
                   />
-            
+
                   <FieldDescription className="text-xs">
-                    The base URL of your site. Used to pre-fill links in webhooks and analytics.
+                    The base URL of your site. Used to pre-fill links in
+                    webhooks and analytics.
                   </FieldDescription>
-            
+
                   {errors.baseUrl && (
                     <p className="text-destructive text-sm">
                       {errors.baseUrl.message}
                     </p>
                   )}
                 </Field>
-            
+
                 <Field>
                   <FieldLabel htmlFor="articleUrlPattern">
                     URL pattern (optional)
@@ -326,57 +417,58 @@ export const CreateProjectForm = forwardRef<
                       showBrackets
                     />
                   </FieldLabel>
-            
+
                   <InputGroup>
                     <InputGroupAddon>
                       {watch("baseUrl") || "https://acme.com/"}
                     </InputGroupAddon>
-            
+
                     <InputGroupInput
                       id="articleUrlPattern"
                       placeholder="/posts/{slug}"
                       {...register("articleUrlPattern")}
                     />
                   </InputGroup>
-            
+
                   <FieldDescription className="text-xs">
                     Used to generate article URLs.
                   </FieldDescription>
-            
+
                   {errors.articleUrlPattern && (
                     <p className="text-destructive text-sm">
                       {errors.articleUrlPattern.message}
                     </p>
                   )}
                 </Field>
-            
+
                 <Field>
                   <div className="flex items-center justify-between">
                     <FieldLabel>
                       Allowed Origins
-                      <InfoTooltip
-                        content="API requests from these domains will be allowed. Leave empty to allow all origins."
-                      />
+                      <InfoTooltip content="API requests from these domains will be allowed. Leave empty to allow all origins." />
                     </FieldLabel>
 
                     <Button
                       type="button"
                       variant="outline"
                       size="xs"
-                      className="w-fit h-fit text-[11px]"
+                      className="h-fit w-fit text-[11px]"
                       onClick={() => append({ value: "" })}
                     >
                       <Plus className="size-3.5" />
                       Add Origin
                     </Button>
                   </div>
-            
+
                   {fields.map((field, index) => (
                     <InputGroup key={field.id}>
                       <Select
                         value={originPrefixes[field.id] || "https://"}
                         onValueChange={(value: "https://" | "https://*.") => {
-                          setOriginPrefixes(prev => ({ ...prev, [field.id]: value }))
+                          setOriginPrefixes((prev) => ({
+                            ...prev,
+                            [field.id]: value,
+                          }));
                         }}
                       >
                         <InputGroupSelect>
@@ -399,12 +491,12 @@ export const CreateProjectForm = forwardRef<
                           variant="ghost"
                           size="icon-xs"
                           onClick={() => {
-                            remove(index)
-                            setOriginPrefixes(prev => {
-                              const newPrefixes = { ...prev }
-                              delete newPrefixes[field.id]
-                              return newPrefixes
-                            })
+                            remove(index);
+                            setOriginPrefixes((prev) => {
+                              const newPrefixes = { ...prev };
+                              delete newPrefixes[field.id];
+                              return newPrefixes;
+                            });
                           }}
                         >
                           <X />
@@ -414,8 +506,8 @@ export const CreateProjectForm = forwardRef<
                   ))}
 
                   {fields.length === 0 && (
-                    <div className="flex justify-center items-center text-center text-muted-foreground text-xs border border-dashed border-input rounded-md p-4 h-16">
-                      Leave empty to allow all origins.                 
+                    <div className="text-muted-foreground border-input flex h-16 items-center justify-center rounded-md border border-dashed p-4 text-center text-xs">
+                      Leave empty to allow all origins.
                     </div>
                   )}
 
@@ -426,21 +518,20 @@ export const CreateProjectForm = forwardRef<
                   )}
                 </Field>
               </>
-            )}            
+            )}
 
             {step === STEP_PLAN && (
               <div>
                 <FieldSet>
                   <FieldContent>
-                    <FieldTitle>
-                      Choose your plan
-                    </FieldTitle>
+                    <FieldTitle>Choose your plan</FieldTitle>
 
                     <FieldDescription>
-                      Start with our starter plan or upgrade to pro for more advanced features.
+                      Start with our starter plan or upgrade to pro for more
+                      advanced features.
                     </FieldDescription>
                   </FieldContent>
-                  
+
                   <div className="flex justify-end">
                     <BillingToggle
                       value={billingInterval}
@@ -450,11 +541,11 @@ export const CreateProjectForm = forwardRef<
                   </div>
 
                   <RadioGroup
-                    className="-space-y-px gap-0 rounded-md shadow-xs"
+                    className="gap-0 -space-y-px rounded-md shadow-xs"
                     value={selectedPlan}
                     onValueChange={(value: PlanIds) => setSelectedPlan(value)}
                   >
-                    <div className="relative flex flex-col gap-2.5 border border-input p-4 outline-none first:rounded-t-md last:rounded-b-md has-data-[state=checked]:z-10 has-data-[state=checked]:border-primary/50 has-data-[state=checked]:bg-primary/5">
+                    <div className="border-input has-data-[state=checked]:border-primary/50 has-data-[state=checked]:bg-primary/5 relative flex flex-col gap-2.5 border p-4 outline-none first:rounded-t-md last:rounded-b-md has-data-[state=checked]:z-10">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <RadioGroupItem
@@ -472,17 +563,20 @@ export const CreateProjectForm = forwardRef<
                           </Label>
                         </div>
 
-                        <div className="text-xs leading-[inherit] px-2 py-px bg-primary/10 rounded-md text-primary">
+                        <div className="bg-primary/10 text-primary rounded-md px-2 py-px text-xs leading-[inherit]">
                           {SUBSCRIPTION_PLANS.STARTER.prices[0].displayAmount}
                         </div>
                       </div>
 
-                      <p className="text-muted-foreground text-xs" id="plan-starter-description">
+                      <p
+                        className="text-muted-foreground text-xs"
+                        id="plan-starter-description"
+                      >
                         {SUBSCRIPTION_PLANS.STARTER.description}
                       </p>
                     </div>
 
-                    <div className="relative flex flex-col gap-1.5 border border-input p-4 outline-none first:rounded-t-md last:rounded-b-md has-data-[state=checked]:z-10 has-data-[state=checked]:border-primary/50 has-data-[state=checked]:bg-primary/15">
+                    <div className="border-input has-data-[state=checked]:border-primary/50 has-data-[state=checked]:bg-primary/15 relative flex flex-col gap-1.5 border p-4 outline-none first:rounded-t-md last:rounded-b-md has-data-[state=checked]:z-10">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <RadioGroupItem
@@ -497,16 +591,22 @@ export const CreateProjectForm = forwardRef<
                             htmlFor="plan-pro"
                           >
                             {SUBSCRIPTION_PLANS.PRO.name}
-                            {billingInterval === 'yearly' && SUBSCRIPTION_PLANS.PRO.prices[1].savings && (
-                              <span className="font-normal text-xs leading-[inherit] text-primary">
-                                ({SUBSCRIPTION_PLANS.PRO.prices[1].savings})
-                              </span>
-                            )}
+                            {billingInterval === "yearly" &&
+                              SUBSCRIPTION_PLANS.PRO.prices[1].savings && (
+                                <span className="text-primary text-xs leading-[inherit] font-normal">
+                                  ({SUBSCRIPTION_PLANS.PRO.prices[1].savings})
+                                </span>
+                              )}
                           </Label>
                         </div>
 
-                        <div className="text-xs leading-[inherit] px-2 py-px bg-primary/10 rounded-md text-primary">
-                          {SUBSCRIPTION_PLANS.PRO.prices[billingInterval === "monthly" ? 0 : 1].displayAmount}/month
+                        <div className="bg-primary/10 text-primary rounded-md px-2 py-px text-xs leading-[inherit]">
+                          {
+                            SUBSCRIPTION_PLANS.PRO.prices[
+                              billingInterval === "monthly" ? 0 : 1
+                            ].displayAmount
+                          }
+                          /month
                         </div>
                       </div>
                       <p
@@ -520,8 +620,9 @@ export const CreateProjectForm = forwardRef<
                 </FieldSet>
               </div>
             )}
-        </div>
-      </FieldGroup>
-    </form>
-  )
-})
+          </div>
+        </FieldGroup>
+      </form>
+    );
+  },
+);

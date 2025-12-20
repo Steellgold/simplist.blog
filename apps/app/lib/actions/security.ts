@@ -1,17 +1,20 @@
-"use server"
+"use server";
 
-import { auth } from "@/lib/auth"
-import { getCurrentUser } from "@/lib/auth-helper"
-import { prisma } from "@simplist/db"
-import { revalidatePath } from "next/cache"
-import { headers } from "next/headers"
-import { redirect } from "next/navigation"
+import { auth } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/auth-helper";
+import { prisma } from "@simplist/db";
+import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
-export const changePassword = async (currentPassword: string, newPassword: string) => {
-  const user = await getCurrentUser()
+export const changePassword = async (
+  currentPassword: string,
+  newPassword: string,
+) => {
+  const user = await getCurrentUser();
 
   if (!user) {
-    redirect("/auth/login")
+    redirect("/auth/login");
   }
 
   // Check if user has a credential account
@@ -23,7 +26,7 @@ export const changePassword = async (currentPassword: string, newPassword: strin
     select: {
       id: true,
     },
-  })
+  });
 
   // If no credential account (OAuth user setting first password)
   if (!account) {
@@ -32,10 +35,10 @@ export const changePassword = async (currentPassword: string, newPassword: strin
         newPassword,
       },
       headers: await headers(),
-    })
+    });
 
-    revalidatePath("/account/settings/security", "page")
-    return { success: true }
+    revalidatePath("/account/settings/security", "page");
+    return { success: true };
   }
 
   // User already has password, change it
@@ -46,17 +49,17 @@ export const changePassword = async (currentPassword: string, newPassword: strin
       revokeOtherSessions: false,
     },
     headers: await headers(),
-  })
+  });
 
-  revalidatePath("/account/settings/security", "page")
-  return { success: true }
-}
+  revalidatePath("/account/settings/security", "page");
+  return { success: true };
+};
 
 export const deletePasskey = async (passkeyId: string) => {
-  const user = await getCurrentUser()
+  const user = await getCurrentUser();
 
   if (!user) {
-    redirect("/auth/login")
+    redirect("/auth/login");
   }
 
   // Verify passkey belongs to user
@@ -68,10 +71,10 @@ export const deletePasskey = async (passkeyId: string) => {
     select: {
       id: true,
     },
-  })
+  });
 
   if (!passkey) {
-    throw new Error("Passkey not found")
+    throw new Error("Passkey not found");
   }
 
   // Delete passkey
@@ -80,9 +83,9 @@ export const deletePasskey = async (passkeyId: string) => {
       id: passkeyId,
     },
     headers: await headers(),
-  })
+  });
 
-  revalidatePath("/account/settings/security", "page")
+  revalidatePath("/account/settings/security", "page");
 
-  return { success: true }
-}
+  return { success: true };
+};

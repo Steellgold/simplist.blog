@@ -1,57 +1,58 @@
-"use client"
+"use client";
 
-import { deleteApiKey } from "@/lib/actions/api-keys"
-import { ConfirmDialog } from "@simplist/ui/components/confirm-dialog"
-import { Button } from "@simplist/ui/components/button"
-import { toast } from "@simplist/ui/components/sonner"
-import { Spinner } from "@simplist/ui/components/spinner"
-import { useRouter } from "next/navigation"
-import { useState } from "react"
-import { columns, type ApiKey } from "./columns"
-import { ApiKeysDataTable } from "./data-table"
+import { deleteApiKey } from "@/lib/actions/api-keys";
+import { ConfirmDialog } from "@simplist/ui/components/confirm-dialog";
+import { Button } from "@simplist/ui/components/button";
+import { toast } from "@simplist/ui/components/sonner";
+import { Spinner } from "@simplist/ui/components/spinner";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { columns, type ApiKey } from "./columns";
+import { ApiKeysDataTable } from "./data-table";
 
 interface ApiKeysListProps {
-  apiKeys: ApiKey[]
+  apiKeys: ApiKey[];
 }
 
 export const ApiKeysList = ({ apiKeys }: ApiKeysListProps) => {
-  const router = useRouter()
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [keyToDelete, setKeyToDelete] = useState<string | null>(null)
-  const [isDeleting, setIsDeleting] = useState(false)
+  const router = useRouter();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [keyToDelete, setKeyToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDelete = async () => {
-    if (!keyToDelete) return
+    if (!keyToDelete) return;
 
-    setIsDeleting(true)
+    setIsDeleting(true);
 
-    toast.promise(
-      deleteApiKey(keyToDelete),
-      {
-        loading: "Deleting API key...",
-        success: () => {
-          setDeleteDialogOpen(false)
-          setKeyToDelete(null)
-          setIsDeleting(false)
-          router.refresh()
-          return "API key deleted successfully"
-        },
-        error: (err: unknown) => {
-          setIsDeleting(false)
-          return err instanceof Error ? err.message : "Failed to delete API key"
-        },
-      }
-    )
-  }
+    toast.promise(deleteApiKey(keyToDelete), {
+      loading: "Deleting API key...",
+      success: () => {
+        setDeleteDialogOpen(false);
+        setKeyToDelete(null);
+        setIsDeleting(false);
+        router.refresh();
+        return "API key deleted successfully";
+      },
+      error: (err: unknown) => {
+        setIsDeleting(false);
+        return err instanceof Error ? err.message : "Failed to delete API key";
+      },
+    });
+  };
 
   const onDeleteClick = (id: string) => {
-    setKeyToDelete(id)
-    setDeleteDialogOpen(true)
-  }
+    setKeyToDelete(id);
+    setDeleteDialogOpen(true);
+  };
 
   return (
     <>
-      <ApiKeysDataTable columns={columns} data={apiKeys} onDelete={onDeleteClick} />
+      <ApiKeysDataTable
+        columns={columns}
+        data={apiKeys}
+        onDelete={onDeleteClick}
+      />
 
       <ConfirmDialog
         open={deleteDialogOpen}
@@ -64,5 +65,5 @@ export const ApiKeysList = ({ apiKeys }: ApiKeysListProps) => {
         variant="destructive"
       />
     </>
-  )
-}
+  );
+};

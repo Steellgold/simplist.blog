@@ -12,9 +12,13 @@ type SendSimplistEmailOptions = {
   to: string;
   subject: string;
   html: string;
-}
+};
 
-export const sendEmail = async ({ to, subject, html }: SendSimplistEmailOptions): Promise<void> => {
+export const sendEmail = async ({
+  to,
+  subject,
+  html,
+}: SendSimplistEmailOptions): Promise<void> => {
   try {
     await ses.sendEmail({
       Source: "no-reply@simplist.blog",

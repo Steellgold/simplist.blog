@@ -3,9 +3,21 @@
 import { useSubscriptionLimits } from "@/hooks/use-subscription-limits";
 import { LanguageCode } from "@/lib/types/languages";
 import { Button } from "@simplist/ui/components/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@simplist/ui/components/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@simplist/ui/components/card";
 import { Label } from "@simplist/ui/components/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@simplist/ui/components/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@simplist/ui/components/select";
 import { Spinner } from "@simplist/ui/components/spinner";
 import Image from "next/image";
 import { ReactNode } from "react";
@@ -26,17 +38,17 @@ type ArticleVisibilityCardProps = {
   projectId?: string;
 };
 
-export const ArticleVisibilityCard = ({ 
-  status, 
-  onStatusChange, 
-  isSubmitting, 
-  submitLabel, 
+export const ArticleVisibilityCard = ({
+  status,
+  onStatusChange,
+  isSubmitting,
+  submitLabel,
   leftAction,
   scheduledPublishAt,
   onScheduleChange,
   projectTimezone = "UTC",
   projectDefaultLanguage = "en",
-  projectId
+  projectId,
 }: ArticleVisibilityCardProps) => {
   const { subscription } = useSubscriptionLimits(projectId);
   const isPro = subscription?.tier === "PRO";
@@ -45,16 +57,21 @@ export const ArticleVisibilityCard = ({
     <Card>
       <CardHeader>
         <CardTitle>Visibility</CardTitle>
-        <CardDescription>
-          Select the visibility of the article.
-        </CardDescription>
+        <CardDescription>Select the visibility of the article.</CardDescription>
       </CardHeader>
 
       <CardContent className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="status">Status</Label>
-          <Select value={status} onValueChange={(v) => onStatusChange(v as ArticleStatus)}>
-            <SelectTrigger id="status" className="w-full" suppressHydrationWarning>
+          <Select
+            value={status}
+            onValueChange={(v) => onStatusChange(v as ArticleStatus)}
+          >
+            <SelectTrigger
+              id="status"
+              className="w-full"
+              suppressHydrationWarning
+            >
               <SelectValue />
             </SelectTrigger>
             <SelectContent side="bottom" align="start" suppressHydrationWarning>
@@ -96,6 +113,4 @@ export const ArticleVisibilityCard = ({
       </CardContent>
     </Card>
   );
-}
-
-
+};

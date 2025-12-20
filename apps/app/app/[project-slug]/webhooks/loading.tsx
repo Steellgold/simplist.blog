@@ -1,5 +1,5 @@
-import { PageLayout } from "@/components/layout/page-layout"
-import { Skeleton } from "@simplist/ui/components/skeleton"
+import { PageLayout } from "@/components/layout/page-layout";
+import { Skeleton } from "@simplist/ui/components/skeleton";
 
 const WebhooksLoading = () => {
   return (
@@ -21,7 +21,7 @@ const WebhooksLoading = () => {
               <Skeleton className="h-5 w-24" />
               <Skeleton className="h-5 w-20" />
               <Skeleton className="h-5 w-24" />
-              <Skeleton className="h-5 w-16 ml-auto" />
+              <Skeleton className="ml-auto h-5 w-16" />
             </div>
           </div>
 
@@ -39,7 +39,7 @@ const WebhooksLoading = () => {
                 </div>
                 <Skeleton className="h-6 w-16 rounded-full" />
                 <Skeleton className="h-4 w-24" />
-                <Skeleton className="h-8 w-8 ml-auto" />
+                <Skeleton className="ml-auto h-8 w-8" />
               </div>
             </div>
           ))}
@@ -54,7 +54,7 @@ const WebhooksLoading = () => {
         </div>
       </div>
     </PageLayout>
-  )
-}
+  );
+};
 
-export default WebhooksLoading
+export default WebhooksLoading;

@@ -37,13 +37,13 @@ export const CodeBlock: FC<CodeBlockProps> = async ({
     const lang = language;
 
     return (
-      <Card className="p-[2.5px] rounded-2xl">
-        <Card className={cn("overflow-hidden p-0 max-w-full", className)}>
-          <div className="flex items-center justify-between bg-muted/50 px-4 py-2 border-b min-w-0">
+      <Card className="rounded-2xl p-[2.5px]">
+        <Card className={cn("max-w-full overflow-hidden p-0", className)}>
+          <div className="bg-muted/50 flex min-w-0 items-center justify-between border-b px-4 py-2">
             <div className="flex items-center gap-2 overflow-hidden">
               {lang && languages.find((l) => l.value === lang)?.icon}
 
-              <code className="text-muted-foreground text-sm truncate">
+              <code className="text-muted-foreground truncate text-sm">
                 {filename}
               </code>
             </div>
@@ -51,9 +51,9 @@ export const CodeBlock: FC<CodeBlockProps> = async ({
             <CopyButton content={code} />
           </div>
 
-          <div className="overflow-x-auto max-w-full -mt-2.5">
+          <div className="-mt-2.5 max-w-full overflow-x-auto">
             <div
-              className="[&_pre]:p-4 [&_pre]:m-0 [&_pre]:bg-transparent [&_pre]:max-w-full [&_pre]:overflow-x-auto"
+              className="[&_pre]:m-0 [&_pre]:max-w-full [&_pre]:overflow-x-auto [&_pre]:bg-transparent [&_pre]:p-4"
               dangerouslySetInnerHTML={{ __html: highlighted }}
             />
           </div>

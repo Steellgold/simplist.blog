@@ -27,7 +27,14 @@ import {
   EmptyTitle,
 } from "@simplist/ui/components/empty";
 import { Input } from "@simplist/ui/components/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@simplist/ui/components/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@simplist/ui/components/table";
 import type { WebhookListItem } from "./types";
 
 interface WebhooksDataTableProps {
@@ -91,7 +98,7 @@ export const WebhooksDataTable = ({
         <DataTableViewOptions table={table} />
       </div>
 
-      <div className="rounded-md border overflow-hidden">
+      <div className="overflow-hidden rounded-md border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -159,7 +166,7 @@ export const WebhooksDataTable = ({
       </div>
 
       <div className="flex items-center justify-between">
-        <div className="text-sm text-muted-foreground">
+        <div className="text-muted-foreground text-sm">
           {table.getFilteredRowModel().rows.length} webhook(s)
         </div>
         <ButtonGroup>

@@ -192,7 +192,7 @@ export const CreateApiKeyForm = ({
 
         {newApiKey ? (
           <div className="space-y-4">
-            <div className="rounded-lg bg-muted p-4">
+            <div className="bg-muted rounded-lg p-4">
               <code className="text-sm break-all">{newApiKey}</code>
             </div>
 

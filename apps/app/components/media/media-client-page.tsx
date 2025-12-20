@@ -273,7 +273,7 @@ export const MediaClientPage = ({
           </EmptyHeader>
           <EmptyContent>
             <Button onClick={() => setUploadDialogOpen(true)}>
-              <Upload className="h-4 w-4 mr-2" />
+              <Upload className="mr-2 h-4 w-4" />
               Upload images
               <Kbd>N</Kbd>
             </Button>

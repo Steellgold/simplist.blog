@@ -1,45 +1,45 @@
-"use client"
+"use client";
 
-import { FC, ReactNode } from "react"
-import { useState } from "react"
-import { cn } from "@simplist/ui/lib/utils"
-import { ChevronDown, HelpCircle } from "lucide-react"
-import { Card } from "@simplist/ui/components/card"
+import { FC, ReactNode } from "react";
+import { useState } from "react";
+import { cn } from "@simplist/ui/lib/utils";
+import { ChevronDown, HelpCircle } from "lucide-react";
+import { Card } from "@simplist/ui/components/card";
 
 type FaqItem = {
-  question: string
-  answer: string | ReactNode
-}
+  question: string;
+  answer: string | ReactNode;
+};
 
 type FaqProps = {
-  title?: string
-  description?: string
-  items: FaqItem[]
-  className?: string
-  allowMultiple?: boolean
-}
+  title?: string;
+  description?: string;
+  items: FaqItem[];
+  className?: string;
+  allowMultiple?: boolean;
+};
 
 type FaqItemProps = {
-  item: FaqItem
-  isOpen: boolean
-  onToggle: () => void
-}
+  item: FaqItem;
+  isOpen: boolean;
+  onToggle: () => void;
+};
 
 const FaqItemComponent: FC<FaqItemProps> = ({ item, isOpen, onToggle }) => {
   return (
-    <div className="border-b border-border/50 last:border-b-0">
+    <div className="border-border/50 border-b last:border-b-0">
       <button
         onClick={onToggle}
-        className="flex w-full items-center justify-between gap-4 py-4 text-left group"
+        className="group flex w-full items-center justify-between gap-4 py-4 text-left"
         aria-expanded={isOpen}
       >
-        <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
+        <span className="text-foreground group-hover:text-primary text-sm font-medium transition-colors">
           {item.question}
         </span>
 
         <ChevronDown
           className={cn(
-            "h-4 w-4 shrink-0 text-muted-foreground group-hover:text-primary transition-all duration-200",
+            "text-muted-foreground group-hover:text-primary h-4 w-4 shrink-0 transition-all duration-200",
             isOpen && "rotate-180",
           )}
         />
@@ -48,45 +48,61 @@ const FaqItemComponent: FC<FaqItemProps> = ({ item, isOpen, onToggle }) => {
       <div
         className={cn(
           "grid transition-all duration-200 ease-in-out",
-          isOpen ? "grid-rows-[1fr] opacity-100 pb-4" : "grid-rows-[0fr] opacity-0",
+          isOpen
+            ? "grid-rows-[1fr] pb-4 opacity-100"
+            : "grid-rows-[0fr] opacity-0",
         )}
       >
         <div className="overflow-hidden">
-          <div className="text-sm text-muted-foreground leading-relaxed prose prose-sm max-w-none dark:prose-invert">
+          <div className="text-muted-foreground prose prose-sm dark:prose-invert max-w-none text-sm leading-relaxed">
             {item.answer}
           </div>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export const Faq: FC<FaqProps> = ({ title, description, items, className, allowMultiple = false }) => {
-  const [openIndexes, setOpenIndexes] = useState<number[]>([])
+export const Faq: FC<FaqProps> = ({
+  title,
+  description,
+  items,
+  className,
+  allowMultiple = false,
+}) => {
+  const [openIndexes, setOpenIndexes] = useState<number[]>([]);
 
   const handleToggle = (index: number) => {
     if (allowMultiple) {
-      setOpenIndexes((prev) => (prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]))
+      setOpenIndexes((prev) =>
+        prev.includes(index)
+          ? prev.filter((i) => i !== index)
+          : [...prev, index],
+      );
     } else {
-      setOpenIndexes((prev) => (prev.includes(index) ? [] : [index]))
+      setOpenIndexes((prev) => (prev.includes(index) ? [] : [index]));
     }
-  }
+  };
 
   return (
-    <Card className="p-[2.5px] rounded-2xl">
-      <Card className={cn("overflow-hidden p-0 gap-0 max-w-full", className)}>
+    <Card className="rounded-2xl p-[2.5px]">
+      <Card className={cn("max-w-full gap-0 overflow-hidden p-0", className)}>
         {title && (
-          <div className="bg-muted/50 px-4 py-3 border-b border-border/50">
-            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-              <HelpCircle className="h-4 w-4 text-primary" />
+          <div className="bg-muted/50 border-border/50 border-b px-4 py-3">
+            <h3 className="text-foreground flex items-center gap-2 text-sm font-semibold">
+              <HelpCircle className="text-primary h-4 w-4" />
               {title}
             </h3>
 
-            {description && <p className="text-xs text-muted-foreground mt-1">{description}</p>}
+            {description && (
+              <p className="text-muted-foreground mt-1 text-xs">
+                {description}
+              </p>
+            )}
           </div>
         )}
 
-        <div className="px-4 bg-card">
+        <div className="bg-card px-4">
           {items.map((item, index) => (
             <FaqItemComponent
               key={index}
@@ -98,5 +114,5 @@ export const Faq: FC<FaqProps> = ({ title, description, items, className, allowM
         </div>
       </Card>
     </Card>
-  )
-}
+  );
+};

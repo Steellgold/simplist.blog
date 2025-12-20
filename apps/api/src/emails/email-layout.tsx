@@ -1,8 +1,8 @@
-import React from "react"
+import React from "react";
 
 interface EmailLayoutProps {
-  previewText?: string
-  children: React.ReactNode
+  previewText?: string;
+  children: React.ReactNode;
 }
 
 export const EmailLayout = ({ previewText, children }: EmailLayoutProps) => {
@@ -298,7 +298,13 @@ export const EmailLayout = ({ previewText, children }: EmailLayoutProps) => {
           </div>
         )}
 
-        <table className="email-container" role="presentation" cellPadding="0" cellSpacing="0" style={{ width: "100%", maxWidth: "600px", margin: "0 auto" }}>
+        <table
+          className="email-container"
+          role="presentation"
+          cellPadding="0"
+          cellSpacing="0"
+          style={{ width: "100%", maxWidth: "600px", margin: "0 auto" }}
+        >
           <tbody>
             <tr>
               <td style={{ padding: "40px 20px 20px" }}>
@@ -322,9 +328,7 @@ export const EmailLayout = ({ previewText, children }: EmailLayoutProps) => {
             <tr>
               <td>
                 <div className="email-content">
-                  <div className="content">
-                    {children}
-                  </div>
+                  <div className="content">{children}</div>
                 </div>
               </td>
             </tr>
@@ -336,10 +340,27 @@ export const EmailLayout = ({ previewText, children }: EmailLayoutProps) => {
                     © {new Date().getFullYear()} Simplist. All rights reserved.
                   </p>
                   <p style={{ margin: "0" }}>
-                    <a href="https://simplist.blog" className="footer-link">Website</a>
-                    <a href="https://simplist.blog/pricing" className="footer-link">Pricing</a>
-                    <a href="https://simplist.blog/legal/privacy" className="footer-link">Privacy</a>
-                    <a href="https://simplist.blog/legal/terms" className="footer-link">Terms</a>
+                    <a href="https://simplist.blog" className="footer-link">
+                      Website
+                    </a>
+                    <a
+                      href="https://simplist.blog/pricing"
+                      className="footer-link"
+                    >
+                      Pricing
+                    </a>
+                    <a
+                      href="https://simplist.blog/legal/privacy"
+                      className="footer-link"
+                    >
+                      Privacy
+                    </a>
+                    <a
+                      href="https://simplist.blog/legal/terms"
+                      className="footer-link"
+                    >
+                      Terms
+                    </a>
                   </p>
                 </div>
               </td>
@@ -348,6 +369,5 @@ export const EmailLayout = ({ previewText, children }: EmailLayoutProps) => {
         </table>
       </body>
     </html>
-  )
-}
-
+  );
+};

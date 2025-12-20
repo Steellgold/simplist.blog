@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { GitHubDark } from "@ridemountainpig/svgl-react";
 import { buttonVariants } from "@simplist/ui/components/button";
@@ -6,7 +6,7 @@ import Link from "next/link";
 import { FC } from "react";
 
 interface EditOnGitHubProps {
-  githubUrl: string
+  githubUrl: string;
 }
 
 export const EditOnGitHub: FC<EditOnGitHubProps> = ({ githubUrl }) => {
@@ -20,5 +20,5 @@ export const EditOnGitHub: FC<EditOnGitHubProps> = ({ githubUrl }) => {
       <GitHubDark className="*:fill-current" />
       Edit on GitHub
     </Link>
-  )
-}
+  );
+};

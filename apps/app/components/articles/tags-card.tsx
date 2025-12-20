@@ -1,7 +1,13 @@
 "use client";
 
 import { type Tag } from "@simplist/db";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@simplist/ui/components/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@simplist/ui/components/card";
 import { FC } from "react";
 import { ArticleTagsInput } from "./article-tags-input";
 
@@ -16,7 +22,7 @@ export const ArticleTagsCard: FC<ArticleTagsCardProps> = ({
   tags,
   availableTags,
   onTagsChange,
-  onCreateTag
+  onCreateTag,
 }) => {
   return (
     <Card>

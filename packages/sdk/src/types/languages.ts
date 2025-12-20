@@ -3,7 +3,7 @@
  */
 export enum Language {
   ENGLISH = "en",
-  FRENCH = "fr", 
+  FRENCH = "fr",
   SPANISH = "es",
   GERMAN = "de",
   ITALIAN = "it",
@@ -82,21 +82,21 @@ export enum Language {
 /**
  * Language code type (ISO 639-1)
  */
-export type LanguageCode = `${Language}`
+export type LanguageCode = `${Language}`;
 
 /**
  * Check if a string is a valid language code
  */
 export const isValidLanguageCode = (code: string): code is LanguageCode => {
-  return Object.values(Language).includes(code as Language)
-}
+  return Object.values(Language).includes(code as Language);
+};
 
 /**
  * Get all available language codes
  */
 export const getAllLanguageCodes = (): LanguageCode[] => {
-  return Object.values(Language) as LanguageCode[]
-}
+  return Object.values(Language) as LanguageCode[];
+};
 
 /**
  * Popular languages commonly used
@@ -112,4 +112,4 @@ export const POPULAR_LANGUAGES: LanguageCode[] = [
   Language.JAPANESE,
   Language.KOREAN,
   Language.CHINESE,
-]
+];

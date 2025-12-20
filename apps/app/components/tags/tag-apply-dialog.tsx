@@ -38,8 +38,10 @@ interface TagApplyDialogProps {
 }
 
 export const TagApplyDialog: FC<TagApplyDialogProps> = ({
-  open, onOpenChange,
-  tag, projectId,
+  open,
+  onOpenChange,
+  tag,
+  projectId,
 }) => {
   const router = useRouter();
   const [articles, setArticles] = useState<ArticleForTagAssignment[]>([]);
@@ -260,4 +262,4 @@ export const TagApplyDialog: FC<TagApplyDialogProps> = ({
       </DialogContent>
     </Dialog>
   );
-}
+};

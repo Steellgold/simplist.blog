@@ -1,9 +1,9 @@
-import { z } from "zod"
+import { z } from "zod";
 
 export const hreflangTagSchema = z.object({
   lang: z.string(),
-  url: z.url()
-})
+  url: z.url(),
+});
 
 export const seoMetadataSchema = z.object({
   metaTitle: z.string(),
@@ -15,7 +15,9 @@ export const seoMetadataSchema = z.object({
   twitterTitle: z.string().optional(),
   twitterDescription: z.string().optional(),
   twitterImage: z.url().optional(),
-  twitterCard: z.enum(["summary", "summary_large_image"]).default("summary_large_image"),
+  twitterCard: z
+    .enum(["summary", "summary_large_image"])
+    .default("summary_large_image"),
   canonicalUrl: z.url().optional(),
   structuredData: z.record(z.string(), z.any()).optional(),
   keywords: z.array(z.string()).optional(),
@@ -24,8 +26,8 @@ export const seoMetadataSchema = z.object({
   publishedTime: z.iso.datetime().optional(),
   modifiedTime: z.iso.datetime().optional(),
   readingTime: z.number().optional(),
-  hreflang: z.array(hreflangTagSchema).optional()
-})
+  hreflang: z.array(hreflangTagSchema).optional(),
+});
 
 export const articleSeoSchema = z.object({
   id: z.string(),
@@ -47,24 +49,32 @@ export const articleSeoSchema = z.object({
   project: z.object({
     name: z.string(),
     slug: z.string(),
-    description: z.string().nullable()
-  })
-})
+    description: z.string().nullable(),
+  }),
+});
 
 export const sitemapEntrySchema = z.object({
   url: z.url(),
   lastModified: z.iso.datetime(),
-  changeFrequency: z.enum(["always", "hourly", "daily", "weekly", "monthly", "yearly", "never"]),
-  priority: z.number().min(0).max(1)
-})
+  changeFrequency: z.enum([
+    "always",
+    "hourly",
+    "daily",
+    "weekly",
+    "monthly",
+    "yearly",
+    "never",
+  ]),
+  priority: z.number().min(0).max(1),
+});
 
 export const sitemapSchema = z.object({
   entries: z.array(sitemapEntrySchema),
-  generatedAt: z.iso.datetime()
-})
+  generatedAt: z.iso.datetime(),
+});
 
-export type HreflangTag = z.infer<typeof hreflangTagSchema>
-export type SeoMetadata = z.infer<typeof seoMetadataSchema>
-export type ArticleSeo = z.infer<typeof articleSeoSchema>
-export type SitemapEntry = z.infer<typeof sitemapEntrySchema>
-export type Sitemap = z.infer<typeof sitemapSchema>
+export type HreflangTag = z.infer<typeof hreflangTagSchema>;
+export type SeoMetadata = z.infer<typeof seoMetadataSchema>;
+export type ArticleSeo = z.infer<typeof articleSeoSchema>;
+export type SitemapEntry = z.infer<typeof sitemapEntrySchema>;
+export type Sitemap = z.infer<typeof sitemapSchema>;

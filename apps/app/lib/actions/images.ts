@@ -85,7 +85,10 @@ type DetectObjectMimeResult = {
 };
 
 // Try to determine if the object is an image via ContentType and/or magic numbers
-const detectObjectMime = async (bucket: string, key: string): Promise<DetectObjectMimeResult> => {
+const detectObjectMime = async (
+  bucket: string,
+  key: string,
+): Promise<DetectObjectMimeResult> => {
   const s3 = await createR2Client();
 
   try {

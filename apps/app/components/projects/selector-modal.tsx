@@ -10,7 +10,10 @@ import {
   DialogTitle,
 } from "@simplist/ui/components/dialog";
 import { Label } from "@simplist/ui/components/label";
-import { RadioGroup, RadioGroupItem } from "@simplist/ui/components/radio-group";
+import {
+  RadioGroup,
+  RadioGroupItem,
+} from "@simplist/ui/components/radio-group";
 import { useState } from "react";
 
 interface ProjectSelectorModalProps {
@@ -46,7 +49,7 @@ export const ProjectSelectorModal = ({
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
-        
+
         <div className="space-y-4">
           <RadioGroup
             value={selectedProjectId}
@@ -58,7 +61,7 @@ export const ProjectSelectorModal = ({
                 <RadioGroupItem value={project.id} id={project.id} />
                 <Label htmlFor={project.id} className="flex-1 cursor-pointer">
                   <div className="font-medium">{project.name}</div>
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-muted-foreground text-sm">
                     {project.slug}
                   </div>
                 </Label>
@@ -68,16 +71,10 @@ export const ProjectSelectorModal = ({
         </div>
 
         <div className="flex justify-end space-x-2">
-          <Button
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-          >
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button
-            onClick={handleSubmit}
-            disabled={!selectedProjectId}
-          >
+          <Button onClick={handleSubmit} disabled={!selectedProjectId}>
             Continue
           </Button>
         </div>

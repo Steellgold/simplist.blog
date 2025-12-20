@@ -1,6 +1,6 @@
-import { PageLayout } from "@/components/layout/page-layout"
-import { Card, CardContent, CardHeader } from "@simplist/ui/components/card"
-import { Skeleton } from "@simplist/ui/components/skeleton"
+import { PageLayout } from "@/components/layout/page-layout";
+import { Card, CardContent, CardHeader } from "@simplist/ui/components/card";
+import { Skeleton } from "@simplist/ui/components/skeleton";
 
 const RolesLoading = () => {
   return (
@@ -19,9 +19,9 @@ const RolesLoading = () => {
                 <div key={i} className="p-4">
                   <div className="flex items-center justify-between gap-4">
                     {/* Gauche: Nom + Info */}
-                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <div className="flex min-w-0 flex-1 items-center gap-3">
                       <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2 mb-1">
+                        <div className="mb-1 flex items-center gap-2">
                           <Skeleton className="h-5 w-32" />
                           <Skeleton className="h-4 w-16 rounded-sm" />
                         </div>
@@ -55,7 +55,7 @@ const RolesLoading = () => {
                     <Skeleton className="h-4 w-16 rounded-full" />
                   </div>
 
-                  <div className="pl-4 space-y-2">
+                  <div className="space-y-2 pl-4">
                     {Array.from({ length: 2 }).map((_, j) => (
                       <div key={j} className="flex items-center gap-3">
                         <Skeleton className="size-6 rounded-full" />
@@ -70,7 +70,7 @@ const RolesLoading = () => {
         </Card>
       </div>
     </PageLayout>
-  )
-}
+  );
+};
 
-export default RolesLoading
+export default RolesLoading;

@@ -312,7 +312,7 @@ export function ImportDialog<T extends Record<string, unknown>>({
 
           {/* Preview */}
           {parsedData.length > 0 && (
-            <div className="rounded-md border bg-muted/50 p-3">
+            <div className="bg-muted/50 rounded-md border p-3">
               <p className="text-sm">
                 <span className="font-medium">{parsedData.length}</span>{" "}
                 {entityName} ready to import
@@ -322,13 +322,13 @@ export function ImportDialog<T extends Record<string, unknown>>({
 
           {/* Error */}
           {error && (
-            <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3">
-              <p className="text-sm text-destructive">{error}</p>
+            <div className="border-destructive/50 bg-destructive/10 rounded-md border p-3">
+              <p className="text-destructive text-sm">{error}</p>
             </div>
           )}
 
           {/* Expected columns info */}
-          <div className="text-xs text-muted-foreground">
+          <div className="text-muted-foreground text-xs">
             <p className="font-medium">Expected columns:</p>
             <p>{columns.map((c) => c.header).join(", ")}</p>
           </div>

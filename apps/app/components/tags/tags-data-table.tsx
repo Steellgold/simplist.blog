@@ -15,11 +15,25 @@ import {
 import { Button } from "@simplist/ui/components/button";
 import { ButtonGroup } from "@simplist/ui/components/button-group";
 import { ConfirmDialog } from "@simplist/ui/components/confirm-dialog";
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@simplist/ui/components/empty";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@simplist/ui/components/empty";
 import { Input } from "@simplist/ui/components/input";
 import { toast } from "@simplist/ui/components/sonner";
 import { Spinner } from "@simplist/ui/components/spinner";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@simplist/ui/components/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@simplist/ui/components/table";
 import {
   flexRender,
   getCoreRowModel,
@@ -173,7 +187,7 @@ export const TagsDataTable: FC<TagsDataTableProps> = ({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+      <div className="flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
         <Input
           placeholder="Search tags by name..."
           value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
@@ -219,7 +233,7 @@ export const TagsDataTable: FC<TagsDataTableProps> = ({
         </div>
       </div>
 
-      <div className="rounded-md border overflow-hidden">
+      <div className="overflow-hidden rounded-md border">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
@@ -290,7 +304,7 @@ export const TagsDataTable: FC<TagsDataTableProps> = ({
       </div>
 
       <div className="flex items-center justify-between">
-        <div className="text-sm text-muted-foreground">
+        <div className="text-muted-foreground text-sm">
           {table.getFilteredRowModel().rows.length} tag(s)
         </div>
         <ButtonGroup>

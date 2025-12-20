@@ -13,7 +13,8 @@ export const ProjectDeletedEmail = ({ name, projectName }: Props) => {
       <p>Hi {name},</p>
 
       <p>
-        This confirms the deletion of your project <strong>{projectName}</strong>. All associated data (articles,
+        This confirms the deletion of your project{" "}
+        <strong>{projectName}</strong>. All associated data (articles,
         analytics, tags, API keys, and members) has been permanently removed.
       </p>
 

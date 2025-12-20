@@ -1,20 +1,20 @@
-"use server"
+"use server";
 
-import { requirePermission } from "@/lib/auth/permissions"
-import { checkFeatureAccess } from "@/lib/subscription/quota-check"
-import { createApiKeySchema } from "@/lib/validations/api-key"
-import { apiKeyCache, prisma } from "@simplist/db"
-import { revalidatePath } from "next/cache"
+import { requirePermission } from "@/lib/auth/permissions";
+import { checkFeatureAccess } from "@/lib/subscription/quota-check";
+import { createApiKeySchema } from "@/lib/validations/api-key";
+import { apiKeyCache, prisma } from "@simplist/db";
+import { revalidatePath } from "next/cache";
 
 // Generate a random API key
 const generateApiKey = (): string => {
-  const prefix = "prj"
-  const randomBytes = crypto.getRandomValues(new Uint8Array(32))
+  const prefix = "prj";
+  const randomBytes = crypto.getRandomValues(new Uint8Array(32));
   const key = Array.from(randomBytes)
-    .map(b => b.toString(16).padStart(2, "0"))
-    .join("")
-  return `${prefix}_${key}`
-}
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+  return `${prefix}_${key}`;
+};
 
 export const getProjectApiKeys = async (projectId: string) => {
   await requirePermission(projectId, "canManageApiKeys");
@@ -36,13 +36,16 @@ export const getProjectApiKeys = async (projectId: string) => {
       expiresAt: true,
       status: true,
       createdAt: true,
-    }
+    },
   });
 
   return apiKeys;
-}
+};
 
-export const createApiKey = async (projectId: string, input: { name: string; permissions: string[]; expiresInDays?: number | null }) => {
+export const createApiKey = async (
+  projectId: string,
+  input: { name: string; permissions: string[]; expiresInDays?: number | null },
+) => {
   const { user } = await requirePermission(projectId, "canManageApiKeys");
 
   // Get project for slug (needed for revalidatePath)
@@ -60,20 +63,23 @@ export const createApiKey = async (projectId: string, input: { name: string; per
 
   // Check if custom expiration is allowed (Pro feature)
   if (validatedData.expiresInDays && validatedData.expiresInDays > 0) {
-    const hasCustomExpiration = await checkFeatureAccess(projectId, "bulkOperations");
+    const hasCustomExpiration = await checkFeatureAccess(
+      projectId,
+      "bulkOperations",
+    );
     if (!hasCustomExpiration) {
       throw new Error("Custom expiration is a Pro feature");
     }
   }
 
   // Generate unique API key
-  const apiKey = generateApiKey()
+  const apiKey = generateApiKey();
 
   // Calculate expiration date if provided
-  let expiresAt: Date | null = null
+  let expiresAt: Date | null = null;
   if (validatedData.expiresInDays && validatedData.expiresInDays > 0) {
-    expiresAt = new Date()
-    expiresAt.setDate(expiresAt.getDate() + validatedData.expiresInDays)
+    expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + validatedData.expiresInDays);
   }
 
   const newApiKey = await prisma.apiKey.create({
@@ -85,17 +91,17 @@ export const createApiKey = async (projectId: string, input: { name: string; per
       expiresAt: expiresAt,
       status: "active",
     },
-  })
+  });
 
   // Invalidate cache for the new API key (fire and forget)
   apiKeyCache.invalidate(apiKey).catch(() => {
     // Ignore cache invalidation errors
-  })
+  });
 
   revalidatePath(`/${project.slug}`, "layout");
   revalidatePath(`/${project.slug}/api-keys`, "page");
   return newApiKey;
-}
+};
 
 export const deleteApiKey = async (apiKeyId: string) => {
   // Get the API key first to find its project
@@ -148,4 +154,4 @@ export const deleteApiKey = async (apiKeyId: string) => {
 
   revalidatePath(`/${project.slug}`, "layout");
   revalidatePath(`/${project.slug}/api-keys`, "page");
-}
+};

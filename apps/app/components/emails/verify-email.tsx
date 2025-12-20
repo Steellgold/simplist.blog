@@ -13,14 +13,15 @@ export const VerifyEmail = ({ name, verificationUrl }: VerifyEmailProps) => {
       <p>Hi {name},</p>
 
       <p>
-        Thanks for signing up. We're excited to have you on board. Before you can start creating your blog,
-        we need to verify your email address.
+        Thanks for signing up. We're excited to have you on board. Before you
+        can start creating your blog, we need to verify your email address.
       </p>
 
       <div className="info-box">
         <p>
-          <strong>Why verify?</strong> This helps us keep your account secure and ensures you can
-          recover access if you ever need to reset your password.
+          <strong>Why verify?</strong> This helps us keep your account secure
+          and ensures you can recover access if you ever need to reset your
+          password.
         </p>
       </div>
 
@@ -30,9 +31,7 @@ export const VerifyEmail = ({ name, verificationUrl }: VerifyEmailProps) => {
         </a>
       </p>
 
-      <p className="muted">
-        Or copy and paste this link into your browser:
-      </p>
+      <p className="muted">Or copy and paste this link into your browser:</p>
 
       <p style={{ wordBreak: "break-all", fontSize: "13px", color: "#737373" }}>
         {verificationUrl}
@@ -41,7 +40,8 @@ export const VerifyEmail = ({ name, verificationUrl }: VerifyEmailProps) => {
       <hr className="divider" />
 
       <p className="muted">
-        If you didn't create an account with Simplist, you can safely ignore this email.
+        If you didn't create an account with Simplist, you can safely ignore
+        this email.
       </p>
     </EmailLayout>
   );

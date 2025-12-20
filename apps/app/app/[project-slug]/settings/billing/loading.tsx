@@ -1,7 +1,16 @@
-import { PageLayout } from "@/components/layout/page-layout"
-import { Card, CardContent } from "@simplist/ui/components/card"
-import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel, FieldSeparator, FieldSet, FieldTitle } from "@simplist/ui/components/field"
-import { Skeleton } from "@simplist/ui/components/skeleton"
+import { PageLayout } from "@/components/layout/page-layout";
+import { Card, CardContent } from "@simplist/ui/components/card";
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldSeparator,
+  FieldSet,
+  FieldTitle,
+} from "@simplist/ui/components/field";
+import { Skeleton } from "@simplist/ui/components/skeleton";
 
 const BillingLoadingSkeleton = () => {
   return (
@@ -21,7 +30,7 @@ const BillingLoadingSkeleton = () => {
                     <Skeleton className="h-5 w-20" />
                   </FieldTitle>
                   <FieldDescription>
-                    <span className="inline-block h-4 w-64 bg-accent animate-pulse rounded-md" />
+                    <span className="bg-accent inline-block h-4 w-64 animate-pulse rounded-md" />
                   </FieldDescription>
                 </FieldContent>
                 <Skeleton className="h-9 w-32" />
@@ -60,7 +69,10 @@ const BillingLoadingSkeleton = () => {
 
             <div className="space-y-3">
               {Array.from({ length: 5 }).map((_, index) => (
-                <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
+                <div
+                  key={index}
+                  className="flex items-center justify-between rounded-lg border p-4"
+                >
                   <div className="flex items-center gap-3">
                     <Skeleton className="size-10 rounded" />
                     <div className="space-y-1">
@@ -68,7 +80,7 @@ const BillingLoadingSkeleton = () => {
                       <Skeleton className="h-3 w-32" />
                     </div>
                   </div>
-                  <div className="text-right space-y-1">
+                  <div className="space-y-1 text-right">
                     <Skeleton className="h-4 w-16" />
                     <Skeleton className="h-3 w-20" />
                   </div>
@@ -76,7 +88,7 @@ const BillingLoadingSkeleton = () => {
               ))}
             </div>
 
-            <div className="flex items-center justify-between mt-4">
+            <div className="mt-4 flex items-center justify-between">
               <Skeleton className="h-4 w-40" />
               <div className="flex items-center space-x-2">
                 <Skeleton className="h-8 w-20" />
@@ -87,7 +99,7 @@ const BillingLoadingSkeleton = () => {
         </CardContent>
       </Card>
     </PageLayout>
-  )
-}
+  );
+};
 
-export default BillingLoadingSkeleton
+export default BillingLoadingSkeleton;

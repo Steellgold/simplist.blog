@@ -50,8 +50,11 @@ interface MediaCardProps {
 }
 
 export const MediaCard = ({
-  media, selected = false, projectId,
-  onDelete, onToggleSelect
+  media,
+  selected = false,
+  projectId,
+  onDelete,
+  onToggleSelect,
 }: MediaCardProps) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -81,14 +84,14 @@ export const MediaCard = ({
     <>
       <div
         className={cn(
-          "group relative rounded-lg border bg-card overflow-hidden transition-all",
-          selected && "ring-2 ring-primary",
+          "group bg-card relative overflow-hidden rounded-lg border transition-all",
+          selected && "ring-primary ring-2",
         )}
       >
         {/* Selection checkbox */}
         {onToggleSelect && (
           <div className="absolute top-2 left-2 z-10">
-            <div className="flex items-center justify-center rounded-md bg-background/10 backdrop-blur-sm px-1 py-1">
+            <div className="bg-background/10 flex items-center justify-center rounded-md px-1 py-1 backdrop-blur-sm">
               <Checkbox
                 checked={selected}
                 onCheckedChange={onToggleSelect}
@@ -99,7 +102,7 @@ export const MediaCard = ({
         )}
 
         {/* Image */}
-        <div className="aspect-square relative bg-muted">
+        <div className="bg-muted relative aspect-square">
           <Image
             src={media.url}
             alt={media.filename}
@@ -109,7 +112,7 @@ export const MediaCard = ({
           />
 
           {/* Hover overlay with quick actions */}
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+          <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/50 opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100">
             <Button size="icon-sm" variant="outline" onClick={handleCopyLink}>
               {copied ? <Check /> : <Copy />}
             </Button>
@@ -133,7 +136,7 @@ export const MediaCard = ({
             <div className="min-w-0 flex-1">
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <p className="text-sm font-medium truncate">
+                  <p className="truncate text-sm font-medium">
                     {media.filename}
                   </p>
                 </TooltipTrigger>
@@ -141,7 +144,7 @@ export const MediaCard = ({
                 <TooltipContent>{media.filename}</TooltipContent>
               </Tooltip>
 
-              <p className="text-xs text-muted-foreground">
+              <p className="text-muted-foreground text-xs">
                 {formatBytes(media.size)}
               </p>
             </div>

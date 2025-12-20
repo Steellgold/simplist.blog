@@ -1,22 +1,22 @@
-import { getColorHex } from './color-mapper'
+import { getColorHex } from "./color-mapper";
 
 // Helper to convert date to ISO string (handles both Date objects and strings from cache)
 export const toISOString = (date: any): string | null => {
-  if (!date) return null
-  if (typeof date === 'string') return date
-  return date.toISOString()
-}
+  if (!date) return null;
+  if (typeof date === "string") return date;
+  return date.toISOString();
+};
 
 // Format bytes to human readable string
 export const formatBytes = (bytes: bigint): string => {
-  const sizes = ["Bytes", "KB", "MB", "GB"]
-  if (bytes === BigInt(0)) return "0 Bytes"
+  const sizes = ["Bytes", "KB", "MB", "GB"];
+  if (bytes === BigInt(0)) return "0 Bytes";
 
-  const i = Math.floor(Math.log(Number(bytes)) / Math.log(1024))
-  const value = Number(bytes) / Math.pow(1024, i)
+  const i = Math.floor(Math.log(Number(bytes)) / Math.log(1024));
+  const value = Number(bytes) / Math.pow(1024, i);
 
-  return `${Math.round(value * 100) / 100} ${sizes[i]}`
-}
+  return `${Math.round(value * 100) / 100} ${sizes[i]}`;
+};
 
 // Format article for API response
 export const formatArticle = (article: any) => {
@@ -24,12 +24,12 @@ export const formatArticle = (article: any) => {
     ...article,
     createdAt: toISOString(article.createdAt),
     updatedAt: toISOString(article.updatedAt),
-    publishedAt: toISOString(article.publishedAt)
-  }
+    publishedAt: toISOString(article.publishedAt),
+  };
 
   // Format variants as key-value map if present
   if (article.variants && Array.isArray(article.variants)) {
-    formatted.variants = formatVariants(article.variants)
+    formatted.variants = formatVariants(article.variants);
   }
 
   // Format tags if present - convert color enum to hex
@@ -37,16 +37,16 @@ export const formatArticle = (article: any) => {
     formatted.tags = article.tags.map((tag: any) => ({
       name: tag.name,
       ...(tag.color !== undefined ? { color: getColorHex(tag.color) } : {}),
-      ...(tag.icon !== undefined ? { icon: tag.icon } : {})
-    }))
+      ...(tag.icon !== undefined ? { icon: tag.icon } : {}),
+    }));
   }
 
-  return formatted
-}
+  return formatted;
+};
 
 // Format article variants as key-value map
 export const formatVariants = (variants: any[]) => {
-  const formattedVariants: Record<string, any> = {}
+  const formattedVariants: Record<string, any> = {};
 
   for (const variant of variants) {
     formattedVariants[variant.lang] = {
@@ -61,20 +61,20 @@ export const formatVariants = (variants: any[]) => {
       readTimeMinutes: variant.readTimeMinutes,
       createdAt: toISOString(variant.createdAt),
       updatedAt: toISOString(variant.updatedAt),
-    }
+    };
   }
 
-  return formattedVariants
-}
+  return formattedVariants;
+};
 
 // Format project for API response
 export const formatProject = (project: any) => {
   return {
     ...project,
     createdAt: project.createdAt.toISOString(),
-    updatedAt: project.updatedAt.toISOString()
-  }
-}
+    updatedAt: project.updatedAt.toISOString(),
+  };
+};
 
 // Format tag for API response - convert Color enum to hex
 export const formatTag = (tag: any) => {
@@ -85,6 +85,6 @@ export const formatTag = (tag: any) => {
     color: tag.color ? getColorHex(tag.color) : null,
     articleCount: tag._count?.articles || 0,
     createdAt: toISOString(tag.createdAt),
-    updatedAt: toISOString(tag.updatedAt)
-  }
-}
+    updatedAt: toISOString(tag.updatedAt),
+  };
+};

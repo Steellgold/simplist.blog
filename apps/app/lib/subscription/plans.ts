@@ -3,7 +3,7 @@ export * from "@simplist/limits";
 
 // Legacy exports for compatibility with existing code
 import { SubscriptionTier } from "@simplist/db";
-import { 
+import {
   SUBSCRIPTION_PLANS as LIMITS_PLANS,
   type Plan as LimitsPlan,
   type PlanId,
@@ -11,16 +11,17 @@ import {
   getAllPlans as getAllBasePlans,
   getPlanPrice as getBasePlanPrice,
   getPlanLimits as getBasePlanLimits,
-  planHasFeature as basePlanHasFeature
+  planHasFeature as basePlanHasFeature,
 } from "@simplist/limits";
 
 // Type mapping for compatibility
-export interface Plan extends Omit<LimitsPlan, 'id'> {
+export interface Plan extends Omit<LimitsPlan, "id"> {
   id: SubscriptionTier;
 }
 
 // Convert plans to use SubscriptionTier type
-export const SUBSCRIPTION_PLANS: Record<SubscriptionTier, Plan> = LIMITS_PLANS as any;
+export const SUBSCRIPTION_PLANS: Record<SubscriptionTier, Plan> =
+  LIMITS_PLANS as any;
 
 // Legacy function wrappers that work with SubscriptionTier
 export const getPlan = (planId: SubscriptionTier): Plan => {
@@ -35,7 +36,10 @@ export const getPlanPrice = (planId: SubscriptionTier, interval: any) => {
   return getBasePlanPrice(planId as PlanId, interval);
 };
 
-export const planHasFeature = (planId: SubscriptionTier, featureName: any): boolean => {
+export const planHasFeature = (
+  planId: SubscriptionTier,
+  featureName: any,
+): boolean => {
   return basePlanHasFeature(planId as PlanId, featureName);
 };
 

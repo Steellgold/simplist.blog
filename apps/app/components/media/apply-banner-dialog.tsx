@@ -107,7 +107,7 @@ export const ApplyBannerDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md overflow-hidden">
+      <DialogContent className="overflow-hidden sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Apply as banner</DialogTitle>
           <DialogDescription>
@@ -115,8 +115,8 @@ export const ApplyBannerDialog = ({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col gap-4 min-w-0">
-          <div className="relative h-32 w-full rounded-md overflow-hidden bg-muted shrink-0">
+        <div className="flex min-w-0 flex-col gap-4">
+          <div className="bg-muted relative h-32 w-full shrink-0 overflow-hidden rounded-md">
             <Image
               src={media.url}
               alt={media.filename}
@@ -146,13 +146,13 @@ export const ApplyBannerDialog = ({
                 checked={selectedArticleId === article.id}
                 onCheckedChange={() => handleSelectArticle(article.id)}
               >
-                <div className="flex items-center gap-3 min-w-0">
+                <div className="flex min-w-0 items-center gap-3">
                   <SelectListItemThumbnail
                     src={article.coverImage || undefined}
                     alt={article.title}
                     variant="landscape"
                     fallback={
-                      <FileText className="h-4 w-4 text-muted-foreground" />
+                      <FileText className="text-muted-foreground h-4 w-4" />
                     }
                   />
                   <div className="min-w-0 flex-1">
@@ -162,7 +162,7 @@ export const ApplyBannerDialog = ({
                     </SelectListItemSubtitle>
                   </div>
                   {selectedArticleId === article.id && (
-                    <Check className="h-4 w-4 shrink-0 text-primary" />
+                    <Check className="text-primary h-4 w-4 shrink-0" />
                   )}
                 </div>
               </SelectListItem>

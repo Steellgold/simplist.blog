@@ -1,232 +1,261 @@
-import { getRedis } from "@simplist/db"
+import { getRedis } from "@simplist/db";
 
-const redis = getRedis()
+const redis = getRedis();
 
 interface CachedArticle {
-  id: string
-  title: string
-  slug: string
-  excerpt: string | null
-  content: string
-  coverImage: string | null
-  published: boolean
-  status: string
-  viewCount: number
-  wordCount: number
-  characterCount: number
-  lineCount: number
-  readTimeMinutes: number
-  createdAt: Date | string
-  updatedAt: Date | string
-  publishedAt: Date | string | null
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  content: string;
+  coverImage: string | null;
+  published: boolean;
+  status: string;
+  viewCount: number;
+  wordCount: number;
+  characterCount: number;
+  lineCount: number;
+  readTimeMinutes: number;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+  publishedAt: Date | string | null;
 }
 
 interface CachedArticleListItem {
-  id: string
-  title: string
-  slug: string
-  excerpt: string | null
-  coverImage: string | null
-  published: boolean
-  status: string
-  viewCount: number
-  wordCount: number
-  characterCount: number
-  lineCount: number
-  readTimeMinutes: number
-  createdAt: Date | string
-  updatedAt: Date | string
-  publishedAt: Date | string | null
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  coverImage: string | null;
+  published: boolean;
+  status: string;
+  viewCount: number;
+  wordCount: number;
+  characterCount: number;
+  lineCount: number;
+  readTimeMinutes: number;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+  publishedAt: Date | string | null;
 }
 
 /**
  * Cache TTL in seconds (5 minutes)
  */
-const CACHE_TTL = 5 * 60
+const CACHE_TTL = 5 * 60;
 
 /**
  * Internal: key storing the current cache "version" for a project.
  */
 const getProjectVersionKey = (projectId: string): string => {
-  return `articles:version:${projectId}`
-}
+  return `articles:version:${projectId}`;
+};
 
 /**
  * Internal: read current cache version for a project (defaults to 1).
  */
 const getProjectCacheVersion = async (projectId: string): Promise<number> => {
   try {
-    const versionKey = getProjectVersionKey(projectId)
-    const value = await redis.get(versionKey)
+    const versionKey = getProjectVersionKey(projectId);
+    const value = await redis.get(versionKey);
 
-    const parsed = typeof value === "string" ? parseInt(value, 10) : NaN
+    const parsed = typeof value === "string" ? parseInt(value, 10) : NaN;
     if (!isNaN(parsed) && parsed > 0) {
-      return parsed
+      return parsed;
     }
   } catch {
     // In case of Redis problem, we fall back to version 1 without breaking requests
   }
 
-  return 1
-}
+  return 1;
+};
 
 /**
  * Generate cache key for articles list (versioned).
  */
-const getListCacheKey = (projectId: string, params: any, version: number): string => {
+const getListCacheKey = (
+  projectId: string,
+  params: any,
+  version: number,
+): string => {
   const sortedParams = Object.keys(params)
     .sort()
-    .map(key => `${key}:${params[key]}`)
-    .join("|")
-  return `articles:list:${projectId}:v${version}:${sortedParams}`
-}
+    .map((key) => `${key}:${params[key]}`)
+    .join("|");
+  return `articles:list:${projectId}:v${version}:${sortedParams}`;
+};
 
 /**
  * Generate cache key for individual article (versioned).
  */
-const getArticleCacheKey = (projectId: string, slug: string, version: number): string => {
-  return `articles:single:${projectId}:v${version}:${slug}`
-}
+const getArticleCacheKey = (
+  projectId: string,
+  slug: string,
+  version: number,
+): string => {
+  return `articles:single:${projectId}:v${version}:${slug}`;
+};
 
 /**
  * Cache articles list and individual articles
  */
 export const cacheArticlesList = async (
-  projectId: string, 
-  params: any, 
-  articles: CachedArticleListItem[]
+  projectId: string,
+  params: any,
+  articles: CachedArticleListItem[],
 ): Promise<void> => {
   try {
-    const version = await getProjectCacheVersion(projectId)
-    const listCacheKey = getListCacheKey(projectId, params, version)
-    
+    const version = await getProjectCacheVersion(projectId);
+    const listCacheKey = getListCacheKey(projectId, params, version);
+
     // Cache the list
-    await redis.setex(listCacheKey, CACHE_TTL, JSON.stringify(articles))
-    
+    await redis.setex(listCacheKey, CACHE_TTL, JSON.stringify(articles));
+
     // Cache each individual article for future get() calls
     const cachePromises = articles.map(async (article) => {
-      const articleCacheKey = getArticleCacheKey(projectId, article.slug, version)
-      
+      const articleCacheKey = getArticleCacheKey(
+        projectId,
+        article.slug,
+        version,
+      );
+
       // Convert list item to full article format (without content for now)
       const fullArticle: CachedArticle = {
         ...article,
-        content: "" // Will be populated when actually requested
-      }
-      
+        content: "", // Will be populated when actually requested
+      };
+
       // Cache for 5 minutes
-      await redis.setex(articleCacheKey, CACHE_TTL, JSON.stringify(fullArticle))
-    })
-    
-    await Promise.all(cachePromises)
-    
-    console.log(`Cached ${articles.length} articles for project ${projectId}`)
+      await redis.setex(
+        articleCacheKey,
+        CACHE_TTL,
+        JSON.stringify(fullArticle),
+      );
+    });
+
+    await Promise.all(cachePromises);
+
+    console.log(`Cached ${articles.length} articles for project ${projectId}`);
   } catch (error) {
-    console.error("Failed to cache articles list:", error)
+    console.error("Failed to cache articles list:", error);
   }
-}
+};
 
 /**
  * Get cached articles list
  */
 export const getCachedArticlesList = async (
   projectId: string,
-  params: any
+  params: any,
 ): Promise<CachedArticleListItem[] | null> => {
   try {
-    const version = await getProjectCacheVersion(projectId)
-    const cacheKey = getListCacheKey(projectId, params, version)
-    const cached = await redis.get(cacheKey)
+    const version = await getProjectCacheVersion(projectId);
+    const cacheKey = getListCacheKey(projectId, params, version);
+    const cached = await redis.get(cacheKey);
 
     if (cached) {
-      const cacheString = typeof cached === 'string' ? cached : JSON.stringify(cached)
-      return JSON.parse(cacheString)
+      const cacheString =
+        typeof cached === "string" ? cached : JSON.stringify(cached);
+      return JSON.parse(cacheString);
     }
 
-    return null
+    return null;
   } catch (error) {
-    console.error("Failed to get cached articles list:", error)
-    return null
+    console.error("Failed to get cached articles list:", error);
+    return null;
   }
-}
+};
 
 /**
  * Cache individual article with full content
  */
 export const cacheArticle = async (
-  projectId: string, 
-  article: CachedArticle
+  projectId: string,
+  article: CachedArticle,
 ): Promise<void> => {
   try {
-    const version = await getProjectCacheVersion(projectId)
-    const cacheKey = getArticleCacheKey(projectId, article.slug, version)
-    await redis.setex(cacheKey, CACHE_TTL, JSON.stringify(article))
-    
-    console.log(`Cached article ${article.slug} for project ${projectId}`)
+    const version = await getProjectCacheVersion(projectId);
+    const cacheKey = getArticleCacheKey(projectId, article.slug, version);
+    await redis.setex(cacheKey, CACHE_TTL, JSON.stringify(article));
+
+    console.log(`Cached article ${article.slug} for project ${projectId}`);
   } catch (error) {
-    console.error("Failed to cache article:", error)
+    console.error("Failed to cache article:", error);
   }
-}
+};
 
 /**
  * Get cached individual article
  */
 export const getCachedArticle = async (
   projectId: string,
-  slug: string
+  slug: string,
 ): Promise<CachedArticle | null> => {
   try {
-    const version = await getProjectCacheVersion(projectId)
-    const cacheKey = getArticleCacheKey(projectId, slug, version)
-    const cached = await redis.get(cacheKey)
+    const version = await getProjectCacheVersion(projectId);
+    const cacheKey = getArticleCacheKey(projectId, slug, version);
+    const cached = await redis.get(cacheKey);
 
     if (cached) {
-      const cacheString = typeof cached === 'string' ? cached : JSON.stringify(cached)
-      const article = JSON.parse(cacheString)
+      const cacheString =
+        typeof cached === "string" ? cached : JSON.stringify(cached);
+      const article = JSON.parse(cacheString);
 
       // If article has no content, it was cached from list - return null to fetch from DB
       if (!article.content) {
-        return null
+        return null;
       }
 
-      return article
+      return article;
     }
 
-    return null
+    return null;
   } catch (error) {
-    console.error("Failed to get cached article:", error)
-    return null
+    console.error("Failed to get cached article:", error);
+    return null;
   }
-}
+};
 
 /**
  * Invalidate cache for a project (when articles are created/updated/deleted)
  */
-export const invalidateProjectCache = async (projectId: string): Promise<void> => {
+export const invalidateProjectCache = async (
+  projectId: string,
+): Promise<void> => {
   try {
     // Increment simply the cache version for this project.
     // The old entries will naturally expire via their TTL.
-    const versionKey = getProjectVersionKey(projectId)
-    const current = await redis.get(versionKey)
-    const currentNumber = typeof current === "string" ? parseInt(current, 10) : NaN
-    const nextVersion = !isNaN(currentNumber) && currentNumber > 0 ? currentNumber + 1 : 2
+    const versionKey = getProjectVersionKey(projectId);
+    const current = await redis.get(versionKey);
+    const currentNumber =
+      typeof current === "string" ? parseInt(current, 10) : NaN;
+    const nextVersion =
+      !isNaN(currentNumber) && currentNumber > 0 ? currentNumber + 1 : 2;
 
-    await redis.set(versionKey, String(nextVersion))
-    console.log(`Bumped article cache version to ${nextVersion} for project ${projectId}`)
+    await redis.set(versionKey, String(nextVersion));
+    console.log(
+      `Bumped article cache version to ${nextVersion} for project ${projectId}`,
+    );
   } catch (error) {
-    console.error("Failed to invalidate project cache:", error)
+    console.error("Failed to invalidate project cache:", error);
   }
-}
+};
 
 /**
  * Invalidate cache for a specific article
  */
-export const invalidateArticleCache = async (projectId: string, slug: string): Promise<void> => {
+export const invalidateArticleCache = async (
+  projectId: string,
+  slug: string,
+): Promise<void> => {
   try {
     // Fine-grained invalidation: we simply bump the project version.
     // This avoids using KEYS and remains sufficient given the short TTL.
-    await invalidateProjectCache(projectId)
-    console.log(`Invalidated article cache via version bump for project ${projectId} (article ${slug})`)
+    await invalidateProjectCache(projectId);
+    console.log(
+      `Invalidated article cache via version bump for project ${projectId} (article ${slug})`,
+    );
   } catch (error) {
-    console.error("Failed to invalidate article cache:", error)
+    console.error("Failed to invalidate article cache:", error);
   }
-}
+};

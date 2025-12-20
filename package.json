@@ -20,6 +20,7 @@
     "@simplist/eslint-config": "workspace:*",
     "@simplist/typescript-config": "workspace:*",
     "prettier": "^3.7.4",
+    "prettier-plugin-tailwindcss": "^0.7.2",
     "turbo": "^2.6.3",
     "typescript": "5.9.3"
   },

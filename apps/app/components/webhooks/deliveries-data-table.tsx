@@ -93,7 +93,7 @@ export const DeliveriesDataTable = ({
         <DataTableViewOptions table={table} />
       </div>
 
-      <div className="rounded-md border overflow-hidden">
+      <div className="overflow-hidden rounded-md border">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
@@ -103,7 +103,7 @@ export const DeliveriesDataTable = ({
                     return (
                       <TableHead
                         key={header.id}
-                        className="whitespace-nowrap px-4"
+                        className="px-4 whitespace-nowrap"
                       >
                         {header.isPlaceholder
                           ? null
@@ -124,7 +124,7 @@ export const DeliveriesDataTable = ({
                     {row.getVisibleCells().map((cell) => (
                       <TableCell
                         key={cell.id}
-                        className="whitespace-nowrap relative px-4"
+                        className="relative px-4 whitespace-nowrap"
                       >
                         {flexRender(
                           cell.column.columnDef.cell,
@@ -156,7 +156,7 @@ export const DeliveriesDataTable = ({
       </div>
 
       <div className="flex items-center justify-between">
-        <div className="text-sm text-muted-foreground">
+        <div className="text-muted-foreground text-sm">
           {table.getFilteredRowModel().rows.length} delivery(s)
         </div>
 

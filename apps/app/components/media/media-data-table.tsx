@@ -254,17 +254,17 @@ export const MediaDataTable = ({
   return (
     <div className="flex flex-col gap-4">
       {/* Toolbar */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div className="flex flex-1 flex-wrap items-center gap-2">
           {/* Search */}
           <form onSubmit={handleSearch} className="flex items-center gap-2">
             <div className="relative">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="text-muted-foreground absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2" />
               <Input
                 placeholder="Search files..."
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
-                className="h-8 w-[150px] lg:w-[250px] pl-8"
+                className="h-8 w-[150px] pl-8 lg:w-[250px]"
               />
             </div>
           </form>
@@ -293,7 +293,7 @@ export const MediaDataTable = ({
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="flex items-center gap-2 px-2">
-                  <div className="flex h-2 w-24 overflow-hidden rounded-full bg-mute">
+                  <div className="bg-mute flex h-2 w-24 overflow-hidden rounded-full">
                     {storageByType.map((item) => {
                       const percentage = (item.size / storageLimit) * 100;
                       return (
@@ -306,7 +306,7 @@ export const MediaDataTable = ({
                     })}
                   </div>
 
-                  <span className="text-xs text-muted-foreground whitespace-nowrap">
+                  <span className="text-muted-foreground text-xs whitespace-nowrap">
                     {formatBytes(storageUsed)} / {formatBytes(storageLimit)}
                   </span>
                 </div>
@@ -342,7 +342,7 @@ export const MediaDataTable = ({
             type="single"
             value={viewMode}
             onValueChange={(value) => value && setViewMode(value as ViewMode)}
-            className="border rounded-md"
+            className="rounded-md border"
           >
             <ToggleGroupItem aria-label="List view" value="list">
               <List />
@@ -374,11 +374,11 @@ export const MediaDataTable = ({
             <Spinner />
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
             {Array.from({ length: 12 }).map((_, i) => (
               <div
                 key={i}
-                className="aspect-square rounded-lg bg-muted animate-pulse"
+                className="bg-muted aspect-square animate-pulse rounded-lg"
               />
             ))}
           </div>
@@ -454,7 +454,7 @@ export const MediaDataTable = ({
         <div className="flex flex-col gap-4">
           {/* Grid select all */}
           {isPro && filteredData.length > 0 && (
-            <label className="flex items-center gap-2 text-sm cursor-pointer w-fit">
+            <label className="flex w-fit cursor-pointer items-center gap-2 text-sm">
               <Checkbox
                 checked={
                   gridSelectedIds.size === filteredData.length
@@ -477,7 +477,7 @@ export const MediaDataTable = ({
             </label>
           )}
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
             {filteredData.length === 0 ? (
               <div className="col-span-full">
                 <Empty>

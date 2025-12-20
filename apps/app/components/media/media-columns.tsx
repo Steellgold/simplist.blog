@@ -125,18 +125,18 @@ const ActionsCell = ({
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuItem onClick={handleCopyLink}>
             {copied ? (
-              <Check className="h-4 w-4 mr-2" />
+              <Check className="mr-2 h-4 w-4" />
             ) : (
-              <Copy className="h-4 w-4 mr-2" />
+              <Copy className="mr-2 h-4 w-4" />
             )}
             Copy link
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => window.open(media.url, "_blank")}>
-            <ExternalLink className="h-4 w-4 mr-2" />
+            <ExternalLink className="mr-2 h-4 w-4" />
             Open in new tab
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setShowApplyBannerDialog(true)}>
-            <ImageIcon className="h-4 w-4 mr-2" />
+            <ImageIcon className="mr-2 h-4 w-4" />
             Apply as banner
           </DropdownMenuItem>
           <DropdownMenuSeparator />
@@ -144,7 +144,7 @@ const ActionsCell = ({
             className="text-destructive focus:text-destructive"
             onClick={() => setShowDeleteDialog(true)}
           >
-            <Trash2 className="h-4 w-4 mr-2" />
+            <Trash2 className="mr-2 h-4 w-4" />
             Delete
           </DropdownMenuItem>
         </DropdownMenuContent>
@@ -226,7 +226,7 @@ export const useMediaColumns = ({
       cell: ({ row }) => {
         const media = row.original;
         return (
-          <div className="relative h-10 w-10 rounded-md overflow-hidden bg-muted">
+          <div className="bg-muted relative h-10 w-10 overflow-hidden rounded-md">
             <Image
               src={media.url}
               alt={media.filename}
@@ -250,7 +250,7 @@ export const useMediaColumns = ({
         return (
           <Tooltip>
             <TooltipTrigger asChild>
-              <span className="font-medium truncate max-w-[200px] block">
+              <span className="block max-w-[200px] truncate font-medium">
                 {filename}
               </span>
             </TooltipTrigger>
@@ -302,7 +302,7 @@ export const useMediaColumns = ({
                   {uploadedBy.name?.charAt(0) || "?"}
                 </AvatarFallback>
               </Avatar>
-              <span className="text-sm truncate max-w-[100px]">
+              <span className="max-w-[100px] truncate text-sm">
                 {uploadedBy.name || "Unknown"}
               </span>
             </div>

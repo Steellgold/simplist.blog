@@ -88,31 +88,31 @@ const features: Feature[] = [
 
 export const FeaturesSection = () => {
   return (
-    <section id="features" className="relative py-24 md:py-28 px-4 mb-10">
-      <div className="container max-w-6xl mx-auto">
-        <div className="text-center mb-14 intersect-once intersect:motion-preset-fade">
-          <p className="text-sm font-medium text-primary mb-2 uppercase tracking-[0.18em]">
+    <section id="features" className="relative mb-10 px-4 py-24 md:py-28">
+      <div className="container mx-auto max-w-6xl">
+        <div className="intersect-once intersect:motion-preset-fade mb-14 text-center">
+          <p className="text-primary mb-2 text-sm font-medium tracking-[0.18em] uppercase">
             Why Developers Pick Simplist
           </p>
           <h2
-            className="text-3xl md:text-4xl font-semibold mb-2.5"
+            className="mb-2.5 text-3xl font-semibold md:text-4xl"
             style={{ fontFamily: "var(--font-syne)" }}
           >
             Everything you need to run a content platform
           </h2>
-          <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-muted-foreground mx-auto max-w-2xl text-base md:text-lg">
             Content API, analytics, SEO and multi-tenant projects – all in one
             place, without a custom backend to maintain.
           </p>
         </div>
 
         <div className="flex justify-center">
-          <div className="overflow-hidden rounded-2xl bg-muted/70 shadow-sm grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 sm:gap-0.5 space-y-0.5 sm:space-y-0 p-0.5 border">
+          <div className="bg-muted/70 grid grid-cols-1 space-y-0.5 overflow-hidden rounded-2xl border p-0.5 shadow-sm sm:grid-cols-2 sm:gap-0.5 sm:space-y-0 lg:grid-cols-3">
             {features.map((feature) => (
               <Card key={feature.title} className="group relative border-0 p-0">
                 <CardHeader className="space-y-2 px-4 pt-4 pb-2">
-                  <div className="w-fit rounded-lg bg-secondary/70 p-1.5">
-                    <feature.icon className="h-6 w-6 opacity-30 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="bg-secondary/70 w-fit rounded-lg p-1.5">
+                    <feature.icon className="h-6 w-6 opacity-30 transition-opacity duration-300 group-hover:opacity-100" />
                   </div>
                   <CardTitle className="text-base md:text-lg">
                     {feature.title}
@@ -122,8 +122,8 @@ export const FeaturesSection = () => {
                   </CardDescription>
                 </CardHeader>
 
-                <CardContent className="px-4 pb-4 pt-1">
-                  <ul className="text-xs md:text-sm text-muted-foreground space-y-1.5">
+                <CardContent className="px-4 pt-1 pb-4">
+                  <ul className="text-muted-foreground space-y-1.5 text-xs md:text-sm">
                     {feature.list.map((item) => (
                       <li key={item} className="flex items-center gap-2">
                         <Minus size={16} className="text-muted-foreground/50" />

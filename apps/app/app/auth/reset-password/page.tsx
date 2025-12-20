@@ -1,12 +1,12 @@
-import { ResetPasswordForm } from "@/components/auth/reset-password-form"
-import { SimplistIcon } from "@/components/icon"
-import type { Metadata } from "next"
-import { Suspense } from "react"
+import { ResetPasswordForm } from "@/components/auth/reset-password-form";
+import { SimplistIcon } from "@/components/icon";
+import type { Metadata } from "next";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Reset Password",
   robots: { index: false, follow: false },
-}
+};
 
 const ResetPasswordPage = () => {
   return (
@@ -21,7 +21,7 @@ const ResetPasswordPage = () => {
         </Suspense>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default ResetPasswordPage
+export default ResetPasswordPage;

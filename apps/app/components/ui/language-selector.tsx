@@ -1,8 +1,21 @@
-"use client"
+"use client";
 
-import { LANGUAGES, type LanguageCode, getAllLanguages, getFlagUrl, getPopularLanguages } from "@/lib/types/languages"
-import { Button } from "@simplist/ui/components/button"
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@simplist/ui/components/command"
+import {
+  LANGUAGES,
+  type LanguageCode,
+  getAllLanguages,
+  getFlagUrl,
+  getPopularLanguages,
+} from "@/lib/types/languages";
+import { Button } from "@simplist/ui/components/button";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@simplist/ui/components/command";
 import {
   Dialog,
   DialogContent,
@@ -11,20 +24,24 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@simplist/ui/components/dialog"
-import { Popover, PopoverContent, PopoverTrigger } from "@simplist/ui/components/popover"
-import { cn } from "@simplist/ui/lib/utils"
-import { Check, ChevronsUpDown } from "lucide-react"
-import { useEffect, useState } from "react"
+} from "@simplist/ui/components/dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@simplist/ui/components/popover";
+import { cn } from "@simplist/ui/lib/utils";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface LanguageSelectorProps {
-  value?: LanguageCode
-  onValueChange?: (value: LanguageCode) => void
-  defaultValue?: LanguageCode
-  placeholder?: string
-  showPopular?: boolean
-  disabled?: boolean
-  dialog?: boolean
+  value?: LanguageCode;
+  onValueChange?: (value: LanguageCode) => void;
+  defaultValue?: LanguageCode;
+  placeholder?: string;
+  showPopular?: boolean;
+  disabled?: boolean;
+  dialog?: boolean;
 }
 
 export function LanguageSelector({
@@ -36,60 +53,63 @@ export function LanguageSelector({
   disabled = false,
   dialog = false,
 }: LanguageSelectorProps) {
-  const [open, setOpen] = useState(false)
-  const [internalValue, setInternalValue] = useState<LanguageCode>(defaultValue)
-  const [selectedLang, setSelectedLang] = useState<LanguageCode | undefined>(controlledValue || defaultValue)
-  const [mounted, setMounted] = useState(false)
+  const [open, setOpen] = useState(false);
+  const [internalValue, setInternalValue] =
+    useState<LanguageCode>(defaultValue);
+  const [selectedLang, setSelectedLang] = useState<LanguageCode | undefined>(
+    controlledValue || defaultValue,
+  );
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
   // Synchronize selectedLang with value prop when it changes
   useEffect(() => {
     if (controlledValue !== undefined) {
-      setSelectedLang(controlledValue)
+      setSelectedLang(controlledValue);
     }
-  }, [controlledValue])
+  }, [controlledValue]);
 
   // Use controlled value if provided, otherwise use internal value
-  const value = controlledValue !== undefined ? controlledValue : internalValue
+  const value = controlledValue !== undefined ? controlledValue : internalValue;
 
   const handleSelect = (currentValue: string) => {
-    const newValue = currentValue as LanguageCode
+    const newValue = currentValue as LanguageCode;
 
     if (dialog) {
-      setSelectedLang(newValue)
+      setSelectedLang(newValue);
     } else {
       if (controlledValue === undefined) {
-        setInternalValue(newValue)
+        setInternalValue(newValue);
       }
 
-      onValueChange?.(newValue)
-      setOpen(false)
+      onValueChange?.(newValue);
+      setOpen(false);
     }
-  }
+  };
 
   const handleDialogConfirm = () => {
     if (selectedLang) {
       if (controlledValue === undefined) {
-        setInternalValue(selectedLang)
+        setInternalValue(selectedLang);
       }
-      onValueChange?.(selectedLang)
+      onValueChange?.(selectedLang);
     }
-    setOpen(false)
-  }
+    setOpen(false);
+  };
 
   const handleDialogOpenChange = (newOpen: boolean) => {
-    setOpen(newOpen)
+    setOpen(newOpen);
     if (!newOpen) {
-      setSelectedLang(value)
+      setSelectedLang(value);
     }
-  }
+  };
 
-  const selectedLanguage = LANGUAGES.find((lang) => lang.code === value)
-  const popularLanguages = getPopularLanguages()
-  const allLanguages = getAllLanguages()
+  const selectedLanguage = LANGUAGES.find((lang) => lang.code === value);
+  const popularLanguages = getPopularLanguages();
+  const allLanguages = getAllLanguages();
 
   if (!mounted) {
     return (
@@ -98,7 +118,7 @@ export function LanguageSelector({
         role="combobox"
         className={cn(
           "w-full justify-between bg-transparent",
-          disabled && "opacity-50 cursor-not-allowed"
+          disabled && "cursor-not-allowed opacity-50",
         )}
         disabled
       >
@@ -107,21 +127,23 @@ export function LanguageSelector({
             <img
               src={getFlagUrl(selectedLanguage.code)}
               alt={`${selectedLanguage.name} flag`}
-              className="w-4 h-3 object-cover rounded-xs"
+              className="h-3 w-4 rounded-xs object-cover"
               onError={(e) => {
                 // Fallback to a generic icon if flag image fails to load
-                e.currentTarget.style.display = 'none'
+                e.currentTarget.style.display = "none";
               }}
             />
             <span>{selectedLanguage.name}</span>
-            <span className="text-muted-foreground text-sm">({selectedLanguage.nativeName})</span>
+            <span className="text-muted-foreground text-sm">
+              ({selectedLanguage.nativeName})
+            </span>
           </div>
         ) : (
           placeholder
         )}
         <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
       </Button>
-    )
+    );
   }
 
   if (dialog) {
@@ -133,7 +155,7 @@ export function LanguageSelector({
             role="combobox"
             className={cn(
               "w-full justify-between bg-transparent",
-              disabled && "opacity-50 cursor-not-allowed"
+              disabled && "cursor-not-allowed opacity-50",
             )}
             disabled={disabled}
           >
@@ -142,13 +164,15 @@ export function LanguageSelector({
                 <img
                   src={getFlagUrl(selectedLanguage.code)}
                   alt={`${selectedLanguage.name} flag`}
-                  className="w-4 h-3 object-cover rounded-xs"
+                  className="h-3 w-4 rounded-xs object-cover"
                   onError={(e) => {
-                    e.currentTarget.style.display = 'none'
+                    e.currentTarget.style.display = "none";
                   }}
                 />
                 <span>{selectedLanguage.name}</span>
-                <span className="text-muted-foreground text-sm">({selectedLanguage.nativeName})</span>
+                <span className="text-muted-foreground text-sm">
+                  ({selectedLanguage.nativeName})
+                </span>
               </div>
             ) : (
               placeholder
@@ -179,24 +203,26 @@ export function LanguageSelector({
                       <Check
                         className={cn(
                           "mr-2 size-4",
-                          selectedLang === language.code ? "opacity-100" : "opacity-0"
+                          selectedLang === language.code
+                            ? "opacity-100"
+                            : "opacity-0",
                         )}
                       />
                       <img
                         src={getFlagUrl(language.code)}
                         alt={`${language.name} flag`}
-                        className="w-4 h-3 object-cover rounded-xs mr-2"
+                        className="mr-2 h-3 w-4 rounded-xs object-cover"
                         onError={(e) => {
-                          e.currentTarget.style.display = 'none'
+                          e.currentTarget.style.display = "none";
                         }}
                       />
-                      <div className="flex items-center gap-2 flex-1">
+                      <div className="flex flex-1 items-center gap-2">
                         <span>{language.name}</span>
                         <span className="text-muted-foreground text-sm">
                           {language.nativeName}
                         </span>
                       </div>
-                      <span className="text-muted-foreground text-xs font-mono">
+                      <span className="text-muted-foreground font-mono text-xs">
                         {language.code}
                       </span>
                     </CommandItem>
@@ -204,9 +230,15 @@ export function LanguageSelector({
                 </CommandGroup>
               )}
 
-              <CommandGroup heading={showPopular ? "All Languages" : "Languages"}>
+              <CommandGroup
+                heading={showPopular ? "All Languages" : "Languages"}
+              >
                 {allLanguages
-                  .filter(lang => showPopular ? !popularLanguages.some(p => p.code === lang.code) : true)
+                  .filter((lang) =>
+                    showPopular
+                      ? !popularLanguages.some((p) => p.code === lang.code)
+                      : true,
+                  )
                   .map((language) => (
                     <CommandItem
                       key={language.code}
@@ -216,24 +248,26 @@ export function LanguageSelector({
                       <Check
                         className={cn(
                           "mr-2 size-4",
-                          selectedLang === language.code ? "opacity-100" : "opacity-0"
+                          selectedLang === language.code
+                            ? "opacity-100"
+                            : "opacity-0",
                         )}
                       />
                       <img
                         src={getFlagUrl(language.code)}
                         alt={`${language.name} flag`}
-                        className="w-4 h-3 object-cover rounded-xs mr-2"
+                        className="mr-2 h-3 w-4 rounded-xs object-cover"
                         onError={(e) => {
-                          e.currentTarget.style.display = 'none'
+                          e.currentTarget.style.display = "none";
                         }}
                       />
-                      <div className="flex items-center gap-2 flex-1">
+                      <div className="flex flex-1 items-center gap-2">
                         <span>{language.name}</span>
                         <span className="text-muted-foreground text-sm">
                           {language.nativeName}
                         </span>
                       </div>
-                      <span className="text-muted-foreground text-xs font-mono">
+                      <span className="text-muted-foreground font-mono text-xs">
                         {language.code}
                       </span>
                     </CommandItem>
@@ -259,7 +293,7 @@ export function LanguageSelector({
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    )
+    );
   }
 
   return (
@@ -271,7 +305,7 @@ export function LanguageSelector({
           aria-expanded={open}
           className={cn(
             "w-full justify-between bg-transparent",
-            disabled && "opacity-50 cursor-not-allowed"
+            disabled && "cursor-not-allowed opacity-50",
           )}
           disabled={disabled}
         >
@@ -280,14 +314,16 @@ export function LanguageSelector({
               <img
                 src={getFlagUrl(selectedLanguage.code)}
                 alt={`${selectedLanguage.name} flag`}
-                className="w-4 h-3 object-cover rounded-xs"
+                className="h-3 w-4 rounded-xs object-cover"
                 onError={(e) => {
                   // Fallback to a generic icon if flag image fails to load
-                  e.currentTarget.style.display = 'none'
+                  e.currentTarget.style.display = "none";
                 }}
               />
               <span>{selectedLanguage.name}</span>
-              <span className="text-muted-foreground text-sm">({selectedLanguage.nativeName})</span>
+              <span className="text-muted-foreground text-sm">
+                ({selectedLanguage.nativeName})
+              </span>
             </div>
           ) : (
             placeholder
@@ -312,25 +348,25 @@ export function LanguageSelector({
                     <Check
                       className={cn(
                         "mr-2 size-4",
-                        value === language.code ? "opacity-100" : "opacity-0"
+                        value === language.code ? "opacity-100" : "opacity-0",
                       )}
                     />
                     <img
                       src={getFlagUrl(language.code)}
                       alt={`${language.name} flag`}
-                      className="w-4 h-3 object-cover rounded-xs mr-2"
+                      className="mr-2 h-3 w-4 rounded-xs object-cover"
                       onError={(e) => {
                         // Hide image if it fails to load
-                        e.currentTarget.style.display = 'none'
+                        e.currentTarget.style.display = "none";
                       }}
                     />
-                    <div className="flex items-center gap-2 flex-1">
+                    <div className="flex flex-1 items-center gap-2">
                       <span>{language.name}</span>
                       <span className="text-muted-foreground text-sm">
                         {language.nativeName}
                       </span>
                     </div>
-                    <span className="text-muted-foreground text-xs font-mono">
+                    <span className="text-muted-foreground font-mono text-xs">
                       {language.code}
                     </span>
                   </CommandItem>
@@ -340,7 +376,11 @@ export function LanguageSelector({
 
             <CommandGroup heading={showPopular ? "All Languages" : "Languages"}>
               {allLanguages
-                .filter(lang => showPopular ? !popularLanguages.some(p => p.code === lang.code) : true)
+                .filter((lang) =>
+                  showPopular
+                    ? !popularLanguages.some((p) => p.code === lang.code)
+                    : true,
+                )
                 .map((language) => (
                   <CommandItem
                     key={language.code}
@@ -350,25 +390,25 @@ export function LanguageSelector({
                     <Check
                       className={cn(
                         "mr-2 size-4",
-                        value === language.code ? "opacity-100" : "opacity-0"
+                        value === language.code ? "opacity-100" : "opacity-0",
                       )}
                     />
                     <img
                       src={getFlagUrl(language.code)}
                       alt={`${language.name} flag`}
-                      className="w-4 h-3 object-cover rounded-xs mr-2"
+                      className="mr-2 h-3 w-4 rounded-xs object-cover"
                       onError={(e) => {
                         // Hide image if it fails to load
-                        e.currentTarget.style.display = 'none'
+                        e.currentTarget.style.display = "none";
                       }}
                     />
-                    <div className="flex items-center gap-2 flex-1">
+                    <div className="flex flex-1 items-center gap-2">
                       <span>{language.name}</span>
                       <span className="text-muted-foreground text-sm">
                         {language.nativeName}
                       </span>
                     </div>
-                    <span className="text-muted-foreground text-xs font-mono">
+                    <span className="text-muted-foreground font-mono text-xs">
                       {language.code}
                     </span>
                   </CommandItem>
@@ -378,7 +418,7 @@ export function LanguageSelector({
         </Command>
       </PopoverContent>
     </Popover>
-  )
+  );
 }
 
 /**
@@ -390,59 +430,62 @@ export function CompactLanguageSelector({
   defaultValue = "en",
   disabled = false,
   dialog = false,
-}: Omit<LanguageSelectorProps, 'placeholder' | 'showPopular'>) {
-  const [open, setOpen] = useState(false)
-  const [internalValue, setInternalValue] = useState<LanguageCode>(defaultValue)
-  const [selectedLang, setSelectedLang] = useState<LanguageCode | undefined>(controlledValue || defaultValue)
-  const [mounted, setMounted] = useState(false)
+}: Omit<LanguageSelectorProps, "placeholder" | "showPopular">) {
+  const [open, setOpen] = useState(false);
+  const [internalValue, setInternalValue] =
+    useState<LanguageCode>(defaultValue);
+  const [selectedLang, setSelectedLang] = useState<LanguageCode | undefined>(
+    controlledValue || defaultValue,
+  );
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
   // Synchronize selectedLang with value prop when it changes
   useEffect(() => {
     if (controlledValue !== undefined) {
-      setSelectedLang(controlledValue)
+      setSelectedLang(controlledValue);
     }
-  }, [controlledValue])
+  }, [controlledValue]);
 
-  const value = controlledValue !== undefined ? controlledValue : internalValue
+  const value = controlledValue !== undefined ? controlledValue : internalValue;
 
   const handleSelect = (currentValue: string) => {
-    const newValue = currentValue as LanguageCode
+    const newValue = currentValue as LanguageCode;
 
     if (dialog) {
-      setSelectedLang(newValue)
+      setSelectedLang(newValue);
     } else {
       if (controlledValue === undefined) {
-        setInternalValue(newValue)
+        setInternalValue(newValue);
       }
 
-      onValueChange?.(newValue)
-      setOpen(false)
+      onValueChange?.(newValue);
+      setOpen(false);
     }
-  }
+  };
 
   const handleDialogConfirm = () => {
     if (selectedLang) {
       if (controlledValue === undefined) {
-        setInternalValue(selectedLang)
+        setInternalValue(selectedLang);
       }
-      onValueChange?.(selectedLang)
+      onValueChange?.(selectedLang);
     }
-    setOpen(false)
-  }
+    setOpen(false);
+  };
 
   const handleDialogOpenChange = (newOpen: boolean) => {
-    setOpen(newOpen)
+    setOpen(newOpen);
     if (!newOpen) {
-      setSelectedLang(value)
+      setSelectedLang(value);
     }
-  }
+  };
 
-  const selectedLanguage = LANGUAGES.find((lang) => lang.code === value)
-  const allLanguages = getAllLanguages()
+  const selectedLanguage = LANGUAGES.find((lang) => lang.code === value);
+  const allLanguages = getAllLanguages();
 
   if (!mounted) {
     return (
@@ -451,7 +494,7 @@ export function CompactLanguageSelector({
         role="combobox"
         className={cn(
           "w-auto justify-between bg-transparent",
-          disabled && "opacity-50 cursor-not-allowed"
+          disabled && "cursor-not-allowed opacity-50",
         )}
         disabled
       >
@@ -460,9 +503,9 @@ export function CompactLanguageSelector({
             <img
               src={getFlagUrl(selectedLanguage.code)}
               alt={`${selectedLanguage.name} flag`}
-              className="w-4 h-3 object-cover rounded-xs"
+              className="h-3 w-4 rounded-xs object-cover"
               onError={(e) => {
-                e.currentTarget.style.display = 'none'
+                e.currentTarget.style.display = "none";
               }}
             />
             <span className="text-sm">
@@ -470,11 +513,11 @@ export function CompactLanguageSelector({
             </span>
           </div>
         ) : (
-          <span className="text-sm text-muted-foreground">Select language</span>
+          <span className="text-muted-foreground text-sm">Select language</span>
         )}
         <ChevronsUpDown className="ml-1 size-3 shrink-0 opacity-50" />
       </Button>
-    )
+    );
   }
 
   if (dialog) {
@@ -486,7 +529,7 @@ export function CompactLanguageSelector({
             role="combobox"
             className={cn(
               "w-auto justify-between bg-transparent",
-              disabled && "opacity-50 cursor-not-allowed"
+              disabled && "cursor-not-allowed opacity-50",
             )}
             disabled={disabled}
           >
@@ -495,9 +538,9 @@ export function CompactLanguageSelector({
                 <img
                   src={getFlagUrl(selectedLanguage.code)}
                   alt={`${selectedLanguage.name} flag`}
-                  className="w-4 h-3 object-cover rounded-xs"
+                  className="h-3 w-4 rounded-xs object-cover"
                   onError={(e) => {
-                    e.currentTarget.style.display = 'none'
+                    e.currentTarget.style.display = "none";
                   }}
                 />
                 <span className="text-sm">
@@ -505,7 +548,9 @@ export function CompactLanguageSelector({
                 </span>
               </div>
             ) : (
-              <span className="text-sm text-muted-foreground">Select language</span>
+              <span className="text-muted-foreground text-sm">
+                Select language
+              </span>
             )}
             <ChevronsUpDown className="ml-1 size-3 shrink-0 opacity-50" />
           </Button>
@@ -531,24 +576,26 @@ export function CompactLanguageSelector({
                     <Check
                       className={cn(
                         "mr-2 size-4",
-                        selectedLang === language.code ? "opacity-100" : "opacity-0"
+                        selectedLang === language.code
+                          ? "opacity-100"
+                          : "opacity-0",
                       )}
                     />
                     <img
                       src={getFlagUrl(language.code)}
                       alt={`${language.name} flag`}
-                      className="w-4 h-3 object-cover rounded-xs mr-2"
+                      className="mr-2 h-3 w-4 rounded-xs object-cover"
                       onError={(e) => {
-                        e.currentTarget.style.display = 'none'
+                        e.currentTarget.style.display = "none";
                       }}
                     />
-                    <div className="flex items-center gap-2 flex-1">
+                    <div className="flex flex-1 items-center gap-2">
                       <span>{language.name}</span>
                       <span className="text-muted-foreground text-sm">
                         {language.nativeName}
                       </span>
                     </div>
-                    <span className="text-muted-foreground text-xs font-mono">
+                    <span className="text-muted-foreground font-mono text-xs">
                       {language.code}
                     </span>
                   </CommandItem>
@@ -574,7 +621,7 @@ export function CompactLanguageSelector({
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    )
+    );
   }
 
   return (
@@ -586,7 +633,7 @@ export function CompactLanguageSelector({
           aria-expanded={open}
           className={cn(
             "w-auto justify-between bg-transparent",
-            disabled && "opacity-50 cursor-not-allowed"
+            disabled && "cursor-not-allowed opacity-50",
           )}
           disabled={disabled}
         >
@@ -595,9 +642,9 @@ export function CompactLanguageSelector({
               <img
                 src={getFlagUrl(selectedLanguage.code)}
                 alt={`${selectedLanguage.name} flag`}
-                className="w-4 h-3 object-cover rounded-xs"
+                className="h-3 w-4 rounded-xs object-cover"
                 onError={(e) => {
-                  e.currentTarget.style.display = 'none'
+                  e.currentTarget.style.display = "none";
                 }}
               />
               <span className="text-sm">
@@ -605,7 +652,9 @@ export function CompactLanguageSelector({
               </span>
             </div>
           ) : (
-            <span className="text-sm text-muted-foreground">Select language</span>
+            <span className="text-muted-foreground text-sm">
+              Select language
+            </span>
           )}
           <ChevronsUpDown className="ml-1 size-3 shrink-0 opacity-50" />
         </Button>
@@ -625,24 +674,24 @@ export function CompactLanguageSelector({
                   <Check
                     className={cn(
                       "mr-2 size-4",
-                      value === language.code ? "opacity-100" : "opacity-0"
+                      value === language.code ? "opacity-100" : "opacity-0",
                     )}
                   />
                   <img
                     src={getFlagUrl(language.code)}
                     alt={`${language.name} flag`}
-                    className="w-4 h-3 object-cover rounded-xs mr-2"
+                    className="mr-2 h-3 w-4 rounded-xs object-cover"
                     onError={(e) => {
-                      e.currentTarget.style.display = 'none'
+                      e.currentTarget.style.display = "none";
                     }}
                   />
-                  <div className="flex items-center gap-2 flex-1">
+                  <div className="flex flex-1 items-center gap-2">
                     <span>{language.name}</span>
                     <span className="text-muted-foreground text-sm">
                       {language.nativeName}
                     </span>
                   </div>
-                  <span className="text-muted-foreground text-xs font-mono">
+                  <span className="text-muted-foreground font-mono text-xs">
                     {language.code}
                   </span>
                 </CommandItem>
@@ -652,5 +701,5 @@ export function CompactLanguageSelector({
         </Command>
       </PopoverContent>
     </Popover>
-  )
+  );
 }

@@ -65,10 +65,12 @@ export default fp(async function (fastify) {
             status: "active",
             OR: [
               { expiresAt: null },
-              { expiresAt: {
-                gte: new Date()
-              }
-            }],
+              {
+                expiresAt: {
+                  gte: new Date(),
+                },
+              },
+            ],
           },
           include: {
             project: {

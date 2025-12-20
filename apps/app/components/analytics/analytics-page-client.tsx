@@ -9,7 +9,8 @@ import { Calendar } from "@simplist/ui/components/calendar";
 import {
   Dialog,
   DialogContent,
-  DialogFooter, DialogTrigger
+  DialogFooter,
+  DialogTrigger,
 } from "@simplist/ui/components/dialog";
 import { differenceInDays, format, subDays } from "date-fns";
 import { parseAsInteger, useQueryState } from "nuqs";
@@ -113,8 +114,11 @@ export const AnalyticsPageClient = ({
               </Button>
             </DialogTrigger>
 
-            <DialogContent className="flex flex-col items-center" showCloseButton={false}>
-              <div className={"flex justify-center w-full"}>
+            <DialogContent
+              className="flex flex-col items-center"
+              showCloseButton={false}
+            >
+              <div className={"flex w-full justify-center"}>
                 <Calendar
                   mode="range"
                   selected={tempDateRange}

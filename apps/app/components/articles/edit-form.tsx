@@ -441,8 +441,8 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2 space-y-4">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div className="space-y-4 lg:col-span-2">
           <ArticleInfoFields
             title={title}
             excerpt={excerpt}
@@ -468,7 +468,7 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({
           />
         </div>
 
-        <div className="lg:col-span-1 space-y-4">
+        <div className="space-y-4 lg:col-span-1">
           <ArticleVisibilityCard
             status={status}
             onStatusChange={(v) => setStatus(v)}

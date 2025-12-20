@@ -1,35 +1,57 @@
-"use client"
+"use client";
 
-import { authClient } from "@/lib/auth-client"
-import { getRedirectUrl } from "@/lib/utils"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Alert, AlertDescription, AlertTitle } from "@simplist/ui/components/alert"
-import { Button } from "@simplist/ui/components/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@simplist/ui/components/card"
-import { Checkbox } from "@simplist/ui/components/checkbox"
-import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@simplist/ui/components/field"
-import { Input } from "@simplist/ui/components/input"
-import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from "@simplist/ui/components/input-otp"
-import { Spinner } from "@simplist/ui/components/spinner"
-import { AlertCircleIcon } from "lucide-react"
-import { useRouter } from "next/navigation"
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import { toast } from "sonner"
-import { z } from "zod"
+import { authClient } from "@/lib/auth-client";
+import { getRedirectUrl } from "@/lib/utils";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@simplist/ui/components/alert";
+import { Button } from "@simplist/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@simplist/ui/components/card";
+import { Checkbox } from "@simplist/ui/components/checkbox";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@simplist/ui/components/field";
+import { Input } from "@simplist/ui/components/input";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "@simplist/ui/components/input-otp";
+import { Spinner } from "@simplist/ui/components/spinner";
+import { AlertCircleIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
 
 const verify2FASchema = z.object({
   code: z.string().min(1, "Code is required"),
-  trustDevice: z.boolean()
-})
+  trustDevice: z.boolean(),
+});
 
-type Verify2FAInput = z.infer<typeof verify2FASchema>
+type Verify2FAInput = z.infer<typeof verify2FASchema>;
 
 export const Verify2FAForm = () => {
-  const router = useRouter()
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [useBackupCode, setUseBackupCode] = useState(false)
-  const [error, setError] = useState("")
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [useBackupCode, setUseBackupCode] = useState(false);
+  const [error, setError] = useState("");
 
   const {
     register,
@@ -43,13 +65,13 @@ export const Verify2FAForm = () => {
       code: "",
       trustDevice: false,
     },
-  })
+  });
 
-  const trustDevice = watch("trustDevice")
+  const trustDevice = watch("trustDevice");
 
   const onSubmit = async (data: Verify2FAInput) => {
-    setIsSubmitting(true)
-    setError("")
+    setIsSubmitting(true);
+    setError("");
 
     const verifyFn = useBackupCode
       ? authClient.twoFactor.verifyBackupCode({
@@ -59,37 +81,39 @@ export const Verify2FAForm = () => {
       : authClient.twoFactor.verifyTotp({
           code: data.code,
           trustDevice: data.trustDevice,
-        })
+        });
 
     toast.promise(
-      verifyFn.then(
-        (result) => {
-          if (result.error) {
-            setIsSubmitting(false)
-            setError(result.error.message || "Invalid code. Please try again.")
-            throw new Error(result.error.message || "Invalid code")
-          }
-          router.push(getRedirectUrl())
-          return result
+      verifyFn.then((result) => {
+        if (result.error) {
+          setIsSubmitting(false);
+          setError(result.error.message || "Invalid code. Please try again.");
+          throw new Error(result.error.message || "Invalid code");
         }
-      ),
+        router.push(getRedirectUrl());
+        return result;
+      }),
       {
         loading: "Verifying code...",
         success: "Verification successful",
         error: (err) => {
-          setIsSubmitting(false)
-          return err?.message || "Failed to verify code"
+          setIsSubmitting(false);
+          return err?.message || "Failed to verify code";
         },
-      }
-    )
-  }
+      },
+    );
+  };
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Two-Factor Authentication</CardTitle>
         <CardDescription>
-          Enter the {useBackupCode ? "backup code" : "verification code from your authenticator app"} to continue
+          Enter the{" "}
+          {useBackupCode
+            ? "backup code"
+            : "verification code from your authenticator app"}{" "}
+          to continue
         </CardDescription>
       </CardHeader>
 
@@ -158,7 +182,9 @@ export const Verify2FAForm = () => {
                 <Checkbox
                   id="trustDevice"
                   checked={trustDevice}
-                  onCheckedChange={(checked) => setValue("trustDevice", !!checked)}
+                  onCheckedChange={(checked) =>
+                    setValue("trustDevice", !!checked)
+                  }
                   disabled={isSubmitting}
                 />
 
@@ -175,12 +201,8 @@ export const Verify2FAForm = () => {
         </form>
       </CardContent>
 
-      <CardFooter className="*:w-full flex flex-col gap-2">
-        <Button
-          type="submit"
-          form="verify-2fa-form"
-          disabled={isSubmitting}
-        >
+      <CardFooter className="flex flex-col gap-2 *:w-full">
+        <Button type="submit" form="verify-2fa-form" disabled={isSubmitting}>
           {isSubmitting ? <Spinner /> : "Verify"}
         </Button>
 
@@ -194,5 +216,5 @@ export const Verify2FAForm = () => {
         </Button>
       </CardFooter>
     </Card>
-  )
-}
+  );
+};

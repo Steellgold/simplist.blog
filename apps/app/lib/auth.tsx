@@ -17,49 +17,50 @@ export const auth = betterAuth({
       issuer: "Simplist",
     }),
     passkey({
-      rpID: process.env.NODE_ENV === "development" ? "localhost" : "simplist.blog",
+      rpID:
+        process.env.NODE_ENV === "development" ? "localhost" : "simplist.blog",
       rpName: "Simplist",
       origin: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
     }),
   ],
   user: {
     changeEmail: {
-      enabled: true
+      enabled: true,
     },
     additionalFields: {
       firstName: {
         type: "string",
-        required: true
+        required: true,
       },
       lastName: {
         type: "string",
-        required: true
+        required: true,
       },
       deletionRequestedAt: {
         type: "date",
-        required: false
+        required: false,
       },
       deletionScheduledAt: {
         type: "date",
-        required: false
+        required: false,
       },
       deletionCanceledAt: {
         type: "date",
-        required: false
+        required: false,
       },
       deletionReminder7Sent: {
         type: "boolean",
-        required: false
+        required: false,
       },
       deletionReminder10Sent: {
         type: "boolean",
-        required: false
+        required: false,
       },
       deletionReminder1hSent: {
         type: "boolean",
-        required: false
-      }
-    }
+        required: false,
+      },
+    },
   },
   appName: "Simplist",
   emailAndPassword: {
@@ -67,39 +68,37 @@ export const auth = betterAuth({
     sendResetPassword: async (data, request) => {
       console.log("SEND RESET PASSWORD", data);
 
-      const userName = `${(data.user as any).firstName || ""} ${(data.user as any).lastName || ""}`.trim() || data.user.email;
+      const userName =
+        `${(data.user as any).firstName || ""} ${(data.user as any).lastName || ""}`.trim() ||
+        data.user.email;
 
       const emailHtml = await render(
-        <ResetPassword
-          name={userName}
-          resetUrl={data.url}
-        />
+        <ResetPassword name={userName} resetUrl={data.url} />,
       );
 
       await sendEmail({
         to: data.user.email,
         subject: "Reset your password",
         html: emailHtml,
-      })
-    }
+      });
+    },
   },
   emailVerification: {
     autoSignInAfterVerification: true,
     sendOnSignUp: true,
     sendVerificationEmail: async ({ user, url }) => {
-      const userName = `${(user as any).firstName || ""} ${(user as any).lastName || ""}`.trim() || user.email;
+      const userName =
+        `${(user as any).firstName || ""} ${(user as any).lastName || ""}`.trim() ||
+        user.email;
 
       const emailHtml = await render(
-        <VerifyEmail
-          name={userName}
-          verificationUrl={url}
-        />
+        <VerifyEmail name={userName} verificationUrl={url} />,
       );
 
       await sendEmail({
         to: user.email,
         subject: "Verify your email address",
-        html: emailHtml
+        html: emailHtml,
       });
     },
   },
@@ -111,6 +110,6 @@ export const auth = betterAuth({
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    }
-  }
+    },
+  },
 });

@@ -2,8 +2,23 @@
 
 import { Badge } from "@simplist/ui/components/badge";
 import { buttonVariants } from "@simplist/ui/components/button";
-import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@simplist/ui/components/card";
-import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemSeparator, ItemTitle } from "@simplist/ui/components/item";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@simplist/ui/components/card";
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemSeparator,
+  ItemTitle,
+} from "@simplist/ui/components/item";
 import { formatDistanceToNow } from "date-fns";
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
@@ -23,7 +38,10 @@ interface RecentArticlesCardProps {
   projectSlug: string;
 }
 
-export const RecentArticlesCard = ({ articles, projectSlug }: RecentArticlesCardProps) => {
+export const RecentArticlesCard = ({
+  articles,
+  projectSlug,
+}: RecentArticlesCardProps) => {
   const router = useRouter();
 
   const getStatusVariant = (status: string) => {
@@ -60,7 +78,7 @@ export const RecentArticlesCard = ({ articles, projectSlug }: RecentArticlesCard
 
       <CardContent>
         {articles.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
+          <div className="text-muted-foreground py-8 text-center">
             <p>No articles yet</p>
           </div>
         ) : (
@@ -72,11 +90,17 @@ export const RecentArticlesCard = ({ articles, projectSlug }: RecentArticlesCard
                     <ItemContent>
                       <ItemTitle>{article.title}</ItemTitle>
                       <ItemDescription>
-                        Updated {formatDistanceToNow(new Date(article.updatedAt), { addSuffix: true })}
+                        Updated{" "}
+                        {formatDistanceToNow(new Date(article.updatedAt), {
+                          addSuffix: true,
+                        })}
                       </ItemDescription>
                     </ItemContent>
                     <ItemActions>
-                      <Badge variant={getStatusVariant(article.status)} className="capitalize">
+                      <Badge
+                        variant={getStatusVariant(article.status)}
+                        className="capitalize"
+                      >
                         {article.status}
                       </Badge>
                     </ItemActions>

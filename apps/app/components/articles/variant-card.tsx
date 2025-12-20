@@ -1,17 +1,48 @@
-"use client"
+"use client";
 
-import { UpgradeOverlay } from "@/components/ui/upgrade-overlay"
-import { useProject } from "@/hooks/use-project-context"
-import { useVariantLimits } from "@/hooks/use-subscription-limits"
-import { useVariantOperations, type ArticleVariant } from "@/hooks/use-variant-operations"
-import { getAllLanguages, getFlagUrl, getLanguageName, getPopularLanguages, type LanguageCode } from "@/lib/types/languages"
-import { cn } from "@/lib/utils"
-import { Button } from "@simplist/ui/components/button"
-import { ButtonGroup } from "@simplist/ui/components/button-group"
-import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@simplist/ui/components/card"
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@simplist/ui/components/command"
-import { ConfirmDialog } from "@simplist/ui/components/confirm-dialog"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@simplist/ui/components/dialog"
+import { UpgradeOverlay } from "@/components/ui/upgrade-overlay";
+import { useProject } from "@/hooks/use-project-context";
+import { useVariantLimits } from "@/hooks/use-subscription-limits";
+import {
+  useVariantOperations,
+  type ArticleVariant,
+} from "@/hooks/use-variant-operations";
+import {
+  getAllLanguages,
+  getFlagUrl,
+  getLanguageName,
+  getPopularLanguages,
+  type LanguageCode,
+} from "@/lib/types/languages";
+import { cn } from "@/lib/utils";
+import { Button } from "@simplist/ui/components/button";
+import { ButtonGroup } from "@simplist/ui/components/button-group";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@simplist/ui/components/card";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@simplist/ui/components/command";
+import { ConfirmDialog } from "@simplist/ui/components/confirm-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@simplist/ui/components/dialog";
 import {
   Item,
   ItemActions,
@@ -20,21 +51,21 @@ import {
   ItemGroup,
   ItemMedia,
   ItemTitle,
-} from "@simplist/ui/components/item"
-import { toast } from "@simplist/ui/components/sonner"
-import { Toggle } from "@simplist/ui/components/toggle"
-import { Check, Plus, Trash2 } from "lucide-react"
-import Image from "next/image"
-import { useState } from "react"
-import { UpgradeProject } from "../projects/upgrade-project"
+} from "@simplist/ui/components/item";
+import { toast } from "@simplist/ui/components/sonner";
+import { Toggle } from "@simplist/ui/components/toggle";
+import { Check, Plus, Trash2 } from "lucide-react";
+import Image from "next/image";
+import { useState } from "react";
+import { UpgradeProject } from "../projects/upgrade-project";
 
 interface VariantCardProps {
-  defaultLanguage: LanguageCode
-  variants: ArticleVariant[]
-  onVariantsUpdate: (variants: ArticleVariant[]) => void
-  disabled?: boolean
-  onVariantSelect?: (lang: LanguageCode) => void
-  activeVariant?: LanguageCode
+  defaultLanguage: LanguageCode;
+  variants: ArticleVariant[];
+  onVariantsUpdate: (variants: ArticleVariant[]) => void;
+  disabled?: boolean;
+  onVariantSelect?: (lang: LanguageCode) => void;
+  activeVariant?: LanguageCode;
 }
 
 export const VariantCard = ({
@@ -45,79 +76,89 @@ export const VariantCard = ({
   onVariantSelect,
   activeVariant,
 }: VariantCardProps) => {
-  const { currentProject } = useProject()
-  const [addVariantOpen, setAddVariantOpen] = useState(false)
-  const [selectedLanguage, setSelectedLanguage] = useState<LanguageCode | undefined>(undefined)
-  const [deleteAlertOpen, setDeleteAlertOpen] = useState(false)
-  const [variantToDelete, setVariantToDelete] = useState<LanguageCode | null>(null)
+  const { currentProject } = useProject();
+  const [addVariantOpen, setAddVariantOpen] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState<
+    LanguageCode | undefined
+  >(undefined);
+  const [deleteAlertOpen, setDeleteAlertOpen] = useState(false);
+  const [variantToDelete, setVariantToDelete] = useState<LanguageCode | null>(
+    null,
+  );
+
+  const { addVariant, removeVariant, variantCount } = useVariantOperations(
+    variants,
+    onVariantsUpdate,
+    defaultLanguage,
+  );
 
   const {
-    addVariant,
-    removeVariant,
-    variantCount
-  } = useVariantOperations(variants, onVariantsUpdate, defaultLanguage)
-
-  const { canAdd, isFreeTier, quotaError, isLoading: isLoadingLimits } = useVariantLimits(currentProject?.id, variantCount)
+    canAdd,
+    isFreeTier,
+    quotaError,
+    isLoading: isLoadingLimits,
+  } = useVariantLimits(currentProject?.id, variantCount);
 
   const handleAddVariant = () => {
     if (!selectedLanguage) {
-      toast.error("Please select a language")
-      return
+      toast.error("Please select a language");
+      return;
     }
 
     if (addVariant(selectedLanguage)) {
-      toast.success(`Added ${getLanguageName(selectedLanguage)} variant`)
-      setAddVariantOpen(false)
-      setSelectedLanguage(undefined)
+      toast.success(`Added ${getLanguageName(selectedLanguage)} variant`);
+      setAddVariantOpen(false);
+      setSelectedLanguage(undefined);
     } else {
-      toast.error("A variant for this language already exists")
+      toast.error("A variant for this language already exists");
     }
-  }
+  };
 
   const handleDialogOpenChange = (open: boolean) => {
-    setAddVariantOpen(open)
+    setAddVariantOpen(open);
     if (!open) {
-      setSelectedLanguage(undefined)
+      setSelectedLanguage(undefined);
     }
-  }
+  };
 
   const handleDeleteClick = (lang: LanguageCode) => {
-    const variant = variants.find(v => v.lang === lang)
-    const hasContent = variant && (variant.title || variant.content || variant.excerpt)
+    const variant = variants.find((v) => v.lang === lang);
+    const hasContent =
+      variant && (variant.title || variant.content || variant.excerpt);
 
     if (hasContent) {
-      setVariantToDelete(lang)
-      setDeleteAlertOpen(true)
+      setVariantToDelete(lang);
+      setDeleteAlertOpen(true);
     } else {
-      confirmDeleteVariant(lang)
+      confirmDeleteVariant(lang);
     }
-  }
+  };
 
   const confirmDeleteVariant = (lang: LanguageCode) => {
     if (removeVariant(lang)) {
-      toast.success(`Removed ${getLanguageName(lang)} variant`)
+      toast.success(`Removed ${getLanguageName(lang)} variant`);
 
       // Auto-select default variant after deletion
       if (onVariantSelect && activeVariant === lang) {
-        onVariantSelect(defaultLanguage)
+        onVariantSelect(defaultLanguage);
       }
     } else {
-      toast.error("Cannot remove the default language variant")
+      toast.error("Cannot remove the default language variant");
     }
 
-    setDeleteAlertOpen(false)
-    setVariantToDelete(null)
-  }
+    setDeleteAlertOpen(false);
+    setVariantToDelete(null);
+  };
 
   const handleSelectVariant = (lang: LanguageCode) => {
     if (onVariantSelect) {
-      onVariantSelect(lang)
-      toast.success(`Switched to ${getLanguageName(lang)} variant`)
+      onVariantSelect(lang);
+      toast.success(`Switched to ${getLanguageName(lang)} variant`);
     }
-  }
+  };
 
   return (
-    <div className="relative group">
+    <div className="group relative">
       <Card>
         <CardHeader>
           <CardTitle>Language Variants</CardTitle>
@@ -150,17 +191,15 @@ export const VariantCard = ({
 
                 {!canAdd && quotaError ? (
                   <div className="space-y-4">
-                    <div className="text-sm text-muted-foreground">
+                    <div className="text-muted-foreground text-sm">
                       {quotaError}
                     </div>
 
-                    {currentProject && (
-                      <UpgradeProject />
-                    )}
+                    {currentProject && <UpgradeProject />}
                   </div>
                 ) : (
                   <>
-                    <Command className="border rounded-lg">
+                    <Command className="rounded-lg border">
                       <CommandInput placeholder="Search languages..." />
                       <CommandList className="h-[300px] max-h-[300px]">
                         <CommandEmpty>No language found.</CommandEmpty>
@@ -170,13 +209,17 @@ export const VariantCard = ({
                             <CommandItem
                               key={`popular-${language.code}`}
                               value={`${language.name} ${language.nativeName} ${language.code}`}
-                              onSelect={() => setSelectedLanguage(language.code)}
+                              onSelect={() =>
+                                setSelectedLanguage(language.code)
+                              }
                               className="cursor-pointer"
                             >
                               <Check
                                 className={cn(
                                   "mr-2 size-4",
-                                  selectedLanguage === language.code ? "opacity-100" : "opacity-0"
+                                  selectedLanguage === language.code
+                                    ? "opacity-100"
+                                    : "opacity-0",
                                 )}
                               />
 
@@ -185,17 +228,17 @@ export const VariantCard = ({
                                 alt={`${language.name} flag`}
                                 height={500}
                                 width={500}
-                                className="w-5 h-4 object-cover rounded-xs mr-2"
+                                className="mr-2 h-4 w-5 rounded-xs object-cover"
                               />
 
-                              <div className="flex items-center gap-2 flex-1">
+                              <div className="flex flex-1 items-center gap-2">
                                 <span>{language.name}</span>
                                 <span className="text-muted-foreground text-sm">
                                   {language.nativeName}
                                 </span>
                               </div>
 
-                              <span className="text-muted-foreground text-xs font-mono">
+                              <span className="text-muted-foreground font-mono text-xs">
                                 {language.code}
                               </span>
                             </CommandItem>
@@ -204,35 +247,44 @@ export const VariantCard = ({
 
                         <CommandGroup heading="All Languages">
                           {getAllLanguages()
-                            .filter(lang => !getPopularLanguages().some(p => p.code === lang.code))
+                            .filter(
+                              (lang) =>
+                                !getPopularLanguages().some(
+                                  (p) => p.code === lang.code,
+                                ),
+                            )
                             .map((language) => (
                               <CommandItem
                                 key={language.code}
                                 value={`${language.name} ${language.nativeName} ${language.code}`}
-                                onSelect={() => setSelectedLanguage(language.code)}
+                                onSelect={() =>
+                                  setSelectedLanguage(language.code)
+                                }
                                 className="cursor-pointer"
                               >
                                 <Check
                                   className={cn(
                                     "mr-2 size-4",
-                                    selectedLanguage === language.code ? "opacity-100" : "opacity-0"
+                                    selectedLanguage === language.code
+                                      ? "opacity-100"
+                                      : "opacity-0",
                                   )}
                                 />
 
                                 <img
                                   src={getFlagUrl(language.code)}
                                   alt={`${language.name} flag`}
-                                  className="w-5 h-4 object-cover rounded-xs mr-2"
+                                  className="mr-2 h-4 w-5 rounded-xs object-cover"
                                 />
 
-                                <div className="flex items-center gap-2 flex-1">
+                                <div className="flex flex-1 items-center gap-2">
                                   <span>{language.name}</span>
                                   <span className="text-muted-foreground text-sm">
                                     {language.nativeName}
                                   </span>
                                 </div>
 
-                                <span className="text-muted-foreground text-xs font-mono">
+                                <span className="text-muted-foreground font-mono text-xs">
                                   {language.code}
                                 </span>
                               </CommandItem>
@@ -270,25 +322,27 @@ export const VariantCard = ({
         <CardContent>
           <ItemGroup>
             {variants.map((variant) => {
-              const isDefault = variant.lang === defaultLanguage
-              const isActive = activeVariant === variant.lang
+              const isDefault = variant.lang === defaultLanguage;
+              const isActive = activeVariant === variant.lang;
 
               return (
-                <Item key={variant.lang} variant="outline" >
+                <Item key={variant.lang} variant="outline">
                   <ItemMedia variant="icon">
                     <Image
                       src={getFlagUrl(variant.lang)}
                       alt={`${getLanguageName(variant.lang)} flag`}
                       width={30}
                       height={30}
-                      className="object-cover rounded-sm w-5 h-5"
+                      className="h-5 w-5 rounded-sm object-cover"
                     />
                   </ItemMedia>
 
                   <ItemContent>
                     <ItemTitle>{getLanguageName(variant.lang)}</ItemTitle>
                     <ItemDescription className="line-clamp-1">
-                      {isDefault ? "Default language" : (variant.title || "Untitled variant")}
+                      {isDefault
+                        ? "Default language"
+                        : variant.title || "Untitled variant"}
                     </ItemDescription>
                   </ItemContent>
 
@@ -296,7 +350,9 @@ export const VariantCard = ({
                     <ButtonGroup>
                       <Toggle
                         pressed={isActive}
-                        onPressedChange={() => handleSelectVariant(variant.lang)}
+                        onPressedChange={() =>
+                          handleSelectVariant(variant.lang)
+                        }
                         disabled={disabled || isFreeTier}
                         variant="outline"
                         className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
@@ -310,9 +366,9 @@ export const VariantCard = ({
                           size="icon-sm"
                           variant="outline"
                           onClick={(e) => {
-                            e.preventDefault()
-                            e.stopPropagation()
-                            handleDeleteClick(variant.lang)
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleDeleteClick(variant.lang);
                           }}
                           disabled={disabled || isFreeTier}
                           className="hover:text-destructive hover:bg-destructive/10"
@@ -324,7 +380,7 @@ export const VariantCard = ({
                     </ButtonGroup>
                   </ItemActions>
                 </Item>
-              )
+              );
             })}
           </ItemGroup>
         </CardContent>
@@ -334,7 +390,9 @@ export const VariantCard = ({
       <ConfirmDialog
         open={deleteAlertOpen}
         onOpenChange={setDeleteAlertOpen}
-        onConfirm={() => variantToDelete && confirmDeleteVariant(variantToDelete)}
+        onConfirm={() =>
+          variantToDelete && confirmDeleteVariant(variantToDelete)
+        }
         title="Delete variant?"
         description={
           variantToDelete
@@ -353,5 +411,5 @@ export const VariantCard = ({
         />
       )}
     </div>
-  )
-}
+  );
+};

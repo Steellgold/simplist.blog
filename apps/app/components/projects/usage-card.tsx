@@ -59,7 +59,7 @@ export const UsageCard = ({ usage }: UsageCardProps) => {
     <Card>
       <CardHeader>
         <div className="flex items-center gap-2">
-          <BarChart3 className="h-5 w-5 text-muted-foreground" />
+          <BarChart3 className="text-muted-foreground h-5 w-5" />
           <CardTitle>Usage</CardTitle>
         </div>
         <CardDescription>Monitor your current usage and limits</CardDescription>
@@ -149,7 +149,7 @@ export const UsageCard = ({ usage }: UsageCardProps) => {
               <span>Approaching limit</span>
             </div>
           )}
-          <p className="text-xs text-muted-foreground">
+          <p className="text-muted-foreground text-xs">
             Resets on{" "}
             {new Date(
               usage.apiCalls.resetDate.getTime() + 30 * 24 * 60 * 60 * 1000,

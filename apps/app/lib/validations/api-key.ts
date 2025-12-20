@@ -1,6 +1,6 @@
-import { z } from "zod"
+import { z } from "zod";
 
-export const apiKeyPermissions = ["read", "analytics"] as const
+export const apiKeyPermissions = ["read", "analytics"] as const;
 
 export const createApiKeySchema = z.object({
   name: z
@@ -17,6 +17,6 @@ export const createApiKeySchema = z.object({
     .max(90, "Expiration cannot exceed 90 days")
     .nullable()
     .optional(),
-})
+});
 
-export type CreateApiKeyInput = z.infer<typeof createApiKeySchema>
+export type CreateApiKeyInput = z.infer<typeof createApiKeySchema>;

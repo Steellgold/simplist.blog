@@ -238,7 +238,7 @@ export const useArticlesColumns = ({
           coverImage || variants?.find((v) => v.coverImage)?.coverImage || null;
 
         return (
-          <div className="w-24 h-16 relative rounded-md overflow-hidden bg-muted">
+          <div className="bg-muted relative h-16 w-24 overflow-hidden rounded-md">
             {displayImage ? (
               <Image
                 src={displayImage}
@@ -248,8 +248,8 @@ export const useArticlesColumns = ({
                 className="object-cover"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <ImageIcon className="h-4 w-4 text-muted-foreground" />
+              <div className="flex h-full w-full items-center justify-center">
+                <ImageIcon className="text-muted-foreground h-4 w-4" />
               </div>
             )}
           </div>
@@ -268,13 +268,13 @@ export const useArticlesColumns = ({
         return (
           <>
             <div
-              className="font-medium truncate max-w-[200px] sm:max-w-md"
+              className="max-w-[200px] truncate font-medium sm:max-w-md"
               title={title}
             >
               {title}
             </div>
             {excerpt && (
-              <div className="text-sm text-muted-foreground line-clamp-1 max-w-[200px] sm:max-w-md hidden sm:block">
+              <div className="text-muted-foreground line-clamp-1 hidden max-w-[200px] text-sm sm:block sm:max-w-md">
                 {excerpt}
               </div>
             )}
@@ -395,7 +395,7 @@ export const useArticlesColumns = ({
                     <TooltipProvider delayDuration={100}>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <span className="inline-flex items-center rounded border px-1.5 py-0.5 text-xs font-medium bg-muted text-muted-foreground">
+                          <span className="bg-muted text-muted-foreground inline-flex items-center rounded border px-1.5 py-0.5 text-xs font-medium">
                             +{remainingCount}
                           </span>
                         </TooltipTrigger>
@@ -441,7 +441,7 @@ export const useArticlesColumns = ({
         const createdAt = row.getValue("createdAt") as Date;
 
         return (
-          <div className="text-sm truncate">
+          <div className="truncate text-sm">
             {format(new Date(createdAt), "MMM d, yyyy")}
           </div>
         );
@@ -456,7 +456,7 @@ export const useArticlesColumns = ({
         const updatedAt = row.getValue("updatedAt") as Date;
 
         return (
-          <div className="text-sm truncate">
+          <div className="truncate text-sm">
             {format(new Date(updatedAt), "MMM d, yyyy")}
           </div>
         );

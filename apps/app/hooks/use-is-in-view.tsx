@@ -4,7 +4,7 @@ import * as React from "react";
 interface UseIsInViewOptions {
   inView?: boolean;
   inViewOnce?: boolean;
-  inViewMargin?: UseInViewOptions['margin'];
+  inViewMargin?: UseInViewOptions["margin"];
 }
 
 function useIsInView<T extends HTMLElement = HTMLElement>(

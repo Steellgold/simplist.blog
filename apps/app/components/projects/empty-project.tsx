@@ -1,7 +1,14 @@
 "use client";
 
 import { Button } from "@simplist/ui/components/button";
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@simplist/ui/components/empty";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@simplist/ui/components/empty";
 import { ArrowRightIcon, FolderIcon } from "lucide-react";
 
 export const EmptyProject = () => {
@@ -24,16 +31,12 @@ export const EmptyProject = () => {
           </div>
         </EmptyContent>
 
-        <Button
-          variant="link"
-          asChild
-          className="text-muted-foreground"
-        >
+        <Button variant="link" asChild className="text-muted-foreground">
           <a href="#">
             Learn More <ArrowRightIcon />
           </a>
         </Button>
       </Empty>
     </div>
-  )
-}
+  );
+};

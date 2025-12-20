@@ -27,14 +27,16 @@ export const useSubscriptionLimits = (projectId?: string) => {
 
   const fetchData = async () => {
     if (!projectId) {
-      setState(s => ({ ...s, isLoading: false }));
+      setState((s) => ({ ...s, isLoading: false }));
       return;
     }
 
     try {
-      setState(s => ({ ...s, isLoading: true }));
+      setState((s) => ({ ...s, isLoading: true }));
 
-      const res = await fetch(`/api/subscription/limits?projectId=${projectId}`);
+      const res = await fetch(
+        `/api/subscription/limits?projectId=${projectId}`,
+      );
       if (!res.ok) throw new Error();
 
       const data = await res.json();
@@ -52,7 +54,7 @@ export const useSubscriptionLimits = (projectId?: string) => {
         limits,
       });
     } catch {
-      setState(s => ({ ...s, isLoading: false }));
+      setState((s) => ({ ...s, isLoading: false }));
     }
   };
 
@@ -63,9 +65,9 @@ export const useSubscriptionLimits = (projectId?: string) => {
   return { ...state, refetch: fetchData };
 };
 
-
 export const useArticleLimits = (projectId?: string) => {
-  const { isLoading, articleUsage, subscription, refetch } = useSubscriptionLimits(projectId);
+  const { isLoading, articleUsage, subscription, refetch } =
+    useSubscriptionLimits(projectId);
 
   const tier = subscription?.tier ?? "STARTER";
   const max = articleUsage?.max ?? 0;
@@ -96,8 +98,8 @@ export const useVariantLimits = (projectId?: string, currentCount = 0) => {
     isAtLimit && !isFree
       ? `You have reached the limit. Your ${tier} plan allows ${max} variant${max === 1 ? "" : "s"} per article.`
       : isFree
-      ? "Language variants require the Pro plan."
-      : undefined;
+        ? "Language variants require the Pro plan."
+        : undefined;
 
   return {
     isLoading,

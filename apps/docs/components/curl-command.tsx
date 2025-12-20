@@ -40,10 +40,10 @@ export const CurlCommand: FC<CurlCommandProps> = ({
 
   return (
     <TooltipProvider delayDuration={300}>
-      <Card className="p-[2.5px] rounded-2xl">
-        <Card className={cn("overflow-hidden p-0 gap-0", className)}>
-          <CardContent className="flex items-center justify-between bg-muted px-4 py-2 border-b">
-            <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+      <Card className="rounded-2xl p-[2.5px]">
+        <Card className={cn("gap-0 overflow-hidden p-0", className)}>
+          <CardContent className="bg-muted flex items-center justify-between border-b px-4 py-2">
+            <span className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
               cURL Command
             </span>
 
@@ -51,8 +51,8 @@ export const CurlCommand: FC<CurlCommandProps> = ({
           </CardContent>
 
           <CardContent className="p-0">
-            <pre className="p-4 overflow-x-auto">
-              <code className="text-xs text-foreground whitespace-pre">
+            <pre className="overflow-x-auto p-4">
+              <code className="text-foreground text-xs whitespace-pre">
                 {curlCommand}
               </code>
             </pre>

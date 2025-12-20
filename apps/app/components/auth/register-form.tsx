@@ -1,30 +1,54 @@
-"use client"
+"use client";
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { useState } from "react"
-import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 
-import { authClient } from "@/lib/auth-client"
-import { cn } from "@/lib/utils"
-import { RegisterInput, registerSchema } from "@/lib/validations/auth"
-import { Alert, AlertDescription, AlertTitle } from "@simplist/ui/components/alert"
-import { Button } from "@simplist/ui/components/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@simplist/ui/components/card"
-import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldSeparator } from "@simplist/ui/components/field"
-import { Input } from "@simplist/ui/components/input"
-import { PasswordInput } from "@simplist/ui/components/password-input"
-import { toast } from "@simplist/ui/components/sonner"
-import { AlertCircleIcon } from "lucide-react"
-import { OAuthProviders, OAuthProvidersProvider, useOAuthProviders } from "./oauth-providers"
+import { authClient } from "@/lib/auth-client";
+import { cn } from "@/lib/utils";
+import { RegisterInput, registerSchema } from "@/lib/validations/auth";
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@simplist/ui/components/alert";
+import { Button } from "@simplist/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@simplist/ui/components/card";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldSeparator,
+} from "@simplist/ui/components/field";
+import { Input } from "@simplist/ui/components/input";
+import { PasswordInput } from "@simplist/ui/components/password-input";
+import { toast } from "@simplist/ui/components/sonner";
+import { AlertCircleIcon } from "lucide-react";
+import {
+  OAuthProviders,
+  OAuthProvidersProvider,
+  useOAuthProviders,
+} from "./oauth-providers";
 
-const RegisterFormContent = ({ className, ...props }: React.ComponentProps<"div">) => {
-  const router = useRouter()
-  const { isAuthenticating } = useOAuthProviders()
-  const [error, setError] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
+const RegisterFormContent = ({
+  className,
+  ...props
+}: React.ComponentProps<"div">) => {
+  const router = useRouter();
+  const { isAuthenticating } = useOAuthProviders();
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   const {
     register,
@@ -42,10 +66,10 @@ const RegisterFormContent = ({ className, ...props }: React.ComponentProps<"div"
       password: "",
       confirmPassword: "",
     },
-  })
+  });
 
   const onSubmit = async (data: RegisterInput) => {
-    setIsLoading(true)
+    setIsLoading(true);
 
     toast.promise(
       authClient.signUp.email({
@@ -54,20 +78,21 @@ const RegisterFormContent = ({ className, ...props }: React.ComponentProps<"div"
         lastName: data.lastName,
         email: data.email,
         password: data.password,
-      }), {
+      }),
+      {
         loading: "Creating account...",
         success: () => {
-          setSuccess(true)
-          setIsLoading(false)
-          return "Account created successfully"
+          setSuccess(true);
+          setIsLoading(false);
+          return "Account created successfully";
         },
         error: (err) => {
-          setIsLoading(false)
-          return err.error.message || "Failed to create account"
+          setIsLoading(false);
+          return err.error.message || "Failed to create account";
         },
-      }
-    )
-  }
+      },
+    );
+  };
 
   if (success) {
     return (
@@ -82,14 +107,17 @@ const RegisterFormContent = ({ className, ...props }: React.ComponentProps<"div"
 
           <CardContent>
             <div className="text-center">
-              <Link href="/auth/login" className="text-sm underline-offset-4 hover:underline">
+              <Link
+                href="/auth/login"
+                className="text-sm underline-offset-4 hover:underline"
+              >
                 Back to login
               </Link>
             </div>
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   return (
@@ -105,15 +133,13 @@ const RegisterFormContent = ({ className, ...props }: React.ComponentProps<"div"
               </FieldSeparator>
 
               <div className="flex flex-col gap-4">
-                {errors.root && 
+                {errors.root && (
                   <Alert variant="destructive">
                     <AlertCircleIcon />
                     <AlertTitle>Error creating account</AlertTitle>
-                    <AlertDescription>
-                      {errors.root.message}
-                    </AlertDescription>
+                    <AlertDescription>{errors.root.message}</AlertDescription>
                   </Alert>
-                }
+                )}
 
                 <div className="grid grid-cols-2 gap-4">
                   <Field>
@@ -126,7 +152,9 @@ const RegisterFormContent = ({ className, ...props }: React.ComponentProps<"div"
                       disabled={isLoading || isAuthenticating}
                     />
 
-                    {errors.firstName && <FieldError>{errors.firstName.message}</FieldError>}
+                    {errors.firstName && (
+                      <FieldError>{errors.firstName.message}</FieldError>
+                    )}
                   </Field>
 
                   <Field>
@@ -139,7 +167,9 @@ const RegisterFormContent = ({ className, ...props }: React.ComponentProps<"div"
                       disabled={isLoading || isAuthenticating}
                     />
 
-                    {errors.lastName && <FieldError>{errors.lastName.message}</FieldError>}
+                    {errors.lastName && (
+                      <FieldError>{errors.lastName.message}</FieldError>
+                    )}
                   </Field>
                 </div>
 
@@ -153,7 +183,9 @@ const RegisterFormContent = ({ className, ...props }: React.ComponentProps<"div"
                     disabled={isLoading || isAuthenticating}
                   />
 
-                  {errors.email && <FieldError>{errors.email.message}</FieldError>}
+                  {errors.email && (
+                    <FieldError>{errors.email.message}</FieldError>
+                  )}
                 </Field>
 
                 <Field>
@@ -165,11 +197,15 @@ const RegisterFormContent = ({ className, ...props }: React.ComponentProps<"div"
                     showGenerator
                   />
 
-                  {errors.password && <FieldError>{errors.password.message}</FieldError>}
+                  {errors.password && (
+                    <FieldError>{errors.password.message}</FieldError>
+                  )}
                 </Field>
 
                 <Field>
-                  <FieldLabel htmlFor="confirmPassword">Confirm Password</FieldLabel>
+                  <FieldLabel htmlFor="confirmPassword">
+                    Confirm Password
+                  </FieldLabel>
                   <PasswordInput
                     id="confirmPassword"
                     {...register("confirmPassword")}
@@ -177,16 +213,22 @@ const RegisterFormContent = ({ className, ...props }: React.ComponentProps<"div"
                     showGenerator
                   />
 
-                  {errors.confirmPassword && <FieldError>{errors.confirmPassword.message}</FieldError>}
+                  {errors.confirmPassword && (
+                    <FieldError>{errors.confirmPassword.message}</FieldError>
+                  )}
                 </Field>
 
                 <Field>
-                  <Button type="submit" disabled={isLoading || isAuthenticating}>
+                  <Button
+                    type="submit"
+                    disabled={isLoading || isAuthenticating}
+                  >
                     {isLoading ? "Creating account..." : "Sign up"}
                   </Button>
 
                   <FieldDescription className="text-center">
-                    Already have an account? <Link href="/auth/login">Login</Link>
+                    Already have an account?{" "}
+                    <Link href="/auth/login">Login</Link>
                   </FieldDescription>
                 </Field>
               </div>
@@ -195,18 +237,19 @@ const RegisterFormContent = ({ className, ...props }: React.ComponentProps<"div"
         </CardContent>
       </Card>
 
-      <FieldDescription className="px-6 text-center mt-6!">
-        By clicking Sign up, you agree to our <Link href="/legal/terms">Terms of Service</Link>{" "}
-        and <Link href="/legal/privacy">Privacy Policy</Link>.
+      <FieldDescription className="mt-6! px-6 text-center">
+        By clicking Sign up, you agree to our{" "}
+        <Link href="/legal/terms">Terms of Service</Link> and{" "}
+        <Link href="/legal/privacy">Privacy Policy</Link>.
       </FieldDescription>
     </div>
-  )
-}
+  );
+};
 
 export const RegisterForm = (props: React.ComponentProps<"div">) => {
   return (
     <OAuthProvidersProvider>
       <RegisterFormContent {...props} />
     </OAuthProvidersProvider>
-  )
-}
+  );
+};

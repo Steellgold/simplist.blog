@@ -4,19 +4,19 @@ export const webhookTemplateIds = [
   "discord-embed",
   "slack-blocks",
   "teams-card",
-] as const
+] as const;
 
-export type WebhookTemplateId = (typeof webhookTemplateIds)[number]
+export type WebhookTemplateId = (typeof webhookTemplateIds)[number];
 
-export type WebhookPlatform = "discord" | "slack" | "teams"
+export type WebhookPlatform = "discord" | "slack" | "teams";
 
 // Template metadata for UI display
 export const templateMetadata: Record<
   WebhookTemplateId,
   {
-    name: string
-    platform: WebhookPlatform
-    description: string
+    name: string;
+    platform: WebhookPlatform;
+    description: string;
   }
 > = {
   "discord-message": {
@@ -39,7 +39,7 @@ export const templateMetadata: Record<
     platform: "teams",
     description: "Microsoft Teams Adaptive Card",
   },
-}
+};
 
 // Available variables for message customization
 export const availableVariables = [
@@ -57,160 +57,167 @@ export const availableVariables = [
   { name: "lineCount", description: "Number of lines" },
   { name: "readTimeMinutes", description: "Estimated reading time in minutes" },
   { name: "variantCount", description: "Number of language variants" },
-] as const
+] as const;
 
-export type VariableName = (typeof availableVariables)[number]["name"]
+export type VariableName = (typeof availableVariables)[number]["name"];
 
 // ============================================================================
 // Discord Payloads
 // ============================================================================
 
 export type DiscordMessagePayload = {
-  content: string
-}
+  content: string;
+};
 
 export type DiscordEmbedField = {
-  name: string
-  value: string
-  inline?: boolean
-}
+  name: string;
+  value: string;
+  inline?: boolean;
+};
 
 export type DiscordEmbed = {
-  title?: string
-  description?: string
-  color?: number
-  url?: string
+  title?: string;
+  description?: string;
+  color?: number;
+  url?: string;
   author?: {
-    name: string
-    icon_url?: string
-    url?: string
-  }
+    name: string;
+    icon_url?: string;
+    url?: string;
+  };
   footer?: {
-    text: string
-    icon_url?: string
-  }
+    text: string;
+    icon_url?: string;
+  };
   thumbnail?: {
-    url: string
-  }
+    url: string;
+  };
   image?: {
-    url: string
-  }
-  fields?: DiscordEmbedField[]
-  timestamp?: string
-}
+    url: string;
+  };
+  fields?: DiscordEmbedField[];
+  timestamp?: string;
+};
 
 export type DiscordEmbedPayload = {
-  content?: string
-  embeds: DiscordEmbed[]
-}
+  content?: string;
+  embeds: DiscordEmbed[];
+};
 
 // ============================================================================
 // Slack Payloads
 // ============================================================================
 
 export type SlackTextObject = {
-  type: "plain_text" | "mrkdwn"
-  text: string
-  emoji?: boolean
-}
+  type: "plain_text" | "mrkdwn";
+  text: string;
+  emoji?: boolean;
+};
 
 export type SlackHeaderBlock = {
-  type: "header"
-  text: SlackTextObject
-}
+  type: "header";
+  text: SlackTextObject;
+};
 
 export type SlackSectionBlock = {
-  type: "section"
-  text?: SlackTextObject
-  fields?: SlackTextObject[]
-  accessory?: SlackButtonElement
-}
+  type: "section";
+  text?: SlackTextObject;
+  fields?: SlackTextObject[];
+  accessory?: SlackButtonElement;
+};
 
 export type SlackContextBlock = {
-  type: "context"
-  elements: SlackTextObject[]
-}
+  type: "context";
+  elements: SlackTextObject[];
+};
 
 export type SlackDividerBlock = {
-  type: "divider"
-}
+  type: "divider";
+};
 
 export type SlackButtonElement = {
-  type: "button"
-  text: SlackTextObject
-  url?: string
-  action_id: string
-}
+  type: "button";
+  text: SlackTextObject;
+  url?: string;
+  action_id: string;
+};
 
 export type SlackActionsBlock = {
-  type: "actions"
-  elements: SlackButtonElement[]
-}
+  type: "actions";
+  elements: SlackButtonElement[];
+};
 
 export type SlackBlock =
   | SlackHeaderBlock
   | SlackSectionBlock
   | SlackContextBlock
   | SlackDividerBlock
-  | SlackActionsBlock
+  | SlackActionsBlock;
 
 export type SlackBlocksPayload = {
-  text: string // Fallback text for notifications
-  blocks: SlackBlock[]
-}
+  text: string; // Fallback text for notifications
+  blocks: SlackBlock[];
+};
 
 // ============================================================================
 // Microsoft Teams Payloads (Adaptive Cards)
 // ============================================================================
 
 export type TeamsTextBlock = {
-  type: "TextBlock"
-  text: string
-  weight?: "default" | "bolder" | "lighter"
-  size?: "default" | "small" | "medium" | "large" | "extraLarge"
-  wrap?: boolean
-  color?: "default" | "dark" | "light" | "accent" | "good" | "warning" | "attention"
-}
+  type: "TextBlock";
+  text: string;
+  weight?: "default" | "bolder" | "lighter";
+  size?: "default" | "small" | "medium" | "large" | "extraLarge";
+  wrap?: boolean;
+  color?:
+    | "default"
+    | "dark"
+    | "light"
+    | "accent"
+    | "good"
+    | "warning"
+    | "attention";
+};
 
 export type TeamsImage = {
-  type: "Image"
-  url: string
-  size?: "auto" | "stretch" | "small" | "medium" | "large"
-  altText?: string
-}
+  type: "Image";
+  url: string;
+  size?: "auto" | "stretch" | "small" | "medium" | "large";
+  altText?: string;
+};
 
 export type TeamsFact = {
-  title: string
-  value: string
-}
+  title: string;
+  value: string;
+};
 
 export type TeamsFactSet = {
-  type: "FactSet"
-  facts: TeamsFact[]
-}
+  type: "FactSet";
+  facts: TeamsFact[];
+};
 
 export type TeamsOpenUrlAction = {
-  type: "Action.OpenUrl"
-  title: string
-  url: string
-}
+  type: "Action.OpenUrl";
+  title: string;
+  url: string;
+};
 
 export type TeamsAdaptiveCard = {
-  type: "AdaptiveCard"
-  $schema: "http://adaptivecards.io/schemas/adaptive-card.json"
-  version: "1.4"
-  body: (TeamsTextBlock | TeamsImage | TeamsFactSet)[]
-  actions?: TeamsOpenUrlAction[]
-}
+  type: "AdaptiveCard";
+  $schema: "http://adaptivecards.io/schemas/adaptive-card.json";
+  version: "1.4";
+  body: (TeamsTextBlock | TeamsImage | TeamsFactSet)[];
+  actions?: TeamsOpenUrlAction[];
+};
 
 export type TeamsCardPayload = {
-  type: "message"
-  summary: string
+  type: "message";
+  summary: string;
   attachments: Array<{
-    contentType: "application/vnd.microsoft.card.adaptive"
-    content: TeamsAdaptiveCard
-  }>
-}
+    contentType: "application/vnd.microsoft.card.adaptive";
+    content: TeamsAdaptiveCard;
+  }>;
+};
 
 // ============================================================================
 // Union type for all payloads
@@ -220,64 +227,67 @@ export type WebhookPayload =
   | DiscordMessagePayload
   | DiscordEmbedPayload
   | SlackBlocksPayload
-  | TeamsCardPayload
+  | TeamsCardPayload;
 
 // ============================================================================
 // Form data types for dialogs
 // ============================================================================
 
 export type DiscordMessageFormData = {
-  content: string
-}
+  content: string;
+};
 
 export type DiscordEmbedFormData = {
-  content?: string
-  title?: string
-  description?: string
-  color?: string // Hex color string
-  url?: string
-  authorName?: string
-  authorIconUrl?: string
-  authorUrl?: string
-  footerText?: string
-  footerIconUrl?: string
-  thumbnailUrl?: string
-  imageUrl?: string
-  fields: DiscordEmbedField[]
-  includeTimestamp: boolean
-}
+  content?: string;
+  title?: string;
+  description?: string;
+  color?: string; // Hex color string
+  url?: string;
+  authorName?: string;
+  authorIconUrl?: string;
+  authorUrl?: string;
+  footerText?: string;
+  footerIconUrl?: string;
+  thumbnailUrl?: string;
+  imageUrl?: string;
+  fields: DiscordEmbedField[];
+  includeTimestamp: boolean;
+};
 
 export type SlackBlocksFormData = {
-  fallbackText: string
-  headerText?: string
-  sectionText?: string
-  contextText?: string
-  buttonText?: string
-  buttonUrl?: string
-  includeAuthor: boolean
-  includeTags: boolean
-}
+  fallbackText: string;
+  headerText?: string;
+  sectionText?: string;
+  contextText?: string;
+  buttonText?: string;
+  buttonUrl?: string;
+  includeAuthor: boolean;
+  includeTags: boolean;
+};
 
 export type TeamsCardFormData = {
-  summary: string
-  title?: string
-  description?: string
-  authorName?: string
-  includeTags: boolean
-  buttonText?: string
-  buttonUrl?: string
-}
+  summary: string;
+  title?: string;
+  description?: string;
+  authorName?: string;
+  includeTags: boolean;
+  buttonText?: string;
+  buttonUrl?: string;
+};
 
 // ============================================================================
 // Helper functions
 // ============================================================================
 
-export function isValidTemplateId(id: string | null | undefined): id is WebhookTemplateId {
-  if (!id) return false
-  return webhookTemplateIds.includes(id as WebhookTemplateId)
+export function isValidTemplateId(
+  id: string | null | undefined,
+): id is WebhookTemplateId {
+  if (!id) return false;
+  return webhookTemplateIds.includes(id as WebhookTemplateId);
 }
 
-export function getTemplatePlatform(templateId: WebhookTemplateId): WebhookPlatform {
-  return templateMetadata[templateId].platform
+export function getTemplatePlatform(
+  templateId: WebhookTemplateId,
+): WebhookPlatform {
+  return templateMetadata[templateId].platform;
 }
-

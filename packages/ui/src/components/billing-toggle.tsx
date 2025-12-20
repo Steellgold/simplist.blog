@@ -9,15 +9,25 @@ export interface BillingToggleProps {
   showSavings?: boolean;
 }
 
-export const BillingToggle: FC<BillingToggleProps> = ({ value, onValueChange, className, showSavings = true }) => {
+export const BillingToggle: FC<BillingToggleProps> = ({
+  value,
+  onValueChange,
+  className,
+  showSavings = true,
+}) => {
   return (
-    <div className={cn("inline-flex items-center gap-2 rounded-full border bg-card/80 px-1.5 py-1 text-xs shadow-sm", className)}>
+    <div
+      className={cn(
+        "bg-card/80 inline-flex items-center gap-2 rounded-full border px-1.5 py-1 text-xs shadow-sm",
+        className,
+      )}
+    >
       <button
         type="button"
         onClick={() => onValueChange("monthly")}
-        className={cn("px-3 py-1 rounded-full transition-colors", {
+        className={cn("rounded-full px-3 py-1 transition-colors", {
           "bg-primary text-primary-foreground": value === "monthly",
-          "text-muted-foreground hover:text-foreground": value !== "monthly"
+          "text-muted-foreground hover:text-foreground": value !== "monthly",
         })}
       >
         Monthly
@@ -26,19 +36,25 @@ export const BillingToggle: FC<BillingToggleProps> = ({ value, onValueChange, cl
       <button
         type="button"
         onClick={() => onValueChange("yearly")}
-        className={cn("px-3 py-1 rounded-full transition-colors flex items-center gap-1", {
-          "bg-primary text-primary-foreground": value === "yearly",
-          "text-muted-foreground hover:text-foreground": value !== "yearly"
-        })}
+        className={cn(
+          "flex items-center gap-1 rounded-full px-3 py-1 transition-colors",
+          {
+            "bg-primary text-primary-foreground": value === "yearly",
+            "text-muted-foreground hover:text-foreground": value !== "yearly",
+          },
+        )}
       >
         Yearly
         {showSavings && (
           <span
             className={cn(
-              "rounded-full px-1.5 py-0.5 text-[9px] uppercase tracking-wide", {
-                "bg-secondary-foreground/45 text-white dark:bg-secondary dark:text-primary": value === "yearly",
-                "bg-emerald-500/35 dark:bg-emerald-500/45 text-foreground/80 dark:text-foreground/80": value !== "yearly"
-              }
+              "rounded-full px-1.5 py-0.5 text-[9px] tracking-wide uppercase",
+              {
+                "bg-secondary-foreground/45 dark:bg-secondary dark:text-primary text-white":
+                  value === "yearly",
+                "text-foreground/80 dark:text-foreground/80 bg-emerald-500/35 dark:bg-emerald-500/45":
+                  value !== "yearly",
+              },
             )}
           >
             -20%

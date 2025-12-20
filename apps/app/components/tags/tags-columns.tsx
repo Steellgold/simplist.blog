@@ -270,7 +270,7 @@ export const useTagsColumns = ({
       cell: ({ row }) => {
         const description = row.original.description;
         return (
-          <div className="max-w-[200px] truncate text-sm text-muted-foreground">
+          <div className="text-muted-foreground max-w-[200px] truncate text-sm">
             {description || "-"}
           </div>
         );
@@ -298,7 +298,7 @@ export const useTagsColumns = ({
       cell: ({ row }) => {
         const updatedAt = row.getValue("updatedAt") as Date;
         return (
-          <div className="text-sm text-muted-foreground">
+          <div className="text-muted-foreground text-sm">
             {format(new Date(updatedAt), "MMM d, yyyy")}
           </div>
         );

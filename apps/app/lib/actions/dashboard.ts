@@ -39,8 +39,10 @@ export interface DashboardData {
 }
 
 export const getDashboardData = async (
-  projectId: string
-): Promise<{ success: true; data: DashboardData } | { success: false; error: string }> => {
+  projectId: string,
+): Promise<
+  { success: true; data: DashboardData } | { success: false; error: string }
+> => {
   try {
     const user = await getCurrentUser();
     if (!user) unauthorized();
@@ -69,38 +71,38 @@ export const getDashboardData = async (
     if (!project) return notFound();
 
     // Fetch articles data
-    const [totalArticles, publishedArticles, recentArticles] = await Promise.all([
-      prisma.article.count({
-        where: {
-          projectId,
-          status: { not: "deleted" },
-        },
-      }),
-      prisma.article.count({
-        where: {
-          projectId,
-          status: "published",
-        },
-      }),
-      prisma.article.findMany({
-        where: {
-          projectId,
-          status: { not: "deleted" },
-        },
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-          status: true,
-          updatedAt: true,
-        },
-        orderBy: {
-          updatedAt: "desc",
-        },
-        take: 5,
-        
-      }),
-    ]);
+    const [totalArticles, publishedArticles, recentArticles] =
+      await Promise.all([
+        prisma.article.count({
+          where: {
+            projectId,
+            status: { not: "deleted" },
+          },
+        }),
+        prisma.article.count({
+          where: {
+            projectId,
+            status: "published",
+          },
+        }),
+        prisma.article.findMany({
+          where: {
+            projectId,
+            status: { not: "deleted" },
+          },
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            status: true,
+            updatedAt: true,
+          },
+          orderBy: {
+            updatedAt: "desc",
+          },
+          take: 5,
+        }),
+      ]);
 
     // Fetch active API keys count
     const activeApiKeys = await prisma.apiKey.count({
@@ -109,7 +111,6 @@ export const getDashboardData = async (
         status: "active",
         deletedAt: null,
       },
-      
     });
 
     // Fetch analytics data
@@ -124,7 +125,6 @@ export const getDashboardData = async (
             projectId,
           },
         },
-
       }),
       // Today's views and unique visitors
       prisma.pageView.aggregate({
@@ -139,7 +139,6 @@ export const getDashboardData = async (
         _count: {
           id: true,
         },
-
       }),
       // Count bounced views
       prisma.pageView.count({
@@ -149,21 +148,23 @@ export const getDashboardData = async (
           },
           bounced: true,
         },
-
       }),
     ]);
 
     // Count unique visitors today using aggregation instead of loading all records
-    const uniqueVisitorsTodayCount = await prisma.$queryRaw<[{ count: bigint }]>`
+    const uniqueVisitorsTodayCount = await prisma.$queryRaw<
+      [{ count: bigint }]
+    >`
       SELECT COUNT(DISTINCT "visitorId") as count
       FROM "page_view" pv
       INNER JOIN "article" a ON pv."articleId" = a.id
       WHERE a."projectId" = ${projectId}
       AND pv."createdAt" >= ${today}
-    `.then((result: { count: any; }[]) => Number(result[0]?.count ?? 0));
+    `.then((result: { count: any }[]) => Number(result[0]?.count ?? 0));
 
     // Calculate average bounce rate
-    const averageBounceRate = totalViews > 0 ? (bouncedCount / totalViews) * 100 : 0;
+    const averageBounceRate =
+      totalViews > 0 ? (bouncedCount / totalViews) * 100 : 0;
 
     const analyticsData = {
       totalViews,

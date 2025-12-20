@@ -1,5 +1,5 @@
-import { z } from "zod"
-import { createResponseSchema } from "./common"
+import { z } from "zod";
+import { createResponseSchema } from "./common";
 
 // Project schema for API responses
 export const projectSchema = z.object({
@@ -8,8 +8,8 @@ export const projectSchema = z.object({
   slug: z.string(),
   description: z.string().nullable(),
   createdAt: z.iso.datetime(),
-  updatedAt: z.iso.datetime()
-})
+  updatedAt: z.iso.datetime(),
+});
 
 // Project stats schema
 export const projectStatsSchema = z.object({
@@ -17,18 +17,18 @@ export const projectStatsSchema = z.object({
   publishedArticles: z.number(),
   totalViews: z.number(),
   storageUsed: z.string(), // formatted as human readable string
-  storageLimit: z.string()
-})
+  storageLimit: z.string(),
+});
 
 // Combined project info
 export const projectInfoSchema = z.object({
   project: projectSchema,
-  stats: projectStatsSchema
-})
+  stats: projectStatsSchema,
+});
 
 // Response schemas
-export const projectResponseSchema = createResponseSchema(projectInfoSchema)
+export const projectResponseSchema = createResponseSchema(projectInfoSchema);
 
-export type Project = z.infer<typeof projectSchema>
-export type ProjectStats = z.infer<typeof projectStatsSchema>
-export type ProjectInfo = z.infer<typeof projectInfoSchema>
+export type Project = z.infer<typeof projectSchema>;
+export type ProjectStats = z.infer<typeof projectStatsSchema>;
+export type ProjectInfo = z.infer<typeof projectInfoSchema>;

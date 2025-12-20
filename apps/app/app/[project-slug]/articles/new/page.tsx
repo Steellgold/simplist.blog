@@ -10,7 +10,7 @@ type PageParams = {
   params: Promise<{
     "project-slug": string;
   }>;
-}
+};
 
 const NewArticlePage: FC<PageParams> = async ({ params }) => {
   const resolvedParams = await params;
@@ -30,10 +30,13 @@ const NewArticlePage: FC<PageParams> = async ({ params }) => {
   }
 
   const tags = await getProjectTagsWithMetadata(project.id);
-  const availableTags: Tag[] = tags.map(tag => ({ ...tag, projectId: project.id }));
+  const availableTags: Tag[] = tags.map((tag) => ({
+    ...tag,
+    projectId: project.id,
+  }));
 
   return (
-    <div className="container max-w-7xl mx-auto">
+    <div className="container mx-auto max-w-7xl">
       <PageLayout
         title="Create a new article"
         description={`Write and publish a new article for your ${project.name} blog`}
@@ -45,6 +48,6 @@ const NewArticlePage: FC<PageParams> = async ({ params }) => {
       </PageLayout>
     </div>
   );
-}
+};
 
 export default NewArticlePage;

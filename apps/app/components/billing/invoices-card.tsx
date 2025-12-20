@@ -1,22 +1,34 @@
-"use client"
+"use client";
 
-import { BillingItem } from "@/components/billing/billing-item"
-import type { BillingEntry } from "@/lib/stripe/types"
-import { Button } from "@simplist/ui/components/button"
-import { ButtonGroup } from "@simplist/ui/components/button-group"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@simplist/ui/components/card"
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@simplist/ui/components/empty"
-import { ItemGroup, ItemSeparator } from "@simplist/ui/components/item"
-import { PiggyBank } from "lucide-react"
-import React, { useState } from "react"
+import { BillingItem } from "@/components/billing/billing-item";
+import type { BillingEntry } from "@/lib/stripe/types";
+import { Button } from "@simplist/ui/components/button";
+import { ButtonGroup } from "@simplist/ui/components/button-group";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@simplist/ui/components/card";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@simplist/ui/components/empty";
+import { ItemGroup, ItemSeparator } from "@simplist/ui/components/item";
+import { PiggyBank } from "lucide-react";
+import React, { useState } from "react";
 
 type InvoicesCardProps = {
-  billingEntries: BillingEntry[]
-}
+  billingEntries: BillingEntry[];
+};
 
 export const InvoicesCard = ({ billingEntries }: InvoicesCardProps) => {
-  const [currentPage, setCurrentPage] = useState(0)
-  const itemsPerPage = 5
+  const [currentPage, setCurrentPage] = useState(0);
+  const itemsPerPage = 5;
 
   if (billingEntries.length === 0) {
     return (
@@ -36,16 +48,18 @@ export const InvoicesCard = ({ billingEntries }: InvoicesCardProps) => {
           </Empty>
         </CardContent>
       </Card>
-    )
+    );
   }
 
-  const totalPages = Math.ceil(billingEntries.length / itemsPerPage)
-  const startIndex = currentPage * itemsPerPage
-  const endIndex = startIndex + itemsPerPage
-  const currentEntries = billingEntries.slice(startIndex, endIndex)
+  const totalPages = Math.ceil(billingEntries.length / itemsPerPage);
+  const startIndex = currentPage * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentEntries = billingEntries.slice(startIndex, endIndex);
 
-  const handlePreviousPage = () => setCurrentPage((prev) => Math.max(prev - 1, 0))
-  const handleNextPage = () => setCurrentPage((prev) => Math.min(prev + 1, totalPages - 1))
+  const handlePreviousPage = () =>
+    setCurrentPage((prev) => Math.max(prev - 1, 0));
+  const handleNextPage = () =>
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages - 1));
 
   return (
     <Card>
@@ -67,9 +81,11 @@ export const InvoicesCard = ({ billingEntries }: InvoicesCardProps) => {
         </ItemGroup>
 
         {totalPages > 1 && (
-          <div className="flex items-center justify-between mt-4">
-            <div className="text-sm text-muted-foreground">
-              Showing {startIndex + 1}-{Math.min(endIndex, billingEntries.length)} of {billingEntries.length} entries
+          <div className="mt-4 flex items-center justify-between">
+            <div className="text-muted-foreground text-sm">
+              Showing {startIndex + 1}-
+              {Math.min(endIndex, billingEntries.length)} of{" "}
+              {billingEntries.length} entries
             </div>
 
             <div className="flex items-center space-x-2">
@@ -99,5 +115,5 @@ export const InvoicesCard = ({ billingEntries }: InvoicesCardProps) => {
         )}
       </CardContent>
     </Card>
-  )
-}
+  );
+};

@@ -1,4 +1,4 @@
- "use client";
+"use client";
 
 import { SimplistIcon } from "@/components/simplist-icon";
 import { buttonVariants } from "@simplist/ui/components/button";
@@ -17,30 +17,32 @@ export const Navbar: FC<NavbarProps> = ({ sticky = true }) => {
   const positionClasses = sticky ? "sticky top-0" : "relative";
 
   return (
-    <header className={`${positionClasses} py-1 z-50 w-full backdrop-blur-sm bg-background/20`}>
+    <header
+      className={`${positionClasses} bg-background/20 z-50 w-full py-1 backdrop-blur-sm`}
+    >
       <div className="container mx-auto px-4">
         <div className="flex h-14 items-center justify-between">
           <SimplistIcon />
 
           <div className="flex items-center gap-6">
-            <nav className="hidden md:flex items-center space-x-6">
+            <nav className="hidden items-center space-x-6 md:flex">
               <Link
                 href="#features"
-                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors"
               >
                 Features
               </Link>
 
               <Link
                 href="#pricing"
-                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors"
               >
                 Pricing
               </Link>
 
               <Link
                 href="#docs"
-                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors"
               >
                 Documentation
               </Link>

@@ -195,11 +195,11 @@ export const MediaUploadDialog: FC<MediaUploadDialogProps> = ({
 
         {/* File list */}
         {hasFiles && (
-          <div className="space-y-2 max-h-[200px] overflow-y-auto">
+          <div className="max-h-[200px] space-y-2 overflow-y-auto">
             {uploadingFiles.map((item, index) => (
               <div
                 key={`${item.file.name}-${index}`}
-                className="flex items-center gap-3 p-2 rounded-md bg-muted/50"
+                className="bg-muted/50 flex items-center gap-3 rounded-md p-2"
               >
                 {/* Status icon */}
                 <div className="shrink-0">
@@ -207,24 +207,24 @@ export const MediaUploadDialog: FC<MediaUploadDialogProps> = ({
                     <CheckCircle2 className="h-5 w-5 text-green-500" />
                   )}
                   {item.status === "error" && (
-                    <XCircle className="h-5 w-5 text-destructive" />
+                    <XCircle className="text-destructive h-5 w-5" />
                   )}
                   {(item.status === "pending" ||
                     item.status === "uploading") && (
-                    <div className="h-5 w-5 rounded-full border-2 border-muted-foreground/25" />
+                    <div className="border-muted-foreground/25 h-5 w-5 rounded-full border-2" />
                   )}
                 </div>
 
                 {/* File info */}
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium">
                     {item.file.name}
                   </p>
                   {item.status === "uploading" && (
-                    <Progress value={50} className="h-1 mt-1" />
+                    <Progress value={50} className="mt-1 h-1" />
                   )}
                   {item.status === "error" && (
-                    <p className="text-xs text-destructive">{item.error}</p>
+                    <p className="text-destructive text-xs">{item.error}</p>
                   )}
                 </div>
 
@@ -245,7 +245,7 @@ export const MediaUploadDialog: FC<MediaUploadDialogProps> = ({
 
         {/* Summary */}
         {hasFiles && allDone && (
-          <div className="text-sm text-muted-foreground">
+          <div className="text-muted-foreground text-sm">
             {successCount > 0 && (
               <span className="text-green-600">
                 {successCount} file{successCount !== 1 ? "s" : ""} uploaded

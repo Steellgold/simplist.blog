@@ -1,28 +1,28 @@
-import { createHmac } from "crypto"
-import { prisma } from "./client"
+import { createHmac } from "crypto";
+import { prisma } from "./client";
 
 export type WebhookEvent =
   | "article.published"
   | "article.deleted"
   | "article.scheduled"
-  | "article.updated"
+  | "article.updated";
 
 type ArticlePayload = {
-  id: string
-  title: string
-  slug: string
-  excerpt?: string
-  author?: string
-  tags?: string[]
-  publishedAt?: string
-  url?: string
-  coverImage?: string
-  wordCount?: number
-  characterCount?: number
-  lineCount?: number
-  readTimeMinutes?: number
-  variantCount?: number
-}
+  id: string;
+  title: string;
+  slug: string;
+  excerpt?: string;
+  author?: string;
+  tags?: string[];
+  publishedAt?: string;
+  url?: string;
+  coverImage?: string;
+  wordCount?: number;
+  characterCount?: number;
+  lineCount?: number;
+  readTimeMinutes?: number;
+  variantCount?: number;
+};
 
 /**
  * Replace variables in a string with values from the article
@@ -32,7 +32,7 @@ type ArticlePayload = {
 const replaceVariables = (
   text: string,
   event: WebhookEvent,
-  article: ArticlePayload
+  article: ArticlePayload,
 ): string => {
   const variables: Record<string, string> = {
     title: article.title ?? "Untitled",
@@ -49,12 +49,12 @@ const replaceVariables = (
     lineCount: article.lineCount?.toString() ?? "0",
     readTimeMinutes: article.readTimeMinutes?.toString() ?? "0",
     variantCount: article.variantCount?.toString() ?? "0",
-  }
+  };
 
   return text.replace(/\{(\w+)\}/g, (match, key) => {
-    return variables[key] ?? match
-  })
-}
+    return variables[key] ?? match;
+  });
+};
 
 /**
  * Recursively replace variables in a JSON object
@@ -62,23 +62,23 @@ const replaceVariables = (
 const replaceVariablesInObject = (
   obj: unknown,
   event: WebhookEvent,
-  article: ArticlePayload
+  article: ArticlePayload,
 ): unknown => {
   if (typeof obj === "string") {
-    return replaceVariables(obj, event, article)
+    return replaceVariables(obj, event, article);
   }
   if (Array.isArray(obj)) {
-    return obj.map((item) => replaceVariablesInObject(item, event, article))
+    return obj.map((item) => replaceVariablesInObject(item, event, article));
   }
   if (obj !== null && typeof obj === "object") {
-    const result: Record<string, unknown> = {}
+    const result: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(obj)) {
-      result[key] = replaceVariablesInObject(value, event, article)
+      result[key] = replaceVariablesInObject(value, event, article);
     }
-    return result
+    return result;
   }
-  return obj
-}
+  return obj;
+};
 
 /**
  * Build the webhook payload - uses customPayload if present, otherwise generic format
@@ -86,11 +86,14 @@ const replaceVariablesInObject = (
 const buildBody = (
   event: WebhookEvent,
   article: ArticlePayload,
-  customPayload?: unknown
+  customPayload?: unknown,
 ): Record<string, unknown> => {
   // If custom payload is defined, use it with variable replacement
   if (customPayload && typeof customPayload === "object") {
-    return replaceVariablesInObject(customPayload, event, article) as Record<string, unknown>
+    return replaceVariablesInObject(customPayload, event, article) as Record<
+      string,
+      unknown
+    >;
   }
 
   // Default generic payload
@@ -113,21 +116,21 @@ const buildBody = (
       readTimeMinutes: article.readTimeMinutes ?? null,
       variantCount: article.variantCount ?? null,
     },
-  }
-}
+  };
+};
 
 const safeParseJson = (text: string) => {
   try {
-    return JSON.parse(text)
+    return JSON.parse(text);
   } catch {
-    return text
+    return text;
   }
-}
+};
 
 export const sendWebhookEvent = async (
   projectId: string,
   event: WebhookEvent,
-  article: ArticlePayload
+  article: ArticlePayload,
 ) => {
   const webhooks = await prisma.webhook.findMany({
     where: {
@@ -137,30 +140,30 @@ export const sendWebhookEvent = async (
         has: event,
       },
     },
-  })
+  });
 
-  if (webhooks.length === 0) return
+  if (webhooks.length === 0) return;
 
   for (const hook of webhooks) {
-    const body = buildBody(event, article, hook.customPayload)
+    const body = buildBody(event, article, hook.customPayload);
 
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
       "User-Agent": "simplist-webhooks/1.0",
-    }
+    };
 
     if (hook.secret) {
       const signature = createHmac("sha256", hook.secret)
         .update(JSON.stringify(body))
-        .digest("hex")
-      headers["X-Simplist-Signature"] = signature
+        .digest("hex");
+      headers["X-Simplist-Signature"] = signature;
     }
 
     if (hook.headers && typeof hook.headers === "object") {
       for (const [k, v] of Object.entries(
-        hook.headers as Record<string, string>
+        hook.headers as Record<string, string>,
       )) {
-        if (typeof v === "string") headers[k] = v
+        if (typeof v === "string") headers[k] = v;
       }
     }
 
@@ -169,10 +172,10 @@ export const sendWebhookEvent = async (
         method: "POST",
         headers,
         body: JSON.stringify(body),
-      })
+      });
 
-      const text = await response.text()
-      const parsed = text ? safeParseJson(text) : null
+      const text = await response.text();
+      const parsed = text ? safeParseJson(text) : null;
 
       await prisma.webhookDelivery.create({
         data: {
@@ -182,7 +185,7 @@ export const sendWebhookEvent = async (
           response: parsed,
           attemptedAt: new Date(),
         },
-      })
+      });
 
       await prisma.webhook.update({
         where: { id: hook.id },
@@ -190,7 +193,7 @@ export const sendWebhookEvent = async (
           lastSentAt: new Date(),
           failureCount: response.ok ? 0 : { increment: 1 },
         },
-      })
+      });
     } catch (error) {
       await prisma.webhookDelivery.create({
         data: {
@@ -199,31 +202,31 @@ export const sendWebhookEvent = async (
           error: error instanceof Error ? error.message : "Unknown error",
           attemptedAt: new Date(),
         },
-      })
+      });
 
       await prisma.webhook.update({
         where: { id: hook.id },
         data: {
           failureCount: { increment: 1 },
         },
-      })
+      });
     }
   }
-}
+};
 
 /**
  * Send a test webhook with sample data
  */
 export const sendTestWebhook = async (
   webhookId: string,
-  event: WebhookEvent = "article.published"
+  event: WebhookEvent = "article.published",
 ): Promise<{ success: boolean; statusCode?: number; error?: string }> => {
   const hook = await prisma.webhook.findUnique({
     where: { id: webhookId },
-  })
+  });
 
   if (!hook) {
-    return { success: false, error: "Webhook not found" }
+    return { success: false, error: "Webhook not found" };
   }
 
   const sampleArticle: ArticlePayload = {
@@ -235,34 +238,35 @@ export const sendTestWebhook = async (
     tags: ["test", "webhook", "sample"],
     publishedAt: new Date().toISOString(),
     url: "https://example.com/blog/sample-article-title",
-    coverImage: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=600&h=300&fit=crop",
+    coverImage:
+      "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=600&h=300&fit=crop",
     wordCount: 250,
     characterCount: 1500,
     lineCount: 20,
     readTimeMinutes: 2,
     variantCount: 3,
-  }
+  };
 
-  const body = buildBody(event, sampleArticle, hook.customPayload)
+  const body = buildBody(event, sampleArticle, hook.customPayload);
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     "User-Agent": "simplist-webhooks/1.0",
     "X-Simplist-Test": "true",
-  }
+  };
 
   if (hook.secret) {
     const signature = createHmac("sha256", hook.secret)
       .update(JSON.stringify(body))
-      .digest("hex")
-    headers["X-Simplist-Signature"] = signature
+      .digest("hex");
+    headers["X-Simplist-Signature"] = signature;
   }
 
   if (hook.headers && typeof hook.headers === "object") {
     for (const [k, v] of Object.entries(
-      hook.headers as Record<string, string>
+      hook.headers as Record<string, string>,
     )) {
-      if (typeof v === "string") headers[k] = v
+      if (typeof v === "string") headers[k] = v;
     }
   }
 
@@ -271,10 +275,10 @@ export const sendTestWebhook = async (
       method: "POST",
       headers,
       body: JSON.stringify(body),
-    })
+    });
 
-    const text = await response.text()
-    const parsed = text ? safeParseJson(text) : null
+    const text = await response.text();
+    const parsed = text ? safeParseJson(text) : null;
 
     // Record the test delivery
     await prisma.webhookDelivery.create({
@@ -285,15 +289,16 @@ export const sendTestWebhook = async (
         response: parsed,
         attemptedAt: new Date(),
       },
-    })
+    });
 
     return {
       success: response.ok,
       statusCode: response.status,
       error: response.ok ? undefined : `HTTP ${response.status}`,
-    }
+    };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error"
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
 
     await prisma.webhookDelivery.create({
       data: {
@@ -302,11 +307,11 @@ export const sendTestWebhook = async (
         error: errorMessage,
         attemptedAt: new Date(),
       },
-    })
+    });
 
-    return { success: false, error: errorMessage }
+    return { success: false, error: errorMessage };
   }
-}
+};
 
 /**
  * Test a webhook with provided data (without saving to database)
@@ -315,10 +320,10 @@ export const testWebhookFromData = async (
   url: string,
   event: WebhookEvent,
   options: {
-    secret?: string | null
-    headers?: Record<string, string> | null
-    customPayload?: unknown
-  }
+    secret?: string | null;
+    headers?: Record<string, string> | null;
+    customPayload?: unknown;
+  },
 ): Promise<{ success: boolean; statusCode?: number; error?: string }> => {
   const sampleArticle: ArticlePayload = {
     id: "clxyz123456789",
@@ -329,32 +334,33 @@ export const testWebhookFromData = async (
     tags: ["test", "webhook", "sample"],
     publishedAt: new Date().toISOString(),
     url: "https://example.com/blog/sample-article-title",
-    coverImage: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=600&h=300&fit=crop",
+    coverImage:
+      "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=600&h=300&fit=crop",
     wordCount: 250,
     characterCount: 1500,
     lineCount: 20,
     readTimeMinutes: 2,
     variantCount: 3,
-  }
+  };
 
-  const body = buildBody(event, sampleArticle, options.customPayload)
+  const body = buildBody(event, sampleArticle, options.customPayload);
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     "User-Agent": "simplist-webhooks/1.0",
     "X-Simplist-Test": "true",
-  }
+  };
 
   if (options.secret) {
     const signature = createHmac("sha256", options.secret)
       .update(JSON.stringify(body))
-      .digest("hex")
-    headers["X-Simplist-Signature"] = signature
+      .digest("hex");
+    headers["X-Simplist-Signature"] = signature;
   }
 
   if (options.headers && typeof options.headers === "object") {
     for (const [k, v] of Object.entries(options.headers)) {
-      if (typeof v === "string") headers[k] = v
+      if (typeof v === "string") headers[k] = v;
     }
   }
 
@@ -363,27 +369,28 @@ export const testWebhookFromData = async (
       method: "POST",
       headers,
       body: JSON.stringify(body),
-    })
+    });
 
     return {
       success: response.ok,
       statusCode: response.status,
       error: response.ok ? undefined : `HTTP ${response.status}`,
-    }
+    };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error"
-    return { success: false, error: errorMessage }
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+    return { success: false, error: errorMessage };
   }
-}
+};
 
 /**
  * Get webhook deliveries with pagination
  */
 export const getWebhookDeliveries = async (
   webhookId: string,
-  options: { limit?: number; offset?: number } = {}
+  options: { limit?: number; offset?: number } = {},
 ) => {
-  const { limit = 20, offset = 0 } = options
+  const { limit = 20, offset = 0 } = options;
 
   const [deliveries, total] = await Promise.all([
     prisma.webhookDelivery.findMany({
@@ -395,7 +402,7 @@ export const getWebhookDeliveries = async (
     prisma.webhookDelivery.count({
       where: { webhookId },
     }),
-  ])
+  ]);
 
-  return { deliveries, total }
-}
+  return { deliveries, total };
+};

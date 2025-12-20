@@ -1,78 +1,100 @@
-"use client"
+"use client";
 
-import { ProjectMember } from "@simplist/db"
-import type { Project } from "@simplist/db/types"
-import { useRouter } from "next/navigation"
-import { createContext, ReactNode, useContext, useState, useTransition } from "react"
+import { ProjectMember } from "@simplist/db";
+import type { Project } from "@simplist/db/types";
+import { useRouter } from "next/navigation";
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useState,
+  useTransition,
+} from "react";
 
 interface ProjectContextType {
-  currentProject: Project | null
-  projects: Project[]
-  currentMember: ProjectMember | null
-  currentMemberId: string | null
-  refreshProjects: () => void
-  updateProject: (project: Project) => void
-  isRefreshing: boolean
+  currentProject: Project | null;
+  projects: Project[];
+  currentMember: ProjectMember | null;
+  currentMemberId: string | null;
+  refreshProjects: () => void;
+  updateProject: (project: Project) => void;
+  isRefreshing: boolean;
 }
 
-const ProjectContext = createContext<ProjectContextType | undefined>(undefined)
+const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
 
 interface ProjectContextProviderProps {
-  children: ReactNode
-  projects: Project[]
-  currentProject: Project | null
-  currentMember: ProjectMember | null
-  currentMemberId: string | null
+  children: ReactNode;
+  projects: Project[];
+  currentProject: Project | null;
+  currentMember: ProjectMember | null;
+  currentMemberId: string | null;
 }
 
-export const ProjectContextProvider = ({ children, projects: initialProjects, currentProject: initialCurrentProject, currentMember, currentMemberId }: ProjectContextProviderProps) => {
-  const router = useRouter()
-  const [isPending, startTransition] = useTransition()
-  const [projects, setProjects] = useState(initialProjects)
-  const [currentProject, setCurrentProject] = useState(initialCurrentProject)
+export const ProjectContextProvider = ({
+  children,
+  projects: initialProjects,
+  currentProject: initialCurrentProject,
+  currentMember,
+  currentMemberId,
+}: ProjectContextProviderProps) => {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [projects, setProjects] = useState(initialProjects);
+  const [currentProject, setCurrentProject] = useState(initialCurrentProject);
 
   const refreshProjects = () => {
     startTransition(() => {
-      router.refresh()
-    })
-  }
+      router.refresh();
+    });
+  };
 
   const updateProject = (project: Project) => {
-    setProjects((prev) => prev.map((p) => (p.id === project.id ? { ...p, ...project } : p)))
-    setCurrentProject((prev) => (prev?.id === project.id ? { ...prev, ...project } : prev))
-  }
+    setProjects((prev) =>
+      prev.map((p) => (p.id === project.id ? { ...p, ...project } : p)),
+    );
+    setCurrentProject((prev) =>
+      prev?.id === project.id ? { ...prev, ...project } : prev,
+    );
+  };
 
   if (initialProjects !== projects) {
-    setProjects(initialProjects)
+    setProjects(initialProjects);
   }
 
-  if (initialCurrentProject?.id !== currentProject?.id ||
-      initialCurrentProject?.name !== currentProject?.name ||
-      initialCurrentProject?.icon !== currentProject?.icon ||
-      initialCurrentProject?.color !== currentProject?.color ||
-      initialCurrentProject?.slug !== currentProject?.slug) {
-    setCurrentProject(initialCurrentProject)
+  if (
+    initialCurrentProject?.id !== currentProject?.id ||
+    initialCurrentProject?.name !== currentProject?.name ||
+    initialCurrentProject?.icon !== currentProject?.icon ||
+    initialCurrentProject?.color !== currentProject?.color ||
+    initialCurrentProject?.slug !== currentProject?.slug
+  ) {
+    setCurrentProject(initialCurrentProject);
   }
 
   return (
-    <ProjectContext.Provider value={{
-      currentProject,
-      projects,
-      currentMember,
-      currentMemberId,
-      refreshProjects,
-      updateProject,
-      isRefreshing: isPending
-    }}>
+    <ProjectContext.Provider
+      value={{
+        currentProject,
+        projects,
+        currentMember,
+        currentMemberId,
+        refreshProjects,
+        updateProject,
+        isRefreshing: isPending,
+      }}
+    >
       {children}
     </ProjectContext.Provider>
-  )
-}
+  );
+};
 
 export const useProjectContext = () => {
-  const context = useContext(ProjectContext)
+  const context = useContext(ProjectContext);
   if (context === undefined) {
-    throw new Error("useProjectContext must be used within a ProjectContextProvider")
+    throw new Error(
+      "useProjectContext must be used within a ProjectContextProvider",
+    );
   }
-  return context
-}
+  return context;
+};

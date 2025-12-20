@@ -29,7 +29,7 @@ export const ComparisonTable: FC<ComparisonTableProps> = ({
   className,
 }) => {
   return (
-    <Card className="p-[2.5px] rounded-2xl">
+    <Card className="rounded-2xl p-[2.5px]">
       <Card className={cn("overflow-hidden p-0", className)}>
         <CardContent className="p-0">
           <Table>

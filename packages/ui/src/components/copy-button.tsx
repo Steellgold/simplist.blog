@@ -40,7 +40,7 @@ export const CopyButton: FC<CopyButtonProps> = ({
               type="button"
               onClick={handleCopy}
               className={cn(
-                "inline-flex items-center gap-1.5 cursor-pointer hover:opacity-80 transition-opacity",
+                "inline-flex cursor-pointer items-center gap-1.5 transition-opacity hover:opacity-80",
                 className,
               )}
             >
@@ -48,7 +48,7 @@ export const CopyButton: FC<CopyButtonProps> = ({
               {copied ? (
                 <CheckIcon className="size-3.5 text-green-500" />
               ) : (
-                <CopyIcon className="size-3.5 text-muted-foreground" />
+                <CopyIcon className="text-muted-foreground size-3.5" />
               )}
             </button>
           </TooltipTrigger>

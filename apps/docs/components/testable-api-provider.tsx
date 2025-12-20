@@ -1,27 +1,27 @@
-"use client"
+"use client";
 
-import { createContext, useContext, useState, ReactNode } from "react"
+import { createContext, useContext, useState, ReactNode } from "react";
 
 interface TestableApiContextType {
-  hasTestableApi: boolean
-  setHasTestableApi: (value: boolean) => void
+  hasTestableApi: boolean;
+  setHasTestableApi: (value: boolean) => void;
 }
 
 const TestableApiContext = createContext<TestableApiContextType>({
   hasTestableApi: false,
-  setHasTestableApi: () => {}
-})
+  setHasTestableApi: () => {},
+});
 
 export function TestableApiProvider({ children }: { children: ReactNode }) {
-  const [hasTestableApi, setHasTestableApi] = useState(false)
+  const [hasTestableApi, setHasTestableApi] = useState(false);
 
   return (
     <TestableApiContext.Provider value={{ hasTestableApi, setHasTestableApi }}>
       {children}
     </TestableApiContext.Provider>
-  )
+  );
 }
 
 export function useTestableApi() {
-  return useContext(TestableApiContext)
+  return useContext(TestableApiContext);
 }

@@ -86,7 +86,7 @@ const StatCard = ({
     <CardHeader className="-mb-6">
       <CardTitle className="text-sm font-medium">{title}</CardTitle>
       <CardAction>
-        <Icon className="h-4 w-4 text-muted-foreground" />
+        <Icon className="text-muted-foreground h-4 w-4" />
       </CardAction>
     </CardHeader>
 
@@ -96,7 +96,7 @@ const StatCard = ({
         {suffix}
       </div>
       <div className="flex items-center space-x-2">
-        <p className="text-xs text-muted-foreground">{description}</p>
+        <p className="text-muted-foreground text-xs">{description}</p>
         {trend !== undefined && (
           <div
             className={`flex items-center text-xs ${trend >= 0 ? "text-green-600" : "text-red-600"}`}
@@ -310,9 +310,9 @@ export const AnalyticsDashboardContent = ({
   const utmCampaignData = analytics.utmStats?.campaigns?.slice(0, 8) || [];
 
   return (
-    <div className="container max-w-7xl mx-auto space-y-4">
+    <div className="container mx-auto max-w-7xl space-y-4">
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Total Views"
           value={analytics.summary.totalViews?.toLocaleString() || "0"}
@@ -348,7 +348,7 @@ export const AnalyticsDashboardContent = ({
       <Card>
         <CardHeader>
           <div className="flex items-center gap-3">
-            <div className="flex size-8 items-center justify-center rounded-sm border bg-muted">
+            <div className="bg-muted flex size-8 items-center justify-center rounded-sm border">
               <TrendingUp className="size-4" />
             </div>
             <div>
@@ -389,7 +389,7 @@ export const AnalyticsDashboardContent = ({
             {selectedChartTab === 0 && (
               <div className="space-y-4">
                 {chartData.length === 0 ? (
-                  <div className="h-64 w-full flex items-center justify-center text-muted-foreground">
+                  <div className="text-muted-foreground flex h-64 w-full items-center justify-center">
                     No data available for this period
                   </div>
                 ) : (
@@ -473,7 +473,7 @@ export const AnalyticsDashboardContent = ({
             {selectedChartTab === 1 && (
               <div className="space-y-4">
                 {chartData.length === 0 ? (
-                  <div className="h-64 w-full flex items-center justify-center text-muted-foreground">
+                  <div className="text-muted-foreground flex h-64 w-full items-center justify-center">
                     No data available for this period
                   </div>
                 ) : (
@@ -532,7 +532,7 @@ export const AnalyticsDashboardContent = ({
             {selectedChartTab === 2 && (
               <div className="space-y-4">
                 {chartData.length === 0 ? (
-                  <div className="h-64 w-full flex items-center justify-center text-muted-foreground">
+                  <div className="text-muted-foreground flex h-64 w-full items-center justify-center">
                     No data available for this period
                   </div>
                 ) : (
@@ -591,7 +591,7 @@ export const AnalyticsDashboardContent = ({
             {selectedChartTab === 3 && (
               <div className="space-y-4">
                 {chartData.length === 0 ? (
-                  <div className="h-64 w-full flex items-center justify-center text-muted-foreground">
+                  <div className="text-muted-foreground flex h-64 w-full items-center justify-center">
                     No data available for this period
                   </div>
                 ) : (
@@ -662,14 +662,14 @@ export const AnalyticsDashboardContent = ({
       </Card>
 
       {/* Two Column Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {/* Left Column - Top Articles & Referrers */}
         <div className="flex flex-col gap-4">
           {/* Top Articles */}
-          <Card className="flex flex-col flex-1">
+          <Card className="flex flex-1 flex-col">
             <CardHeader>
               <div className="flex items-center gap-3">
-                <div className="flex size-8 items-center justify-center rounded-sm border bg-muted">
+                <div className="bg-muted flex size-8 items-center justify-center rounded-sm border">
                   <FileText className="size-4" />
                 </div>
                 <div>
@@ -686,22 +686,22 @@ export const AnalyticsDashboardContent = ({
                     className="flex items-center justify-between"
                   >
                     <div className="space-y-1">
-                      <p className="text-sm font-medium leading-none">
+                      <p className="text-sm leading-none font-medium">
                         {article.title}
                       </p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-muted-foreground text-sm">
                         /{article.slug}
                       </p>
                     </div>
-                    <div className="text-right space-y-1">
+                    <div className="space-y-1 text-right">
                       <p className="text-sm font-medium">{article.views}</p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-muted-foreground text-xs">
                         {Math.round(article.avgTimeOnPage / 60)}m
                       </p>
                     </div>
                   </div>
                 )) || (
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-muted-foreground text-sm">
                     No data available
                   </p>
                 )}
@@ -710,10 +710,10 @@ export const AnalyticsDashboardContent = ({
           </Card>
 
           {/* Top Referrers */}
-          <Card className="flex flex-col flex-1">
+          <Card className="flex flex-1 flex-col">
             <CardHeader>
               <div className="flex items-center gap-3">
-                <div className="flex size-8 items-center justify-center rounded-sm border bg-muted">
+                <div className="bg-muted flex size-8 items-center justify-center rounded-sm border">
                   <Link2 className="size-4" />
                 </div>
                 <div>
@@ -731,13 +731,13 @@ export const AnalyticsDashboardContent = ({
                     return (
                       <div
                         key={referrer.referrer}
-                        className="relative flex items-center justify-between px-3 py-2 rounded-md overflow-hidden"
+                        className="relative flex items-center justify-between overflow-hidden rounded-md px-3 py-2"
                       >
                         <div
-                          className="absolute inset-0 bg-primary/10 transition-all duration-300"
+                          className="bg-primary/10 absolute inset-0 transition-all duration-300"
                           style={{ width: `${referrer.percentage}%` }}
                         />
-                        <div className="relative flex items-center space-x-2 min-w-0">
+                        <div className="relative flex min-w-0 items-center space-x-2">
                           {isDirect ? (
                             <MousePointerClick className="h-4 w-4 flex-shrink-0" />
                           ) : referrer.faviconUrl ? (
@@ -751,18 +751,18 @@ export const AnalyticsDashboardContent = ({
                           ) : (
                             <Link2 className="h-4 w-4 flex-shrink-0" />
                           )}
-                          <span className="text-sm font-medium truncate">
+                          <span className="truncate text-sm font-medium">
                             {referrer.referrer}
                           </span>
                         </div>
-                        <span className="relative text-sm text-muted-foreground ml-2 flex-shrink-0">
+                        <span className="text-muted-foreground relative ml-2 flex-shrink-0 text-sm">
                           {referrer.percentage}%
                         </span>
                       </div>
                     );
                   })
                 ) : (
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-muted-foreground text-sm">
                     No referrer data available
                   </p>
                 )}
@@ -777,7 +777,7 @@ export const AnalyticsDashboardContent = ({
           <Card>
             <CardHeader>
               <div className="flex items-center gap-3">
-                <div className="flex size-8 items-center justify-center rounded-sm border bg-muted">
+                <div className="bg-muted flex size-8 items-center justify-center rounded-sm border">
                   <Monitor className="size-4" />
                 </div>
                 <div>
@@ -826,7 +826,7 @@ export const AnalyticsDashboardContent = ({
                             {device.device}
                           </span>
                         </div>
-                        <span className="text-sm text-muted-foreground">
+                        <span className="text-muted-foreground text-sm">
                           {device.percentage}%
                         </span>
                       </div>
@@ -834,7 +834,7 @@ export const AnalyticsDashboardContent = ({
                   </div>
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   No device data available
                 </p>
               )}
@@ -846,7 +846,7 @@ export const AnalyticsDashboardContent = ({
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="flex size-8 items-center justify-center rounded-sm border bg-muted">
+                  <div className="bg-muted flex size-8 items-center justify-center rounded-sm border">
                     <Globe className="size-4" />
                   </div>
                   <div>
@@ -885,10 +885,10 @@ export const AnalyticsDashboardContent = ({
                     countryData.map((country) => (
                       <div
                         key={country.country}
-                        className="relative flex items-center justify-between px-3 py-2 rounded-md overflow-hidden"
+                        className="relative flex items-center justify-between overflow-hidden rounded-md px-3 py-2"
                       >
                         <div
-                          className="absolute inset-0 bg-primary/10 transition-all duration-300"
+                          className="bg-primary/10 absolute inset-0 transition-all duration-300"
                           style={{ width: `${country.percentage}%` }}
                         />
                         <div className="relative flex items-center space-x-2">
@@ -898,22 +898,22 @@ export const AnalyticsDashboardContent = ({
                               alt={`Flag of ${country.country}`}
                               width={16}
                               height={16}
-                              className="h-4 w-4 rounded flex-shrink-0"
+                              className="h-4 w-4 flex-shrink-0 rounded"
                             />
                           ) : (
-                            <div className="h-4 w-4 rounded-sm bg-muted flex-shrink-0" />
+                            <div className="bg-muted h-4 w-4 flex-shrink-0 rounded-sm" />
                           )}
                           <span className="text-sm font-medium">
                             {country.country}
                           </span>
                         </div>
-                        <span className="relative text-sm text-muted-foreground ml-2 flex-shrink-0">
+                        <span className="text-muted-foreground relative ml-2 flex-shrink-0 text-sm">
                           {country.percentage}%
                         </span>
                       </div>
                     ))
                   ) : (
-                    <div className="text-center py-8 text-muted-foreground">
+                    <div className="text-muted-foreground py-8 text-center">
                       <p className="text-sm">No country data available</p>
                     </div>
                   ))}
@@ -923,10 +923,10 @@ export const AnalyticsDashboardContent = ({
                     cityData.map((city) => (
                       <div
                         key={city.city}
-                        className="relative flex items-center justify-between px-3 py-2 rounded-md overflow-hidden"
+                        className="relative flex items-center justify-between overflow-hidden rounded-md px-3 py-2"
                       >
                         <div
-                          className="absolute inset-0 bg-primary/10 transition-all duration-300"
+                          className="bg-primary/10 absolute inset-0 transition-all duration-300"
                           style={{ width: `${city.percentage}%` }}
                         />
                         <div className="relative flex items-center space-x-2">
@@ -936,25 +936,25 @@ export const AnalyticsDashboardContent = ({
                               alt={`Flag of ${city.country}`}
                               width={16}
                               height={16}
-                              className="h-4 w-4 rounded flex-shrink-0"
+                              className="h-4 w-4 flex-shrink-0 rounded"
                             />
                           ) : (
-                            <div className="h-4 w-4 rounded-sm bg-muted flex-shrink-0" />
+                            <div className="bg-muted h-4 w-4 flex-shrink-0 rounded-sm" />
                           )}
                           <span className="text-sm font-medium">
                             {city.city}
                           </span>
-                          <span className="text-xs text-muted-foreground">
+                          <span className="text-muted-foreground text-xs">
                             ({city.country})
                           </span>
                         </div>
-                        <span className="relative text-sm text-muted-foreground ml-2 flex-shrink-0">
+                        <span className="text-muted-foreground relative ml-2 flex-shrink-0 text-sm">
                           {city.percentage}%
                         </span>
                       </div>
                     ))
                   ) : (
-                    <div className="text-center py-8 text-muted-foreground">
+                    <div className="text-muted-foreground py-8 text-center">
                       <p className="text-sm">No city data available</p>
                     </div>
                   ))}
@@ -964,10 +964,10 @@ export const AnalyticsDashboardContent = ({
                     regionData.map((region) => (
                       <div
                         key={region.region}
-                        className="relative flex items-center justify-between px-3 py-2 rounded-md overflow-hidden"
+                        className="relative flex items-center justify-between overflow-hidden rounded-md px-3 py-2"
                       >
                         <div
-                          className="absolute inset-0 bg-primary/10 transition-all duration-300"
+                          className="bg-primary/10 absolute inset-0 transition-all duration-300"
                           style={{ width: `${region.percentage}%` }}
                         />
                         <div className="relative flex items-center space-x-2">
@@ -977,25 +977,25 @@ export const AnalyticsDashboardContent = ({
                               alt={`Flag of ${region.country}`}
                               width={16}
                               height={16}
-                              className="h-4 w-4 rounded flex-shrink-0"
+                              className="h-4 w-4 flex-shrink-0 rounded"
                             />
                           ) : (
-                            <div className="h-4 w-4 rounded-sm bg-muted flex-shrink-0" />
+                            <div className="bg-muted h-4 w-4 flex-shrink-0 rounded-sm" />
                           )}
                           <span className="text-sm font-medium">
                             {region.region}
                           </span>
-                          <span className="text-xs text-muted-foreground">
+                          <span className="text-muted-foreground text-xs">
                             ({region.country})
                           </span>
                         </div>
-                        <span className="relative text-sm text-muted-foreground ml-2 flex-shrink-0">
+                        <span className="text-muted-foreground relative ml-2 flex-shrink-0 text-sm">
                           {region.percentage}%
                         </span>
                       </div>
                     ))
                   ) : (
-                    <div className="text-center py-8 text-muted-foreground">
+                    <div className="text-muted-foreground py-8 text-center">
                       <p className="text-sm">No region data available</p>
                     </div>
                   ))}
@@ -1006,12 +1006,12 @@ export const AnalyticsDashboardContent = ({
       </div>
 
       {/* UTM Stats & Scroll Funnel Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {/* UTM Stats */}
         <Card>
           <CardHeader>
             <div className="flex items-center gap-3">
-              <div className="flex size-8 items-center justify-center rounded-sm border bg-muted">
+              <div className="bg-muted flex size-8 items-center justify-center rounded-sm border">
                 <Megaphone className="size-4" />
               </div>
               <div>
@@ -1050,22 +1050,22 @@ export const AnalyticsDashboardContent = ({
                   utmSourceData.map((source) => (
                     <div
                       key={source.source}
-                      className="relative flex items-center justify-between px-3 py-2 rounded-md overflow-hidden"
+                      className="relative flex items-center justify-between overflow-hidden rounded-md px-3 py-2"
                     >
                       <div
-                        className="absolute inset-0 bg-primary/10 transition-all duration-300"
+                        className="bg-primary/10 absolute inset-0 transition-all duration-300"
                         style={{ width: `${source.percentage}%` }}
                       />
-                      <span className="relative text-sm font-medium truncate">
+                      <span className="relative truncate text-sm font-medium">
                         {source.source}
                       </span>
-                      <span className="relative text-sm text-muted-foreground ml-2 flex-shrink-0">
+                      <span className="text-muted-foreground relative ml-2 flex-shrink-0 text-sm">
                         {source.percentage}%
                       </span>
                     </div>
                   ))
                 ) : (
-                  <p className="text-sm text-muted-foreground text-center py-4">
+                  <p className="text-muted-foreground py-4 text-center text-sm">
                     No source data available
                   </p>
                 ))}
@@ -1076,22 +1076,22 @@ export const AnalyticsDashboardContent = ({
                   utmMediumData.map((medium) => (
                     <div
                       key={medium.medium}
-                      className="relative flex items-center justify-between px-3 py-2 rounded-md overflow-hidden"
+                      className="relative flex items-center justify-between overflow-hidden rounded-md px-3 py-2"
                     >
                       <div
-                        className="absolute inset-0 bg-primary/10 transition-all duration-300"
+                        className="bg-primary/10 absolute inset-0 transition-all duration-300"
                         style={{ width: `${medium.percentage}%` }}
                       />
-                      <span className="relative text-sm font-medium truncate">
+                      <span className="relative truncate text-sm font-medium">
                         {medium.medium}
                       </span>
-                      <span className="relative text-sm text-muted-foreground ml-2 flex-shrink-0">
+                      <span className="text-muted-foreground relative ml-2 flex-shrink-0 text-sm">
                         {medium.percentage}%
                       </span>
                     </div>
                   ))
                 ) : (
-                  <p className="text-sm text-muted-foreground text-center py-4">
+                  <p className="text-muted-foreground py-4 text-center text-sm">
                     No medium data available
                   </p>
                 ))}
@@ -1102,22 +1102,22 @@ export const AnalyticsDashboardContent = ({
                   utmCampaignData.map((campaign) => (
                     <div
                       key={campaign.campaign}
-                      className="relative flex items-center justify-between px-3 py-2 rounded-md overflow-hidden"
+                      className="relative flex items-center justify-between overflow-hidden rounded-md px-3 py-2"
                     >
                       <div
-                        className="absolute inset-0 bg-primary/10 transition-all duration-300"
+                        className="bg-primary/10 absolute inset-0 transition-all duration-300"
                         style={{ width: `${campaign.percentage}%` }}
                       />
-                      <span className="relative text-sm font-medium truncate">
+                      <span className="relative truncate text-sm font-medium">
                         {campaign.campaign}
                       </span>
-                      <span className="relative text-sm text-muted-foreground ml-2 flex-shrink-0">
+                      <span className="text-muted-foreground relative ml-2 flex-shrink-0 text-sm">
                         {campaign.percentage}%
                       </span>
                     </div>
                   ))
                 ) : (
-                  <p className="text-sm text-muted-foreground text-center py-4">
+                  <p className="text-muted-foreground py-4 text-center text-sm">
                     No campaign data available
                   </p>
                 ))}
@@ -1129,7 +1129,7 @@ export const AnalyticsDashboardContent = ({
         <Card>
           <CardHeader>
             <div className="flex items-center gap-3">
-              <div className="flex size-8 items-center justify-center rounded-sm border bg-muted">
+              <div className="bg-muted flex size-8 items-center justify-center rounded-sm border">
                 <ScrollText className="size-4" />
               </div>
               <div>
@@ -1143,9 +1143,9 @@ export const AnalyticsDashboardContent = ({
           <CardContent>
             <div className="space-y-2">
               {/* 25% milestone */}
-              <div className="relative flex items-center justify-between px-3 py-2 rounded-md overflow-hidden">
+              <div className="relative flex items-center justify-between overflow-hidden rounded-md px-3 py-2">
                 <div
-                  className="absolute inset-0 bg-primary/10 transition-all duration-300"
+                  className="bg-primary/10 absolute inset-0 transition-all duration-300"
                   style={{
                     width: `${Math.min(100, analytics.scrollFunnel?.percentages?.reached25 || 0)}%`,
                   }}
@@ -1153,15 +1153,15 @@ export const AnalyticsDashboardContent = ({
                 <span className="relative text-sm font-medium">
                   Reached 25%
                 </span>
-                <span className="relative text-sm text-muted-foreground">
+                <span className="text-muted-foreground relative text-sm">
                   {analytics.scrollFunnel?.percentages?.reached25 || 0}%
                 </span>
               </div>
 
               {/* 50% milestone */}
-              <div className="relative flex items-center justify-between px-3 py-2 rounded-md overflow-hidden">
+              <div className="relative flex items-center justify-between overflow-hidden rounded-md px-3 py-2">
                 <div
-                  className="absolute inset-0 bg-primary/10 transition-all duration-300"
+                  className="bg-primary/10 absolute inset-0 transition-all duration-300"
                   style={{
                     width: `${Math.min(100, analytics.scrollFunnel?.percentages?.reached50 || 0)}%`,
                   }}
@@ -1169,15 +1169,15 @@ export const AnalyticsDashboardContent = ({
                 <span className="relative text-sm font-medium">
                   Reached 50%
                 </span>
-                <span className="relative text-sm text-muted-foreground">
+                <span className="text-muted-foreground relative text-sm">
                   {analytics.scrollFunnel?.percentages?.reached50 || 0}%
                 </span>
               </div>
 
               {/* 75% milestone */}
-              <div className="relative flex items-center justify-between px-3 py-2 rounded-md overflow-hidden">
+              <div className="relative flex items-center justify-between overflow-hidden rounded-md px-3 py-2">
                 <div
-                  className="absolute inset-0 bg-primary/10 transition-all duration-300"
+                  className="bg-primary/10 absolute inset-0 transition-all duration-300"
                   style={{
                     width: `${Math.min(100, analytics.scrollFunnel?.percentages?.reached75 || 0)}%`,
                   }}
@@ -1185,15 +1185,15 @@ export const AnalyticsDashboardContent = ({
                 <span className="relative text-sm font-medium">
                   Reached 75%
                 </span>
-                <span className="relative text-sm text-muted-foreground">
+                <span className="text-muted-foreground relative text-sm">
                   {analytics.scrollFunnel?.percentages?.reached75 || 0}%
                 </span>
               </div>
 
               {/* 90% milestone */}
-              <div className="relative flex items-center justify-between px-3 py-2 rounded-md overflow-hidden">
+              <div className="relative flex items-center justify-between overflow-hidden rounded-md px-3 py-2">
                 <div
-                  className="absolute inset-0 bg-primary/10 transition-all duration-300"
+                  className="bg-primary/10 absolute inset-0 transition-all duration-300"
                   style={{
                     width: `${Math.min(100, analytics.scrollFunnel?.percentages?.reached90 || 0)}%`,
                   }}
@@ -1201,12 +1201,12 @@ export const AnalyticsDashboardContent = ({
                 <span className="relative text-sm font-medium">
                   Reached 90%
                 </span>
-                <span className="relative text-sm text-muted-foreground">
+                <span className="text-muted-foreground relative text-sm">
                   {analytics.scrollFunnel?.percentages?.reached90 || 0}%
                 </span>
               </div>
 
-              <div className="pt-2 text-xs text-muted-foreground text-center">
+              <div className="text-muted-foreground pt-2 text-center text-xs">
                 Average scroll depth: {analytics.summary?.avgScrollDepth || 0}%
               </div>
             </div>
@@ -1218,7 +1218,7 @@ export const AnalyticsDashboardContent = ({
       <Card>
         <CardHeader>
           <div className="flex items-center gap-3">
-            <div className="flex size-8 items-center justify-center rounded-sm border bg-muted">
+            <div className="bg-muted flex size-8 items-center justify-center rounded-sm border">
               <Activity className="size-4" />
             </div>
             <div>

@@ -1,6 +1,12 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@simplist/ui/components/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@simplist/ui/components/card";
 import { Input } from "@simplist/ui/components/input";
 import { Label } from "@simplist/ui/components/label";
 import { Textarea } from "@simplist/ui/components/textarea";
@@ -24,9 +30,7 @@ export const ArticleInfoFields = ({
     <Card>
       <CardHeader>
         <CardTitle>Post</CardTitle>
-        <CardDescription>
-          {cardDescription}
-        </CardDescription>
+        <CardDescription>{cardDescription}</CardDescription>
       </CardHeader>
 
       <CardContent className="space-y-6">
@@ -43,7 +47,7 @@ export const ArticleInfoFields = ({
 
         <div className="space-y-2">
           <Label htmlFor="excerpt">Excerpt</Label>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             A brief description of the article.
           </p>
 
@@ -59,6 +63,4 @@ export const ArticleInfoFields = ({
       </CardContent>
     </Card>
   );
-}
-
-
+};

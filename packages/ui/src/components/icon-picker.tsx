@@ -60,7 +60,9 @@ export const IconPicker: FC<IconPickerProps> = ({
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [visibleIconCount, setVisibleIconCount] = useState(iconsPerBatch);
-  const [selectedIcon, setSelectedIcon] = useState<IconsEnumType | undefined>(value);
+  const [selectedIcon, setSelectedIcon] = useState<IconsEnumType | undefined>(
+    value,
+  );
 
   const categoryScrollRef = useRef<HTMLDivElement>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
@@ -249,40 +251,45 @@ export const IconPicker: FC<IconPickerProps> = ({
   if (dialog) {
     return (
       <Dialog open={open} onOpenChange={handleOpenChange}>
-        {dialogTrigger ? dialogTrigger : <DialogTrigger asChild disabled={disabled}>
-          <Button
-            variant="outline"
-            role="combobox"
-            type="button"
-            aria-expanded={open}
-            onClick={() => setOpen(!open)}
-            className={cn(
-              "w-full justify-between",
-              !value && "text-muted-foreground",
-              className,
-              disabled && "opacity-50 cursor-not-allowed",
-            )}
-          >
-            <div className="flex items-center gap-2 min-w-0">
-              {SelectedIcon && <SelectedIcon className="h-4 w-4" />}
-              <span className="truncate text-sm sm:text-base">
-                {value
-                  ? value
-                      .replace(/[-_]/g, " ")
-                      .replace(/\b\w/g, (c) => c.toUpperCase())
-                  : placeholder}
-              </span>
-            </div>
+        {dialogTrigger ? (
+          dialogTrigger
+        ) : (
+          <DialogTrigger asChild disabled={disabled}>
+            <Button
+              variant="outline"
+              role="combobox"
+              type="button"
+              aria-expanded={open}
+              onClick={() => setOpen(!open)}
+              className={cn(
+                "w-full justify-between",
+                !value && "text-muted-foreground",
+                className,
+                disabled && "cursor-not-allowed opacity-50",
+              )}
+            >
+              <div className="flex min-w-0 items-center gap-2">
+                {SelectedIcon && <SelectedIcon className="h-4 w-4" />}
+                <span className="truncate text-sm sm:text-base">
+                  {value
+                    ? value
+                        .replace(/[-_]/g, " ")
+                        .replace(/\b\w/g, (c) => c.toUpperCase())
+                    : placeholder}
+                </span>
+              </div>
 
-            <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
-          </Button>
-        </DialogTrigger>}
+              <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </DialogTrigger>
+        )}
 
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Select an Icon</DialogTitle>
             <DialogDescription>
-              Select an icon from the list below. You can search by name or filter by category.
+              Select an icon from the list below. You can search by name or
+              filter by category.
             </DialogDescription>
           </DialogHeader>
 
@@ -343,10 +350,10 @@ export const IconPicker: FC<IconPickerProps> = ({
               "w-full justify-between",
               !value && "text-muted-foreground",
               className,
-              disabled && "opacity-50 cursor-not-allowed",
+              disabled && "cursor-not-allowed opacity-50",
             )}
           >
-            <div className="flex items-center gap-2 min-w-0">
+            <div className="flex min-w-0 items-center gap-2">
               {SelectedIcon && <SelectedIcon className="h-4 w-4" />}
               <span className="truncate text-sm sm:text-base">
                 {value
@@ -356,7 +363,7 @@ export const IconPicker: FC<IconPickerProps> = ({
                   : placeholder}
               </span>
             </div>
-            <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
+            <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
 
@@ -402,10 +409,10 @@ export const IconPicker: FC<IconPickerProps> = ({
             "w-full justify-between",
             !value && "text-muted-foreground",
             className,
-            disabled && "opacity-50 cursor-not-allowed",
+            disabled && "cursor-not-allowed opacity-50",
           )}
         >
-          <div className="flex items-center gap-2 min-w-0">
+          <div className="flex min-w-0 items-center gap-2">
             {SelectedIcon && <SelectedIcon className="h-4 w-4" />}
             <span className="truncate text-sm sm:text-base">
               {value
@@ -415,7 +422,7 @@ export const IconPicker: FC<IconPickerProps> = ({
                 : placeholder}
             </span>
           </div>
-          <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
+          <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </DrawerTrigger>
 
@@ -435,7 +442,7 @@ export const IconPicker: FC<IconPickerProps> = ({
               </span>
             </div>
           </DrawerTitle>
-          <DrawerDescription className="text-sm text-muted-foreground items-start text-left">
+          <DrawerDescription className="text-muted-foreground items-start text-left text-sm">
             Select an icon from the list below. You can search by name or filter
             by category.
           </DrawerDescription>
@@ -526,7 +533,7 @@ function IconPickerContent({
                 type="button"
                 variant={selectedCategory === category ? "default" : "outline"}
                 onClick={() => handleCategorySelect(category)}
-                className="shrink-0 text-xs h-6"
+                className="h-6 shrink-0 text-xs"
               >
                 {category}
               </Button>
@@ -538,7 +545,7 @@ function IconPickerContent({
       </div>
 
       {filteredIcons.length === 0 ? (
-        <div className="py-6 text-center text-sm text-muted-foreground">
+        <div className="text-muted-foreground py-6 text-center text-sm">
           No icons found for &quot;{search}&quot;
           {selectedCategory !== "All" && ` in ${selectedCategory}`}
         </div>
@@ -546,12 +553,12 @@ function IconPickerContent({
         <div onWheel={handleIconsWheel}>
           <ScrollArea
             className={cn(
-              "w-full border-input/30 border-t",
+              "border-input/30 w-full border-t",
               isMobile ? "h-[400px]" : "h-[320px]",
             )}
           >
             <div className="p-2">
-              <div className={"space-x-2 space-y-2"}>
+              <div className={"space-y-2 space-x-2"}>
                 {visibleIcons.map((icon) => {
                   const IconComponent = (
                     LucideIcons as unknown as Record<
@@ -588,9 +595,9 @@ function IconPickerContent({
               {hasMoreIcons && (
                 <div
                   ref={loadMoreRef}
-                  className="w-full h-4 flex items-center justify-center"
+                  className="flex h-4 w-full items-center justify-center"
                 >
-                  <div className="text-xs text-muted-foreground">
+                  <div className="text-muted-foreground text-xs">
                     Loading more icons...
                   </div>
                 </div>

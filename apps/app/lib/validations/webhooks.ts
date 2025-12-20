@@ -6,13 +6,13 @@ export const webhookEvents = [
   "article.deleted",
   "article.scheduled",
   "article.updated",
-] as const
+] as const;
 
-export type WebhookEvent = (typeof webhookEvents)[number]
+export type WebhookEvent = (typeof webhookEvents)[number];
 
-export const webhookStatuses = ["active", "disabled"] as const
+export const webhookStatuses = ["active", "disabled"] as const;
 
-export type WebhookStatus = (typeof webhookStatuses)[number]
+export type WebhookStatus = (typeof webhookStatuses)[number];
 
 export const createWebhookSchema = z.object({
   name: z
@@ -20,9 +20,7 @@ export const createWebhookSchema = z.object({
     .min(1, "Name is required")
     .max(100, "Name must be less than 100 characters"),
   url: z.url("Invalid URL"),
-  events: z
-    .array(z.enum(webhookEvents))
-    .min(1, "Select at least one event"),
+  events: z.array(z.enum(webhookEvents)).min(1, "Select at least one event"),
   secret: z
     .string()
     .max(200, "Secret must be less than 200 characters")
@@ -31,19 +29,22 @@ export const createWebhookSchema = z.object({
   status: z.enum(webhookStatuses),
   customPayload: z.any().optional(),
   templateId: z.enum(webhookTemplateIds).nullable().optional(),
-})
+});
 
-export type CreateWebhookInput = z.infer<typeof createWebhookSchema>
+export type CreateWebhookInput = z.infer<typeof createWebhookSchema>;
 
-export const updateWebhookSchema = createWebhookSchema.partial()
+export const updateWebhookSchema = createWebhookSchema.partial();
 
-export type UpdateWebhookInput = z.infer<typeof updateWebhookSchema>
+export type UpdateWebhookInput = z.infer<typeof updateWebhookSchema>;
 
 // Event metadata for UI
-export const eventMetadata: Record<WebhookEvent, {
-  name: string
-  description: string
-}> = {
+export const eventMetadata: Record<
+  WebhookEvent,
+  {
+    name: string;
+    description: string;
+  }
+> = {
   "article.published": {
     name: "Article Published",
     description: "Triggered when an article is published",
@@ -60,4 +61,4 @@ export const eventMetadata: Record<WebhookEvent, {
     name: "Article Scheduled",
     description: "Triggered when an article is scheduled for publishing",
   },
-}
+};

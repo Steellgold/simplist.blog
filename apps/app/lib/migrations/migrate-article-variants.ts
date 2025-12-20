@@ -1,14 +1,14 @@
-import { prisma } from "@simplist/db"
+import { prisma } from "@simplist/db";
 
 interface ArticleContent {
-  title: string
-  excerpt: string | null
-  content: string
-  coverImage: string | null
-  wordCount: number
-  characterCount: number
-  lineCount: number
-  readTimeMinutes: number
+  title: string;
+  excerpt: string | null;
+  content: string;
+  coverImage: string | null;
+  wordCount: number;
+  characterCount: number;
+  lineCount: number;
+  readTimeMinutes: number;
 }
 
 /**
@@ -23,10 +23,10 @@ interface ArticleContent {
 export async function migrateArticleVariantsOnLanguageChange(
   projectId: string,
   oldDefaultLang: string,
-  newDefaultLang: string
+  newDefaultLang: string,
 ): Promise<number> {
   if (oldDefaultLang === newDefaultLang) {
-    return 0
+    return 0;
   }
 
   // Fetch all articles in the project
@@ -40,17 +40,17 @@ export async function migrateArticleVariantsOnLanguageChange(
     include: {
       variants: true,
     },
-  })
+  });
 
-  let migratedCount = 0
+  let migratedCount = 0;
 
   // Process each article in a transaction
   for (const article of articles) {
     await prisma.$transaction(async (tx) => {
       // Check if a variant exists for the new default language
       const newDefaultVariant = article.variants.find(
-        (v) => v.lang === newDefaultLang
-      )
+        (v) => v.lang === newDefaultLang,
+      );
 
       if (newDefaultVariant) {
         // SWAP SCENARIO: Variant exists for the new default language
@@ -66,7 +66,7 @@ export async function migrateArticleVariantsOnLanguageChange(
           characterCount: article.characterCount,
           lineCount: article.lineCount,
           readTimeMinutes: article.readTimeMinutes,
-        }
+        };
 
         // 2. Update main article with new default variant content
         await tx.article.update({
@@ -81,7 +81,7 @@ export async function migrateArticleVariantsOnLanguageChange(
             lineCount: newDefaultVariant.lineCount,
             readTimeMinutes: newDefaultVariant.readTimeMinutes,
           },
-        })
+        });
 
         // 3. Update the variant to become the old default language
         await tx.articleVariant.update({
@@ -97,14 +97,14 @@ export async function migrateArticleVariantsOnLanguageChange(
             lineCount: oldDefaultContent.lineCount,
             readTimeMinutes: oldDefaultContent.readTimeMinutes,
           },
-        })
+        });
 
-        migratedCount++
+        migratedCount++;
       }
       // If no variant exists for the new default language, leave the article as-is
       // (Option B: no migration)
-    })
+    });
   }
 
-  return migratedCount
+  return migratedCount;
 }

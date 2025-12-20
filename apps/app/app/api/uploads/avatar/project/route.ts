@@ -1,8 +1,16 @@
 import { createR2Client, getPublicUrlForKey } from "@/lib/actions/images";
 import { getCurrentUser } from "@/lib/auth-helper";
 import { requirePermission } from "@/lib/auth/permissions";
-import { checkStorageQuota, updateStorageUsage } from "@/lib/subscription/quota-check";
-import { ALLOWED_IMAGE_MIME_TYPES, FILE_SIZE_LIMITS, formatFileSizeLimit, isAllowedImageType } from "@/lib/uploads/constants";
+import {
+  checkStorageQuota,
+  updateStorageUsage,
+} from "@/lib/subscription/quota-check";
+import {
+  ALLOWED_IMAGE_MIME_TYPES,
+  FILE_SIZE_LIMITS,
+  formatFileSizeLimit,
+  isAllowedImageType,
+} from "@/lib/uploads/constants";
 import { sanitizeFileName } from "@/lib/utils";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { prisma } from "@simplist/db";
@@ -33,7 +41,9 @@ export const POST = async (req: Request) => {
     // Validate file type
     if (!isAllowedImageType(file.type)) {
       return NextResponse.json(
-        { error: `Invalid file type. Allowed: ${ALLOWED_IMAGE_MIME_TYPES.join(", ")}` },
+        {
+          error: `Invalid file type. Allowed: ${ALLOWED_IMAGE_MIME_TYPES.join(", ")}`,
+        },
         { status: 400 },
       );
     }
@@ -41,7 +51,9 @@ export const POST = async (req: Request) => {
     // Validate file size
     if (file.size > FILE_SIZE_LIMITS.PROJECT_AVATAR) {
       return NextResponse.json(
-        { error: `File too large. Maximum size: ${formatFileSizeLimit(FILE_SIZE_LIMITS.PROJECT_AVATAR)}` },
+        {
+          error: `File too large. Maximum size: ${formatFileSizeLimit(FILE_SIZE_LIMITS.PROJECT_AVATAR)}`,
+        },
         { status: 400 },
       );
     }

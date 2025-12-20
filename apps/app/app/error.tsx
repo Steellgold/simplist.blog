@@ -4,11 +4,11 @@ import type { FC } from "react";
 
 type Props = {
   actions?: React.ReactNode[];
-}
+};
 
 const Error: FC<Props> = ({ actions }) => {
   return (
-    <div className="max-w-2xl min-h-svh space-y-4 flex flex-col justify-center items-center mx-auto">
+    <div className="mx-auto flex min-h-svh max-w-2xl flex-col items-center justify-center space-y-4">
       <div className="space-y-4 text-center">
         <h1 className="text-9xl font-bold">500</h1>
 

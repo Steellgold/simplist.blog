@@ -33,6 +33,9 @@ export const isAllowedImageType = (mimeType: string): boolean => {
   return (ALLOWED_IMAGE_MIME_TYPES as readonly string[]).includes(mimeType);
 };
 
-export const isFileSizeValid = (size: number, limitKey: FileSizeLimitKey): boolean => {
+export const isFileSizeValid = (
+  size: number,
+  limitKey: FileSizeLimitKey,
+): boolean => {
   return size <= FILE_SIZE_LIMITS[limitKey];
 };

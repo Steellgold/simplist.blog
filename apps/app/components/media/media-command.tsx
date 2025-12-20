@@ -23,8 +23,10 @@ interface MediaCommandProps {
 }
 
 export const MediaCommand: FC<MediaCommandProps> = ({
-  open, onOpenChange,
-  projectId, onSelect
+  open,
+  onOpenChange,
+  projectId,
+  onSelect,
 }) => {
   const [media, setMedia] = useState<MediaItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -90,8 +92,8 @@ export const MediaCommand: FC<MediaCommandProps> = ({
           <>
             <CommandEmpty>
               <div className="flex flex-col items-center gap-2 py-6">
-                <ImageIcon className="h-10 w-10 text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">No images found</p>
+                <ImageIcon className="text-muted-foreground h-10 w-10" />
+                <p className="text-muted-foreground text-sm">No images found</p>
               </div>
             </CommandEmpty>
             <CommandGroup heading="Images">
@@ -102,8 +104,8 @@ export const MediaCommand: FC<MediaCommandProps> = ({
                   onSelect={() => handleSelect(item.url)}
                   className="cursor-pointer"
                 >
-                  <div className="flex items-center gap-3 w-full">
-                    <div className="relative h-10 w-14 rounded overflow-hidden bg-muted flex-shrink-0">
+                  <div className="flex w-full items-center gap-3">
+                    <div className="bg-muted relative h-10 w-14 flex-shrink-0 overflow-hidden rounded">
                       <Image
                         src={item.url}
                         alt={item.filename}
@@ -113,10 +115,10 @@ export const MediaCommand: FC<MediaCommandProps> = ({
                       />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium truncate">
+                      <p className="truncate text-sm font-medium">
                         {item.filename}
                       </p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-muted-foreground text-xs">
                         {formatBytes(item.size)}
                       </p>
                     </div>

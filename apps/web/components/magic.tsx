@@ -1,20 +1,25 @@
-"use client"
+"use client";
 
-import { cn } from "@simplist/ui/lib/utils"
-import { animate, motion, useMotionTemplate, useMotionValue } from "motion/react"
-import React, { useCallback, useEffect, useRef } from "react"
+import { cn } from "@simplist/ui/lib/utils";
+import {
+  animate,
+  motion,
+  useMotionTemplate,
+  useMotionValue,
+} from "motion/react";
+import React, { useCallback, useEffect, useRef } from "react";
 
 interface MagicSVGProps {
-  children: React.ReactNode
-  width: number
-  height: number
-  className?: string
-  gradientSize?: number
-  gradientFrom?: string
-  gradientTo?: string
-  strokeWidth?: number
-  fill?: string
-  strokeColor?: string
+  children: React.ReactNode;
+  width: number;
+  height: number;
+  className?: string;
+  gradientSize?: number;
+  gradientFrom?: string;
+  gradientTo?: string;
+  strokeWidth?: number;
+  fill?: string;
+  strokeColor?: string;
 }
 
 export function MagicSVG({
@@ -29,78 +34,78 @@ export function MagicSVG({
   fill = "none",
   strokeColor = "#2C2C2C",
 }: MagicSVGProps) {
-  const svgRef = useRef<SVGSVGElement>(null)
+  const svgRef = useRef<SVGSVGElement>(null);
 
-  const animatedX = useMotionValue(-gradientSize * 2)
-  const animatedY = useMotionValue(-gradientSize * 2)
+  const animatedX = useMotionValue(-gradientSize * 2);
+  const animatedY = useMotionValue(-gradientSize * 2);
 
   const handleMouseMove = useCallback(
     (e: MouseEvent) => {
       if (svgRef.current) {
-        const { left, top } = svgRef.current.getBoundingClientRect()
-        const clientX = e.clientX
-        const clientY = e.clientY
-        const newX = clientX - left
-        const newY = clientY - top
+        const { left, top } = svgRef.current.getBoundingClientRect();
+        const clientX = e.clientX;
+        const clientY = e.clientY;
+        const newX = clientX - left;
+        const newY = clientY - top;
 
         animate(animatedX, newX, {
           type: "spring",
           stiffness: 150,
           damping: 25,
           mass: 0.8,
-        })
+        });
 
         animate(animatedY, newY, {
           type: "spring",
           stiffness: 150,
           damping: 25,
           mass: 0.8,
-        })
+        });
       }
     },
     [animatedX, animatedY],
-  )
+  );
 
   const handleMouseLeave = useCallback(() => {
     animate(animatedX, -gradientSize * 2, {
       type: "spring",
       stiffness: 100,
       damping: 30,
-    })
+    });
 
     animate(animatedY, -gradientSize * 2, {
       type: "spring",
       stiffness: 100,
       damping: 30,
-    })
-  }, [animatedX, animatedY, gradientSize])
+    });
+  }, [animatedX, animatedY, gradientSize]);
 
   const handleMouseEnter = useCallback(() => {
-    document.addEventListener("mousemove", handleMouseMove)
-  }, [handleMouseMove])
+    document.addEventListener("mousemove", handleMouseMove);
+  }, [handleMouseMove]);
 
   useEffect(() => {
-    const svgElement = svgRef.current
+    const svgElement = svgRef.current;
     if (svgElement) {
-      svgElement.addEventListener("mouseenter", handleMouseEnter)
-      svgElement.addEventListener("mouseleave", handleMouseLeave)
+      svgElement.addEventListener("mouseenter", handleMouseEnter);
+      svgElement.addEventListener("mouseleave", handleMouseLeave);
     }
     return () => {
       if (svgElement) {
-        svgElement.removeEventListener("mouseenter", handleMouseEnter)
-        svgElement.removeEventListener("mouseleave", handleMouseLeave)
+        svgElement.removeEventListener("mouseenter", handleMouseEnter);
+        svgElement.removeEventListener("mouseleave", handleMouseLeave);
       }
-      document.removeEventListener("mousemove", handleMouseMove)
-    }
-  }, [handleMouseEnter, handleMouseLeave, handleMouseMove])
+      document.removeEventListener("mousemove", handleMouseMove);
+    };
+  }, [handleMouseEnter, handleMouseLeave, handleMouseMove]);
 
   useEffect(() => {
-    animatedX.set(-gradientSize * 2)
-    animatedY.set(-gradientSize * 2)
-  }, [gradientSize, animatedX, animatedY])
+    animatedX.set(-gradientSize * 2);
+    animatedY.set(-gradientSize * 2);
+  }, [gradientSize, animatedX, animatedY]);
 
-  const gradientId = "magic-gradient-wordmark"
-  const maskId = "magic-mask-wordmark"
+  const gradientId = "magic-gradient-wordmark";
+  const maskId = "magic-mask-wordmark";
 
   return (
     <motion.svg
@@ -141,45 +146,63 @@ export function MagicSVG({
 
       {React.Children.map(children, (child) => {
         if (React.isValidElement(child)) {
-          const childType = (child as React.ReactElement).type
-          if (childType === "defs" || childType === "mask" || childType === "clipPath") {
-            return child
+          const childType = (child as React.ReactElement).type;
+          if (
+            childType === "defs" ||
+            childType === "mask" ||
+            childType === "clipPath"
+          ) {
+            return child;
           }
         }
-        return null
+        return null;
       })}
 
       <g>
         {React.Children.map(children, (child) => {
           if (React.isValidElement(child)) {
-            const childType = (child as React.ReactElement).type
-            if (childType !== "defs" && childType !== "mask" && childType !== "clipPath") {
-              return React.cloneElement(child as React.ReactElement<React.SVGProps<SVGElement>>, {
-                stroke: strokeColor,
-                strokeWidth,
-                fill,
-              })
+            const childType = (child as React.ReactElement).type;
+            if (
+              childType !== "defs" &&
+              childType !== "mask" &&
+              childType !== "clipPath"
+            ) {
+              return React.cloneElement(
+                child as React.ReactElement<React.SVGProps<SVGElement>>,
+                {
+                  stroke: strokeColor,
+                  strokeWidth,
+                  fill,
+                },
+              );
             }
           }
-          return null
+          return null;
         })}
       </g>
 
       <g mask={`url(#${maskId})`}>
         {React.Children.map(children, (child) => {
           if (React.isValidElement(child)) {
-            const childType = (child as React.ReactElement).type
-            if (childType !== "defs" && childType !== "mask" && childType !== "clipPath") {
-              return React.cloneElement(child as React.ReactElement<React.SVGProps<SVGElement>>, {
-                stroke: `url(#${gradientId})`,
-                strokeWidth: strokeWidth + 1,
-                fill,
-              })
+            const childType = (child as React.ReactElement).type;
+            if (
+              childType !== "defs" &&
+              childType !== "mask" &&
+              childType !== "clipPath"
+            ) {
+              return React.cloneElement(
+                child as React.ReactElement<React.SVGProps<SVGElement>>,
+                {
+                  stroke: `url(#${gradientId})`,
+                  strokeWidth: strokeWidth + 1,
+                  fill,
+                },
+              );
             }
           }
-          return null
+          return null;
         })}
       </g>
     </motion.svg>
-  )
+  );
 }

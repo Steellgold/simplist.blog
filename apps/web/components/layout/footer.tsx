@@ -17,14 +17,14 @@ export const Footer = () => {
   const { theme } = useTheme();
 
   return (
-    <footer className="pt-12 px-4">
-      <div className="container max-w-4xl mx-auto">
-        <div className="grid md:grid-cols-4 gap-8 mb-16">
+    <footer className="px-4 pt-12">
+      <div className="container mx-auto max-w-4xl">
+        <div className="mb-16 grid gap-8 md:grid-cols-4">
           <div>
-            <div className={`font-extrabold text-2xl mb-2 ${syne.className}`}>
+            <div className={`mb-2 text-2xl font-extrabold ${syne.className}`}>
               Simplist
             </div>
-            <p className="text-sm text-muted-foreground mb-2">
+            <p className="text-muted-foreground mb-2 text-sm">
               Simple, fast content management API for modern developers.
             </p>
 
@@ -32,8 +32,8 @@ export const Footer = () => {
           </div>
 
           <div>
-            <div className="font-semibold mb-4">Product</div>
-            <ul className="space-y-2 text-sm text-muted-foreground">
+            <div className="mb-4 font-semibold">Product</div>
+            <ul className="text-muted-foreground space-y-2 text-sm">
               <li>
                 <Link
                   href="#features"
@@ -62,8 +62,8 @@ export const Footer = () => {
           </div>
 
           <div>
-            <div className="font-semibold mb-4">Legal</div>
-            <ul className="space-y-2 text-sm text-muted-foreground">
+            <div className="mb-4 font-semibold">Legal</div>
+            <ul className="text-muted-foreground space-y-2 text-sm">
               <li>
                 <Link
                   href="/legal/terms"
@@ -108,8 +108,8 @@ export const Footer = () => {
           </div>
 
           <div>
-            <div className="font-semibold mb-4">Developers</div>
-            <ul className="space-y-2 text-sm text-muted-foreground">
+            <div className="mb-4 font-semibold">Developers</div>
+            <ul className="text-muted-foreground space-y-2 text-sm">
               <li>
                 <Link
                   href="https://docs.simplist.blog"
@@ -138,7 +138,7 @@ export const Footer = () => {
           </div>
         </div>
 
-        <div className="w-full flex justify-center">
+        <div className="flex w-full justify-center">
           <MagicSVG
             gradientFrom={useVariableThemed({
               light: "#060607",

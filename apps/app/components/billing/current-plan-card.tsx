@@ -1,50 +1,60 @@
-"use client"
+"use client";
 
-import { UpgradeModal } from "@/components/billing/upgrade-modal"
-import { createBillingPortalSession } from "@/lib/stripe/actions"
-import { getPlan } from "@/lib/subscription/plans"
-import { SubscriptionTier } from "@simplist/db/types"
-import { Badge } from "@simplist/ui/components/badge"
-import { Button } from "@simplist/ui/components/button"
-import { Card, CardContent } from "@simplist/ui/components/card"
-import { Field, FieldContent, FieldDescription, FieldGroup, FieldLabel, FieldSeparator, FieldSet, FieldTitle } from "@simplist/ui/components/field"
-import { Spinner } from "@simplist/ui/components/spinner"
-import { Check, CircleGauge } from "lucide-react"
-import { useRouter } from "next/navigation"
-import { useState } from "react"
-import { toast } from "sonner"
+import { UpgradeModal } from "@/components/billing/upgrade-modal";
+import { createBillingPortalSession } from "@/lib/stripe/actions";
+import { getPlan } from "@/lib/subscription/plans";
+import { SubscriptionTier } from "@simplist/db/types";
+import { Badge } from "@simplist/ui/components/badge";
+import { Button } from "@simplist/ui/components/button";
+import { Card, CardContent } from "@simplist/ui/components/card";
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldSeparator,
+  FieldSet,
+  FieldTitle,
+} from "@simplist/ui/components/field";
+import { Spinner } from "@simplist/ui/components/spinner";
+import { Check, CircleGauge } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
 
 type CurrentPlanCardProps = {
-  projectId: string
-  projectName: string
-  subscriptionTier: SubscriptionTier
-}
+  projectId: string;
+  projectName: string;
+  subscriptionTier: SubscriptionTier;
+};
 
-export const CurrentPlanCard = ({ projectId, projectName, subscriptionTier }: CurrentPlanCardProps) => {
-  const [isLoading, setIsLoading] = useState(false)
-  const router = useRouter()
+export const CurrentPlanCard = ({
+  projectId,
+  projectName,
+  subscriptionTier,
+}: CurrentPlanCardProps) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const handleManageBilling = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
 
-    toast.promise(
-      createBillingPortalSession(projectId),
-      {
-        loading: "Opening billing portal...",
-        success: (data: { url: string }) => {
-          setIsLoading(false)
-          router.push(data.url)
-          return "Billing portal opened successfully"
-        },
-        error: () => {
-          setIsLoading(false)
-          return "Failed to open billing portal. Please try again."
-        },
-      }
-    )
-  }
+    toast.promise(createBillingPortalSession(projectId), {
+      loading: "Opening billing portal...",
+      success: (data: { url: string }) => {
+        setIsLoading(false);
+        router.push(data.url);
+        return "Billing portal opened successfully";
+      },
+      error: () => {
+        setIsLoading(false);
+        return "Failed to open billing portal. Please try again.";
+      },
+    });
+  };
 
-  const currentPlan = getPlan(subscriptionTier)
+  const currentPlan = getPlan(subscriptionTier);
 
   return (
     <Card>
@@ -54,13 +64,13 @@ export const CurrentPlanCard = ({ projectId, projectName, subscriptionTier }: Cu
             <Field orientation="responsive">
               <FieldContent>
                 <div className="flex items-center gap-2">
-                  <FieldTitle className="text-lg font-bold">{currentPlan.name}</FieldTitle>
+                  <FieldTitle className="text-lg font-bold">
+                    {currentPlan.name}
+                  </FieldTitle>
                   <Badge variant="secondary">Active Plan</Badge>
                 </div>
 
-                <FieldDescription>
-                  {currentPlan.description}
-                </FieldDescription>
+                <FieldDescription>{currentPlan.description}</FieldDescription>
               </FieldContent>
 
               {subscriptionTier === SubscriptionTier.STARTER ? (
@@ -83,8 +93,8 @@ export const CurrentPlanCard = ({ projectId, projectName, subscriptionTier }: Cu
               <div className="grid grid-cols-3 gap-2">
                 {currentPlan.features.map((feature) => (
                   <div key={feature.name} className="flex items-center gap-1.5">
-                    <Check className="size-3 text-primary" />
-                    <span className="text-sm text-muted-foreground">
+                    <Check className="text-primary size-3" />
+                    <span className="text-muted-foreground text-sm">
                       {feature.name}
                     </span>
                   </div>
@@ -95,5 +105,5 @@ export const CurrentPlanCard = ({ projectId, projectName, subscriptionTier }: Cu
         </FieldSet>
       </CardContent>
     </Card>
-  )
-}
+  );
+};

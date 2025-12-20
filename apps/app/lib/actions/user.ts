@@ -1,18 +1,23 @@
-"use server"
+"use server";
 
-import { prisma } from "@simplist/db"
-import { revalidatePath } from "next/cache"
-import { redirect } from "next/navigation"
-import { getCurrentUser } from "../auth-helper"
-import { UpdateUserInformationInput, updateUserInformationSchema } from "../validations/user"
+import { prisma } from "@simplist/db";
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { getCurrentUser } from "../auth-helper";
+import {
+  UpdateUserInformationInput,
+  updateUserInformationSchema,
+} from "../validations/user";
 
-export const updateUserInformation = async (input: UpdateUserInformationInput) => {
-  const user = await getCurrentUser()
+export const updateUserInformation = async (
+  input: UpdateUserInformationInput,
+) => {
+  const user = await getCurrentUser();
 
-  if (!user) redirect("/auth/login")
+  if (!user) redirect("/auth/login");
 
   // Validate input
-  const validatedInput = updateUserInformationSchema.parse(input)
+  const validatedInput = updateUserInformationSchema.parse(input);
 
   // Update user information
   const updatedUser = await prisma.user.update({
@@ -22,22 +27,25 @@ export const updateUserInformation = async (input: UpdateUserInformationInput) =
     data: {
       firstName: validatedInput.firstName,
       lastName: validatedInput.lastName,
-      name: `${validatedInput.firstName} ${validatedInput.lastName}`
-    }
+      name: `${validatedInput.firstName} ${validatedInput.lastName}`,
+    },
   });
 
   // Revalidate the account settings page and layout
-  revalidatePath("/account/settings", "page")
-  revalidatePath("/account", "layout")
+  revalidatePath("/account/settings", "page");
+  revalidatePath("/account", "layout");
 
-  return updatedUser
-}
+  return updatedUser;
+};
 
-export const updateUserNameFields = async (firstName: string, lastName: string) => {
-  const user = await getCurrentUser()
+export const updateUserNameFields = async (
+  firstName: string,
+  lastName: string,
+) => {
+  const user = await getCurrentUser();
 
   if (!user) {
-    throw new Error("Not authenticated")
+    throw new Error("Not authenticated");
   }
 
   // Update user with firstName and lastName (used after registration)
@@ -49,14 +57,14 @@ export const updateUserNameFields = async (firstName: string, lastName: string) 
       firstName,
       lastName,
     },
-  })
-}
+  });
+};
 
 export const updateUserAvatar = async (imageUrl: string) => {
-  const user = await getCurrentUser()
+  const user = await getCurrentUser();
 
   if (!user) {
-    throw new Error("Not authenticated")
+    throw new Error("Not authenticated");
   }
 
   // Update user avatar
@@ -67,20 +75,20 @@ export const updateUserAvatar = async (imageUrl: string) => {
     data: {
       image: imageUrl,
     },
-  })
+  });
 
   // Revalidate account settings and layout
-  revalidatePath("/account/settings", "page")
-  revalidatePath("/account", "layout")
+  revalidatePath("/account/settings", "page");
+  revalidatePath("/account", "layout");
 
-  return updatedUser
-}
+  return updatedUser;
+};
 
 export const deleteUserAvatar = async () => {
-  const user = await getCurrentUser()
+  const user = await getCurrentUser();
 
   if (!user) {
-    throw new Error("Not authenticated")
+    throw new Error("Not authenticated");
   }
 
   // Remove user avatar
@@ -91,11 +99,11 @@ export const deleteUserAvatar = async () => {
     data: {
       image: null,
     },
-  })
+  });
 
   // Revalidate account settings and layout
-  revalidatePath("/account/settings", "page")
-  revalidatePath("/account", "layout")
+  revalidatePath("/account/settings", "page");
+  revalidatePath("/account", "layout");
 
-  return updatedUser
-}
+  return updatedUser;
+};

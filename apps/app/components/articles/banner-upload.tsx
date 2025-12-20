@@ -125,14 +125,14 @@ export const ArticleBannerUpload = ({
         <CardContent className="space-y-3">
           {!imagePreview ? (
             <div className="space-y-3">
-              <div className="flex items-center justify-center w-full">
+              <div className="flex w-full items-center justify-center">
                 <label
                   htmlFor="image-upload"
-                  className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed rounded-lg cursor-pointer bg-muted/50 hover:bg-muted/80 transition-colors"
+                  className="bg-muted/50 hover:bg-muted/80 flex h-36 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed transition-colors"
                 >
                   <div className="flex flex-col items-center justify-center py-6">
-                    <Upload className="w-4.5 h-4.5 mb-2 text-muted-foreground" />
-                    <p className="mb-1 text-sm text-muted-foreground text-center px-2">
+                    <Upload className="text-muted-foreground mb-2 h-4.5 w-4.5" />
+                    <p className="text-muted-foreground mb-1 px-2 text-center text-sm">
                       <span className="font-semibold">Upload Image</span>
                     </p>
                   </div>
@@ -157,7 +157,7 @@ export const ArticleBannerUpload = ({
             </div>
           ) : (
             <div className="space-y-3">
-              <div className="relative w-full aspect-video rounded-lg overflow-hidden border">
+              <div className="relative aspect-video w-full overflow-hidden rounded-lg border">
                 <Image
                   src={imagePreview}
                   alt="Post banner preview"
@@ -166,7 +166,7 @@ export const ArticleBannerUpload = ({
                   className="object-cover"
                 />
                 {isUploading && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-background/70">
+                  <div className="bg-background/70 absolute inset-0 flex items-center justify-center">
                     <div className="flex flex-col items-center gap-2">
                       <Spinner />
                       <span className="text-sm font-medium tabular-nums">
@@ -317,7 +317,7 @@ function MediaLibraryDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md overflow-hidden">
+      <DialogContent className="overflow-hidden sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Choose from library</DialogTitle>
           <DialogDescription>
@@ -325,7 +325,7 @@ function MediaLibraryDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col gap-4 min-w-0">
+        <div className="flex min-w-0 flex-col gap-4">
           <SelectListSearch
             value={searchQuery}
             onChange={setSearchQuery}
@@ -346,13 +346,13 @@ function MediaLibraryDialog({
                 checked={selectedUrl === item.url}
                 onCheckedChange={() => handleSelectMedia(item.url)}
               >
-                <div className="flex items-center gap-3 min-w-0">
+                <div className="flex min-w-0 items-center gap-3">
                   <SelectListItemThumbnail
                     src={item.url}
                     alt={item.filename}
                     variant="landscape"
                     fallback={
-                      <ImageIcon className="h-4 w-4 text-muted-foreground" />
+                      <ImageIcon className="text-muted-foreground h-4 w-4" />
                     }
                   />
                   <div className="min-w-0 flex-1">
@@ -362,7 +362,7 @@ function MediaLibraryDialog({
                     </SelectListItemSubtitle>
                   </div>
                   {selectedUrl === item.url && (
-                    <Check className="h-4 w-4 shrink-0 text-primary" />
+                    <Check className="text-primary h-4 w-4 shrink-0" />
                   )}
                 </div>
               </SelectListItem>

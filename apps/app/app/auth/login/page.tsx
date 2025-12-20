@@ -1,6 +1,6 @@
-import { LoginForm } from "@/components/auth/login-form"
-import { SimplistIcon } from "@/components/icon"
-import type { Metadata } from "next"
+import { LoginForm } from "@/components/auth/login-form";
+import { SimplistIcon } from "@/components/icon";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Login",
@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
-}
+};
 
 const LoginPage = () => {
   return (
@@ -21,7 +21,7 @@ const LoginPage = () => {
         <LoginForm />
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default LoginPage
+export default LoginPage;

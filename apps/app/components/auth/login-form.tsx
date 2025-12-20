@@ -1,29 +1,47 @@
-"use client"
+"use client";
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
-import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 
-import { authClient } from "@/lib/auth-client"
-import { cn, getRedirectUrl } from "@/lib/utils"
-import { LoginInput, loginSchema } from "@/lib/validations/auth"
-import { Alert, AlertDescription, AlertTitle } from "@simplist/ui/components/alert"
-import { Button } from "@simplist/ui/components/button"
-import { Card, CardContent } from "@simplist/ui/components/card"
-import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldSeparator } from "@simplist/ui/components/field"
-import { Input } from "@simplist/ui/components/input"
-import { PasswordInput } from "@simplist/ui/components/password-input"
-import { toast } from "@simplist/ui/components/sonner"
-import { Spinner } from "@simplist/ui/components/spinner"
-import { AlertCircleIcon } from "lucide-react"
-import { OAuthProviders, OAuthProvidersProvider, useOAuthProviders } from "./oauth-providers"
+import { authClient } from "@/lib/auth-client";
+import { cn, getRedirectUrl } from "@/lib/utils";
+import { LoginInput, loginSchema } from "@/lib/validations/auth";
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@simplist/ui/components/alert";
+import { Button } from "@simplist/ui/components/button";
+import { Card, CardContent } from "@simplist/ui/components/card";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldSeparator,
+} from "@simplist/ui/components/field";
+import { Input } from "@simplist/ui/components/input";
+import { PasswordInput } from "@simplist/ui/components/password-input";
+import { toast } from "@simplist/ui/components/sonner";
+import { Spinner } from "@simplist/ui/components/spinner";
+import { AlertCircleIcon } from "lucide-react";
+import {
+  OAuthProviders,
+  OAuthProvidersProvider,
+  useOAuthProviders,
+} from "./oauth-providers";
 
-const LoginFormContent = ({ className, ...props }: React.ComponentProps<"div">) => {
-  const router = useRouter()
-  const { isAuthenticating } = useOAuthProviders()
-  const [isLoading, setIsLoading] = useState(false)
+const LoginFormContent = ({
+  className,
+  ...props
+}: React.ComponentProps<"div">) => {
+  const router = useRouter();
+  const { isAuthenticating } = useOAuthProviders();
+  const [isLoading, setIsLoading] = useState(false);
 
   const {
     register,
@@ -37,62 +55,73 @@ const LoginFormContent = ({ className, ...props }: React.ComponentProps<"div">) 
       email: "",
       password: "",
     },
-  })
+  });
 
   useEffect(() => {
     const initConditionalUI = async () => {
       if (
-        typeof window !== 'undefined' &&
+        typeof window !== "undefined" &&
         window.PublicKeyCredential &&
-        typeof window.PublicKeyCredential.isConditionalMediationAvailable === 'function'
+        typeof window.PublicKeyCredential.isConditionalMediationAvailable ===
+          "function"
       ) {
-        const available = await window.PublicKeyCredential.isConditionalMediationAvailable()
+        const available =
+          await window.PublicKeyCredential.isConditionalMediationAvailable();
         if (available) {
           void authClient.signIn.passkey({
             autoFill: true,
             fetchOptions: {
               onSuccess: () => {
-                router.push(getRedirectUrl())
-                toast.success("Logged in successfully with Passkey")
+                router.push(getRedirectUrl());
+                toast.success("Logged in successfully with Passkey");
               },
               onError: (context) => {
-                if (context.error.message !== "The operation either timed out or was not allowed.") {
-                  console.error("Passkey autofill failed:", context.error.message)
+                if (
+                  context.error.message !==
+                  "The operation either timed out or was not allowed."
+                ) {
+                  console.error(
+                    "Passkey autofill failed:",
+                    context.error.message,
+                  );
                 }
-              }
-            }
-          })
+              },
+            },
+          });
         }
       }
-    }
+    };
 
-    initConditionalUI()
-  }, [router])
+    initConditionalUI();
+  }, [router]);
 
   const onSubmit = async (data: LoginInput) => {
-    setIsLoading(true)
+    setIsLoading(true);
 
     try {
-      await authClient.signIn.email({
-        email: data.email,
-        password: data.password,
-      }, {
-        onSuccess: (context) => {
-          if (!context.data.twoFactorRedirect) {
-            router.push(getRedirectUrl())
-            toast.success("Logged in successfully")
-          }
+      await authClient.signIn.email(
+        {
+          email: data.email,
+          password: data.password,
         },
-        onError: (context) => {
-          setIsLoading(false)
-          toast.error(context.error.message || "Failed to login")
+        {
+          onSuccess: (context) => {
+            if (!context.data.twoFactorRedirect) {
+              router.push(getRedirectUrl());
+              toast.success("Logged in successfully");
+            }
+          },
+          onError: (context) => {
+            setIsLoading(false);
+            toast.error(context.error.message || "Failed to login");
+          },
         },
-      })
+      );
     } catch (err) {
-      setIsLoading(false)
-      toast.error("An unexpected error occurred")
+      setIsLoading(false);
+      toast.error("An unexpected error occurred");
     }
-  }
+  };
 
   return (
     <div className={cn("flex flex-col gap-3", className)} {...props}>
@@ -134,7 +163,10 @@ const LoginFormContent = ({ className, ...props }: React.ComponentProps<"div">) 
                 <Field>
                   <div className="flex items-center">
                     <FieldLabel htmlFor="password">Password</FieldLabel>
-                    <Link href="/auth/forgot-password" className="ml-auto text-sm underline-offset-4 hover:underline">
+                    <Link
+                      href="/auth/forgot-password"
+                      className="ml-auto text-sm underline-offset-4 hover:underline"
+                    >
                       Forgot your password?
                     </Link>
                   </div>
@@ -152,11 +184,15 @@ const LoginFormContent = ({ className, ...props }: React.ComponentProps<"div">) 
                 </Field>
 
                 <Field>
-                  <Button type="submit" disabled={isLoading || isAuthenticating}>
+                  <Button
+                    type="submit"
+                    disabled={isLoading || isAuthenticating}
+                  >
                     {isLoading || isAuthenticating ? <Spinner /> : "Login"}
                   </Button>
                   <FieldDescription className="text-center">
-                    Don&apos;t have an account? <Link href="/auth/register">Sign up</Link>
+                    Don&apos;t have an account?{" "}
+                    <Link href="/auth/register">Sign up</Link>
                   </FieldDescription>
                 </Field>
               </div>
@@ -165,18 +201,19 @@ const LoginFormContent = ({ className, ...props }: React.ComponentProps<"div">) 
         </CardContent>
       </Card>
 
-      <FieldDescription className="px-6 text-center mt-6!">
-        By clicking Sign up, you agree to our <Link href="/legal/terms">Terms of Service</Link>{" "}
-        and <Link href="/legal/privacy">Privacy Policy</Link>.
+      <FieldDescription className="mt-6! px-6 text-center">
+        By clicking Sign up, you agree to our{" "}
+        <Link href="/legal/terms">Terms of Service</Link> and{" "}
+        <Link href="/legal/privacy">Privacy Policy</Link>.
       </FieldDescription>
     </div>
-  )
-}
+  );
+};
 
 export const LoginForm = (props: React.ComponentProps<"div">) => {
   return (
     <OAuthProvidersProvider>
       <LoginFormContent {...props} />
     </OAuthProvidersProvider>
-  )
-}
+  );
+};

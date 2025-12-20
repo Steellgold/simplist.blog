@@ -1,8 +1,8 @@
-import { Skeleton } from "@simplist/ui/components/skeleton"
+import { Skeleton } from "@simplist/ui/components/skeleton";
 
 const DashboardLoading = () => {
   return (
-    <div className="container max-w-7xl mx-auto space-y-6">
+    <div className="container mx-auto max-w-7xl space-y-6">
       {/* Header section */}
       <div className="space-y-2">
         <Skeleton className="h-9 w-40" />
@@ -10,9 +10,9 @@ const DashboardLoading = () => {
       </div>
 
       {/* Stats Grid - 4 cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[...Array(4)].map((_, i) => (
-          <div key={i} className="rounded-lg border p-6 space-y-2">
+          <div key={i} className="space-y-2 rounded-lg border p-6">
             <Skeleton className="h-4 w-32" />
             <Skeleton className="h-8 w-24" />
             <Skeleton className="h-3 w-full" />
@@ -21,10 +21,10 @@ const DashboardLoading = () => {
       </div>
 
       {/* Recent Articles & Analytics Preview - 2 columns */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Recent Articles Card */}
         <div className="rounded-lg border">
-          <div className="p-6 space-y-4">
+          <div className="space-y-4 p-6">
             <div className="flex items-center justify-between">
               <Skeleton className="h-6 w-40" />
               <Skeleton className="h-9 w-24" />
@@ -45,7 +45,7 @@ const DashboardLoading = () => {
 
         {/* Analytics Preview Card */}
         <div className="rounded-lg border">
-          <div className="p-6 space-y-4">
+          <div className="space-y-4 p-6">
             <div className="flex items-center justify-between">
               <Skeleton className="h-6 w-40" />
               <Skeleton className="h-9 w-32" />
@@ -63,10 +63,10 @@ const DashboardLoading = () => {
       </div>
 
       {/* Quick Actions & Subscription - 2 columns */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Quick Actions Card */}
         <div className="rounded-lg border">
-          <div className="p-6 space-y-4">
+          <div className="space-y-4 p-6">
             <Skeleton className="h-6 w-32" />
             <div className="space-y-3">
               {[...Array(3)].map((_, i) => (
@@ -78,7 +78,7 @@ const DashboardLoading = () => {
 
         {/* Subscription Card */}
         <div className="rounded-lg border">
-          <div className="p-6 space-y-4">
+          <div className="space-y-4 p-6">
             <div className="flex items-center justify-between">
               <Skeleton className="h-6 w-40" />
               <Skeleton className="h-5 w-16" />
@@ -93,7 +93,7 @@ const DashboardLoading = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default DashboardLoading
+export default DashboardLoading;
