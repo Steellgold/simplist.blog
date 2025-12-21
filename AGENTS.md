@@ -105,7 +105,7 @@ When writing MDX documentation in `apps/docs/content/`, **CodeBlock components m
 ```jsx
 <CodeBlock language="typescript" filename="example.ts">
   {`
-  import { SimplistClient } from '@simplist.blog/sdk'
+  import { SimplistClient } from "@simplist.blog/sdk"
 
   const client = new SimplistClient({
     apiKey: process.env.SIMPLIST_API_KEY,
