@@ -1,17 +1,15 @@
 import cors from "@fastify/cors";
 import fp from "fastify-plugin";
+import "@/types/fastify";
 
 export default fp(async function (fastify) {
   const allowAll =
-    String(
-      (fastify as any).config.ALLOW_ALL_ORIGINS || "false",
-    ).toLowerCase() === "true" ||
-    (fastify as any).config.ALLOWED_ORIGINS === "*";
-  const allowedOrigins = (fastify as any).config.ALLOWED_ORIGINS.split(",").map(
+    String(fastify.config.ALLOW_ALL_ORIGINS || "false").toLowerCase() ===
+      "true" || fastify.config.ALLOWED_ORIGINS === "*";
+  const allowedOrigins = fastify.config.ALLOWED_ORIGINS.split(",").map(
     (origin: string) => origin.trim(),
   );
-  const suffixesRaw = ((fastify as any).config.ALLOWED_ORIGIN_SUFFIXES ||
-    "") as string;
+  const suffixesRaw = (fastify.config.ALLOWED_ORIGIN_SUFFIXES || "") as string;
   const allowedSuffixes = suffixesRaw
     .split(",")
     .map((s: string) => s.trim())
