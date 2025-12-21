@@ -9,10 +9,11 @@ import {
   JSON,
   MarkdownDark,
   MarkdownLight,
+  Nextjs,
   Python,
   ReactDark,
   ReactLight,
-  TypeScript,
+  TypeScript
 } from "@ridemountainpig/svgl-react";
 import { IconThemed } from "@simplist/ui/components/icon-themed";
 
@@ -73,4 +74,5 @@ export const languages = [
     ),
   },
   { label: "Hugo", value: "hugo", icon: <Hugo className="size-3.5" /> },
+  { label: "Next.js", value: "nextjs", icon: <Nextjs className="size-3.5" /> },
 ];

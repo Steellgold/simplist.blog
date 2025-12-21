@@ -1,17 +1,18 @@
-import { FC } from "react";
-import { Card } from "@simplist/ui/components/card";
-import { cn } from "@/lib/utils";
-import { highlightCode } from "@/lib/shiki";
-import { CopyButton } from "@simplist/ui/components/copy-button";
-import { CodeBlockTabsClient } from "./code-block-tabs-client";
-import { BundledLanguage } from "shiki";
 import { languages } from "@/lib/languages";
+import { highlightCode } from "@/lib/shiki";
+import { cn } from "@/lib/utils";
+import { Card } from "@simplist/ui/components/card";
+import { CopyButton } from "@simplist/ui/components/copy-button";
+import { FC } from "react";
+import { BundledLanguage } from "shiki";
+import { CodeBlockTabsClient } from "./code-block-tabs-client";
 
 type CodeTab = {
   label: string;
   language: string;
   code: string;
   filename?: string;
+  cusLang?: string;
 };
 
 type CodeBlockProps = {
@@ -19,6 +20,7 @@ type CodeBlockProps = {
   language?: string;
   filename?: string;
   className?: string;
+  cusLang?: string;
 } & React.ComponentProps<"pre">;
 
 export const CodeBlock: FC<CodeBlockProps> = async ({
@@ -27,6 +29,7 @@ export const CodeBlock: FC<CodeBlockProps> = async ({
   filename,
   className,
   children,
+  cusLang,
 }) => {
   const isSingleMode = !tabs && language && children;
 
@@ -41,7 +44,11 @@ export const CodeBlock: FC<CodeBlockProps> = async ({
         <Card className={cn("max-w-full overflow-hidden p-0", className)}>
           <div className="bg-muted/50 flex min-w-0 items-center justify-between border-b px-4 py-2">
             <div className="flex items-center gap-2 overflow-hidden">
-              {lang && languages.find((l) => l.value === lang)?.icon}
+              {
+                cusLang
+                  ? (cusLang && languages.find((l) => l.value === cusLang)?.icon)
+                  : (lang && languages.find((l) => l.value === lang)?.icon)
+              }
 
               <code className="text-muted-foreground truncate text-sm">
                 {filename}
@@ -69,6 +76,7 @@ export const CodeBlock: FC<CodeBlockProps> = async ({
   const highlightedTabs = await Promise.all(
     tabs.map(async (tab) => ({
       ...tab,
+      cusLang: tab.cusLang || cusLang,
       highlighted: await highlightCode(
         tab.code,
         tab.language as BundledLanguage,
@@ -76,5 +84,5 @@ export const CodeBlock: FC<CodeBlockProps> = async ({
     })),
   );
 
-  return <CodeBlockTabsClient tabs={highlightedTabs} className={className} />;
+  return <CodeBlockTabsClient tabs={highlightedTabs} className={className} cusLang={cusLang} />;
 };
