@@ -50,7 +50,7 @@ export interface SimplistClientOptions {
  * @example
  * ```typescript
  * const client = new SimplistClient({
- *   apiKey: 'sk_your_api_key_here',
+ *   apiKey: 'prj_your_api_key_here',
  *   path: 'blog' // Global path for all SEO URLs
  * })
  *
