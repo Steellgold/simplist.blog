@@ -34,5 +34,7 @@
   "[markdown]": {
     "editor.tabSize": 2
   },
-  "deepscan.ignoreConfirmWarning": true
+  "deepscan.ignoreConfirmWarning": true,
+  "zenMode.centerLayout": false,
+  "zenMode.hideLineNumbers": false
 }
