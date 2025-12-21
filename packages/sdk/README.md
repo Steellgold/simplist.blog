@@ -623,8 +623,11 @@ const userLang = detectUserLanguage(); // 'en', 'fr', etc.
 // Get the best matching variant for user's language
 const variant = getBestMatchingVariant(article, userLang);
 
-// Or get variant with fallback to default
-const content = getVariantOrDefault(article, "fr");
+// Get best match with auto-detection (no parameter needed)
+const autoVariant = getBestMatchingVariant(article);
+
+// Or force a specific language with custom fallback
+const content = getVariantOrDefault(article, "fr", "en");
 
 // Check if article has a specific language variant
 if (hasVariant(article, "es")) {

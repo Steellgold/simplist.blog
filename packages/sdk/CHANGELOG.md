@@ -5,6 +5,43 @@ All notable changes to the @simplist.blog/sdk package will be documented in this
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.10] - 2025-12-21
+
+### Fixed
+
+- **BREAKING FIX**: `getBestMatchingVariant()` now correctly respects the `userLang` parameter instead of ignoring it
+  - Previously: The function always called `detectUserLanguage()` internally, ignoring the provided parameter
+  - Now: The function uses the provided `userLang` parameter when specified, falling back to auto-detection only when not provided
+  - **API Change**: Parameter renamed from `defaultLang` to `userLang` for clarity
+  - **New**: Added second optional parameter `fallbackLang` for specifying a custom fallback language (defaults to English)
+
+### Changed
+
+- Updated documentation examples to reflect the corrected `getBestMatchingVariant()` behavior
+- Improved clarity in multilingual helper function documentation
+
+## [0.0.9] - 2025-12-21
+
+### Changed
+
+- Enhanced README with comprehensive API key usage documentation
+- Improved environment variable instructions and examples
+- Added more detailed examples for various SDK usage patterns
+- Updated index exports for better type inference
+
+## [0.0.8] - 2025-12-21
+
+### Added
+
+- New `Author` interface with user details (name, firstName, lastName, image)
+- `author` field to Article interface for article author information
+- `lastUpdatedBy` field to Article interface (nullable) for tracking last editor
+
+### Changed
+
+- Updated README with author usage examples and documentation
+- Enhanced Article type definitions with author metadata
+
 ## [0.0.7] - 2025-10-26
 
 ### Added

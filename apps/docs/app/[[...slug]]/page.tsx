@@ -47,6 +47,8 @@ import {
 } from "@simplist/ui/components/card";
 import { Input } from "@simplist/ui/components/input";
 import { Separator } from "@simplist/ui/components/separator";
+import { Skeleton } from "@simplist/ui/components/skeleton";
+import { Spinner } from "@simplist/ui/components/spinner";
 import {
   Table,
   TableBody,
@@ -55,13 +57,11 @@ import {
   TableHeader,
   TableRow,
 } from "@simplist/ui/components/table";
-import { Skeleton } from "@simplist/ui/components/skeleton";
-import { Spinner } from "@simplist/ui/components/spinner";
 import { existsSync, readdirSync, statSync } from "fs";
 import { readFile } from "fs/promises";
 import type { Metadata } from "next";
-import { unstable_cache } from "next/cache";
 import { MDXRemote } from "next-mdx-remote/rsc";
+import { unstable_cache } from "next/cache";
 import Link from "next/link";
 import { join } from "path";
 import { ComponentType, FC } from "react";
@@ -104,7 +104,7 @@ const createHeadingComponents = (
         <HeadingAnchor
           id={id}
           level={1}
-          className="mb-6 text-4xl font-bold"
+          className="mb-8 text-4xl font-bold"
           {...props}
         />
       );
@@ -117,7 +117,7 @@ const createHeadingComponents = (
         <HeadingAnchor
           id={id}
           level={2}
-          className="mt-8 mb-4 text-2xl font-semibold"
+          className="mt-10 mb-4 text-2xl font-semibold"
           {...props}
         />
       );
@@ -130,7 +130,7 @@ const createHeadingComponents = (
         <HeadingAnchor
           id={id}
           level={3}
-          className="mt-6 mb-3 text-xl font-semibold"
+          className="mt-12 mb-2 text-xl font-semibold"
           {...props}
         />
       );
@@ -233,6 +233,7 @@ const staticComponents = {
     <TableHead className="font-medium whitespace-nowrap" {...props} />
   ),
   td: (props: any) => <TableCell {...props} />,
+  hr: () => <Separator className="mt-10" />,
 };
 
 type PageProps = {

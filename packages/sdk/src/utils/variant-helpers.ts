@@ -64,12 +64,13 @@ export const getVariantOrDefault = (
  */
 export const getBestMatchingVariant = (
   article: Article,
-  defaultLang?: LanguageCode,
+  userLang?: LanguageCode,
+  fallbackLang?: LanguageCode,
 ): ArticleVariant | Article => {
-  const userLang = detectUserLanguage();
-  const fallback = defaultLang || Language.ENGLISH;
+  const lang = userLang || detectUserLanguage();
+  const fallback = fallbackLang || Language.ENGLISH;
 
-  return getVariantOrDefault(article, userLang, fallback);
+  return getVariantOrDefault(article, lang, fallback);
 };
 
 /**
