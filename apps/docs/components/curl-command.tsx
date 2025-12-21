@@ -1,10 +1,9 @@
-"use client";
-
-import { FC } from "react";
+import { highlightCode } from "@/lib/shiki";
 import { Card, CardContent } from "@simplist/ui/components/card";
+import { CopyButton } from "@simplist/ui/components/copy-button";
 import { TooltipProvider } from "@simplist/ui/components/tooltip";
 import { cn } from "@simplist/ui/lib/utils";
-import { CopyButton } from "@simplist/ui/components/copy-button";
+import { FC } from "react";
 
 interface CurlCommandProps {
   method: string;
@@ -14,7 +13,7 @@ interface CurlCommandProps {
   className?: string;
 }
 
-export const CurlCommand: FC<CurlCommandProps> = ({
+export const CurlCommand: FC<CurlCommandProps> = async ({
   method,
   url,
   headers = {},
@@ -37,12 +36,13 @@ export const CurlCommand: FC<CurlCommandProps> = ({
   };
 
   const curlCommand = generateCurlCommand();
+  const highlighted = await highlightCode(curlCommand, "bash");
 
   return (
     <TooltipProvider delayDuration={300}>
       <Card className="rounded-2xl p-[2.5px]">
         <Card className={cn("gap-0 overflow-hidden p-0", className)}>
-          <CardContent className="bg-muted flex items-center justify-between border-b px-4 py-2">
+          <CardContent className="bg-muted/50 flex items-center justify-between border-b px-4 py-2">
             <span className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
               cURL Command
             </span>
@@ -51,11 +51,12 @@ export const CurlCommand: FC<CurlCommandProps> = ({
           </CardContent>
 
           <CardContent className="p-0">
-            <pre className="overflow-x-auto p-4">
-              <code className="text-foreground text-xs whitespace-pre">
-                {curlCommand}
-              </code>
-            </pre>
+            <div className="max-w-full overflow-x-auto">
+              <div
+                className="[&_pre]:m-0 [&_pre]:max-w-full [&_pre]:overflow-x-auto [&_pre]:bg-transparent [&_pre]:p-4"
+                dangerouslySetInnerHTML={{ __html: highlighted }}
+              />
+            </div>
           </CardContent>
         </Card>
       </Card>

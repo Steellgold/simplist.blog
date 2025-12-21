@@ -1,7 +1,9 @@
 "use client";
 
-import { FC } from "react";
 import { cn } from "@/lib/utils";
+import { Badge } from "@simplist/ui/components/badge";
+import { Button } from "@simplist/ui/components/button";
+import { Card, CardContent } from "@simplist/ui/components/card";
 import {
   Table,
   TableBody,
@@ -10,9 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@simplist/ui/components/table";
-import { Card, CardContent } from "@simplist/ui/components/card";
-import { Badge } from "@simplist/ui/components/badge";
-import { Button } from "@simplist/ui/components/button";
+import { FC } from "react";
 
 export interface TypeProperty {
   name: string;
