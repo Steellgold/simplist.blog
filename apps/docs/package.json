@@ -48,7 +48,7 @@
     "embla-carousel-react": "8.6.0",
     "input-otp": "1.4.2",
     "lucide-react": "^0.561.0",
-    "next": "16.0.10",
+    "next": "16.1.0",
     "next-mdx-remote": "^5.0.0",
     "next-themes": "^0.4.6",
     "react": "^19.2.3",
@@ -70,6 +70,7 @@
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^16.0.10",
+    "@tailwindcss/postcss": "^4.1.18",
     "@types/node": "^25.0.2",
     "@types/react": "^19.2.7",
     "@types/react-dom": "19.2.3",

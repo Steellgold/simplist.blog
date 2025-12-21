@@ -57,17 +57,13 @@ import {
   TableHeader,
   TableRow,
 } from "@simplist/ui/components/table";
-import { existsSync, readdirSync, statSync } from "fs";
+import { existsSync } from "fs";
 import { readFile } from "fs/promises";
 import type { Metadata } from "next";
 import { MDXRemote } from "next-mdx-remote/rsc";
-import { unstable_cache } from "next/cache";
 import Link from "next/link";
 import { join } from "path";
 import { ComponentType, FC } from "react";
-
-// Revalidate pages every hour (3600 seconds)
-export const revalidate = 3600;
 
 const createHeadingComponents = (
   headings: TocHeading[],
@@ -247,8 +243,6 @@ const CONTENT_ROOTS = [
   join(process.cwd(), "content"),
 ];
 
-const getContentRoot = () => CONTENT_ROOTS.find(existsSync) ?? CONTENT_ROOTS[0];
-
 const buildPossiblePaths = (slug: string[]): string[] => {
   const slugPath = join(...slug);
   return CONTENT_ROOTS.flatMap((root) => [
@@ -257,45 +251,7 @@ const buildPossiblePaths = (slug: string[]): string[] => {
   ]);
 };
 
-// Recursively get all MDX files for static generation
-const getAllMdxSlugs = (dir: string, basePath: string[] = []): string[][] => {
-  const slugs: string[][] = [];
-
-  if (!existsSync(dir)) return slugs;
-
-  const entries = readdirSync(dir);
-
-  for (const entry of entries) {
-    const fullPath = join(dir, entry);
-    const stat = statSync(fullPath);
-
-    if (stat.isDirectory()) {
-      slugs.push(...getAllMdxSlugs(fullPath, [...basePath, entry]));
-    } else if (entry.endsWith(".mdx")) {
-      const slug =
-        entry === "index.mdx"
-          ? basePath
-          : [...basePath, entry.replace(".mdx", "")];
-      slugs.push(slug);
-    }
-  }
-
-  return slugs;
-};
-
-// Generate all static params at build time
-export const generateStaticParams = async () => {
-  const contentRoot = getContentRoot();
-  const slugs = getAllMdxSlugs(contentRoot);
-
-  // Add root page
-  const params = [{ slug: [] }, ...slugs.map((slug) => ({ slug }))];
-
-  return params;
-};
-
-// Cache MDX file reading
-const readMdxFileUncached = async (slug: string[]): Promise<string> => {
+const readMdxFile = async (slug: string[]): Promise<string> => {
   const possiblePaths = buildPossiblePaths(slug);
 
   for (const contentPath of possiblePaths) {
@@ -311,11 +267,6 @@ const readMdxFileUncached = async (slug: string[]): Promise<string> => {
 
   return "";
 };
-
-const readMdxFile = unstable_cache(readMdxFileUncached, ["mdx-file"], {
-  revalidate: 3600,
-  tags: ["mdx-content"],
-});
 
 const getMdxContent = async (slug: string[]) => {
   const rawContent = await readMdxFile(slug);

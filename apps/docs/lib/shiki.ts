@@ -20,7 +20,6 @@ const SUPPORTED_LANGS: BundledLanguage[] = [
 
 const globalForHighlighter = globalThis as unknown as {
   highlighter: Highlighter | undefined;
-  highlightCache: Map<string, string> | undefined;
 };
 
 export async function getHighlighter() {
@@ -34,13 +33,6 @@ export async function getHighlighter() {
   return globalForHighlighter.highlighter;
 }
 
-function getHighlightCache(): Map<string, string> {
-  if (!globalForHighlighter.highlightCache) {
-    globalForHighlighter.highlightCache = new Map();
-  }
-  return globalForHighlighter.highlightCache;
-}
-
 /**
  * Dispose of the highlighter instance (useful for cleanup in tests or when needed)
  */
@@ -49,27 +41,15 @@ export function disposeHighlighter() {
     globalForHighlighter.highlighter.dispose();
     globalForHighlighter.highlighter = undefined;
   }
-  if (globalForHighlighter.highlightCache) {
-    globalForHighlighter.highlightCache.clear();
-    globalForHighlighter.highlightCache = undefined;
-  }
 }
 
 export async function highlightCode(
   code: string,
   language: BundledLanguage,
 ): Promise<string> {
-  // Check cache first
-  const cacheKey = `${language}:${code}`;
-  const cache = getHighlightCache();
-  const cached = cache.get(cacheKey);
-  if (cached) {
-    return cached;
-  }
-
   const highlighter = await getHighlighter();
 
-  const result = highlighter.codeToHtml(code, {
+  return highlighter.codeToHtml(code, {
     lang: language,
     themes: {
       light: "github-light-default",
@@ -78,9 +58,4 @@ export async function highlightCode(
     defaultColor: "light-dark()",
     rootStyle: "background-color: transparent;",
   });
-
-  // Store in cache
-  cache.set(cacheKey, result);
-
-  return result;
 }
