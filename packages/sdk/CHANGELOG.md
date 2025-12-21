@@ -5,6 +5,69 @@ All notable changes to the @simplist.blog/sdk package will be documented in this
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.11] - 2025-12-21
+
+### Fixed
+
+- **CRITICAL**: Fixed `getVariantOrDefault()` language selection logic
+  - Now correctly returns main article when requested language matches fallback language and no variant exists
+  - Previously would incorrectly return first available variant instead of main article
+  - Fixes multilingual content displaying wrong language to users
+
+- **CRITICAL**: Fixed memory leak in `HttpClient.makeRequest()`
+  - Timeout is now properly cleaned up in all code paths using try-finally
+  - Previously, timeout would not be cleared when errors were thrown
+  - Prevents timeout accumulation and unpredictable behavior
+
+- **CRITICAL**: Fixed API key validation to be more strict
+  - Now uses `startsWith("prj_")` instead of `includes("prj_")`
+  - Also validates minimum key length (must be longer than 4 characters)
+  - Prevents false positives with invalid API keys
+
+- Fixed `getBestMatchingVariant()` to handle falsy values correctly
+  - Now properly checks for `undefined` and `null` instead of using `||` operator
+  - Prevents unintended fallback when empty string is explicitly passed
+
+- Fixed `HttpClient.get()` array parameter handling
+  - Arrays are now correctly appended as multiple query parameters
+  - Example: `tags: ["typescript", "react"]` now generates `?tags=typescript&tags=react`
+  - Fixes tag filtering functionality
+
+- Fixed `detectUserLanguage()` to support SSR environments
+  - Added optional `serverLang` parameter for server-side language detection
+  - Can now pass language from Accept-Language header or cookies
+  - Improves SSR compatibility with Next.js and other frameworks
+
+- Fixed `VariantSelector.getSelectedLanguage()` to use `article.lang` when available
+  - Now checks for `lang` property on main article
+  - More accurate language detection for content
+
+### Added
+
+- Added `lang?: LanguageCode` property to `Article` interface
+  - Allows specifying the language of the main article content
+  - Improves multilingual content handling and clarity
+
+- Added TypeScript overloads to `getSitemap()` for better type safety
+  - `getSitemap(baseUrl, "xml")` now returns `Promise<string>`
+  - `getSitemap(baseUrl, "json")` now returns `Promise<Sitemap>`
+  - Provides perfect TypeScript inference without type guards
+
+- Added language code validation in variant helper functions
+  - `getVariantOrDefault()` now validates language codes with helpful warnings
+  - Prevents errors from invalid language codes
+  - Automatically falls back to valid alternatives
+
+### Improved
+
+- Simplified `AnalyticsResource.getStats()` and `getFunnel()` methods
+  - Now use `http.get()` with params directly instead of manual URLSearchParams construction
+  - Cleaner code and better maintainability
+
+- Enhanced documentation with detailed SSR usage examples
+  - Better explanations of multilingual article structure
+  - Added notes about assumptions and fallback behavior
+
 ## [0.0.10] - 2025-12-21
 
 ### Fixed

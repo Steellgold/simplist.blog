@@ -6,14 +6,18 @@ import {
 } from "../types/languages";
 
 /**
- * Detect user's preferred language from browser
+ * Detect user's preferred language from browser or provided language
+ * @param serverLang - Optional language code from server (e.g., from Accept-Language header or cookies)
  */
-export const detectUserLanguage = (): LanguageCode => {
+export const detectUserLanguage = (serverLang?: LanguageCode): LanguageCode => {
+  // Server-side with provided language
   if (typeof navigator === "undefined") {
-    return Language.ENGLISH; // Server-side fallback
+    return serverLang && isValidLanguageCode(serverLang)
+      ? serverLang
+      : Language.ENGLISH;
   }
 
-  // Get browser language
+  // Client-side browser detection
   const browserLang =
     navigator.language || navigator.languages?.[0] || Language.ENGLISH;
 
@@ -28,14 +32,38 @@ export const detectUserLanguage = (): LanguageCode => {
 
 /**
  * Get variant for a specific language, with fallback logic
+ *
+ * NOTE: The main article is assumed to be in the fallback language.
+ * If lang matches fallback and no variant exists for it, the main article is returned.
  */
 export const getVariantOrDefault = (
   article: Article,
   lang: LanguageCode,
   fallbackLang: LanguageCode = Language.ENGLISH,
 ): ArticleVariant | Article => {
+  // Validate language codes
+  if (!isValidLanguageCode(lang)) {
+    console.warn(
+      `[Simplist SDK] Invalid language code: "${lang}", falling back to "${fallbackLang}"`,
+    );
+    lang = fallbackLang;
+  }
+
+  if (!isValidLanguageCode(fallbackLang)) {
+    console.warn(
+      `[Simplist SDK] Invalid fallback language: "${fallbackLang}", using English`,
+    );
+    fallbackLang = Language.ENGLISH;
+  }
+
   // If no variants, return main article
   if (!article.variants || Object.keys(article.variants).length === 0) {
+    return article;
+  }
+
+  // If requested language matches fallback and no variant exists, return main article
+  // This assumes the main article is in the fallback language
+  if (lang === fallbackLang && !article.variants[lang]) {
     return article;
   }
 
@@ -44,18 +72,7 @@ export const getVariantOrDefault = (
     return article.variants[lang];
   }
 
-  // Check if fallback language exists
-  if (article.variants[fallbackLang]) {
-    return article.variants[fallbackLang];
-  }
-
-  // Return first available variant
-  const firstVariant = Object.values(article.variants)[0];
-  if (firstVariant) {
-    return firstVariant;
-  }
-
-  // Final fallback to main article
+  // Fallback to main article (assumed to be in fallback language)
   return article;
 };
 
@@ -67,7 +84,10 @@ export const getBestMatchingVariant = (
   userLang?: LanguageCode,
   fallbackLang?: LanguageCode,
 ): ArticleVariant | Article => {
-  const lang = userLang || detectUserLanguage();
+  const lang =
+    userLang !== undefined && userLang !== null
+      ? userLang
+      : detectUserLanguage();
   const fallback = fallbackLang || Language.ENGLISH;
 
   return getVariantOrDefault(article, lang, fallback);
@@ -180,16 +200,20 @@ export class VariantSelector {
 
   /**
    * Get language of the selected content
+   *
+   * NOTE: If the main article is returned (no variant), this first checks
+   * if the article has a `lang` property. If not, it assumes the main article
+   * is in the defaultLanguage.
    */
   getSelectedLanguage(article: Article): LanguageCode {
     const content = this.getContent(article);
 
     // If it's a variant, return its language
-    if ("lang" in content) {
+    if ("lang" in content && content.lang) {
       return content.lang;
     }
 
-    // If it's the main article, assume default language
+    // If main article, use defaultLanguage
     return this.defaultLanguage;
   }
 

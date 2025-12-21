@@ -171,15 +171,7 @@ export class AnalyticsResource {
    * ```
    */
   async getStats(options: { days?: number } = {}): Promise<AnalyticsStats> {
-    const params = new URLSearchParams();
-    if (options.days) {
-      params.append("days", options.days.toString());
-    }
-
-    const query = params.toString();
-    const url = query ? `/analytics/stats?${query}` : "/analytics/stats";
-
-    return this.http.get(url);
+    return this.http.get("/analytics/stats", options);
   }
 
   /**
@@ -210,17 +202,6 @@ export class AnalyticsResource {
   async getFunnel(
     options: { days?: number; slug?: string } = {},
   ): Promise<AnalyticsFunnel> {
-    const params = new URLSearchParams();
-    if (options.days) {
-      params.append("days", options.days.toString());
-    }
-    if (options.slug) {
-      params.append("slug", options.slug);
-    }
-
-    const query = params.toString();
-    const url = query ? `/analytics/funnel?${query}` : "/analytics/funnel";
-
-    return this.http.get(url);
+    return this.http.get("/analytics/funnel", options);
   }
 }

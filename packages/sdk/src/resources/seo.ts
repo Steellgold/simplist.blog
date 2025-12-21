@@ -178,6 +178,16 @@ export class SeoResource {
    */
   async getSitemap(
     baseUrl: string,
+    format: "xml",
+    path?: string,
+  ): Promise<string>;
+  async getSitemap(
+    baseUrl: string,
+    format: "json",
+    path?: string,
+  ): Promise<Sitemap>;
+  async getSitemap(
+    baseUrl: string,
     format: "xml" | "json" = "xml",
     path?: string,
   ): Promise<string | Sitemap> {

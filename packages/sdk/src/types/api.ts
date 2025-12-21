@@ -62,6 +62,7 @@ export interface TagListItem {
 // Article types
 export interface Article {
   id: string;
+  lang?: LanguageCode; // Language of the main article (defaults to fallback language if not specified)
   title: string;
   slug: string;
   content: string;

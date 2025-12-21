@@ -68,63 +68,65 @@ export class HttpClient {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
-    let lastError: Error;
+    try {
+      let lastError: Error;
 
-    for (let attempt = 0; attempt <= this.retries; attempt++) {
-      try {
-        const response = await fetch(url, {
-          ...config,
-          signal: controller.signal,
-        });
+      for (let attempt = 0; attempt <= this.retries; attempt++) {
+        try {
+          const response = await fetch(url, {
+            ...config,
+            signal: controller.signal,
+          });
 
-        clearTimeout(timeoutId);
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({
+              error: "Unknown Error",
+              message: `Request failed with status ${response.status}`,
+              statusCode: response.status,
+            }));
+            throw new SimplistApiError(errorData);
+          }
 
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({
-            error: "Unknown Error",
-            message: `Request failed with status ${response.status}`,
-            statusCode: response.status,
-          }));
-          throw new SimplistApiError(errorData);
+          // Check if response should be parsed as text (for XML responses)
+          const contentType = response.headers.get("content-type") || "";
+          if (
+            contentType.includes("xml") ||
+            contentType.includes("rss") ||
+            contentType.includes("text/plain")
+          ) {
+            const data = await response.text();
+            return data as T;
+          }
+
+          const data = await response.json();
+          return data;
+        } catch (error) {
+          lastError = error instanceof Error ? error : new Error(String(error));
+
+          // Don't retry on client errors (4xx) or auth errors
+          if (
+            error instanceof SimplistApiError &&
+            error.statusCode >= 400 &&
+            error.statusCode < 500
+          ) {
+            throw error;
+          }
+
+          // Don't retry on the last attempt
+          if (attempt === this.retries) {
+            break;
+          }
+
+          // Wait before retrying with exponential backoff
+          await this.sleep(this.retryDelay * Math.pow(2, attempt));
         }
-
-        // Check if response should be parsed as text (for XML responses)
-        const contentType = response.headers.get("content-type") || "";
-        if (
-          contentType.includes("xml") ||
-          contentType.includes("rss") ||
-          contentType.includes("text/plain")
-        ) {
-          const data = await response.text();
-          return data as T;
-        }
-
-        const data = await response.json();
-        return data;
-      } catch (error) {
-        lastError = error instanceof Error ? error : new Error(String(error));
-
-        // Don't retry on client errors (4xx) or auth errors
-        if (
-          error instanceof SimplistApiError &&
-          error.statusCode >= 400 &&
-          error.statusCode < 500
-        ) {
-          throw error;
-        }
-
-        // Don't retry on the last attempt
-        if (attempt === this.retries) {
-          break;
-        }
-
-        // Wait before retrying with exponential backoff
-        await this.sleep(this.retryDelay * Math.pow(2, attempt));
       }
-    }
 
-    clearTimeout(timeoutId);
-    throw lastError!;
+      throw lastError!;
+    } finally {
+      // Always cleanup timeout, regardless of success or error
+      clearTimeout(timeoutId);
+    }
   }
 
   async get<T>(path: string, params?: Record<string, any>): Promise<T> {
@@ -133,8 +135,12 @@ export class HttpClient {
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
-          // Handle optionalFields object specially
-          if (key === "optionalFields" && typeof value === "object") {
+          // Handle optionalFields object specially (convert to comma-separated string)
+          if (
+            key === "optionalFields" &&
+            typeof value === "object" &&
+            !Array.isArray(value)
+          ) {
             const fields = Object.entries(value)
               .filter(([_, v]) => v === true)
               .map(([k]) => k)
@@ -142,7 +148,15 @@ export class HttpClient {
             if (fields) {
               searchParams.append(key, fields);
             }
-          } else {
+          }
+          // Handle arrays - append each item separately
+          else if (Array.isArray(value)) {
+            value.forEach((item) => {
+              searchParams.append(key, String(item));
+            });
+          }
+          // Handle simple values
+          else {
             searchParams.append(key, String(value));
           }
         }

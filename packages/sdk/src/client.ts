@@ -104,9 +104,9 @@ export class SimplistClient {
       );
     }
 
-    if (!apiKey.includes("prj_")) {
+    if (!apiKey.startsWith("prj_") || apiKey.length <= 4) {
       throw new Error(
-        'Invalid API key format. API key should contain an underscore (e.g., "prj_your_api_key_here")',
+        'Invalid API key format. API key must start with "prj_" (e.g., "prj_your_api_key_here")',
       );
     }
 
