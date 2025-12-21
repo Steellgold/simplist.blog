@@ -32,6 +32,8 @@ Simplist provides server-side analytics that are privacy-friendly, adblocker-pro
   ]}
 />
 
+---
+
 ## track()
 
 Initialize tracking for a new page view. Call this when a user lands on an article page.
@@ -143,6 +145,8 @@ const { pageViewId, visitorId, sessionId } = response
 
 </CodeBlock>
 
+---
+
 ## update()
 
 Update an existing page view with engagement metrics. Call this periodically or when the user leaves.
@@ -170,18 +174,20 @@ Update an existing page view with engagement metrics. Call this periodically or 
     })
   }, 30000)
 
-// Final update on page unload
-window.addEventListener('beforeunload', async () => {
-await client.analytics.update(pageViewId, {
-timeOnPage: getTimeOnPage(),
-scrollDepth: getScrollDepth(),
-exitPosition: getScrollDepth(),
-bounced: getTimeOnPage() < 5
-})
-})
+  // Final update on page unload
+  window.addEventListener('beforeunload', async () => {
+    await client.analytics.update(pageViewId, {
+      timeOnPage: getTimeOnPage(),
+      scrollDepth: getScrollDepth(),
+      exitPosition: getScrollDepth(),
+      bounced: getTimeOnPage() < 5
+    })
+  })
 `}
 
 </CodeBlock>
+
+---
 
 ## getStats()
 
@@ -243,26 +249,29 @@ Retrieve analytics statistics for your project.
 ### Example
 
 <CodeBlock language="tsx">
-  {`
+{`
   const { data: stats } = await client.analytics.getStats({ days: 7 })
 
-console.log(\`Period: \${stats.period.days} days\`)
-console.log(\`Total views: \${stats.summary.totalViews}\`)
-console.log(\`Unique visitors: \${stats.summary.uniqueVisitors}\`)
-console.log(\`Avg views per visitor: \${stats.summary.avgViewsPerVisitor.toFixed(2)}\`)
+  console.log(\`Period: \${stats.period.days} days\`)
+  console.log(\`Total views: \${stats.summary.totalViews}\`)
+  console.log(\`Unique visitors: \${stats.summary.uniqueVisitors}\`)
+  console.log(\`Avg views per visitor: \${stats.summary.avgViewsPerVisitor.toFixed(2)}\`)
 
-console.log('\\nTop 5 Articles:')
-stats.topArticles.slice(0, 5).forEach((article, i) => {
-console.log(\`\${i + 1}. \${article.title} (\${article.views} views)\`)
-})
+  console.log('\\nTop 5 Articles:')
 
-console.log('\\nTop Countries:')
-stats.topCountries.forEach(country => {
-console.log(\`- \${country.country}: \${country.views} views\`)
-})
+  stats.topArticles.slice(0, 5).forEach((article, i) => {
+    console.log(\`\${i + 1}. \${article.title} (\${article.views} views)\`)
+  })
+
+  console.log('\\nTop Countries:')
+
+  stats.topCountries.forEach(country => {
+    console.log(\`- \${country.country}: \${country.views} views\`)
+  })
 `}
-
 </CodeBlock>
+
+---
 
 ## Custom Events
 
@@ -299,7 +308,7 @@ Track custom events like button clicks, video plays, or form submissions.
 ### Example
 
 <CodeBlock language="typescript">
-  {`
+{`
   const events: PageEvent[] = [
     {
       type: 'button_click',
@@ -322,29 +331,30 @@ Track custom events like button clicks, video plays, or form submissions.
     }
   ]
 
-await client.analytics.track({
-slug: 'my-article',
-events
-})
+  await client.analytics.track({
+    slug: 'my-article',
+    events
+  })
 `}
-
 </CodeBlock>
+
+---
 
 ## Complete Example
 
 ### Next.js App Router
 
 <CodeBlock language="tsx">
-  {`
-  'use client'
+{`
+  "use client"
 
-import { SimplistClient } from '@simplist.blog/sdk'
-import { useEffect, useState } from 'react'
-import { v4 as uuid } from 'uuid'
+  import { SimplistClient } from "@simplist.blog/sdk"
+  import { useEffect, useState } from "react"
+  import { v4 as uuid } from "uuid"
 
-export function AnalyticsTracker({ slug }: { slug: string }) {
-const [pageViewId, setPageViewId] = useState<string | null>(null)
-const [startTime] = useState(Date.now())
+  export function AnalyticsTracker({ slug }: { slug: string }) {
+    const [pageViewId, setPageViewId] = useState<string | null>(null)
+    const [startTime] = useState(Date.now())
 
     useEffect(() => {
       // Uses SIMPLIST_API_KEY from environment variables
@@ -357,6 +367,7 @@ const [startTime] = useState(Date.now())
           sessionId = uuid()
           sessionStorage.setItem('simplist_session', sessionId)
         }
+        
         return sessionId
       }
 
@@ -374,7 +385,7 @@ const [startTime] = useState(Date.now())
           scrollDepth: 0,
           fetchGeo: true
         })
-
+        
         setPageViewId(response.id)
       }
 
@@ -416,11 +427,12 @@ const [startTime] = useState(Date.now())
     }, [slug, pageViewId, startTime])
 
     return null
-
-}
+  }
 `}
 
 </CodeBlock>
+
+---
 
 ## HTTP Endpoints
 
@@ -432,6 +444,8 @@ These SDK methods use the following API endpoints:
 
 See the [REST API documentation](/api) for direct HTTP access.
 
+---
+
 ## Privacy & GDPR
 
 - **No cookies**: All tracking is server-side
@@ -439,6 +453,8 @@ See the [REST API documentation](/api) for direct HTTP access.
 - **IP-based geolocation**: Optional and anonymized
 - **GDPR compliant**: Data retention policies in place
 - **Adblocker-proof**: Server-side tracking works everywhere
+
+---
 
 ## Frequently Asked Questions
 

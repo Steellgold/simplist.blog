@@ -25,24 +25,65 @@ Create a new page view tracking entry for an article.
 <TypeTable
   title="PageViewData"
   properties={[
-    { name: "slug", type: "string", description: "Article slug (required)", required: true },
-    { name: "sessionId", type: "string", description: "User session identifier" },
+    {
+      name: "slug",
+      type: "string",
+      description: "Article slug (required)",
+      required: true,
+    },
+    {
+      name: "sessionId",
+      type: "string",
+      description: "User session identifier",
+    },
     { name: "pageUrl", type: "string", description: "Full page URL" },
     { name: "pageTitle", type: "string", description: "Page title" },
     { name: "referrer", type: "string", description: "Referrer URL" },
     { name: "utmSource", type: "string", description: "UTM source parameter" },
     { name: "utmMedium", type: "string", description: "UTM medium parameter" },
-    { name: "utmCampaign", type: "string", description: "UTM campaign parameter" },
+    {
+      name: "utmCampaign",
+      type: "string",
+      description: "UTM campaign parameter",
+    },
     { name: "utmTerm", type: "string", description: "UTM term parameter" },
-    { name: "utmContent", type: "string", description: "UTM content parameter" },
-    { name: "screenWidth", type: "number", description: "Screen width in pixels" },
-    { name: "screenHeight", type: "number", description: "Screen height in pixels" },
-    { name: "timeOnPage", type: "number", description: "Time spent in seconds" },
-    { name: "scrollDepth", type: "number", description: "Scroll depth (0-100%)" },
-    { name: "exitPosition", type: "number", description: "Exit position (0-100%)" },
+    {
+      name: "utmContent",
+      type: "string",
+      description: "UTM content parameter",
+    },
+    {
+      name: "screenWidth",
+      type: "number",
+      description: "Screen width in pixels",
+    },
+    {
+      name: "screenHeight",
+      type: "number",
+      description: "Screen height in pixels",
+    },
+    {
+      name: "timeOnPage",
+      type: "number",
+      description: "Time spent in seconds",
+    },
+    {
+      name: "scrollDepth",
+      type: "number",
+      description: "Scroll depth (0-100%)",
+    },
+    {
+      name: "exitPosition",
+      type: "number",
+      description: "Exit position (0-100%)",
+    },
     { name: "bounced", type: "boolean", description: "Whether user bounced" },
     { name: "events", type: "PageEvent[]", description: "Custom events array" },
-    { name: "fetchGeo", type: "boolean", description: "Fetch geolocation data" }
+    {
+      name: "fetchGeo",
+      type: "boolean",
+      description: "Fetch geolocation data",
+    },
   ]}
 />
 
@@ -51,8 +92,18 @@ Create a new page view tracking entry for an article.
 <TypeTable
   title="PageViewResponse"
   properties={[
-    { name: "id", type: "string", description: "Page view tracking ID", required: true },
-    { name: "success", type: "boolean", description: "Whether tracking succeeded", required: true }
+    {
+      name: "id",
+      type: "string",
+      description: "Page view tracking ID",
+      required: true,
+    },
+    {
+      name: "success",
+      type: "boolean",
+      description: "Whether tracking succeeded",
+      required: true,
+    },
   ]}
 />
 
@@ -62,29 +113,26 @@ Create a new page view tracking entry for an article.
   method="POST"
   url="https://api.simplist.blog/v1/analytics/track"
   headers={{
-    'X-API-Key': 'YOUR_API_KEY',
-    'Content-Type': 'application/json'
+    "X-API-Key": "YOUR_API_KEY",
+    "Content-Type": "application/json",
   }}
   body={`{"slug":"getting-started","sessionId":"sess_abc123","pageUrl":"https://myblog.com/blog/getting-started","timeOnPage":0,"fetchGeo":true}`}
 />
 
 ### Minimal Example
 
-<CodeBlock language="json">
-{`
-
+<CodeBlock language="json" filename="minimal-example.json">
+  {`
   {
     "slug": "getting-started"
   }
-
 `}
 </CodeBlock>
 
 ### Complete Example
 
-<CodeBlock language="json">
-{`
-
+<CodeBlock language="json" filename="complete-example.json">
+  {`
   {
     "slug": "getting-started",
     "sessionId": "sess_abc123",
@@ -103,22 +151,19 @@ Create a new page view tracking entry for an article.
     "fetchGeo": true,
     "events": []
   }
-
 `}
 </CodeBlock>
 
 ## Example Response
 
-<CodeBlock language="json">
-{`
-
+<CodeBlock language="json" filename="response.json">
+  {`
   {
     "success": true,
     "pageViewId": "pv_xyz789",
     "visitorId": "visitor_def456",
     "sessionId": "session_abc123"
   }
-
 `}
 </CodeBlock>
 
@@ -143,9 +188,18 @@ If you're using TypeScript/JavaScript, you can use the SDK instead: [client.anal
 
 <FootNotes
   notes={[
-    { label: "Session ID", content: "Generate a unique ID per user session (e.g., UUID)" },
-    { label: "Geolocation", content: "Only fetched if fetchGeo: true (based on IP address)" },
+    {
+      label: "Session ID",
+      content: "Generate a unique ID per user session (e.g., UUID)",
+    },
+    {
+      label: "Geolocation",
+      content: "Only fetched if fetchGeo: true (based on IP address)",
+    },
     { label: "Privacy", content: "All data is anonymized and GDPR compliant" },
-    { label: "Update", content: "Use the returned id to update metrics with PUT request" }
+    {
+      label: "Update",
+      content: "Use the returned id to update metrics with PUT request",
+    },
   ]}
 />

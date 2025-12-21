@@ -32,7 +32,7 @@ Wrap SDK calls in try-catch blocks:
 
 <CodeBlock language="typescript" filename="basic-error-handling.ts">
 {`
-  import { SimplistClient, SimplistApiError } from '@simplist.blog/sdk'
+  import { SimplistClient, SimplistApiError } from "@simplist.blog/sdk"
 
   // Uses SIMPLIST_API_KEY from environment variables
   const client = new SimplistClient()
@@ -73,7 +73,7 @@ Wrap SDK calls in try-catch blocks:
 
 <CodeBlock language="typescript" filename="handle-by-status.ts">
 {`
-  import { SimplistClient, SimplistApiError } from '@simplist.blog/sdk'
+  import { SimplistClient, SimplistApiError } from "@simplist.blog/sdk"
 
   // Uses SIMPLIST_API_KEY from environment variables
   const client = new SimplistClient()
@@ -140,7 +140,7 @@ The SDK automatically retries failed requests with **exponential backoff**.
 
 <CodeBlock language="typescript" filename="custom-retries.ts">
 {`
-  import { SimplistClient } from '@simplist.blog/sdk'
+  import { SimplistClient } from "@simplist.blog/sdk"
 
   const client = new SimplistClient({
     apiKey: process.env.SIMPLIST_API_KEY,
@@ -170,7 +170,7 @@ Requests that exceed the timeout are automatically cancelled:
 
 <CodeBlock language="typescript" filename="timeout-handling.ts">
 {`
-  import { SimplistClient } from '@simplist.blog/sdk'
+  import { SimplistClient } from "@simplist.blog/sdk"
 
   const client = new SimplistClient({
     apiKey: process.env.SIMPLIST_API_KEY,
@@ -225,7 +225,7 @@ Handle network connectivity issues:
 
 <CodeBlock language="typescript" filename="network-errors.ts">
 {`
-  import { SimplistClient, SimplistApiError } from '@simplist.blog/sdk'
+  import { SimplistClient, SimplistApiError } from "@simplist.blog/sdk"
 
   // Uses SIMPLIST_API_KEY from environment variables
   const client = new SimplistClient()
@@ -258,8 +258,8 @@ Provide fallback content when API calls fail:
 
 <CodeBlock language="tsx" filename="graceful-degradation.tsx">
 {`
-  import { SimplistClient, SimplistApiError } from '@simplist.blog/sdk'
-  import { Suspense } from 'react'
+  import { SimplistClient, SimplistApiError } from "@simplist.blog/sdk"
+  import { Suspense } from "react"
 
   // Uses SIMPLIST_API_KEY from environment variables
   const client = new SimplistClient()
@@ -305,8 +305,8 @@ Integrate with error tracking services:
 
 <CodeBlock language="typescript" filename="error-monitoring.ts">
 {`
-  import { SimplistClient, SimplistApiError } from '@simplist.blog/sdk'
-  import * as Sentry from '@sentry/nextjs'
+  import { SimplistClient, SimplistApiError } from "@simplist.blog/sdk"
+  import * as Sentry from "@sentry/nextjs"
 
   // Uses SIMPLIST_API_KEY from environment variables
   const client = new SimplistClient()
@@ -343,7 +343,7 @@ Use the `ping()` method to test connectivity:
 
 <CodeBlock language="typescript" filename="ping.ts">
 {`
-  import { SimplistClient, SimplistApiError } from '@simplist.blog/sdk'
+  import { SimplistClient, SimplistApiError } from "@simplist.blog/sdk"
 
   // Uses SIMPLIST_API_KEY from environment variables
   const client = new SimplistClient()
@@ -376,8 +376,8 @@ Here's a production-ready example with comprehensive error handling:
 
 <CodeBlock language="tsx" filename="production-example.ts">
 {`
-  import { SimplistClient, SimplistApiError } from '@simplist.blog/sdk'
-  import * as Sentry from '@sentry/nextjs'
+  import { SimplistClient, SimplistApiError } from "@simplist.blog/sdk"
+  import * as Sentry from "@sentry/nextjs"
 
   const client = new SimplistClient({
     apiKey: process.env.SIMPLIST_API_KEY,

@@ -26,7 +26,7 @@ Configure article URL paths **once** when creating the client, instead of repeat
 
 <CodeBlock language="typescript" filename="client-with-path.ts">
   {`
-  import { SimplistClient } from '@simplist.blog/sdk'
+  import { SimplistClient } from "@simplist.blog/sdk"
 
   const client = new SimplistClient({
     apiKey: process.env.SIMPLIST_API_KEY,
@@ -89,8 +89,8 @@ Perfect for Next.js `generateMetadata`:
 
 <CodeBlock language="tsx" filename="article-page.tsx">
   {`
-  import { SimplistClient } from '@simplist.blog/sdk'
-  import { Metadata } from 'next'
+  import { SimplistClient } from "@simplist.blog/sdk"
+  import { Metadata } from "next"
 
   // Uses SIMPLIST_API_KEY from environment variables
   const client = new SimplistClient()
@@ -158,7 +158,7 @@ Create XML or JSON sitemaps for search engines.
 <CodeBlock language="typescript" filename="sitemap-route.ts">
   {`
   // app/sitemap.xml/route.ts (Next.js App Router)
-  import { SimplistClient } from '@simplist.blog/sdk'
+  import { SimplistClient } from "@simplist.blog/sdk"
 
   // Uses SIMPLIST_API_KEY from environment variables
   const client = new SimplistClient()
@@ -246,7 +246,7 @@ Create RSS 2.0 feeds for syndication.
 <CodeBlock language="typescript" filename="rss-route.ts">
   {`
   // app/rss.xml/route.ts (Next.js App Router)
-  import { SimplistClient } from '@simplist.blog/sdk'
+  import { SimplistClient } from "@simplist.blog/sdk"
 
   // Uses SIMPLIST_API_KEY from environment variables
   const client = new SimplistClient()
@@ -324,7 +324,7 @@ Get JSON-LD structured data for enhanced search results.
 
 <CodeBlock language="typescript" filename="article-with-schema.tsx">
   {`
-  import { SimplistClient } from '@simplist.blog/sdk'
+  import { SimplistClient } from "@simplist.blog/sdk"
 
   // Uses SIMPLIST_API_KEY from environment variables
   const client = new SimplistClient()
@@ -378,7 +378,7 @@ Full Next.js implementation with all SEO features:
 <CodeBlock language="tsx" filename="complete-seo-setup.ts">
   {`
   // lib/simplist.ts
-  import { SimplistClient } from '@simplist.blog/sdk'
+  import { SimplistClient } from "@simplist.blog/sdk"
 
   export const client = new SimplistClient({
     apiKey: process.env.SIMPLIST_API_KEY,
@@ -387,8 +387,8 @@ Full Next.js implementation with all SEO features:
 
   // ===== Article Page with Metadata =====
   // app/blog/[slug]/page.tsx
-  import { client } from '@/lib/simplist'
-  import { Metadata } from 'next'
+  import { client } from "@/lib/simplist"
+  import { Metadata } from "next"
 
   export async function generateMetadata({ params }: {
     params: { slug: string }
@@ -436,7 +436,7 @@ Full Next.js implementation with all SEO features:
 
   // ===== Sitemap Route =====
   // app/sitemap.xml/route.ts
-  import { client } from '@/lib/simplist'
+  import { client } from "@/lib/simplist"
 
   export async function GET() {
     const xml = await client.seo.getSitemap(
@@ -454,7 +454,7 @@ Full Next.js implementation with all SEO features:
 
   // ===== RSS Feed Route =====
   // app/rss.xml/route.ts
-  import { client } from '@/lib/simplist'
+  import { client } from "@/lib/simplist"
 
   export async function GET() {
     const xml = await client.seo.getRssFeed(

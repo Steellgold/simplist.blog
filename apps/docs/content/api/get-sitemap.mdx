@@ -71,31 +71,30 @@ Returns XML sitemap conforming to the Sitemap protocol.
 
 ## Example Response (XML)
 
-<CodeBlock language="xml">
+<CodeBlock language="xml" filename="sitemap.xml">
 {`
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://myblog.com/blog/getting-started</loc>
-    <lastmod>2025-01-15</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://myblog.com/blog/advanced-features</loc>
-    <lastmod>2025-01-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-</urlset>
+  <?xml version="1.0" encoding="UTF-8"?>
+  <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+      <loc>https://myblog.com/blog/getting-started</loc>
+      <lastmod>2025-01-15</lastmod>
+      <changefreq>weekly</changefreq>
+      <priority>0.8</priority>
+    </url>
+    <url>
+      <loc>https://myblog.com/blog/advanced-features</loc>
+      <lastmod>2025-01-20</lastmod>
+      <changefreq>weekly</changefreq>
+      <priority>0.8</priority>
+    </url>
+  </urlset>
 `}
 </CodeBlock>
 
 ## Example Response (JSON)
 
-<CodeBlock language="json">
+<CodeBlock language="json" filename="sitemap.json">
 {`
-
   {
     "data": {
       "entries": [
@@ -109,7 +108,6 @@ Returns XML sitemap conforming to the Sitemap protocol.
       "generatedAt": "2025-12-09T12:00:00Z"
     }
   }
-
 `}
 </CodeBlock>
 

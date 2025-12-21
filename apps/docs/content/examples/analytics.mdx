@@ -14,7 +14,9 @@ Simplist provides **server-side analytics** that are privacy-friendly and adbloc
 For the simplest setup, use our drop-in analytics script. One line of HTML, no SDK required:
 
 <CodeBlock language="html" filename="index.html">
-  {`<script defer src="https://cdn.simplist.blog/analytics.js" data-project="your-project-slug"></script>`}
+{`
+  <script defer src="https://cdn.simplist.blog/analytics.js" data-project="your-project-slug"></script>
+`}
 </CodeBlock>
 
 This automatically tracks:
@@ -77,8 +79,8 @@ The script auto-detects article slugs from your URL and handles all engagement t
 Track when a user views an article.
 
 <CodeBlock language="typescript" filename="track-pageview.ts">
-  {`
-  import { SimplistClient } from '@simplist.blog/sdk'
+{`
+  import { SimplistClient } from "@simplist.blog/sdk"
 
 // Uses SIMPLIST_API_KEY from environment variables
 const client = new SimplistClient()
@@ -369,7 +371,7 @@ Here's a full implementation for a Next.js blog:
       label: "article-analytics.tsx",
       language: "tsx",
       filename: "components/article-analytics.tsx",
-      code: `'use client'
+      code: `"use client"
 
 import { useEffect, useRef } from "react";
 import { SimplistClient } from "@simplist.blog/sdk";
@@ -488,8 +490,8 @@ const SESSION_DURATION = 30 * 60 \_ 1000 // 30 minutes
       label: "page.tsx",
       language: "tsx",
       filename: "articles/[slug]/page.tsx",
-      code:`import { SimplistClient } from '@simplist.blog/sdk'
-import { ArticleAnalytics } from '@/components/article-analytics'
+      code:`import { SimplistClient } from "@simplist.blog/sdk"
+import { ArticleAnalytics } from "@/components/article-analytics"
 
 // Uses SIMPLIST_API_KEY from environment variables
 const client = new SimplistClient()

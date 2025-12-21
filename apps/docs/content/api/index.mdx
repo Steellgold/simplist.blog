@@ -14,7 +14,7 @@ The Simplist REST API provides direct HTTP access to all Simplist features. You 
 All API endpoints are relative to:
 
 <CodeBlock language="bash">
-{`
+  {`
 https://api.simplist.blog
 `}
 </CodeBlock>
@@ -23,36 +23,34 @@ https://api.simplist.blog
 
 All requests require authentication via an API key in the `X-API-Key` header:
 
-<CodeBlock language="bash">
-{`
-curl -X GET "https://api.simplist.blog/v1/articles" \
-
-       -H "X-API-Key: YOUR_API_KEY"
-`}
-</CodeBlock>
+<CurlCommand
+  method="GET"
+  url="https://api.simplist.blog/v1/articles"
+  headers={{
+    "X-API-Key": "YOUR_API_KEY",
+  }}
+/>
 
 ## Response Format
 
 All successful responses return a JSON object with this structure:
 
-<CodeBlock language="json">
+<CodeBlock language="json" filename="response.json">
 {`
-
   {
-    "data": { /* response data */ },
-    "meta": { /* optional pagination metadata */ }
+    "data": {/* response data */},
+    "meta": {/* optional pagination metadata */}
   }
-
 `}
+
 </CodeBlock>
 
 ### Pagination Metadata
 
 For list endpoints, the `meta` object contains pagination information:
 
-<CodeBlock language="json">
+<CodeBlock language="json" filename="error-response.json">
 {`
-
   {
     "data": [/* articles */],
     "meta": {
@@ -62,8 +60,8 @@ For list endpoints, the `meta` object contains pagination information:
       "totalPages": 5
     }
   }
-
 `}
+
 </CodeBlock>
 
 ## Error Handling
@@ -72,15 +70,14 @@ Errors return a JSON object with this structure:
 
 <CodeBlock language="json">
 {`
-
   {
     "error": "Error type",
     "message": "Detailed error message",
     "statusCode": 400,
-    "details": { /* additional error details */ }
+    "details": {/* additional error details */}
   }
-
 `}
+
 </CodeBlock>
 
 ## Rate Limits
@@ -94,25 +91,63 @@ The API has the following rate limits:
 
 ### Articles
 
-- <InlineRouteLink method="GET" path="/v1/articles" href="/api/get-articles" /> (list with pagination)
-- <InlineRouteLink method="GET" path="/v1/articles/:slug" href="/api/get-article" /> (get a specific article)
+- <InlineRouteLink method="GET" path="/v1/articles" href="/api/get-articles" />
+  (list with pagination)
+- <InlineRouteLink
+    method="GET"
+    path="/v1/articles/:slug"
+    href="/api/get-article"
+  />
+  (get a specific article)
 
 ### Project
 
-- <InlineRouteLink method="GET" path="/v1/project" href="/api/get-project" /> (project info and stats)
+- <InlineRouteLink method="GET" path="/v1/project" href="/api/get-project" />
+  (project info and stats)
 
 ### Analytics
 
-- <InlineRouteLink method="POST" path="/v1/analytics/track" href="/api/post-track" /> (track a new page view)
-- <InlineRouteLink method="PUT" path="/v1/analytics/track/:id" href="/api/put-track" /> (update a page view)
-- <InlineRouteLink method="GET" path="/v1/analytics/stats" href="/api/get-stats" /> (analytics statistics)
+- <InlineRouteLink
+    method="POST"
+    path="/v1/analytics/track"
+    href="/api/post-track"
+  />
+  (track a new page view)
+- <InlineRouteLink
+    method="PUT"
+    path="/v1/analytics/track/:id"
+    href="/api/put-track"
+  />
+  (update a page view)
+- <InlineRouteLink
+    method="GET"
+    path="/v1/analytics/stats"
+    href="/api/get-stats"
+  />
+  (analytics statistics)
 
 ### SEO
 
-- <InlineRouteLink method="GET" path="/v1/seo/article/:slug" href="/api/get-seo-article" /> (article with SEO metadata)
-- <InlineRouteLink method="GET" path="/v1/seo/sitemap" href="/api/get-sitemap" /> (sitemap)
-- <InlineRouteLink method="GET" path="/v1/seo/rss" href="/api/get-rss" /> (RSS feed)
-- <InlineRouteLink method="GET" path="/v1/seo/structured-data" href="/api/get-structured-data" /> (JSON-LD structured data)
+- <InlineRouteLink
+    method="GET"
+    path="/v1/seo/article/:slug"
+    href="/api/get-seo-article"
+  />
+  (article with SEO metadata)
+- <InlineRouteLink
+    method="GET"
+    path="/v1/seo/sitemap"
+    href="/api/get-sitemap"
+  />
+  (sitemap)
+- <InlineRouteLink method="GET" path="/v1/seo/rss" href="/api/get-rss" /> (RSS
+  feed)
+- <InlineRouteLink
+    method="GET"
+    path="/v1/seo/structured-data"
+    href="/api/get-structured-data"
+  />
+  (JSON-LD structured data)
 
 ## Need the SDK?
 

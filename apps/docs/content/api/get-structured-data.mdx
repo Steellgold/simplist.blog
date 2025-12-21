@@ -54,9 +54,8 @@ Retrieve JSON-LD structured data for all published articles. Useful for implemen
 
 ## Example Response
 
-<CodeBlock language="json">
+<CodeBlock language="json" filename="structured-data.json">
 {`
-
   {
     "data": {
       "project": {
@@ -93,7 +92,6 @@ Retrieve JSON-LD structured data for all published articles. Useful for implemen
       "generatedAt": "2025-12-09T12:00:00Z"
     }
   }
-
 `}
 </CodeBlock>
 
@@ -101,16 +99,16 @@ Retrieve JSON-LD structured data for all published articles. Useful for implemen
 
 Add the structured data to each article page's `<head>`:
 
-<CodeBlock language="html">
+<CodeBlock language="html" filename="article-page.html">
 {`
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Article",
-  "headline": "Getting Started",
-  ...
-}
-</script>
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "Getting Started",
+      ...
+    }
+  </script>
 `}
 </CodeBlock>
 

@@ -25,7 +25,12 @@ Retrieve a specific tag by its name with article count and metadata.
 <TypeTable
   title="Parameters"
   properties={[
-    { name: "name", type: "string", description: "The tag name (URL-encoded if contains special characters)", required: true }
+    {
+      name: "name",
+      type: "string",
+      description: "The tag name (URL-encoded if contains special characters)",
+      required: true,
+    },
   ]}
 />
 
@@ -36,36 +41,69 @@ Returns a single `TagListItem` object.
 <TypeTable
   title="TagListItem"
   properties={[
-    { name: "id", type: "string", description: "Unique tag identifier", required: true },
+    {
+      name: "id",
+      type: "string",
+      description: "Unique tag identifier",
+      required: true,
+    },
     { name: "name", type: "string", description: "Tag name", required: true },
-    { name: "icon", type: "string | null", description: "Tag icon name (e.g., 'code', 'book')" },
-    { name: "color", type: "string | null", description: "Hex color code (e.g., '#3B82F6')" },
-    { name: "articleCount", type: "number", description: "Number of articles with this tag", required: true },
-    { name: "createdAt", type: "string", description: "ISO 8601 creation timestamp", required: true },
-    { name: "updatedAt", type: "string", description: "ISO 8601 last update timestamp", required: true }
+    {
+      name: "icon",
+      type: "string | null",
+      description: "Tag icon name (e.g., 'code', 'book')",
+    },
+    {
+      name: "color",
+      type: "string | null",
+      description: "Hex color code (e.g., '#3B82F6')",
+    },
+    {
+      name: "articleCount",
+      type: "number",
+      description: "Number of articles with this tag",
+      required: true,
+    },
+    {
+      name: "createdAt",
+      type: "string",
+      description: "ISO 8601 creation timestamp",
+      required: true,
+    },
+    {
+      name: "updatedAt",
+      type: "string",
+      description: "ISO 8601 last update timestamp",
+      required: true,
+    },
   ]}
 />
 
 ## Example Request
 
-<CodeBlock language="bash">
-{`curl -X GET "https://api.simplist.blog/v1/tags/JavaScript" \\
-  -H "X-API-Key: YOUR_API_KEY"`}
-</CodeBlock>
+<CurlCommand
+  method="GET"
+  url="https://api.simplist.blog/v1/tags/JavaScript"
+  headers={{
+    "X-API-Key": "YOUR_API_KEY",
+  }}
+/>
 
 ### URL-Encoding Special Characters
 
 For tags with spaces or special characters, URL-encode the name:
 
-<CodeBlock language="bash">
-{`# Tag name: "Machine Learning"
-curl -X GET "https://api.simplist.blog/v1/tags/Machine%20Learning" \\
-  -H "X-API-Key: YOUR_API_KEY"`}
-</CodeBlock>
+<CurlCommand
+  method="GET"
+  url="https://api.simplist.blog/v1/tags/Machine%20Learning"
+  headers={{
+    "X-API-Key": "YOUR_API_KEY",
+  }}
+/>
 
 ## Example Response
 
-<CodeBlock language="json">
+<CodeBlock language="json" filename="tag.json">
 {`
   {
     "data": {
@@ -85,7 +123,7 @@ curl -X GET "https://api.simplist.blog/v1/tags/Machine%20Learning" \\
 
 ### Tag Not Found (404)
 
-<CodeBlock language="json">
+<CodeBlock language="json" filename="tag-not-found.json">
 {`
   {
     "error": "Not Found",
@@ -101,8 +139,10 @@ If you're using TypeScript/JavaScript, you can use the SDK instead: [client.tags
 
 ## Related Endpoints
 
-- <InlineRouteLink method="GET" path="/v1/tags" href="/api/get-tags" /> - List all tags
-- <InlineRouteLink method="GET" path="/v1/articles" href="/api/get-articles" /> - Filter articles by this tag
+- <InlineRouteLink method="GET" path="/v1/tags" href="/api/get-tags" /> - List
+  all tags
+- <InlineRouteLink method="GET" path="/v1/articles" href="/api/get-articles" />
+  - Filter articles by this tag
 
 ## See Also
 

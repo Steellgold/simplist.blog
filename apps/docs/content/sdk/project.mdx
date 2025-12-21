@@ -69,19 +69,14 @@ Get complete project information including both metadata and statistics.
 {`
   const response = await client.project.get()
 
-  console.log(response.data.project.name)
-  // "My Blog"
-
-  console.log(response.data.stats.totalArticles)
-  // 42
-
-  console.log(response.data.stats.publishedArticles)
-  // 35
-
-  console.log(response.data.stats.totalViews)
-  // 15473
+  console.log(response.data.project.name)             // "My Blog"
+  console.log(response.data.stats.totalArticles)      // 42
+  console.log(response.data.stats.publishedArticles)  // 35
+  console.log(response.data.stats.totalViews)         // 15473
 `}
 </CodeBlock>
+
+---
 
 ## getInfo()
 
@@ -105,6 +100,8 @@ Get only project metadata without statistics. Useful when you don't need stats a
   console.log(project.createdAt)   // "2024-01-15T10:30:00Z"
 `}
 </CodeBlock>
+
+---
 
 ## getStats()
 
@@ -136,7 +133,7 @@ Get only project statistics without metadata. Useful for dashboards and monitori
 
 <CodeBlock language="tsx">
 {`
-  import { SimplistClient } from '@simplist.blog/sdk'
+  import { SimplistClient } from "@simplist.blog/sdk"
 
   export async function Dashboard() {
     // Uses SIMPLIST_API_KEY from environment variables
@@ -181,7 +178,7 @@ Get only project statistics without metadata. Useful for dashboards and monitori
 
 <CodeBlock language="tsx">
 {`
-  import { SimplistClient } from '@simplist.blog/sdk'
+  import { SimplistClient } from "@simplist.blog/sdk"
 
   async function checkProjectHealth() {
     const client = new SimplistClient()
@@ -216,6 +213,8 @@ Get only project statistics without metadata. Useful for dashboards and monitori
 `}
 </CodeBlock>
 
+---
+
 ## HTTP Endpoint
 
 This SDK method uses the following API endpoint: <InlineRouteLink method="GET" path="/v1/project" href="/api/get-project" />
@@ -227,6 +226,8 @@ This SDK method uses the following API endpoint: <InlineRouteLink method="GET" p
   testable={true}
   requiresAuth={true}
 />
+
+---
 
 ## Frequently Asked Questions
 

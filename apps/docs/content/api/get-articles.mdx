@@ -209,16 +209,16 @@ Returns an array of `ArticleListItem` objects (articles without full content).
 
 ## Example
 
-<CodeBlock language="bash">
-  {`
-  curl -X GET "https://api.simplist.blog/v1/articles?page=1&limit=5&published=true" \
-    
-    -H "X-API-Key: YOUR_API_KEY"
-`}
-</CodeBlock>
+<CurlCommand
+  method="GET"
+  url="https://api.simplist.blog/v1/articles?page=1&limit=5&published=true"
+  headers={{
+    "X-API-Key": "YOUR_API_KEY",
+  }}
+/>
 
 <CodeBlock language="json">
-  {`
+{`
   {
     "data": [
       {
@@ -252,41 +252,49 @@ You can filter articles by tags using three different parameters:
 
 Get articles with at least one of the specified tags:
 
-<CodeBlock language="bash">
-  {`# Articles tagged with JavaScript OR TypeScript
-curl -X GET "https://api.simplist.blog/v1/articles?tags=JavaScript,TypeScript" \\
-  -H "X-API-Key: YOUR_API_KEY"`}
-</CodeBlock>
+<CurlCommand
+  method="GET"
+  url="https://api.simplist.blog/v1/articles?tags=JavaScript,TypeScript"
+  headers={{
+    "X-API-Key": "YOUR_API_KEY",
+  }}
+/>
 
 ### Filter by All Tags (AND Logic)
 
 Get articles that have all specified tags:
 
-<CodeBlock language="bash">
-  {`# Articles tagged with BOTH Tutorial AND JavaScript
-curl -X GET "https://api.simplist.blog/v1/articles?tagsAll=Tutorial,JavaScript" \\
-  -H "X-API-Key: YOUR_API_KEY"`}
-</CodeBlock>
+<CurlCommand
+  method="GET"
+  url="https://api.simplist.blog/v1/articles?tagsAll=Tutorial,JavaScript"
+  headers={{
+    "X-API-Key": "YOUR_API_KEY",
+  }}
+/>
 
 ### Exclude Tags
 
 Get articles that don't have specific tags:
 
-<CodeBlock language="bash">
-  {`# Articles without Advanced or Deprecated tags
-curl -X GET "https://api.simplist.blog/v1/articles?excludeTags=Advanced,Deprecated" \\
-  -H "X-API-Key: YOUR_API_KEY"`}
-</CodeBlock>
+<CurlCommand
+  method="GET"
+  url="https://api.simplist.blog/v1/articles?excludeTags=Advanced,Deprecated"
+  headers={{
+    "X-API-Key": "YOUR_API_KEY",
+  }}
+/>
 
 ### Combining Tag Filters
 
 You can combine multiple tag filters for complex queries:
 
-<CodeBlock language="bash">
-  {`# Articles about JavaScript OR TypeScript, that are tutorials, but not advanced
-curl -X GET "https://api.simplist.blog/v1/articles?tags=JavaScript,TypeScript&tagsAll=Tutorial&excludeTags=Advanced" \\
-  -H "X-API-Key: YOUR_API_KEY"`}
-</CodeBlock>
+<CurlCommand
+  method="GET"
+  url="https://api.simplist.blog/v1/articles?tags=JavaScript,TypeScript&tagsAll=Tutorial&excludeTags=Advanced"
+  headers={{
+    "X-API-Key": "YOUR_API_KEY",
+  }}
+/>
 
 ## SDK Equivalent
 
@@ -298,9 +306,4 @@ If you're using TypeScript/JavaScript, you can use the SDK instead: [client.arti
   all available tags
 - <InlineRouteLink method="GET" path="/v1/tags/:name" href="/api/get-tag" /> -
   Get a specific tag
-- <InlineRouteLink
-    method="GET"
-    path="/v1/articles/:slug"
-    href="/api/get-article"
-  />
-  - Get a single article
+- <InlineRouteLink method="GET" path="/v1/articles/:slug" href="/api/get-article" /> - Get a single article

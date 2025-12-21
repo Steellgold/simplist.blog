@@ -39,7 +39,7 @@ The main client for interacting with the Simplist API.
 
 <CodeBlock language="typescript">
 {`
-  import { SimplistClient } from '@simplist.blog/sdk'
+  import { SimplistClient } from "@simplist.blog/sdk"
 
   const client = new SimplistClient({
     apiKey: process.env.SIMPLIST_API_KEY,
@@ -56,6 +56,8 @@ The main client for interacting with the Simplist API.
   })
 `}
 </CodeBlock>
+
+---
 
 ## Methods
 
@@ -82,6 +84,8 @@ console.log(result.timestamp)   // '2025-12-09T10:30:00Z'
 - Health checks in monitoring systems
 - Validating API key before making requests
 - Testing API connectivity
+
+---
 
 ## Properties
 
@@ -126,6 +130,8 @@ client.analytics.getStats({ days: 7 })
 
 See [Analytics API](/sdk/analytics) for full documentation.
 
+---
+
 ### seo
 
 Generate sitemaps, RSS feeds, and structured data.
@@ -139,11 +145,13 @@ client.seo.getRssFeed('https://yourblog.com', 20)
 
 See [SEO API](/sdk/seo) for full documentation.
 
-## Complete Example
+---
+
+## Example
 
 <CodeBlock language="typescript">
 {`
-  import { SimplistClient } from '@simplist.blog/sdk'
+  import { SimplistClient } from "@simplist.blog/sdk"
 
   // Initialize client
   const client = new SimplistClient({
@@ -171,13 +179,15 @@ See [SEO API](/sdk/seo) for full documentation.
 `}
 </CodeBlock>
 
+---
+
 ## Error Handling
 
 All methods can throw `SimplistApiError` for API errors:
 
 <CodeBlock language="typescript">
 {`
-  import { SimplistClient, SimplistApiError } from '@simplist.blog/sdk'
+  import { SimplistClient, SimplistApiError } from "@simplist.blog/sdk"
 
   // Uses SIMPLIST_API_KEY from environment variables
   const client = new SimplistClient()
@@ -196,6 +206,8 @@ All methods can throw `SimplistApiError` for API errors:
 </CodeBlock>
 
 See [Error Handling](/error-handling) for more information.
+
+---
 
 ## Frequently Asked Questions
 

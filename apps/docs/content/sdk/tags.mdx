@@ -122,28 +122,25 @@ Retrieve all tags with their metadata and article counts.
 {`
   // Basic list (all tags)
   const { data: tags, meta } = await client.tags.list()
+  console.log(\`Total tags: \${meta.total}\`)
 
-console.log(\`Total tags: \${meta.total}\`)
+  tags.forEach(tag => {
+    console.log(\`- \${tag.name}: \${tag.articleCount} articles\`)
 
-tags.forEach(tag => {
-console.log(\`- \${tag.name}: \${tag.articleCount} articles\`)
-if (tag.color) {
-console.log(\` Color: \${tag.color}\`)
-}
-if (tag.icon) {
-console.log(\` Icon: \${tag.icon}\`)
-}
-})
+    if (tag.color) console.log(\` Color: \${tag.color}\`)
+    if (tag.icon) console.log(\` Icon: \${tag.icon}\`)
+  })
 
-// With sorting and limit
-const { data: topTags } = await client.tags.list({
-sort: 'articleCount',
-order: 'desc',
-limit: 10
-})
+  // With sorting and limit
+  const { data: topTags } = await client.tags.list({
+    sort: 'articleCount',
+    order: 'desc',
+    limit: 10
+  })
 `}
-
 </CodeBlock>
+
+---
 
 ## get()
 
@@ -169,15 +166,16 @@ Retrieve a specific tag by its name.
 {`
   const { data: tag } = await client.tags.get('JavaScript')
 
-console.log(\`Tag: \${tag.name}\`)
-console.log(\`Articles: \${tag.articleCount}\`)
-console.log(\`Color: \${tag.color}\`)
+  console.log(\`Tag: \${tag.name}\`)
+  console.log(\`Articles: \${tag.articleCount}\`)
+  console.log(\`Color: \${tag.color}\`)
 
-// Tags with spaces are automatically URL-encoded
-const { data: mlTag } = await client.tags.get('Machine Learning')
+  // Tags with spaces are automatically URL-encoded
+  const { data: mlTag } = await client.tags.get('Machine Learning')
 `}
-
 </CodeBlock>
+
+---
 
 ## names()
 
@@ -196,17 +194,19 @@ Get an array of all tag names (convenience method).
 {`
   const tagNames = await client.tags.names()
 
-console.log('Available tags:', tagNames.join(', '))
-// Output: "JavaScript, TypeScript, Tutorial, Advanced"
+  console.log('Available tags:', tagNames.join(', '))
+  // Output: "JavaScript, TypeScript, Tutorial, Advanced"
 
-// Use for dropdowns or autocomplete
-const tagOptions = tagNames.map(name => ({
-label: name,
-value: name
-}))
+  // Use for dropdowns or autocomplete
+  const tagOptions = tagNames.map(name => ({
+    label: name,
+    value: name
+  }))
 `}
 
 </CodeBlock>
+
+---
 
 ## popular()
 
@@ -233,15 +233,16 @@ Get tags sorted by article count (most popular first).
   // Get top 5 most used tags
   const topTags = await client.tags.popular(5)
 
-topTags.forEach((tag, i) => {
-console.log(\`\${i + 1}. \${tag.name} (\${tag.articleCount} articles)\`)
-})
+  topTags.forEach((tag, i) => {
+    console.log(\`\${i + 1}. \${tag.name} (\${tag.articleCount} articles)\`)
+  })
 
-// Get all tags sorted by popularity
-const allPopularTags = await client.tags.popular()
+  // Get all tags sorted by popularity
+  const allPopularTags = await client.tags.popular()
 `}
-
 </CodeBlock>
+
+---
 
 ## Using Tags with Articles
 
@@ -256,16 +257,15 @@ Get articles with at least one of the specified tags.
   // Get all tags first
   const { data: tags } = await client.tags.list()
 
-// Filter articles by specific tag
-const { data: jsArticles } = await client.articles.list({
-tags: ['JavaScript']
-})
+  // Filter articles by specific tag
+  const { data: jsArticles } = await client.articles.list({
+    tags: ['JavaScript']
+  })
 
-// Filter by multiple tags (OR logic)
-const { data: webArticles } = await client.articles.list({
-tags: ['JavaScript', 'TypeScript', 'HTML']
-})
-// Returns articles tagged with JavaScript OR TypeScript OR HTML
+  // Filter by multiple tags (OR logic)
+  const { data: webArticles } = await client.articles.list({
+    tags: ['JavaScript', 'TypeScript', 'HTML']
+  })
 `}
 
 </CodeBlock>
@@ -275,12 +275,11 @@ tags: ['JavaScript', 'TypeScript', 'HTML']
 Get articles that have all specified tags.
 
 <CodeBlock language="tsx">
-  {`
+{`
   // Articles that are BOTH tutorials AND about JavaScript
   const { data: jsTutorials } = await client.articles.list({
     tagsAll: ['JavaScript', 'Tutorial']
   })
-  // Returns only articles tagged with BOTH JavaScript AND Tutorial
 `}
 </CodeBlock>
 
@@ -289,7 +288,7 @@ Get articles that have all specified tags.
 Get articles that don't have specific tags.
 
 <CodeBlock language="tsx">
-  {`
+{`
   // Articles without Advanced or Deprecated tags
   const { data: beginnerArticles } = await client.articles.list({
     excludeTags: ['Advanced', 'Deprecated']
@@ -305,17 +304,17 @@ You can combine multiple tag filters for complex queries.
 {`
   // Complex filter: JavaScript OR TypeScript tutorials that are NOT advanced
   const { data: beginnerWebTutorials } = await client.articles.list({
-    tags: ['JavaScript', 'TypeScript'],     // OR: at least one of these
-    tagsAll: ['Tutorial'],                   // AND: must have this tag
-    excludeTags: ['Advanced'],               // NOT: must not have this tag
+    tags: ['JavaScript', 'TypeScript'],       // OR: at least one of these
+    tagsAll: ['Tutorial'],                    // AND: must have this tag
+    excludeTags: ['Advanced'],                // NOT: must not have this tag
     published: true
   })
 
-// Example: Get the most popular tags and articles for each
-const popularTags = await client.tags.popular(3)
+  // Example: Get the most popular tags and articles for each
+  const popularTags = await client.tags.popular(3)
 
-for (const tag of popularTags) {
-console.log(\`\\nTag: \${tag.name} (\${tag.articleCount} articles)\`)
+  for (const tag of popularTags) {
+    console.log(\`\\nTag: \${tag.name} (\${tag.articleCount} articles)\`)
 
     const { data: articles } = await client.articles.list({
       tags: [tag.name],
@@ -325,11 +324,12 @@ console.log(\`\\nTag: \${tag.name} (\${tag.articleCount} articles)\`)
     articles.forEach(article => {
       console.log(\`  - \${article.title}\`)
     })
-
-}
+  }
 `}
 
 </CodeBlock>
+
+---
 
 ## Common Use Cases
 
@@ -337,12 +337,12 @@ console.log(\`\\nTag: \${tag.name} (\${tag.articleCount} articles)\`)
 
 <CodeBlock language="tsx">
 {`
-  import { SimplistClient } from '@simplist/sdk'
+  import { SimplistClient } from "@simplist/sdk"
 
-const client = new SimplistClient({ apiKey: process.env.SIMPLIST_API_KEY })
+  const client = new SimplistClient({ apiKey: process.env.SIMPLIST_API_KEY })
 
-export async function TagCloud() {
-const { data: tags } = await client.tags.list()
+  export async function TagCloud() {
+    const { data: tags } = await client.tags.list()
 
     return (
       <div className="flex flex-wrap gap-2">
@@ -361,8 +361,7 @@ const { data: tags } = await client.tags.list()
         ))}
       </div>
     )
-
-}
+  }
 `}
 
 </CodeBlock>
@@ -390,49 +389,47 @@ const { data: tags } = await client.tags.list()
         </ul>
       </aside>
     )
-
-}
+  }
 `}
-
 </CodeBlock>
 
 ### Tag-based Navigation
 
 <CodeBlock language="tsx">
 {`
-  export async function TagPage({ params }: { params: { tag: string } }) {
-    const tagName = decodeURIComponent(params.tag)
+  type TagPageProps = { params: Promise<{ tag: string }> }
 
-    // Get tag info
-    const { data: tag } = await client.tags.get(tagName)
+  export default async function TagPage({ params }: TagPageProps) {
+    const { tag } = await params
 
-    // Get articles with this tag
+    const { data: tagData } = await client.tags.get(tag)
+
     const { data: articles } = await client.articles.list({
-      tags: [tagName],
-      published: true
+      tags: [tagData.name],
+      published: true,
     })
 
     return (
       <div>
-        <h1>
-          {tag.icon && <Icon name={tag.icon} />}
-          {tag.name}
-          <span>({tag.articleCount} articles)</span>
+        <h1 className="flex items-center gap-2">
+          {tagData.icon && <Icon name={tagData.icon} />}
+          {tagData.name}
+          <span>({tagData.articleCount} articles)</span>
         </h1>
 
         <ArticleList articles={articles} />
       </div>
     )
-
-}
+  }
 `}
-
 </CodeBlock>
+
+---
 
 ## Error Handling
 
 <CodeBlock language="tsx">
-  {`
+{`
   try {
     const { data: tag } = await client.tags.get('NonExistentTag')
   } catch (error) {
@@ -444,6 +441,8 @@ const { data: tags } = await client.tags.list()
   }
 `}
 </CodeBlock>
+
+---
 
 ## See Also
 

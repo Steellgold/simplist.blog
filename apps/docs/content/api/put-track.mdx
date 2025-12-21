@@ -19,7 +19,12 @@ Update an existing page view tracking entry with engagement metrics. Use this to
   testable={true}
   requiresAuth={true}
   parameters={[
-    { name: "id", type: "string", required: true, description: "Page view ID from initial track response" }
+    {
+      name: "id",
+      type: "string",
+      required: true,
+      description: "Page view ID from initial track response",
+    },
   ]}
 />
 
@@ -27,7 +32,12 @@ Update an existing page view tracking entry with engagement metrics. Use this to
 
 <TypeTable
   properties={[
-    { name: "id", type: "string", description: "Page view ID (e.g., 'pv_xyz789')", required: true }
+    {
+      name: "id",
+      type: "string",
+      description: "Page view ID (e.g., 'pv_xyz789')",
+      required: true,
+    },
   ]}
 />
 
@@ -35,11 +45,31 @@ Update an existing page view tracking entry with engagement metrics. Use this to
 
 <TypeTable
   properties={[
-    { name: "timeOnPage", type: "number", description: "Total time spent in seconds" },
-    { name: "scrollDepth", type: "number", description: "Maximum scroll depth (0-100%)" },
-    { name: "exitPosition", type: "number", description: "Scroll position when leaving (0-100%)" },
-    { name: "bounced", type: "boolean", description: "Whether user bounced (< 5 seconds)" },
-    { name: "events", type: "PageEvent[]", description: "Additional custom events" }
+    {
+      name: "timeOnPage",
+      type: "number",
+      description: "Total time spent in seconds",
+    },
+    {
+      name: "scrollDepth",
+      type: "number",
+      description: "Maximum scroll depth (0-100%)",
+    },
+    {
+      name: "exitPosition",
+      type: "number",
+      description: "Scroll position when leaving (0-100%)",
+    },
+    {
+      name: "bounced",
+      type: "boolean",
+      description: "Whether user bounced (< 5 seconds)",
+    },
+    {
+      name: "events",
+      type: "PageEvent[]",
+      description: "Additional custom events",
+    },
   ]}
 />
 
@@ -47,7 +77,12 @@ Update an existing page view tracking entry with engagement metrics. Use this to
 
 <TypeTable
   properties={[
-    { name: "success", type: "boolean", description: "Whether update succeeded", required: true }
+    {
+      name: "success",
+      type: "boolean",
+      description: "Whether update succeeded",
+      required: true,
+    },
   ]}
 />
 
@@ -57,17 +92,16 @@ Update an existing page view tracking entry with engagement metrics. Use this to
   method="PUT"
   url="https://api.simplist.blog/v1/analytics/track/pv_xyz789"
   headers={{
-    'X-API-Key': 'YOUR_API_KEY',
-    'Content-Type': 'application/json'
+    "X-API-Key": "YOUR_API_KEY",
+    "Content-Type": "application/json",
   }}
   body={`{"timeOnPage":125,"scrollDepth":85,"exitPosition":85,"bounced":false}`}
 />
 
 ### Request Body
 
-<CodeBlock language="json">
-{`
-
+<CodeBlock language="json" filename="request-body.json">
+  {`
   {
     "timeOnPage": 125,
     "scrollDepth": 85,
@@ -81,21 +115,18 @@ Update an existing page view tracking entry with engagement metrics. Use this to
       }
     ]
   }
-
 `}
 </CodeBlock>
 
 ## Example Response
 
-<CodeBlock language="json">
-{`
-
+<CodeBlock language="json" filename="response.json">
+  {`
   {
     "data": {
       "success": true
     }
   }
-
 `}
 </CodeBlock>
 
@@ -106,52 +137,63 @@ Update an existing page view tracking entry with engagement metrics. Use this to
 3. **Update periodically** (every 30s) with current metrics
 4. **Send final update** when user leaves page
 
-<CodeBlock language="javascript">
-{`
-// 1. Initialize
-const response = await fetch('https://api.simplist.blog/v1/analytics/track', {
-  method: 'POST',
-  headers: {
-    'X-API-Key': 'YOUR_API_KEY',
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({ slug: 'my-article', timeOnPage: 0 })
-})
-const { id } = await response.json()
-
-// 2. Update periodically
-setInterval(async () => {
-  await fetch(\`https://api.simplist.blog/v1/analytics/track/\${id}\`, {
-    method: 'PUT',
+<CodeBlock
+  tabs={[
+    {
+      label: "1. Initialize",
+      language: "javascript",
+      filename: "step-1-initialize.js",
+      code: `const response = await fetch('https://api.simplist.blog/v1/analytics/track', {
+    method: 'POST',
     headers: {
       'X-API-Key': 'YOUR_API_KEY',
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({
-      timeOnPage: getTimeOnPage(),
-      scrollDepth: getScrollDepth()
-    })
+    body: JSON.stringify({ slug: 'my-article', timeOnPage: 0 })
   })
-}, 30000)
 
-// 3. Final update on unload
-window.addEventListener('beforeunload', async () => {
-  await fetch(\`https://api.simplist.blog/v1/analytics/track/\${id}\`, {
-    method: 'PUT',
-    headers: {
-      'X-API-Key': 'YOUR_API_KEY',
-      'Content-Type': 'application/json'
+  const { id } = await response.json()`,
     },
-    body: JSON.stringify({
-      timeOnPage: getTimeOnPage(),
-      scrollDepth: getScrollDepth(),
-      exitPosition: getScrollDepth(),
-      bounced: getTimeOnPage() < 5
+    {
+      label: "2. Update Periodically",
+      language: "javascript",
+      filename: "step-2-update.js",
+      code: `setInterval(async () => {
+    await fetch(\`https://api.simplist.blog/v1/analytics/track/\${id}\`, {
+      method: 'PUT',
+      headers: {
+        'X-API-Key': 'YOUR_API_KEY',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        timeOnPage: getTimeOnPage(),
+        scrollDepth: getScrollDepth()
+      })
     })
-  })
-})
-`}
-</CodeBlock>
+  }, 30000)`,
+    },
+    {
+      label: "3. Final Update",
+      language: "javascript",
+      filename: "step-3-final.js",
+      code: `window.addEventListener('beforeunload', async () => {
+    await fetch(\`https://api.simplist.blog/v1/analytics/track/\${id}\`, {
+      method: 'PUT',
+      headers: {
+        'X-API-Key': 'YOUR_API_KEY',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        timeOnPage: getTimeOnPage(),
+        scrollDepth: getScrollDepth(),
+        exitPosition: getScrollDepth(),
+        bounced: getTimeOnPage() < 5
+      })
+    })
+  })`,
+    },
+  ]}
+/>
 
 ## SDK Equivalent
 

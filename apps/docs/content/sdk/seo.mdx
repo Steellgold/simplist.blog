@@ -51,10 +51,10 @@ Retrieve an article with complete SEO metadata for use in meta tags.
 
 ### Example
 
-<CodeBlock language="typescript">
+<CodeBlock cusLang="nextjs" language="typescript" filename="app/blog/[slug]/page.tsx">
 {`
-  import { SimplistClient } from '@simplist.blog/sdk'
-  import type { Metadata } from 'next'
+  import { SimplistClient } from "@simplist.blog/sdk"
+  import type { Metadata } from "next"
 
   export async function generateMetadata({
     params
@@ -96,6 +96,8 @@ Retrieve an article with complete SEO metadata for use in meta tags.
 `}
 </CodeBlock>
 
+---
+
 ## getSitemap()
 
 Generate a sitemap for your articles in XML or JSON format.
@@ -111,12 +113,16 @@ Generate a sitemap for your articles in XML or JSON format.
   async={true}
 />
 
-### Example (XML)
+### Examples
 
-<CodeBlock language="typescript">
-{`
-  // app/sitemap.xml/route.ts
-  import { SimplistClient } from '@simplist.blog/sdk'
+<CodeBlock
+  tabs={[
+    {
+      label: "Sitemap XML",
+      language: "typescript",
+      filename: "app/sitemap.xml/route.ts",
+      code: `
+  import { SimplistClient } from "@simplist.blog/sdk"
 
   export async function GET() {
     // Uses SIMPLIST_API_KEY from environment variables
@@ -135,13 +141,12 @@ Generate a sitemap for your articles in XML or JSON format.
       }
     })
   }
-`}
-</CodeBlock>
-
-### Example (JSON)
-
-<CodeBlock language="typescript">
-{`
+      `.trim(),
+    },
+    {
+      label: "Sitemap JSON",
+      language: "typescript",
+      code: `
   const sitemap = await client.seo.getSitemap(
     'https://myblog.com',
     'json',
@@ -155,8 +160,12 @@ Generate a sitemap for your articles in XML or JSON format.
     console.log(entry.changeFrequency)
     console.log(entry.priority)
   })
-`}
-</CodeBlock>
+      `.trim(),
+    },
+  ]}
+/>
+
+---
 
 ## getRssFeed()
 
@@ -177,7 +186,7 @@ Generate an RSS 2.0 feed for your articles.
 
 <CodeBlock language="typescript" filename="app/feed.xml/route.ts">
 {`
-  import { SimplistClient } from '@simplist.blog/sdk'
+  import { SimplistClient } from "@simplist.blog/sdk"
 
   export async function GET() {
     // Uses SIMPLIST_API_KEY from environment variables
@@ -198,6 +207,8 @@ Generate an RSS 2.0 feed for your articles.
   }
 `}
 </CodeBlock>
+
+---
 
 ## getStructuredData()
 
@@ -259,14 +270,21 @@ Get JSON-LD structured data for all articles. Useful for search engine rich resu
 `}
 </CodeBlock>
 
+---
+
 ## Complete Example
 
-### Next.js Article Page with Full SEO
+A complete example of a Next.js article page with full SEO metadata and structured data.
 
-<CodeBlock language="tsx">
-{`
-  import { SimplistClient } from '@simplist.blog/sdk'
-  import type { Metadata } from 'next'
+<CodeBlock
+  tabs={[
+    {
+      label: "Metadata",
+      language: "tsx",
+      filename: "app/blog/[slug]/metadata.ts",
+      code: `
+  import { SimplistClient } from "@simplist.blog/sdk"
+  import type { Metadata } from "next"
 
   // Uses SIMPLIST_API_KEY from environment variables
   const client = new SimplistClient()
@@ -298,6 +316,18 @@ Get JSON-LD structured data for all articles. Useful for search engine rich resu
       }
     }
   }
+      `.trim(),
+    },
+    {
+      label: "Page",
+      language: "tsx",
+      filename: "app/blog/[slug]/page.tsx",
+      code: `
+  import { SimplistClient } from "@simplist.blog/sdk"
+  import { generateMetadata } from "./metadata"
+
+  // Uses SIMPLIST_API_KEY from environment variables
+  const client = new SimplistClient()
 
   export default async function ArticlePage({
     params
@@ -324,8 +354,12 @@ Get JSON-LD structured data for all articles. Useful for search engine rich resu
       </>
     )
   }
-`}
-</CodeBlock>
+      `.trim(),
+    },
+  ]}
+/>
+
+---
 
 ## HTTP Endpoints
 
@@ -336,12 +370,16 @@ These SDK methods use the following API endpoints:
 - `getRssFeed()` → <InlineRouteLink method="GET" path="/v1/seo/rss" href="/api/get-rss" />
 - `getStructuredData()` → <InlineRouteLink method="GET" path="/v1/seo/structured-data" href="/api/get-structured-data" />
 
+---
+
 ## Best Practices
 
 - **Cache sitemaps and RSS**: Use HTTP caching headers (max-age: 3600)
 - **Update frequency**: Regenerate sitemaps when content changes
 - **Canonical URLs**: Always set canonical URLs to avoid duplicate content
 - **Structured data**: Include JSON-LD on every article page
+
+---
 
 ## Frequently Asked Questions
 

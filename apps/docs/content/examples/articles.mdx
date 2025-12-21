@@ -29,7 +29,7 @@ Fetch a complete article by its unique slug, including full content.
 
 <CodeBlock language="typescript" filename="get-article.ts">
 {`
-  import { SimplistClient } from '@simplist.blog/sdk'
+  import { SimplistClient } from "@simplist.blog/sdk"
 
   // Uses SIMPLIST_API_KEY from environment variables
   const client = new SimplistClient()
@@ -286,7 +286,7 @@ All methods return an `ApiResponse<T>` with error handling built in.
 
 <CodeBlock language="typescript" filename="complete-example.ts">
 {`
-  import { SimplistClient } from '@simplist.blog/sdk'
+  import { SimplistClient } from "@simplist.blog/sdk"
 
   const client = new SimplistClient({
     apiKey: process.env.SIMPLIST_API_KEY

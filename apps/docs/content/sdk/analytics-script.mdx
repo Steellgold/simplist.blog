@@ -15,15 +15,16 @@ The easiest way to add analytics to your blog. Just add a single script tag - no
 Add this script tag to your article pages:
 
 <CodeBlock language="html" filename="article.html">
-  {`
+{`
   <script
     src="https://cdn.simplist.blog/analytics.js"
     data-api-key="prj_your_api_key"
   ></script>
-  `}
+`}
 </CodeBlock>
 
-That's it! The script automatically tracks:
+<br />
+The script automatically tracks:
 
 - Page views
 - Time on page
@@ -32,6 +33,8 @@ That's it! The script automatically tracks:
 - Geographic location
 - Device and browser info
 - Referrer and UTM parameters
+
+---
 
 ## Configuration
 
@@ -117,6 +120,8 @@ When `data-slug` is not provided, the script automatically extracts the slug fro
   `}
 </CodeBlock>
 
+---
+
 ## What Gets Tracked
 
 ### Automatic Metrics
@@ -163,6 +168,8 @@ The script fetches geographic data from the client side (via ipinfo.io):
 - City
 - Timezone
 
+---
+
 ## JavaScript API
 
 The script exposes a global `SimplistAnalytics` object for custom tracking.
@@ -203,98 +210,107 @@ Force send all pending events immediately:
   `}
 </CodeBlock>
 
+---
+
 ## Framework Integration
 
-### Next.js
+<CodeBlock
+  tabs={[
+    {
+      label: "Next.js",
+      cusLang: "nextjs",
+      language: "tsx",
+      filename: "app/blog/[slug]/page.tsx",
+      code: `import Script from "next/script"
 
-<CodeBlock language="tsx" filename="app/blog/[slug]/page.tsx">
-  {`
-  import Script from 'next/script'
+  export default function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
+    const { slug } = await params
 
-export default function ArticlePage({ params }: { params: { slug: string } }) {
-return (
-<>
-<Script
+    return (
+      <>
+        <Script
           src="https://cdn.simplist.blog/analytics.js"
           data-api-key={process.env.NEXT_PUBLIC_SIMPLIST_API_KEY}
           data-slug={params.slug}
           strategy="afterInteractive"
         />
-<article>
-{/* Your article content */}
-</article>
-</>
-)
-}
-`}
+        
+        <article>
+          {/* Your article content */}
+        </article>
+      </>
+    )
+  }`},
+    {
+      label: "Astro",
+      language: "astro",
+      filename: "src/pages/blog/[slug].astro",
+      code: `
+---
+const { slug } = Astro.params
+---
 
-</CodeBlock>
-
-### Astro
-
-<CodeBlock language="astro" filename="src/pages/blog/[slug].astro">
-  {`
-  ---
-  const { slug } = Astro.params
-  ---
-
-  <html>
-    <head>
-      <script
-        src="https://cdn.simplist.blog/analytics.js"
-        data-api-key={import.meta.env.PUBLIC_SIMPLIST_API_KEY}
-        data-slug={slug}
-      />
-    </head>
-    <body>
-      <article>
-        <!-- Your article content -->
-      </article>
-    </body>
-  </html>
-  `}
-</CodeBlock>
-
-### Hugo
-
-<CodeBlock language="html" filename="layouts/partials/analytics.html">
-  {`
-  {{ if .IsPage }}
-  <script
-    src="https://cdn.simplist.blog/analytics.js"
-    data-api-key="{{ .Site.Params.simplistApiKey }}"
-    data-slug="{{ .File.BaseFileName }}"
-  ></script>
-  {{ end }}
-  `}
-</CodeBlock>
-
-### Plain HTML
-
-<CodeBlock language="html" filename="article.html">
-  {`
-  <!DOCTYPE html>
-  <html>
+<html>
   <head>
-    <title>My Article</title>
+    <script
+      src="https://cdn.simplist.blog/analytics.js"
+      data-api-key={import.meta.env.PUBLIC_SIMPLIST_API_KEY}
+      data-slug={slug}
+    />
   </head>
   <body>
     <article>
-      <h1>My Article Title</h1>
-      <p>Article content here...</p>
+      <!-- Your article content -->
     </article>
-
-    <!-- Add at the end of body -->
+  </body>
+</html>
+      `.trim(),
+    },
+    {
+      label: "Hugo",
+      cusLang: "hugo",
+      language: "html",
+      filename: "layouts/partials/analytics.html",
+      code: `
+{{ if .IsPage }}
     <script
       src="https://cdn.simplist.blog/analytics.js"
-      data-api-key="prj_your_api_key"
-      data-slug="my-article"
+      data-api-key="{{ .Site.Params.simplistApiKey }}"
+      data-slug="{{ .File.BaseFileName }}"
     ></script>
+{{ end }}
+      `.trim(),
+    },
+    {
+      label: "Plain HTML",
+      language: "html",
+      filename: "article.html",
+      code: `
+<!DOCTYPE html>
+  <html>
+    <head>
+      <title>My Article</title>
+    </head>
 
-  </body>
+    <body>
+      <article>
+        <h1>My Article Title</h1>
+        <p>Article content here...</p>
+      </article>
+
+      <!-- Add at the end of body -->
+      <script
+        src="https://cdn.simplist.blog/analytics.js"
+        data-api-key="prj_your_api_key"
+        data-slug="my-article"
+      ></script>
+
+    </body>
   </html>
-  `}
-</CodeBlock>
+      `.trim(),
+    },
+  ]}
+/>
 
 ## Script vs SDK
 
@@ -369,13 +385,13 @@ The analytics script is designed to be privacy-friendly:
 If auto-detection fails, explicitly set the slug:
 
 <CodeBlock language="html">
-  {`
+{`
   <script
     src="https://cdn.simplist.blog/analytics.js"
     data-api-key="prj_abc123"
     data-slug="your-article-slug"
   ></script>
-  `}
+`}
 </CodeBlock>
 
 ### Events not sending on page leave
