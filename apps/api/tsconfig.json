@@ -14,7 +14,19 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "types": ["node", "react"]
+    "types": ["node", "react"],
+    "baseUrl": "./src",
+    "paths": {
+      "@/types": ["types/index"],
+      "@/types/*": ["types/*"],
+      "@/utils/*": ["utils/*"],
+      "@/schemas/*": ["schemas/*"],
+      "@/routes/*": ["routes/*"],
+      "@/plugins/*": ["plugins/*"],
+      "@/services/*": ["services/*"],
+      "@/emails": ["emails/index"],
+      "@/emails/*": ["emails/*"]
+    }
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
