@@ -20,7 +20,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated documentation examples to reflect the corrected `getBestMatchingVariant()` behavior
 - Improved clarity in multilingual helper function documentation
 
-## [0.0.9] - 2025-12-21
+## [0.0.9] - 2025-12-13
+
+### Added
+
+- **Tags API**: New `client.tags` resource for managing and querying tags
+  - `client.tags.list()` - Get all tags with article counts
+  - `client.tags.get(tagName)` - Get specific tag details
+  - `client.tags.names()` - Get array of tag names
+  - `client.tags.popular(limit)` - Get most popular tags
+- **Article filtering by tags**: Enhanced `client.articles.list()` with tag filters
+  - `tags` - Filter by any of these tags (OR logic)
+  - `tagsAll` - Filter by all of these tags (AND logic)
+  - `excludeTags` - Exclude articles with these tags
+- **Optional tag fields**: `optionalFields` parameter in article queries
+  - `tagColor` - Include hex color codes for tags
+  - `tagIcon` - Include icon identifiers for tags
 
 ### Changed
 
