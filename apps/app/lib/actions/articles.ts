@@ -7,13 +7,13 @@ import {
 } from "@/lib/actions/images";
 import { getCurrentUser } from "@/lib/auth-helper";
 import { hasProjectAccess, requirePermission } from "@/lib/auth/permissions";
+import { getPlanLimits } from "@/lib/subscription/plans";
 import {
   checkArticleQuota,
   checkFeatureAccess,
   checkVariantQuota,
   getProjectSubscription,
 } from "@/lib/subscription/quota-check";
-import { getPlanLimits } from "@/lib/subscription/plans";
 import { isValidLanguageCode, type LanguageCode } from "@/lib/types/languages";
 import { generateSlug } from "@/lib/utils";
 import { prisma, sendWebhookEvent, type WebhookEvent } from "@simplist/db";
@@ -534,7 +534,7 @@ export const getProjectArticles = async (
   return articles;
 };
 
-export const getUserProjectWithArticles = async () => {
+export const getUserProjectWithArticles = async (projectSlugOrId: string) => {
   const user = await getCurrentUser();
 
   if (!user) {
@@ -544,6 +544,10 @@ export const getUserProjectWithArticles = async () => {
   const project = await prisma.project.findFirst({
     where: {
       userId: user.id,
+      OR: [
+        { slug: projectSlugOrId },
+        { id: projectSlugOrId },
+      ]
     },
     select: {
       id: true,
@@ -623,7 +627,7 @@ export const getUserProjectWithArticles = async () => {
   };
 };
 
-export const getArticle = async (articleId: string) => {
+export const getArticle = async (articleId: string, projectSlugOrId: string) => {
   const user = await getCurrentUser();
   if (!user) {
     redirect("/auth/login");
@@ -635,6 +639,12 @@ export const getArticle = async (articleId: string) => {
       status: {
         not: "deleted",
       },
+      project: {
+        OR: [
+          { slug: projectSlugOrId },
+          { id: projectSlugOrId },
+        ]
+      }
     },
     include: {
       project: true,
@@ -651,7 +661,7 @@ export const getArticle = async (articleId: string) => {
   return article;
 };
 
-export const getArticleBySlug = async (slug: string) => {
+export const getArticleBySlug = async (slug: string, projectSlugOrId: string) => {
   const user = await getCurrentUser();
   if (!user) {
     redirect("/auth/login");
@@ -660,6 +670,12 @@ export const getArticleBySlug = async (slug: string) => {
   const article = await prisma.article.findFirst({
     where: {
       slug,
+      project: {
+        OR: [
+          { slug: projectSlugOrId },
+          { id: projectSlugOrId },
+        ]
+      }
     },
     include: {
       project: true,
@@ -712,9 +728,15 @@ export const updateArticle = async (
     variants?: ArticleVariantInput[];
     tags?: string[];
   },
+  projectSlugOrId: string,
 ) => {
-  const article = await prisma.article.findUnique({
-    where: { id: articleId },
+  const article = await prisma.article.findFirst({
+    where: { id: articleId, project: {
+      OR: [
+        { slug: projectSlugOrId },
+        { id: projectSlugOrId },
+      ]
+    } },
     select: {
       id: true,
       projectId: true,
@@ -795,7 +817,15 @@ export const updateArticle = async (
 
     // Update article
     const updatedArticle = await tx.article.update({
-      where: { id: articleId },
+      where: {
+        id: articleId,
+        project: {
+          OR: [
+            { slug: projectSlugOrId },
+            { id: projectSlugOrId },
+          ]
+        }
+      },
       data: {
         title: formData.title,
         excerpt: formData.excerpt,
@@ -864,11 +894,17 @@ export const updateArticle = async (
   return updated;
 };
 
-export const deleteArticle = async (articleId: string) => {
+export const deleteArticle = async (articleId: string, projectSlugOrId: string) => {
   // Verify the article belongs to the user's project
   const article = await prisma.article.findUnique({
     where: {
       id: articleId,
+      project: {
+        OR: [
+          { slug: projectSlugOrId },
+          { id: projectSlugOrId },
+        ]
+      }
     },
     select: {
       id: true,
@@ -894,6 +930,12 @@ export const deleteArticle = async (articleId: string) => {
   await prisma.article.update({
     where: {
       id: articleId,
+      project: {
+        OR: [
+          { slug: projectSlugOrId },
+          { id: projectSlugOrId },
+        ]
+      }
     },
     data: {
       status: "deleted",
@@ -909,11 +951,17 @@ export const deleteArticle = async (articleId: string) => {
   );
 };
 
-export const permanentlyDeleteArticle = async (articleId: string) => {
+export const permanentlyDeleteArticle = async (articleId: string, projectSlugOrId: string) => {
   // Verify the article exists and is already soft-deleted
   const article = await prisma.article.findUnique({
     where: {
       id: articleId,
+      project: {
+        OR: [
+          { slug: projectSlugOrId },
+          { id: projectSlugOrId },
+        ]
+      }
     },
     select: {
       id: true,
@@ -956,7 +1004,12 @@ export const permanentlyDeleteArticle = async (articleId: string) => {
 
     // Finally delete the article
     await tx.article.delete({
-      where: { id: articleId },
+      where: { id: articleId, project: {
+        OR: [
+          { slug: projectSlugOrId },
+          { id: projectSlugOrId },
+        ]
+      } },
     });
   });
 
@@ -964,7 +1017,7 @@ export const permanentlyDeleteArticle = async (articleId: string) => {
   revalidatePath(`/${article.project.slug}/articles`, "page");
 };
 
-export const bulkDeleteArticles = async (articleIds: string[]) => {
+export const bulkDeleteArticles = async (articleIds: string[], projectSlugOrId: string) => {
   if (!articleIds || articleIds.length === 0) {
     throw new Error("No articles specified for deletion");
   }
@@ -975,6 +1028,12 @@ export const bulkDeleteArticles = async (articleIds: string[]) => {
       id: {
         in: articleIds,
       },
+      project: {
+        OR: [
+          { slug: projectSlugOrId },
+          { id: projectSlugOrId },
+        ]
+      }
     },
     select: {
       id: true,
@@ -1018,6 +1077,12 @@ export const bulkDeleteArticles = async (articleIds: string[]) => {
       id: {
         in: articleIds,
       },
+      project: {
+        OR: [
+          { slug: projectSlugOrId },
+          { id: projectSlugOrId },
+        ]
+      }
     },
     data: {
       status: "deleted",
@@ -1037,12 +1102,18 @@ export const bulkDeleteArticles = async (articleIds: string[]) => {
   revalidatePath(`/${projectSlug}/articles`, "page");
 };
 
-export const restoreArticle = async (articleId: string) => {
+export const restoreArticle = async (articleId: string, projectSlugOrId: string) => {
   // Verify the article belongs to the user's project and is deleted
   const article = await prisma.article.findFirst({
     where: {
       id: articleId,
       status: "deleted",
+      project: {
+        OR: [
+          { slug: projectSlugOrId },
+          { id: projectSlugOrId },
+        ]
+      }
     },
     select: {
       id: true,
@@ -1117,7 +1188,7 @@ export const getScheduledArticles = async () => {
   return scheduledArticles;
 };
 
-export const getArticleWithVariants = async (articleId: string) => {
+export const getArticleWithVariants = async (articleId: string, projectSlugOrId: string) => {
   const user = await getCurrentUser();
   if (!user) {
     redirect("/auth/login");
@@ -1129,6 +1200,12 @@ export const getArticleWithVariants = async (articleId: string) => {
       status: {
         not: "deleted",
       },
+      project: {
+        OR: [
+          { slug: projectSlugOrId },
+          { id: projectSlugOrId },
+        ]
+      }
     },
     include: {
       project: {
@@ -1156,7 +1233,7 @@ export const getArticleWithVariants = async (articleId: string) => {
   return article;
 };
 
-export const getArticleBySlugWithVariants = async (slug: string) => {
+export const getArticleBySlugWithVariants = async (slug: string, projectSlugOrId: string) => {
   const user = await getCurrentUser();
   if (!user) {
     redirect("/auth/login");
@@ -1166,12 +1243,11 @@ export const getArticleBySlugWithVariants = async (slug: string) => {
     where: {
       slug,
       project: {
-        members: {
-          some: {
-            userId: user.id,
-          },
-        },
-      },
+        OR: [
+          { slug: projectSlugOrId },
+          { id: projectSlugOrId },
+        ]
+      }
     },
     include: {
       project: {
@@ -1249,6 +1325,7 @@ export type ImportArticleInput = {
 export const bulkImportArticles = async (
   projectId: string,
   articles: ImportArticleInput[],
+  variantSelections?: Record<number, number>,
 ): Promise<{ success: boolean; count?: number; error?: string }> => {
   try {
     const { user } = await requirePermission(projectId, "canManageArticles");
@@ -1288,43 +1365,6 @@ export const bulkImportArticles = async (
     const limits = getPlanLimits(project.subscriptionTier);
     const maxVariantsPerArticle = limits.maxVariantsPerArticle;
 
-    // Validate variants in articles
-    for (const article of articles) {
-      const variants = article.variants || [];
-      if (variants.length > 0) {
-        // Check if exceeds plan limit
-        if (
-          maxVariantsPerArticle !== -1 &&
-          variants.length > maxVariantsPerArticle
-        ) {
-          return {
-            success: false,
-            error: `Article "${article.title}" has ${variants.length} variants, but your plan allows only ${maxVariantsPerArticle}. Please upgrade to PRO for unlimited variants.`,
-          };
-        }
-
-        // Validate language codes
-        const langCodes = variants.map((v) => v.lang);
-        const uniqueLangs = new Set(langCodes);
-        if (uniqueLangs.size !== langCodes.length) {
-          return {
-            success: false,
-            error: `Article "${article.title}" has duplicate variant language codes`,
-          };
-        }
-
-        // Validate required fields
-        for (const variant of variants) {
-          if (!variant.lang || !variant.title || !variant.content) {
-            return {
-              success: false,
-              error: `Article "${article.title}" has a variant missing required fields (lang, title, content)`,
-            };
-          }
-        }
-      }
-    }
-
     // Get existing slugs to avoid duplicates (including soft-deleted articles)
     const existingArticles = await prisma.article.findMany({
       where: { projectId },
@@ -1345,7 +1385,7 @@ export const bulkImportArticles = async (
 
     let createdCount = 0;
 
-    for (const article of articles) {
+    for (const [articleIndex, article] of articles.entries()) {
       if (!article.title || article.title.trim() === "") continue;
 
       // Generate unique slug
@@ -1393,7 +1433,21 @@ export const bulkImportArticles = async (
       };
 
       // Prepare variants data
-      const variants = article.variants || [];
+      let variants = article.variants || [];
+
+      // If variant selection is provided for this article, use only the selected variant
+      if (variantSelections && variantSelections[articleIndex] !== undefined) {
+        const selectedIndex = variantSelections[articleIndex];
+        if (selectedIndex !== undefined && variants[selectedIndex]) {
+          variants = [variants[selectedIndex]!];
+        }
+      }
+
+      // Filter variants to respect plan limits
+      if (maxVariantsPerArticle !== -1) {
+        variants = variants.slice(0, maxVariantsPerArticle);
+      }
+
       const variantsData = variants.map((variant) => {
         const variantContent = variant.content || "";
         const variantStats = {

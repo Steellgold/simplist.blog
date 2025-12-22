@@ -30,7 +30,7 @@ export const ArticleRestore = ({ slug, articleId }: Props) => {
     setIsRestoring(true);
 
     try {
-      toast.promise(restoreArticle(articleId), {
+      toast.promise(restoreArticle(articleId, slug), {
         loading: "Restoring article...",
         success: () => {
           setIsRestoring(false);

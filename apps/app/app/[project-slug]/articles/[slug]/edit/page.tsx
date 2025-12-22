@@ -19,8 +19,9 @@ export const generateMetadata = async ({
 }: {
   params: PageParams;
 }): Promise<Metadata> => {
-  const { slug } = await params;
-  const article = await getArticleBySlugWithVariants(slug);
+  const { "project-slug": projectSlug, slug } = await params;
+
+  const article = await getArticleBySlugWithVariants(slug, projectSlug);
 
   return {
     title: article?.title ?? "Edit Article",
@@ -37,7 +38,7 @@ const EditArticlePage = async ({ params }: { params: Promise<PageParams> }) => {
   if (!user) redirect("/auth/login");
 
   // First check if the article exists and is not deleted
-  const article = await getArticleBySlugWithVariants(slug);
+  const article = await getArticleBySlugWithVariants(slug, projectSlug);
   if (article) {
     if (article.status === "deleted") {
       return <ArticleRestore slug={projectSlug} articleId={article.id} />;
