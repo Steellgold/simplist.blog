@@ -28,7 +28,7 @@ export default fp(async function (fastify) {
         if (apiKey && !apiKey.project) {
           apiKey = null;
         }
-      } catch (cacheError) {
+      } catch {
         fastify.log.warn(
           "Redis cache not available, falling back to database only",
         );
@@ -91,7 +91,7 @@ export default fp(async function (fastify) {
         // Cache it
         try {
           await apiKeyCache.set(apiKeyHeader, apiKey);
-        } catch (cacheError) {
+        } catch {
           // Cache not available, that's okay
         }
       }

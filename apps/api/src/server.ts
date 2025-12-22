@@ -1,6 +1,6 @@
 import "dotenv/config";
 
-import Fastify from "fastify";
+import Fastify, { FastifyInstance } from "fastify";
 import { Scheduler } from "./services/scheduler";
 
 // Environment validation
@@ -64,7 +64,8 @@ const createServer = async () => {
 };
 
 // Handle shutdown gracefully
-const gracefulShutdown = async (signal: string, fastify: any) => {
+const gracefulShutdown = async (signal: string, fastify: FastifyInstance) => {
+  // eslint-disable-next-line no-console
   console.log(`Received ${signal}, shutting down gracefully`);
 
   // Stop scheduler

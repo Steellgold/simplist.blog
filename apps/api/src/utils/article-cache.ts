@@ -1,43 +1,7 @@
 import { getRedis } from "@simplist/db";
+import type { CachedArticleType, CachedArticleListItemType } from "@/types";
 
 const redis = getRedis();
-
-interface CachedArticle {
-  id: string;
-  title: string;
-  slug: string;
-  excerpt: string | null;
-  content: string;
-  coverImage: string | null;
-  published: boolean;
-  status: string;
-  viewCount: number;
-  wordCount: number;
-  characterCount: number;
-  lineCount: number;
-  readTimeMinutes: number;
-  createdAt: Date | string;
-  updatedAt: Date | string;
-  publishedAt: Date | string | null;
-}
-
-interface CachedArticleListItem {
-  id: string;
-  title: string;
-  slug: string;
-  excerpt: string | null;
-  coverImage: string | null;
-  published: boolean;
-  status: string;
-  viewCount: number;
-  wordCount: number;
-  characterCount: number;
-  lineCount: number;
-  readTimeMinutes: number;
-  createdAt: Date | string;
-  updatedAt: Date | string;
-  publishedAt: Date | string | null;
-}
 
 /**
  * Cache TTL in seconds (5 minutes)
@@ -101,8 +65,8 @@ const getArticleCacheKey = (
  */
 export const cacheArticlesList = async (
   projectId: string,
-  params: any,
-  articles: CachedArticleListItem[],
+  params: Record<string, unknown>,
+  articles: CachedArticleListItemType[],
 ): Promise<void> => {
   try {
     const version = await getProjectCacheVersion(projectId);
@@ -120,7 +84,7 @@ export const cacheArticlesList = async (
       );
 
       // Convert list item to full article format (without content for now)
-      const fullArticle: CachedArticle = {
+      const fullArticle: CachedArticleType = {
         ...article,
         content: "", // Will be populated when actually requested
       };
@@ -135,7 +99,7 @@ export const cacheArticlesList = async (
 
     await Promise.all(cachePromises);
 
-    console.log(`Cached ${articles.length} articles for project ${projectId}`);
+    console.warn(`Cached ${articles.length} articles for project ${projectId}`);
   } catch (error) {
     console.error("Failed to cache articles list:", error);
   }
@@ -146,8 +110,8 @@ export const cacheArticlesList = async (
  */
 export const getCachedArticlesList = async (
   projectId: string,
-  params: any,
-): Promise<CachedArticleListItem[] | null> => {
+  params: Record<string, unknown>,
+): Promise<CachedArticleListItemType[] | null> => {
   try {
     const version = await getProjectCacheVersion(projectId);
     const cacheKey = getListCacheKey(projectId, params, version);
@@ -171,14 +135,14 @@ export const getCachedArticlesList = async (
  */
 export const cacheArticle = async (
   projectId: string,
-  article: CachedArticle,
+  article: CachedArticleType,
 ): Promise<void> => {
   try {
     const version = await getProjectCacheVersion(projectId);
     const cacheKey = getArticleCacheKey(projectId, article.slug, version);
     await redis.setex(cacheKey, CACHE_TTL, JSON.stringify(article));
 
-    console.log(`Cached article ${article.slug} for project ${projectId}`);
+    console.warn(`Cached article ${article.slug} for project ${projectId}`);
   } catch (error) {
     console.error("Failed to cache article:", error);
   }
@@ -190,7 +154,7 @@ export const cacheArticle = async (
 export const getCachedArticle = async (
   projectId: string,
   slug: string,
-): Promise<CachedArticle | null> => {
+): Promise<CachedArticleType | null> => {
   try {
     const version = await getProjectCacheVersion(projectId);
     const cacheKey = getArticleCacheKey(projectId, slug, version);
@@ -233,8 +197,8 @@ export const invalidateProjectCache = async (
       !isNaN(currentNumber) && currentNumber > 0 ? currentNumber + 1 : 2;
 
     await redis.set(versionKey, String(nextVersion));
-    console.log(
-      `Bumped article cache version to ${nextVersion} for project ${projectId}`,
+    console.warn(
+      `Invalidated project cache via version bump for project ${projectId}`,
     );
   } catch (error) {
     console.error("Failed to invalidate project cache:", error);
@@ -252,7 +216,7 @@ export const invalidateArticleCache = async (
     // Fine-grained invalidation: we simply bump the project version.
     // This avoids using KEYS and remains sufficient given the short TTL.
     await invalidateProjectCache(projectId);
-    console.log(
+    console.warn(
       `Invalidated article cache via version bump for project ${projectId} (article ${slug})`,
     );
   } catch (error) {

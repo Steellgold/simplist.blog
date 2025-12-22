@@ -1,38 +1,31 @@
-import * as db from "@simplist/db";
-import { FastifyPluginAsync } from "fastify";
+import { parseQuery } from "@/types/fastify";
+import type { ArticleBySlugQuery, ArticlesListQuery } from "@/types/requests";
 import {
   cacheArticle,
   cacheArticlesList,
   getCachedArticle,
   getCachedArticlesList,
-} from "../utils/article-cache";
-import { formatArticle } from "../utils/format";
-import { generateSeoMetadata } from "../utils/seo-generator";
+} from "@/utils/article-cache";
+import { formatArticle } from "@/utils/format";
+import { generateSeoMetadata } from "@/utils/seo-generator";
+import * as db from "@simplist/db";
+import { FastifyPluginAsync } from "fastify";
 
 const { prisma } = db;
-
-const parseOptionalFields = (param?: string): Record<string, boolean> => {
-  if (!param) return {};
-  return param.split(",").reduce<Record<string, boolean>>((acc, field) => {
-    const trimmed = field.trim();
-    if (trimmed) acc[trimmed] = true;
-    return acc;
-  }, {});
-};
 
 const articlesRoutes: FastifyPluginAsync = async (fastify) => {
   // GET /articles - List articles with pagination
   fastify.get("/articles", async (request, reply) => {
     // Check if key has read permissions
     if (!request.checkPermission!("read")) {
-      return reply.status(403 as any).send({
+      return reply.code(403).send({
         error: "Forbidden",
         message: "API key does not have read permissions.",
         statusCode: 403,
       });
     }
 
-    const query = request.query as any;
+    const query = parseQuery<ArticlesListQuery>(request);
     const page = Number(query.page) || 1;
     const limit = Number(query.limit) || 20;
     // Validate sort field - allow viewCount for popularity sorting
@@ -43,7 +36,7 @@ const articlesRoutes: FastifyPluginAsync = async (fastify) => {
       "publishedAt",
       "viewCount",
     ];
-    const sort = allowedSortFields.includes(query.sort)
+    const sort = allowedSortFields.includes(query.sort || "")
       ? query.sort
       : "createdAt";
     const order = query.order || "desc";
@@ -52,10 +45,6 @@ const articlesRoutes: FastifyPluginAsync = async (fastify) => {
     const search = query.search;
     const status = query.status;
     const projectId = request.apiKey!.projectId;
-
-    // Parse optional fields from query string (e.g., ?optionalFields=tagColor,tagIcon)
-    const optionalFieldsParam = query.optionalFields as string | undefined;
-    const optionalFields = parseOptionalFields(optionalFieldsParam);
 
     // Parse tag filters
     const tags = query.tags
@@ -94,6 +83,7 @@ const articlesRoutes: FastifyPluginAsync = async (fastify) => {
         projectId,
         cacheParams,
       );
+
       if (cachedArticles) {
         fastify.log.info(`Cache hit for articles list (project: ${projectId})`);
 
@@ -114,7 +104,7 @@ const articlesRoutes: FastifyPluginAsync = async (fastify) => {
       fastify.log.info(`Cache miss for articles list (project: ${projectId})`);
 
       // Build where clause
-      const where: any = {
+      const where: Record<string, unknown> = {
         projectId,
         status: { notIn: ["deleted", "scheduled"] }, // Exclude soft-deleted and scheduled articles
       };
@@ -165,22 +155,7 @@ const articlesRoutes: FastifyPluginAsync = async (fastify) => {
       // Get articles
       const articles = await prisma.article.findMany({
         where,
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-          excerpt: true,
-          coverImage: true,
-          published: true,
-          status: true,
-          viewCount: true,
-          wordCount: true,
-          characterCount: true,
-          lineCount: true,
-          readTimeMinutes: true,
-          createdAt: true,
-          updatedAt: true,
-          publishedAt: true,
+        include: {
           author: {
             select: {
               name: true,
@@ -197,25 +172,23 @@ const articlesRoutes: FastifyPluginAsync = async (fastify) => {
               image: true,
             },
           },
-          tags: {
-            select: {
-              name: true,
-              ...(optionalFields.tagColor ? { color: true } : {}),
-              ...(optionalFields.tagIcon ? { icon: true } : {}),
-            },
-          },
+          tags: true,
+          variants: true,
+          project: true,
         },
-        orderBy: { [sort]: order },
+        orderBy: { [sort || "createdAt"]: order },
         skip: (page - 1) * limit,
         take: limit,
       });
 
       const totalPages = Math.ceil(total / limit);
-      const formattedArticles = articles.map(formatArticle);
+      const formattedArticles = articles.map((article) =>
+        formatArticle(article),
+      );
 
       // Cache the articles list (async, don't wait)
-      cacheArticlesList(projectId, cacheParams, formattedArticles).catch(
-        (err) => fastify.log.error(err, "Failed to cache articles list"),
+      cacheArticlesList(projectId, cacheParams, articles).catch((err) =>
+        fastify.log.error(err, "Failed to cache articles list"),
       );
 
       return {
@@ -229,7 +202,7 @@ const articlesRoutes: FastifyPluginAsync = async (fastify) => {
       };
     } catch (error) {
       fastify.log.error(error, "Error fetching articles");
-      return reply.status(500 as any).send({
+      return reply.code(500).send({
         error: "Internal Server Error",
         message: "Failed to fetch articles",
         statusCode: 500,
@@ -255,7 +228,7 @@ const articlesRoutes: FastifyPluginAsync = async (fastify) => {
     async (request, reply) => {
       // Check if key has read permissions
       if (!request.checkPermission!("read")) {
-        return reply.status(403 as any).send({
+        return reply.code(403).send({
           error: "Forbidden",
           message: "API key does not have read permissions.",
           statusCode: 403,
@@ -263,13 +236,9 @@ const articlesRoutes: FastifyPluginAsync = async (fastify) => {
       }
 
       const { slug } = request.params as { slug: string };
-      const query = request.query as any;
+      const query = parseQuery<ArticleBySlugQuery>(request);
       const { includeSeo = false, baseUrl } = query;
       const projectId = request.apiKey!.projectId;
-
-      // Parse optional fields from query string (e.g., ?optionalFields=tagColor,tagIcon)
-      const optionalFieldsParam = query.optionalFields as string | undefined;
-      const optionalFields = parseOptionalFields(optionalFieldsParam);
 
       try {
         // Try to get from cache first
@@ -330,19 +299,13 @@ const articlesRoutes: FastifyPluginAsync = async (fastify) => {
                 image: true,
               },
             },
-            tags: {
-              select: {
-                name: true,
-                ...(optionalFields.tagColor ? { color: true } : {}),
-                ...(optionalFields.tagIcon ? { icon: true } : {}),
-              },
-            },
-            ...(includeSeo ? { project: true } : {}),
+            tags: true,
+            project: true,
           },
         });
 
         if (!article) {
-          return reply.status(404 as any).send({
+          return reply.code(404).send({
             error: "Not Found",
             message: "Article not found or not published",
             statusCode: 404,
@@ -371,7 +334,7 @@ const articlesRoutes: FastifyPluginAsync = async (fastify) => {
         };
       } catch (error) {
         fastify.log.error(error, "Error fetching article");
-        return reply.status(500 as any).send({
+        return reply.code(500).send({
           error: "Internal Server Error",
           message: "Failed to fetch article",
           statusCode: 500,

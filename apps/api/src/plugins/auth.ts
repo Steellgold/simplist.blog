@@ -6,7 +6,10 @@ import fp from "fastify-plugin";
 const { prisma, apiKeyCache } = db;
 
 // Helper to check permissions
-const checkPermission = (apiKey: any, permission: string): boolean => {
+const checkPermission = (
+  apiKey: ApiKeyWithProject,
+  permission: string,
+): boolean => {
   return apiKey.permissions.includes(permission);
 };
 
@@ -50,7 +53,7 @@ export default fp(async function (fastify) {
         if (apiKey && !apiKey.project) {
           apiKey = null;
         }
-      } catch (cacheError) {
+      } catch {
         // Cache not available, continue with database lookup
         fastify.log.warn(
           "Redis cache not available, falling back to database only",
@@ -109,7 +112,7 @@ export default fp(async function (fastify) {
         // Try to cache the API key data (if Redis is available)
         try {
           await apiKeyCache.set(apiKeyHeader, apiKey);
-        } catch (cacheError) {
+        } catch {
           // Cache not available, that's okay
         }
       }

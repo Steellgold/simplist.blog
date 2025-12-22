@@ -1,3 +1,5 @@
+import { parseQuery } from "@/types/fastify";
+import type { TagsListQuery } from "@/types/requests";
 import * as db from "@simplist/db";
 import { FastifyPluginAsync } from "fastify";
 import { formatTag } from "../utils/format";
@@ -5,11 +7,11 @@ import { formatTag } from "../utils/format";
 const { prisma } = db;
 
 const tagsRoutes: FastifyPluginAsync = async (fastify) => {
-  // GET /tags - Liste des tags avec metadata
+  // GET /tags - List tags with metadata
   fastify.get("/tags", async (request, reply) => {
     // Check if key has read permissions
     if (!request.checkPermission!("read")) {
-      return reply.status(403 as any).send({
+      return reply.code(403).send({
         error: "Forbidden",
         message: "API key does not have read permissions.",
         statusCode: 403,
@@ -17,7 +19,7 @@ const tagsRoutes: FastifyPluginAsync = async (fastify) => {
     }
 
     const projectId = request.apiKey!.projectId;
-    const query = request.query as any;
+    const query = parseQuery<TagsListQuery>(request);
 
     // Parse query parameters
     const sort = query.sort || "name";
@@ -26,7 +28,7 @@ const tagsRoutes: FastifyPluginAsync = async (fastify) => {
 
     try {
       // Build orderBy based on sort parameter
-      let orderBy: any;
+      let orderBy: Record<string, unknown>;
       if (sort === "articleCount") {
         orderBy = { articles: { _count: order } };
       } else if (
@@ -60,7 +62,7 @@ const tagsRoutes: FastifyPluginAsync = async (fastify) => {
       };
     } catch (error) {
       fastify.log.error(error, "Error fetching tags");
-      return reply.status(500 as any).send({
+      return reply.code(500).send({
         error: "Internal Server Error",
         message: "Failed to fetch tags",
         statusCode: 500,
@@ -68,11 +70,11 @@ const tagsRoutes: FastifyPluginAsync = async (fastify) => {
     }
   });
 
-  // GET /tags/:name - Tag spécifique
+  // GET /tags/:name - Specific tag
   fastify.get("/tags/:name", async (request, reply) => {
     // Check if key has read permissions
     if (!request.checkPermission!("read")) {
-      return reply.status(403 as any).send({
+      return reply.code(403).send({
         error: "Forbidden",
         message: "API key does not have read permissions.",
         statusCode: 403,
@@ -102,7 +104,7 @@ const tagsRoutes: FastifyPluginAsync = async (fastify) => {
       });
 
       if (!tag) {
-        return reply.status(404 as any).send({
+        return reply.code(404).send({
           error: "Not Found",
           message: "Tag not found",
           statusCode: 404,
@@ -112,7 +114,7 @@ const tagsRoutes: FastifyPluginAsync = async (fastify) => {
       return { data: formatTag(tag) };
     } catch (error) {
       fastify.log.error(error, "Error fetching tag");
-      return reply.status(500 as any).send({
+      return reply.code(500).send({
         error: "Internal Server Error",
         message: "Failed to fetch tag",
         statusCode: 500,

@@ -1,3 +1,10 @@
+import { parseBody, parseQuery } from "@/types/fastify";
+import type {
+  AnalyticsQuery,
+  TrackAnalyticsBody,
+  UpdatePageViewBody,
+} from "@/types/requests";
+import type { Prisma } from "@simplist/db";
 import * as db from "@simplist/db";
 import crypto from "crypto";
 import { FastifyPluginAsync } from "fastify";
@@ -28,11 +35,14 @@ const getUniqueVisitorId = async (
 
   // 2. Check if there's already a visitor with the same IP in the last 24 hours
   const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+  // Use full hash with salt for better security
+  const salt =
+    process.env.ANALYTICS_IP_SALT || "default-salt-please-change-in-production";
   const hashedIp = crypto
     .createHash("sha256")
-    .update(ip)
-    .digest("hex")
-    .substring(0, 16);
+    .update(ip + salt)
+    .digest("hex"); // Use full hash instead of truncating
 
   const recentVisitor = await prisma.pageView.findFirst({
     where: {
@@ -90,7 +100,7 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
 
   // POST /analytics/track - Track page view and events
   fastify.post("/analytics/track", async (request, reply) => {
-    const body = request.body as any;
+    const body = parseBody<TrackAnalyticsBody>(request);
     const projectId = request.apiKey!.projectId;
     const userAgent = request.headers["user-agent"] || "";
     const forwardedFor = request.headers["x-forwarded-for"] as string;
@@ -104,7 +114,7 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
         { userAgent, ip: clientIp },
         `Bot detected and blocked: ${botInfo.reason}`,
       );
-      return reply.status(400 as any).send({
+      return reply.code(400).send({
         error: "Bot Detected",
         message: "Analytics tracking is not available for automated requests",
         statusCode: 400,
@@ -114,7 +124,7 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
     try {
       // Validate required fields
       if (!body.articleSlug) {
-        return reply.status(400 as any).send({
+        return reply.code(400).send({
           error: "Bad Request",
           message: "articleSlug is required",
           statusCode: 400,
@@ -132,7 +142,7 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
       });
 
       if (!article) {
-        return reply.status(404 as any).send({
+        return reply.code(404).send({
           error: "Not Found",
           message: "Article not found or not published",
           statusCode: 404,
@@ -142,7 +152,7 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
       // Get unique visitor ID with deduplication logic
       const visitorId = await getUniqueVisitorId(
         projectId,
-        body.visitorId,
+        body.visitorId ?? null,
         clientIp,
         userAgent,
       );
@@ -229,13 +239,13 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
 
       // Process events if provided
       if (body.events && Array.isArray(body.events)) {
-        const events = body.events.map((event: any) => ({
+        const events = body.events.map((event) => ({
           articleId: article.id,
           projectId,
           visitorId,
           sessionId,
           eventType: event.type,
-          eventData: event.data || {},
+          eventData: (event.data || {}) as Prisma.InputJsonValue,
           position: event.position,
           element: event.element,
           timestamp: event.timestamp ? new Date(event.timestamp) : new Date(),
@@ -258,7 +268,7 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
       };
     } catch (error) {
       fastify.log.error(error, "Error tracking analytics");
-      return reply.status(500 as any).send({
+      return reply.code(500).send({
         error: "Internal Server Error",
         message: "Failed to track analytics",
         statusCode: 500,
@@ -269,7 +279,7 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
   // PUT /analytics/track/:pageViewId - Update existing page view (e.g., when user leaves)
   fastify.put("/analytics/track/:pageViewId", async (request, reply) => {
     const { pageViewId } = request.params as { pageViewId: string };
-    const body = request.body as any;
+    const body = parseBody<UpdatePageViewBody>(request);
     const projectId = request.apiKey!.projectId;
     const userAgent = request.headers["user-agent"] || "";
 
@@ -280,7 +290,7 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
         { userAgent, pageViewId },
         `Bot detected and blocked on update: ${botInfo.reason}`,
       );
-      return reply.status(400 as any).send({
+      return reply.code(400).send({
         error: "Bot Detected",
         message: "Analytics tracking is not available for automated requests",
         statusCode: 400,
@@ -297,7 +307,7 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
       });
 
       if (!existingPageView) {
-        return reply.status(404 as any).send({
+        return reply.code(404).send({
           error: "Not Found",
           message: "Page view not found",
           statusCode: 404,
@@ -321,7 +331,7 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
       return { success: true };
     } catch (error) {
       fastify.log.error(error, "Error updating analytics");
-      return reply.status(500 as any).send({
+      return reply.code(500).send({
         error: "Internal Server Error",
         message: "Failed to update analytics",
         statusCode: 500,
@@ -332,11 +342,11 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
   // GET /analytics/stats - Get analytics stats for project
   fastify.get("/analytics/stats", async (request, reply) => {
     const projectId = request.apiKey!.projectId;
-    const query = request.query as any;
+    const query = parseQuery<AnalyticsQuery>(request);
 
     // Check if key has read permissions for analytics data
     if (!request.checkPermission!("read")) {
-      return reply.status(403 as any).send({
+      return reply.status(403).send({
         error: "Forbidden",
         message: "API key does not have read permissions.",
         statusCode: 403,
@@ -463,7 +473,7 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
       };
     } catch (error) {
       fastify.log.error(error, "Error fetching analytics stats");
-      return reply.status(500 as any).send({
+      return reply.code(500).send({
         error: "Internal Server Error",
         message: "Failed to fetch analytics stats",
         statusCode: 500,
@@ -474,11 +484,11 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
   // GET /analytics/funnel - Get engagement funnel data
   fastify.get("/analytics/funnel", async (request, reply) => {
     const projectId = request.apiKey!.projectId;
-    const query = request.query as any;
+    const query = parseQuery<AnalyticsQuery>(request);
 
     // Check if key has read permissions for analytics data
     if (!request.checkPermission!("read")) {
-      return reply.status(403 as any).send({
+      return reply.code(403).send({
         error: "Forbidden",
         message: "API key does not have read permissions.",
         statusCode: 403,
@@ -487,12 +497,16 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
 
     try {
       const days = Number(query.days) || 30;
-      const articleSlug = query.slug as string | undefined;
+      const articleSlug = query.slug;
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - days);
 
       // Build base where clause
-      const baseWhere: any = {
+      const baseWhere: {
+        projectId: string;
+        timestamp: { gte: Date };
+        articleId?: string;
+      } = {
         projectId,
         timestamp: { gte: startDate },
       };
@@ -600,7 +614,7 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
       };
     } catch (error) {
       fastify.log.error(error, "Error fetching analytics funnel");
-      return reply.status(500 as any).send({
+      return reply.code(500).send({
         error: "Internal Server Error",
         message: "Failed to fetch analytics funnel",
         statusCode: 500,

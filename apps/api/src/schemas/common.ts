@@ -4,7 +4,9 @@ import { z } from "zod";
 export const paginationQuerySchema = z.object({
   page: z.coerce.number().min(1).default(1),
   limit: z.coerce.number().min(1).max(100).default(20),
-  sort: z.enum(["createdAt", "updatedAt", "title"]).default("createdAt"),
+  sort: z
+    .enum(["createdAt", "updatedAt", "title", "publishedAt", "viewCount"])
+    .default("createdAt"),
   order: z.enum(["asc", "desc"]).default("desc"),
 });
 

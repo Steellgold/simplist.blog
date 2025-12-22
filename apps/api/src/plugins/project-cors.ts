@@ -1,5 +1,6 @@
 import * as db from "@simplist/db";
 import fp from "fastify-plugin";
+import "@/types/fastify";
 
 const { prisma } = db;
 
@@ -15,9 +16,8 @@ export default fp(async function (fastify) {
 
     // Skip if already allowed by global CORS
     const allowAll =
-      String(
-        (fastify as any).config.ALLOW_ALL_ORIGINS || "false",
-      ).toLowerCase() === "true";
+      String(fastify.config.ALLOW_ALL_ORIGINS || "false").toLowerCase() ===
+      "true";
     if (allowAll) return;
 
     // Skip localhost
@@ -112,7 +112,7 @@ export default fp(async function (fastify) {
           });
         }
       }
-    } catch (error) {
+    } catch {
       fastify.log.warn("Failed to check project-specific CORS");
     }
   });

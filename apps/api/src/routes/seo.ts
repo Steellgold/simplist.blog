@@ -1,12 +1,19 @@
-import * as db from "@simplist/db";
-import { getRedis } from "@simplist/db";
-import { FastifyPluginAsync } from "fastify";
-import { type SitemapEntry } from "../schemas/seo";
+import { type SitemapEntry } from "@/schemas/seo";
+import { parseQuery } from "@/types/fastify";
+import type {
+  SeoQuery,
+  SeoRssQuery,
+  SeoSitemapQuery,
+  SeoStructuredDataQuery,
+} from "@/types/requests";
 import {
   generateRSSFeed,
   generateSeoMetadata,
   generateSitemap,
-} from "../utils/seo-generator";
+} from "@/utils/seo-generator";
+import * as db from "@simplist/db";
+import { getRedis } from "@simplist/db";
+import { FastifyPluginAsync } from "fastify";
 
 const { prisma } = db;
 const redis = getRedis();
@@ -107,20 +114,46 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
               "project",
             ],
           },
+          401: {
+            type: "object",
+            properties: {
+              error: { type: "string" },
+            },
+          },
+          403: {
+            type: "object",
+            properties: {
+              error: { type: "string" },
+              message: { type: "string" },
+              statusCode: { type: "number" },
+            },
+          },
+          404: {
+            type: "object",
+            properties: {
+              error: { type: "string" },
+            },
+          },
+          500: {
+            type: "object",
+            properties: {
+              error: { type: "string" },
+            },
+          },
         },
       },
     },
     async (request, reply) => {
       const { articleSlug } = request.params as { articleSlug: string };
-      const { baseUrl } = request.query as { baseUrl?: string };
+      const { baseUrl } = parseQuery<SeoQuery>(request);
 
       if (!request.apiKey) {
-        return reply.status(401 as any).send({ error: "API key required" });
+        return reply.status(401).send({ error: "API key required" });
       }
 
       // Check if key has read permissions
       if (!request.checkPermission!("read")) {
-        return reply.status(403 as any).send({
+        return reply.status(403).send({
           error: "Forbidden",
           message: "API key does not have read permissions.",
           statusCode: 403,
@@ -134,7 +167,7 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
         });
 
         if (!project) {
-          return reply.status(404 as any).send({ error: "Project not found" });
+          return reply.status(404).send({ error: "Project not found" });
         }
 
         // Find the article
@@ -148,7 +181,7 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
         });
 
         if (!article) {
-          return reply.status(404 as any).send({ error: "Article not found" });
+          return reply.status(404).send({ error: "Article not found" });
         }
 
         // Generate SEO metadata
@@ -169,9 +202,7 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
         return reply.send(response);
       } catch (error) {
         fastify.log.error(error, "Failed to get article SEO metadata");
-        return reply
-          .status(500 as any)
-          .send({ error: "Internal server error" });
+        return reply.code(500).send({ error: "Internal server error" });
       }
     },
   );
@@ -202,15 +233,15 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
         articleSlug: string;
         lang: string;
       };
-      const { baseUrl } = request.query as { baseUrl?: string };
+      const { baseUrl } = parseQuery<SeoQuery>(request);
 
       if (!request.apiKey) {
-        return reply.status(401 as any).send({ error: "API key required" });
+        return reply.status(401).send({ error: "API key required" });
       }
 
       // Check if key has read permissions
       if (!request.checkPermission!("read")) {
-        return reply.status(403 as any).send({
+        return reply.status(403).send({
           error: "Forbidden",
           message: "API key does not have read permissions.",
           statusCode: 403,
@@ -224,7 +255,7 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
         });
 
         if (!project) {
-          return reply.status(404 as any).send({ error: "Project not found" });
+          return reply.status(404).send({ error: "Project not found" });
         }
 
         // Find the article with variants
@@ -241,7 +272,7 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
         });
 
         if (!article) {
-          return reply.status(404 as any).send({ error: "Article not found" });
+          return reply.status(404).send({ error: "Article not found" });
         }
 
         // Check if variant exists
@@ -249,7 +280,7 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
           !article.variants ||
           !article.variants.some((v) => v.lang === lang)
         ) {
-          return reply.status(404 as any).send({ error: "Variant not found" });
+          return reply.code(404).send({ error: "Variant not found" });
         }
 
         // Generate SEO metadata for the specific variant
@@ -275,9 +306,7 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
         return reply.send(response);
       } catch (error) {
         fastify.log.error(error, "Failed to get article variant SEO metadata");
-        return reply
-          .status(500 as any)
-          .send({ error: "Internal server error" });
+        return reply.code(500).send({ error: "Internal server error" });
       }
     },
   );
@@ -305,21 +334,16 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
         format = "xml",
         lang,
         customPath,
-      } = request.query as {
-        baseUrl: string;
-        format?: "xml" | "json";
-        lang?: string;
-        customPath?: string;
-      };
+      } = parseQuery<SeoSitemapQuery>(request);
       const projectId = request.apiKey?.projectId;
 
       if (!request.apiKey) {
-        return reply.status(401 as any).send({ error: "API key required" });
+        return reply.status(401).send({ error: "API key required" });
       }
 
       // Check if key has read permissions
       if (!request.checkPermission!("read")) {
-        return reply.status(403 as any).send({
+        return reply.status(403).send({
           error: "Forbidden",
           message: "API key does not have read permissions.",
           statusCode: 403,
@@ -357,7 +381,7 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
         });
 
         if (!project) {
-          return reply.status(404 as any).send({ error: "Project not found" });
+          return reply.status(404).send({ error: "Project not found" });
         }
 
         // Get published articles with variants
@@ -446,9 +470,7 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
         }
       } catch (error) {
         fastify.log.error(error, "Failed to generate sitemap");
-        return reply
-          .status(500 as any)
-          .send({ error: "Internal server error" });
+        return reply.code(500).send({ error: "Internal server error" });
       }
     },
   );
@@ -476,21 +498,16 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
         limit = 20,
         lang,
         customPath,
-      } = request.query as {
-        baseUrl: string;
-        limit?: number;
-        lang?: string;
-        customPath?: string;
-      };
+      } = parseQuery<SeoRssQuery>(request);
       const projectId = request.apiKey?.projectId;
 
       if (!request.apiKey) {
-        return reply.status(401 as any).send({ error: "API key required" });
+        return reply.status(401).send({ error: "API key required" });
       }
 
       // Check if key has read permissions
       if (!request.checkPermission!("read")) {
-        return reply.status(403 as any).send({
+        return reply.status(403).send({
           error: "Forbidden",
           message: "API key does not have read permissions.",
           statusCode: 403,
@@ -523,7 +540,7 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
         });
 
         if (!project) {
-          return reply.status(404 as any).send({ error: "Project not found" });
+          return reply.status(404).send({ error: "Project not found" });
         }
 
         // Get published articles with variants
@@ -570,9 +587,7 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
         return reply.send(rss);
       } catch (error) {
         fastify.log.error(error, "Failed to generate RSS feed");
-        return reply
-          .status(500 as any)
-          .send({ error: "Internal server error" });
+        return reply.code(500).send({ error: "Internal server error" });
       }
     },
   );
@@ -597,20 +612,16 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
         baseUrl,
         limit = 200,
         offset = 0,
-      } = request.query as {
-        baseUrl?: string;
-        limit?: number;
-        offset?: number;
-      };
+      } = parseQuery<SeoStructuredDataQuery>(request);
       const projectId = request.apiKey?.projectId;
 
       if (!request.apiKey) {
-        return reply.status(401 as any).send({ error: "API key required" });
+        return reply.status(401).send({ error: "API key required" });
       }
 
       // Check if key has read permissions
       if (!request.checkPermission!("read")) {
-        return reply.status(403 as any).send({
+        return reply.status(403).send({
           error: "Forbidden",
           message: "API key does not have read permissions.",
           statusCode: 403,
@@ -645,7 +656,7 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
         });
 
         if (!project) {
-          return reply.status(404 as any).send({ error: "Project not found" });
+          return reply.status(404).send({ error: "Project not found" });
         }
 
         // Get published articles (paginés pour éviter de charger des milliers d'entrées d'un coup)
@@ -694,9 +705,7 @@ const seoRoutes: FastifyPluginAsync = async (fastify) => {
         return reply.send(responsePayload);
       } catch (error) {
         fastify.log.error(error, "Failed to get structured data");
-        return reply
-          .status(500 as any)
-          .send({ error: "Internal server error" });
+        return reply.code(500).send({ error: "Internal server error" });
       }
     },
   );

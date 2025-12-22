@@ -9,7 +9,7 @@ const projectsRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.get("/project", async (request, reply) => {
     // Check if key has read permissions
     if (!request.checkPermission!("read")) {
-      return reply.status(403 as any).send({
+      return reply.code(403).send({
         error: "Forbidden",
         message: "API key does not have read permissions.",
         statusCode: 403,
@@ -69,7 +69,11 @@ const projectsRoutes: FastifyPluginAsync = async (fastify) => {
       ]);
 
       const projectInfo = {
-        project: formatProject(project),
+        project: {
+          ...project,
+          createdAt: project.createdAt.toISOString(),
+          updatedAt: project.updatedAt.toISOString(),
+        },
         stats: {
           totalArticles,
           publishedArticles,
