@@ -112,7 +112,7 @@ export const ColorSelector: FC<ColorSelectorProps> = ({
     <Button
       variant="outline"
       className={cn(
-        "flex-1 justify-start bg-transparent",
+        "justify-start bg-transparent",
         triggerClassName,
         className,
       )}
@@ -131,8 +131,10 @@ export const ColorSelector: FC<ColorSelectorProps> = ({
       ) : (
         <div className="h-4 w-4 rounded-full border-2 border-gray-300 bg-transparent" />
       )}
+
       {displayLabel}
-      <ChevronDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+
+      {!dialog && <ChevronDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />}
     </Button>
   );
 

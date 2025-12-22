@@ -279,7 +279,7 @@ export const IconPicker: FC<IconPickerProps> = ({
                 </span>
               </div>
 
-              <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
+              {!dialog && <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />}
             </Button>
           </DialogTrigger>
         )}
@@ -363,7 +363,8 @@ export const IconPicker: FC<IconPickerProps> = ({
                   : placeholder}
               </span>
             </div>
-            <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
+
+            {!dialog && <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />}
           </Button>
         </PopoverTrigger>
 
@@ -422,7 +423,8 @@ export const IconPicker: FC<IconPickerProps> = ({
                 : placeholder}
             </span>
           </div>
-          <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
+          
+          {!dialog && <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />}
         </Button>
       </DrawerTrigger>
 

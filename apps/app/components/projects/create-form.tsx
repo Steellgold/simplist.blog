@@ -377,7 +377,6 @@ export const CreateProjectForm = forwardRef<
                           { shouldDirty: true },
                         );
                       }}
-                      className="w-full"
                       dialog
                     />
                   </Field>
