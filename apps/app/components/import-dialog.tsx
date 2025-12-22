@@ -1,5 +1,11 @@
 "use client";
 
+import { cn } from "@/lib/utils";
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@simplist/ui/components/alert";
 import { Button } from "@simplist/ui/components/button";
 import {
   Dialog,
@@ -11,10 +17,6 @@ import {
   DialogTrigger,
 } from "@simplist/ui/components/dialog";
 import { Dropzone } from "@simplist/ui/components/dropzone";
-import { toast } from "@simplist/ui/components/sonner";
-import { Spinner } from "@simplist/ui/components/spinner";
-import { Upload, AlertTriangle, Languages } from "lucide-react";
-import { type ReactNode, useCallback, useMemo, useState } from "react";
 import {
   Select,
   SelectContent,
@@ -22,11 +24,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@simplist/ui/components/select";
-import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-} from "@simplist/ui/components/alert";
+import { toast } from "@simplist/ui/components/sonner";
+import { Spinner } from "@simplist/ui/components/spinner";
+import { AlertTriangle, Download } from "lucide-react";
+import { type ReactNode, useCallback, useMemo, useState } from "react";
 
 export type ImportFormat = "csv" | "json" | "xml";
 
@@ -48,6 +49,7 @@ export interface ImportDialogProps<T> {
   description?: string;
   entityName?: string;
   maxVariantsPerItem?: number;
+  disabled?: boolean;
 }
 
 const detectFormat = (
@@ -212,6 +214,7 @@ export function ImportDialog<T extends Record<string, unknown>>({
   description = "Upload a CSV, JSON, or XML file to import data.",
   entityName = "items",
   maxVariantsPerItem,
+  disabled = false,
 }: ImportDialogProps<T>) {
   const [open, setOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
@@ -357,19 +360,21 @@ export function ImportDialog<T extends Record<string, unknown>>({
     <Dialog
       open={open}
       onOpenChange={(value) => {
+        if (disabled && value) return;
         setOpen(value);
         if (!value) reset();
       }}
     >
-      <DialogTrigger asChild>
+      <DialogTrigger asChild disabled={disabled}>
         {children || (
-          <Button variant="outline">
-            <Upload />
+          <Button variant="outline" disabled={disabled}>
+            <Download />
             Import
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+
+      <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
@@ -397,69 +402,55 @@ export function ImportDialog<T extends Record<string, unknown>>({
             hint="CSV, JSON, XML"
           />
 
-          {/* Variants warning */}
-          {hasMultipleVariants && (
-            <Alert>
-              <AlertTriangle className="h-4 w-4" />
-              <AlertTitle>Multiple variants detected</AlertTitle>
-              <AlertDescription>
-                {itemsWithMultipleVariants.length} article(s) have more than{" "}
-                {maxVariantsPerItem} variant(s). Please select which variant to
-                import for each article below.
-              </AlertDescription>
-            </Alert>
-          )}
-
           {/* Variant selection */}
           {hasMultipleVariants && (
-            <div className="max-h-60 space-y-3 overflow-y-auto rounded-md border p-3">
-              <div className="bg-background sticky top-0 flex items-center gap-2 pb-2 text-sm font-medium">
-                <Languages className="h-4 w-4" />
-                Select variants to import
-              </div>
-              {itemsWithMultipleVariants.map(({ index, item, variants }) => (
-                <div
-                  key={index}
-                  className="bg-muted/20 space-y-2 rounded-md border p-3"
-                >
-                  <div className="truncate text-sm font-medium">
-                    {String(item.title || `Article ${index + 1}`)}
-                  </div>
-                  <Select
-                    value={String(variantSelections[index] ?? "")}
-                    onValueChange={(value) => {
-                      setVariantSelections((prev) => ({
-                        ...prev,
-                        [index]: Number(value),
-                      }));
-                    }}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select a variant to import" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {variants.map((variant, variantIndex) => (
-                        <SelectItem
-                          key={variantIndex}
-                          value={String(variantIndex)}
-                        >
-                          {variant.lang.toUpperCase()} - {variant.title}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              ))}
-            </div>
-          )}
+            <div>
+              <Alert variant="destructive" className="rounded-t-xl rounded-b-none border-b-0">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle>Multiple variants detected</AlertTitle>
+                <AlertDescription>
+                  {itemsWithMultipleVariants.length} article(s) have more than{" "}
+                  {maxVariantsPerItem} variant(s). Please select which variant to
+                  import for each article below.
+                </AlertDescription>
+              </Alert>
 
-          {/* Preview */}
-          {parsedData.length > 0 && (
-            <div className="bg-muted/50 rounded-md border p-3">
-              <p className="text-sm">
-                <span className="font-medium">{parsedData.length}</span>{" "}
-                {entityName} ready to import
-              </p>
+              <div className="overflow-y-auto rounded-b-xl">
+                {itemsWithMultipleVariants.map(({ index, item, variants }) => (
+                  <div key={index} className={cn(
+                    "bg-card space-y-2 p-3 border-x", {
+                      "border-b": index === itemsWithMultipleVariants.length - 1,
+                    }
+                  )}>
+                    <div className="truncate text-sm font-medium">
+                      {String(item.title || `Article ${index + 1}`)}
+                    </div>
+                    <Select
+                      value={String(variantSelections[index] ?? "")}
+                      onValueChange={(value) => {
+                        setVariantSelections((prev) => ({
+                          ...prev,
+                          [index]: Number(value),
+                        }));
+                      }}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select a variant to import" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {variants.map((variant, variantIndex) => (
+                          <SelectItem
+                            key={variantIndex}
+                            value={String(variantIndex)}
+                          >
+                            {variant.lang.toUpperCase()} - {variant.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
@@ -469,18 +460,13 @@ export function ImportDialog<T extends Record<string, unknown>>({
               <p className="text-destructive text-sm">{error}</p>
             </div>
           )}
-
-          {/* Expected columns info */}
-          <div className="text-muted-foreground text-xs">
-            <p className="font-medium">Expected columns:</p>
-            <p>{columns.map((c) => c.header).join(", ")}</p>
-          </div>
         </div>
 
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)}>
             Cancel
           </Button>
+
           <Button
             onClick={handleImport}
             disabled={isImporting || parsedData.length === 0}

@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@simplist/ui/components/dropdown-menu";
 import { toast } from "@simplist/ui/components/sonner";
-import { Download, FileCode, FileJson, FileSpreadsheet } from "lucide-react";
+import { Upload, FileCode, FileJson, FileSpreadsheet } from "lucide-react";
 import { type ReactNode } from "react";
 
 export type ExportFormat = "csv" | "json" | "xml";
@@ -155,7 +155,7 @@ export const ExportDropdown = ({
       <DropdownMenuTrigger asChild>
         {children || (
           <Button variant="outline">
-            <Download />
+            <Upload />
             Export{countLabel}
           </Button>
         )}

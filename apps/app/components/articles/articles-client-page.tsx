@@ -163,7 +163,22 @@ export const ArticlesClientPage = ({
         )
       }
     >
-      <ArticlesDataTable columns={columns} data={articles} members={members} />
+      <ArticlesDataTable
+        columns={columns}
+        data={articles}
+        members={members}
+        importDialog={
+          <ImportDialog<ImportArticleInput>
+            columns={importColumns}
+            onImport={handleImport}
+            title="Import articles"
+            description="Upload a CSV, JSON, or XML file to import articles."
+            entityName="articles"
+            maxVariantsPerItem={maxVariantsPerArticle}
+            disabled={isAtLimit}
+          />
+        }
+      />
     </PageLayout>
   );
 };

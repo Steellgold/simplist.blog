@@ -69,6 +69,7 @@ interface DataTableProps<
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   members: Member[];
+  importDialog?: React.ReactNode;
 }
 
 export const ArticlesDataTable = <
@@ -82,6 +83,7 @@ export const ArticlesDataTable = <
   columns,
   data,
   members,
+  importDialog,
 }: DataTableProps<TData, TValue>) => {
   const router = useRouter();
   const { currentProject } = useProjectContext();
@@ -365,12 +367,16 @@ export const ArticlesDataTable = <
 
           <DataTableViewOptions table={table} />
 
-          <ExportDropdown
-            data={articlesToExport}
-            columns={exportColumns}
-            filename="articles-export"
-            selectedCount={selectedCount}
-          />
+          <ButtonGroup>
+            <ExportDropdown
+              data={articlesToExport}
+              columns={exportColumns}
+              filename="articles-export"
+              selectedCount={selectedCount}
+            />
+
+            {importDialog}
+          </ButtonGroup>
         </div>
       </div>
 
