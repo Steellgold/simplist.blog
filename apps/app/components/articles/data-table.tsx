@@ -26,12 +26,7 @@ import {
   ExportDropdown,
   type ExportColumn,
 } from "@/components/export-dropdown";
-import { ImportDialog, type ImportColumn } from "@/components/import-dialog";
-import {
-  bulkDeleteArticles,
-  bulkImportArticles,
-  type ImportArticleInput,
-} from "@/lib/actions/articles";
+import { bulkDeleteArticles } from "@/lib/actions/articles";
 import { Button, buttonVariants } from "@simplist/ui/components/button";
 import { ButtonGroup } from "@simplist/ui/components/button-group";
 import { ConfirmDialog } from "@simplist/ui/components/confirm-dialog";
@@ -289,38 +284,6 @@ export const ArticlesDataTable = <
     },
   ];
 
-  const importColumns: ImportColumn[] = [
-    { key: "title", header: "Title", required: true },
-    { key: "slug", header: "Slug" },
-    { key: "excerpt", header: "Excerpt" },
-    { key: "content", header: "Content" },
-    { key: "status", header: "Status" },
-    { key: "tags", header: "Tags" },
-    {
-      key: "variants",
-      header: "Variants",
-      transform: (value: string) => {
-        if (!value || value.trim() === "") return [];
-        try {
-          return JSON.parse(value);
-        } catch {
-          return [];
-        }
-      },
-    },
-  ];
-
-  const handleImport = async (articles: ImportArticleInput[]) => {
-    if (!currentProject?.id) {
-      return { success: false, error: "No project selected" };
-    }
-    const result = await bulkImportArticles(currentProject.id, articles);
-    if (result.success) {
-      router.refresh();
-    }
-    return result;
-  };
-
   const articlesToExport =
     selectedCount > 0
       ? selectedRows.map(
@@ -400,22 +363,12 @@ export const ArticlesDataTable = <
 
           <DataTableViewOptions table={table} />
 
-          <ButtonGroup>
-            <ExportDropdown
-              data={articlesToExport}
-              columns={exportColumns}
-              filename="articles-export"
-              selectedCount={selectedCount}
-            />
-
-            <ImportDialog<ImportArticleInput>
-              columns={importColumns}
-              onImport={handleImport}
-              title="Import articles"
-              description="Upload a CSV, JSON, or XML file to import articles."
-              entityName="articles"
-            />
-          </ButtonGroup>
+          <ExportDropdown
+            data={articlesToExport}
+            columns={exportColumns}
+            filename="articles-export"
+            selectedCount={selectedCount}
+          />
         </div>
       </div>
 

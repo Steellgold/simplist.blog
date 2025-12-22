@@ -37,6 +37,7 @@ type ArticlesClientPageProps = {
   members: Array<{ id: string; name: string | null }>;
   articleCount: number;
   maxCount: number;
+  maxVariantsPerArticle: number;
 };
 
 export const ArticlesClientPage = ({
@@ -45,6 +46,7 @@ export const ArticlesClientPage = ({
   members,
   articleCount,
   maxCount,
+  maxVariantsPerArticle,
 }: ArticlesClientPageProps) => {
   const router = useRouter();
   const columns = useArticlesColumns({ articles: articles as Article[] });
@@ -63,10 +65,29 @@ export const ArticlesClientPage = ({
     { key: "content", header: "Content" },
     { key: "status", header: "Status" },
     { key: "tags", header: "Tags" },
+    {
+      key: "variants",
+      header: "Variants",
+      transform: (value: string) => {
+        if (!value || value.trim() === "") return [];
+        try {
+          return JSON.parse(value);
+        } catch {
+          return [];
+        }
+      },
+    },
   ];
 
-  const handleImport = async (importedArticles: ImportArticleInput[]) => {
-    const result = await bulkImportArticles(project.id, importedArticles);
+  const handleImport = async (
+    importedArticles: ImportArticleInput[],
+    variantSelections?: Record<number, number>,
+  ) => {
+    const result = await bulkImportArticles(
+      project.id,
+      importedArticles,
+      variantSelections,
+    );
     if (result.success) {
       router.refresh();
     }
@@ -95,6 +116,7 @@ export const ArticlesClientPage = ({
                 title="Import articles"
                 description="Upload a CSV, JSON, or XML file to import articles."
                 entityName="articles"
+                maxVariantsPerItem={maxVariantsPerArticle}
               />
               <Link
                 href={`/${project.slug}/articles/new`}

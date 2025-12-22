@@ -13,8 +13,20 @@ import {
 import { Dropzone } from "@simplist/ui/components/dropzone";
 import { toast } from "@simplist/ui/components/sonner";
 import { Spinner } from "@simplist/ui/components/spinner";
-import { Upload } from "lucide-react";
-import { type ReactNode, useCallback, useState } from "react";
+import { Upload, AlertTriangle, Languages } from "lucide-react";
+import { type ReactNode, useCallback, useMemo, useState } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@simplist/ui/components/select";
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@simplist/ui/components/alert";
 
 export type ImportFormat = "csv" | "json" | "xml";
 
@@ -29,11 +41,13 @@ export interface ImportDialogProps<T> {
   columns: ImportColumn[];
   onImport: (
     data: T[],
+    variantSelections?: Record<number, number>,
   ) => Promise<{ success: boolean; count?: number; error?: string }>;
   children?: ReactNode;
   title?: string;
   description?: string;
   entityName?: string;
+  maxVariantsPerItem?: number;
 }
 
 const detectFormat = (
@@ -197,23 +211,52 @@ export function ImportDialog<T extends Record<string, unknown>>({
   title = "Import data",
   description = "Upload a CSV, JSON, or XML file to import data.",
   entityName = "items",
+  maxVariantsPerItem,
 }: ImportDialogProps<T>) {
   const [open, setOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [parsedData, setParsedData] = useState<Record<string, unknown>[]>([]);
   const [isImporting, setIsImporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [variantSelections, setVariantSelections] = useState<
+    Record<number, number>
+  >({});
 
   const reset = () => {
     setFile(null);
     setParsedData([]);
     setError(null);
+    setVariantSelections({});
   };
+
+  // Detect items with multiple variants
+  const itemsWithMultipleVariants = useMemo(() => {
+    if (!maxVariantsPerItem || maxVariantsPerItem === -1) return [];
+
+    return parsedData
+      .map((item, index) => {
+        const variants = item.variants as
+          | Array<{ lang: string; title: string }>
+          | undefined;
+        if (variants && variants.length > maxVariantsPerItem) {
+          return { index, item, variants };
+        }
+        return null;
+      })
+      .filter(Boolean) as Array<{
+      index: number;
+      item: Record<string, unknown>;
+      variants: Array<{ lang: string; title: string }>;
+    }>;
+  }, [parsedData, maxVariantsPerItem]);
+
+  const hasMultipleVariants = itemsWithMultipleVariants.length > 0;
 
   const handleFile = useCallback(
     async (selectedFile: File) => {
       setFile(selectedFile);
       setError(null);
+      setVariantSelections({});
 
       try {
         const content = await selectedFile.text();
@@ -272,10 +315,27 @@ export function ImportDialog<T extends Record<string, unknown>>({
   const handleImport = async () => {
     if (parsedData.length === 0) return;
 
+    // Check if all required variant selections are made
+    if (hasMultipleVariants) {
+      const missingSelections = itemsWithMultipleVariants.filter(
+        ({ index }) => variantSelections[index] === undefined,
+      );
+
+      if (missingSelections.length > 0) {
+        setError(
+          "Please select a variant for each article with multiple variants",
+        );
+        return;
+      }
+    }
+
     setIsImporting(true);
 
     try {
-      const result = await onImport(parsedData as T[]);
+      const result = await onImport(
+        parsedData as T[],
+        hasMultipleVariants ? variantSelections : undefined,
+      );
 
       if (result.success) {
         toast.success(
@@ -309,7 +369,7 @@ export function ImportDialog<T extends Record<string, unknown>>({
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
@@ -336,6 +396,62 @@ export function ImportDialog<T extends Record<string, unknown>>({
             description="or drag and drop"
             hint="CSV, JSON, XML"
           />
+
+          {/* Variants warning */}
+          {hasMultipleVariants && (
+            <Alert>
+              <AlertTriangle className="h-4 w-4" />
+              <AlertTitle>Multiple variants detected</AlertTitle>
+              <AlertDescription>
+                {itemsWithMultipleVariants.length} article(s) have more than{" "}
+                {maxVariantsPerItem} variant(s). Please select which variant to
+                import for each article below.
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {/* Variant selection */}
+          {hasMultipleVariants && (
+            <div className="max-h-60 space-y-3 overflow-y-auto rounded-md border p-3">
+              <div className="bg-background sticky top-0 flex items-center gap-2 pb-2 text-sm font-medium">
+                <Languages className="h-4 w-4" />
+                Select variants to import
+              </div>
+              {itemsWithMultipleVariants.map(({ index, item, variants }) => (
+                <div
+                  key={index}
+                  className="bg-muted/20 space-y-2 rounded-md border p-3"
+                >
+                  <div className="truncate text-sm font-medium">
+                    {String(item.title || `Article ${index + 1}`)}
+                  </div>
+                  <Select
+                    value={String(variantSelections[index] ?? "")}
+                    onValueChange={(value) => {
+                      setVariantSelections((prev) => ({
+                        ...prev,
+                        [index]: Number(value),
+                      }));
+                    }}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select a variant to import" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {variants.map((variant, variantIndex) => (
+                        <SelectItem
+                          key={variantIndex}
+                          value={String(variantIndex)}
+                        >
+                          {variant.lang.toUpperCase()} - {variant.title}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* Preview */}
           {parsedData.length > 0 && (

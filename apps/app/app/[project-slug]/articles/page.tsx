@@ -49,6 +49,7 @@ const ArticlesPage = async ({ params }: ArticlesPageProps) => {
   const articleCount = articles.length;
   const limits = getPlanLimits(project.subscriptionTier);
   const maxCount = limits.maxArticles;
+  const maxVariantsPerArticle = limits.maxVariantsPerArticle;
 
   // Extract members for author filter
   const members = project.members.map((m) => ({
@@ -67,6 +68,7 @@ const ArticlesPage = async ({ params }: ArticlesPageProps) => {
       members={members}
       articleCount={articleCount}
       maxCount={maxCount}
+      maxVariantsPerArticle={maxVariantsPerArticle}
     />
   );
 };
