@@ -394,6 +394,7 @@ const SettingsPage = () => {
                 >
                   <Palette />
                 </Button>
+
                 <Button
                   type="button"
                   variant={displayType === "avatar" ? "default" : "secondary"}
@@ -419,7 +420,7 @@ const SettingsPage = () => {
                         }}
                         disabled={isDisabled}
                         className="w-full flex-1"
-                        dialog={true}
+                        dialog
                       />
                     </div>
 
@@ -434,7 +435,7 @@ const SettingsPage = () => {
                       }}
                       disabled={isDisabled}
                       className="w-full flex-1"
-                      dialog={true}
+                      dialog
                     />
                   </div>
 
