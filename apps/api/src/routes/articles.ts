@@ -87,15 +87,20 @@ const articlesRoutes: FastifyPluginAsync = async (fastify) => {
       if (cachedArticles) {
         fastify.log.info(`Cache hit for articles list (project: ${projectId})`);
 
+        // Format cached articles (converts variants array to object)
+        const formattedArticles = cachedArticles.map((article) =>
+          formatArticle(article as any),
+        );
+
         // Calculate pagination meta (we need total count which might not be cached)
-        const totalPages = Math.ceil(cachedArticles.length / limit);
+        const totalPages = Math.ceil(formattedArticles.length / limit);
 
         return {
-          data: cachedArticles,
+          data: formattedArticles,
           meta: {
             page,
             limit,
-            total: cachedArticles.length,
+            total: formattedArticles.length,
             totalPages,
           },
         };
