@@ -247,11 +247,27 @@ export const ArticlesDataTable = <
     { key: "content", header: "Content" },
     { key: "status", header: "Status" },
     {
-      key: "tags",
-      header: "Tags",
+      key: "variants",
+      header: "Variants",
       getValue: (item) => {
-        const tags = item.tags as Array<{ name: string }> | undefined;
-        return tags?.map((t) => t.name).join(", ") || "";
+        const variants = item.variants as
+          | Array<{
+              lang: string;
+              title: string;
+              excerpt: string | null;
+              content: string;
+            }>
+          | undefined;
+        return variants && variants.length > 0
+          ? JSON.stringify(
+              variants.map((v) => ({
+                lang: v.lang,
+                title: v.title,
+                excerpt: v.excerpt || "",
+                content: v.content,
+              })),
+            )
+          : "";
       },
     },
     { key: "coverImage", header: "Cover Image" },
@@ -280,6 +296,18 @@ export const ArticlesDataTable = <
     { key: "content", header: "Content" },
     { key: "status", header: "Status" },
     { key: "tags", header: "Tags" },
+    {
+      key: "variants",
+      header: "Variants",
+      transform: (value: string) => {
+        if (!value || value.trim() === "") return [];
+        try {
+          return JSON.parse(value);
+        } catch {
+          return [];
+        }
+      },
+    },
   ];
 
   const handleImport = async (articles: ImportArticleInput[]) => {

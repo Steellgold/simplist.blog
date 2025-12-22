@@ -150,7 +150,7 @@ export function Dropzone({
   // Small variant with file selected
   if (size === "sm" && file) {
     return (
-      <label
+      <div
         {...getRootProps()}
         className={cn(dropzoneVariants({ size, state: getState() }), className)}
       >
@@ -172,14 +172,14 @@ export function Dropzone({
             </Button>
           )}
         </div>
-      </label>
+      </div>
     );
   }
 
   // Small variant without file
   if (size === "sm") {
     return (
-      <label
+      <div
         {...getRootProps()}
         className={cn(dropzoneVariants({ size, state: getState() }), className)}
       >
@@ -191,7 +191,7 @@ export function Dropzone({
             {hint && <span className="ml-2 text-xs">({hint})</span>}
           </div>
         </div>
-      </label>
+      </div>
     );
   }
 

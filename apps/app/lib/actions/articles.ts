@@ -13,6 +13,7 @@ import {
   checkVariantQuota,
   getProjectSubscription,
 } from "@/lib/subscription/quota-check";
+import { getPlanLimits } from "@/lib/subscription/plans";
 import { isValidLanguageCode, type LanguageCode } from "@/lib/types/languages";
 import { generateSlug } from "@/lib/utils";
 import { prisma, sendWebhookEvent, type WebhookEvent } from "@simplist/db";
@@ -506,7 +507,14 @@ export const getProjectArticles = async (
         select: {
           id: true,
           lang: true,
+          title: true,
+          excerpt: true,
+          content: true,
           coverImage: true,
+          wordCount: true,
+          characterCount: true,
+          lineCount: true,
+          readTimeMinutes: true,
         },
       },
       tags: {
@@ -1227,6 +1235,12 @@ export type ImportArticleInput = {
   content?: string;
   status?: string;
   tags?: string;
+  variants?: Array<{
+    lang: string;
+    title: string;
+    excerpt: string;
+    content: string;
+  }>;
 };
 
 /**
@@ -1239,7 +1253,7 @@ export const bulkImportArticles = async (
   try {
     const { user } = await requirePermission(projectId, "canManageArticles");
 
-    // Check quota
+    // Check article quota
     const quotaCheck = await checkArticleQuota(user.id, projectId);
     if (!quotaCheck.allowed) {
       return {
@@ -1248,14 +1262,67 @@ export const bulkImportArticles = async (
       };
     }
 
+    // Check variant quota for the project
+    const variantQuotaCheck = await checkVariantQuota(user.id, projectId);
+    if (!variantQuotaCheck.allowed) {
+      return {
+        success: false,
+        error: variantQuotaCheck.reason || "Variant limit reached",
+      };
+    }
+
     // Get project for revalidation
     const project = await prisma.project.findUnique({
       where: { id: projectId },
-      select: { slug: true },
+      select: {
+        slug: true,
+        subscriptionTier: true,
+      },
     });
 
     if (!project) {
       return { success: false, error: "Project not found" };
+    }
+
+    // Get plan limits
+    const limits = getPlanLimits(project.subscriptionTier);
+    const maxVariantsPerArticle = limits.maxVariantsPerArticle;
+
+    // Validate variants in articles
+    for (const article of articles) {
+      const variants = article.variants || [];
+      if (variants.length > 0) {
+        // Check if exceeds plan limit
+        if (
+          maxVariantsPerArticle !== -1 &&
+          variants.length > maxVariantsPerArticle
+        ) {
+          return {
+            success: false,
+            error: `Article "${article.title}" has ${variants.length} variants, but your plan allows only ${maxVariantsPerArticle}. Please upgrade to PRO for unlimited variants.`,
+          };
+        }
+
+        // Validate language codes
+        const langCodes = variants.map((v) => v.lang);
+        const uniqueLangs = new Set(langCodes);
+        if (uniqueLangs.size !== langCodes.length) {
+          return {
+            success: false,
+            error: `Article "${article.title}" has duplicate variant language codes`,
+          };
+        }
+
+        // Validate required fields
+        for (const variant of variants) {
+          if (!variant.lang || !variant.title || !variant.content) {
+            return {
+              success: false,
+              error: `Article "${article.title}" has a variant missing required fields (lang, title, content)`,
+            };
+          }
+        }
+      }
     }
 
     // Get existing slugs to avoid duplicates (including soft-deleted articles)
@@ -1314,7 +1381,7 @@ export const bulkImportArticles = async (
         }
       }
 
-      // Calculate stats
+      // Calculate stats for main article
       const content = article.content || "";
       const stats = {
         wordCount: content.trim() ? content.trim().split(/\s+/).length : 0,
@@ -1324,6 +1391,33 @@ export const bulkImportArticles = async (
           (content.trim() ? content.trim().split(/\s+/).length : 0) / 200,
         ),
       };
+
+      // Prepare variants data
+      const variants = article.variants || [];
+      const variantsData = variants.map((variant) => {
+        const variantContent = variant.content || "";
+        const variantStats = {
+          wordCount: variantContent.trim()
+            ? variantContent.trim().split(/\s+/).length
+            : 0,
+          characterCount: variantContent.length,
+          lineCount: variantContent.split("\n").length,
+          readTimeMinutes: Math.ceil(
+            (variantContent.trim()
+              ? variantContent.trim().split(/\s+/).length
+              : 0) / 200,
+          ),
+        };
+
+        return {
+          lang: variant.lang,
+          title: variant.title,
+          excerpt: variant.excerpt || null,
+          content: variantContent,
+          coverImage: null,
+          ...variantStats,
+        };
+      });
 
       try {
         await prisma.article.create({
@@ -1339,6 +1433,9 @@ export const bulkImportArticles = async (
             ...stats,
             tags: {
               connect: tagIds.map((id) => ({ id })),
+            },
+            variants: {
+              create: variantsData,
             },
           },
         });
