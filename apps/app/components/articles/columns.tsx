@@ -82,9 +82,11 @@ const ArticleActionsCell = ({ article }: { article: Article }) => {
   };
 
   const handleDelete = async () => {
+    if (!currentProject?.id) return;
+
     try {
       setIsDeleting(true);
-      toast.promise(deleteArticle(article.id), {
+      toast.promise(deleteArticle(article.id, currentProject.id), {
         loading: "Deleting article...",
         success: "Article deleted successfully",
         error: "Failed to delete article",

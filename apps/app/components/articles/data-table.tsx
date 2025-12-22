@@ -215,11 +215,13 @@ export const ArticlesDataTable = <
   const selectedCount = selectedRows.length;
 
   const handleBulkDelete = async () => {
+    if (!currentProject?.id) return;
+
     const ids = selectedRows.map((row) => row.original.id);
 
     setIsDeleting(true);
 
-    toast.promise(bulkDeleteArticles(ids), {
+    toast.promise(bulkDeleteArticles(ids, currentProject.id), {
       loading: `Deleting ${selectedCount} article(s)...`,
       success: () => {
         setShowBulkDeleteDialog(false);

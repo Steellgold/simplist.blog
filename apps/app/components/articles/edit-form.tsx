@@ -324,18 +324,28 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({
         defaultVariant.coverImage?.startsWith("http") &&
         !imageFiles.has(defaultLanguage);
 
-      await updateArticle(article.id, {
-        title: defaultVariant.title,
-        excerpt: defaultVariant.excerpt,
-        content: defaultVariant.content,
-        status,
-        coverImage: shouldUpdateCoverImage
-          ? defaultVariant.coverImage
-          : undefined,
-        scheduledPublishAt: status === "scheduled" ? scheduledPublishAt : null,
-        variants: articleVariants,
-        tags: tagIds.length > 0 ? tagIds : undefined,
-      });
+      if (!currentProject?.id) {
+        toast.error("Project not found", { id: toastId });
+        return;
+      }
+
+      await updateArticle(
+        article.id,
+        {
+          title: defaultVariant.title,
+          excerpt: defaultVariant.excerpt,
+          content: defaultVariant.content,
+          status,
+          coverImage: shouldUpdateCoverImage
+            ? defaultVariant.coverImage
+            : undefined,
+          scheduledPublishAt:
+            status === "scheduled" ? scheduledPublishAt : null,
+          variants: articleVariants,
+          tags: tagIds.length > 0 ? tagIds : undefined,
+        },
+        currentProject.id,
+      );
 
       // Step 2: Delete marked images from server and R2
       if (imagesToDelete.size > 0) {
