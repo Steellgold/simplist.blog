@@ -226,47 +226,47 @@ export const CreateProjectPageClient = () => {
               <ThemeSwitcher variant="card" />
 
               <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={handleReset}
+                  disabled={isSubmitting || !hasFormData}
+                >
+                  <RefreshCcw />
+                </Button>
+
                 <ButtonGroup>
                   <Button
                     type="button"
-                    variant="secondary"
-                    onClick={handleReset}
-                    disabled={isSubmitting || !hasFormData}
-                  >
-                    <RefreshCcw />
-                  </Button>
-
-                  <Button
-                    type="button"
-                    variant="secondary"
+                    variant="outline"
                     onClick={handleBack}
                     disabled={step === STEP_NAME || isSubmitting}
                   >
                     {isMobile ? <ArrowLeft /> : "Back"}
                   </Button>
-                </ButtonGroup>
 
-                <Button
-                  type="button"
-                  disabled={isSubmitting}
-                  onClick={
-                    step < STEP_PLAN
-                      ? handleNext
-                      : () => formRef.current?.submitForm()
-                  }
-                >
-                  {step < STEP_PLAN ? (
-                    isMobile ? (
-                      <ArrowRight />
+                  <Button
+                    type="button"
+                    disabled={isSubmitting}
+                    onClick={
+                      step < STEP_PLAN
+                        ? handleNext
+                        : () => formRef.current?.submitForm()
+                    }
+                  >
+                    {step < STEP_PLAN ? (
+                      isMobile ? (
+                        <ArrowRight />
+                      ) : (
+                        "Next"
+                      )
+                    ) : isSubmitting ? (
+                      "Creating..."
                     ) : (
-                      "Next"
-                    )
-                  ) : isSubmitting ? (
-                    "Creating..."
-                  ) : (
-                    "Create project"
-                  )}
-                </Button>
+                      "Create project"
+                    )}
+                  </Button>
+                </ButtonGroup>
               </div>
             </CardFooter>
           </Card>
