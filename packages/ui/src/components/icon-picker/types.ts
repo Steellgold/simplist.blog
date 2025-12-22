@@ -19,4 +19,4 @@ export type IconPickerProps = {
 
 export type IconPickerMode = "dialog" | "popover" | "drawer";
 
-export const DEFAULT_ICONS_PER_BATCH = 100;
+export const DEFAULT_ICONS_PER_BATCH = 60;

@@ -140,7 +140,26 @@ export const IconPicker: FC<IconPickerProps> = ({
         </DrawerHeader>
       )}
 
-      <div className={!dialog && !isDesktop ? "*:rounded-none" : ""}>
+      {!dialog && !isDesktop ? (
+        <div className="*:rounded-none">
+          <IconPickerContent
+            search={picker.search}
+            onSearchChange={picker.setSearch}
+            searchPlaceholder={searchPlaceholder}
+            categories={categories}
+            selectedCategory={picker.category}
+            onCategorySelect={handleCategorySelect}
+            filteredIcons={filteredIcons}
+            visibleIcons={visibleItems}
+            selectedIcon={dialog ? picker.selected : value}
+            onSelect={handleSelect}
+            hasMore={hasMore}
+            loadMoreRef={loadMoreRef}
+            isMobile={!isDesktop}
+            isDialog={dialog}
+          />
+        </div>
+      ) : (
         <IconPickerContent
           search={picker.search}
           onSearchChange={picker.setSearch}
@@ -157,7 +176,7 @@ export const IconPicker: FC<IconPickerProps> = ({
           isMobile={!isDesktop}
           isDialog={dialog}
         />
-      </div>
+      )}
 
       {dialog && (
         <DialogFooter>

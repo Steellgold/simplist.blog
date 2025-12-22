@@ -16,7 +16,7 @@ export function useIconPagination(
 
   // Intersection observer for lazy loading
   useEffect(() => {
-    if (!enabled || !loadMoreRef.current) return;
+    if (!enabled) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -40,7 +40,7 @@ export function useIconPagination(
       clearTimeout(timer);
       observer.disconnect();
     };
-  }, [enabled, items.length, batchSize]);
+  }, [enabled, items.length, visibleCount, batchSize]);
 
   const visibleItems = items.slice(0, visibleCount);
   const hasMore = visibleCount < items.length;
