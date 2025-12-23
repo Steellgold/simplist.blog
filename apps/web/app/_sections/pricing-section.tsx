@@ -95,10 +95,14 @@ export const PricingSection = () => {
                   API calls / month
                 </div>
                 <div className="py-1 text-center">
-                  {starterLimits.maxApiCallsPerMonth.toLocaleString("en-US")}
+                  {starterLimits.maxApiCallsPerMonth === -1
+                    ? "Unlimited"
+                    : starterLimits.maxApiCallsPerMonth.toLocaleString("en-US")}
                 </div>
                 <div className="py-1 text-center">
-                  {proLimits.maxApiCallsPerMonth.toLocaleString("en-US")}
+                  {proLimits.maxApiCallsPerMonth === -1
+                    ? "Unlimited"
+                    : proLimits.maxApiCallsPerMonth.toLocaleString("en-US")}
                 </div>
 
                 <div className="text-muted-foreground py-1">
@@ -181,6 +185,11 @@ export const PricingSection = () => {
                     : `Up to ${proLimits.maxMembers}`}
                 </div>
               </div>
+              <div className="mt-4 border-t pt-4">
+                <p className="text-muted-foreground/60 text-center text-xs italic">
+                  And more features coming soon...
+                </p>
+              </div>
             </CardContent>
           </Card>
 
@@ -209,7 +218,7 @@ export const PricingSection = () => {
                       value={proPrice?.amount ?? 0}
                     />
 
-                    <span className="text-sm font-normal text-black">
+                    <span className="text-muted-foreground text-sm font-normal">
                       /{proPrice?.interval === "monthly" ? "month" : "year"}
                     </span>
                   </span>

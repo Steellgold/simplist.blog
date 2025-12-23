@@ -57,7 +57,9 @@ export const SubscriptionCard = ({
             <span className="text-muted-foreground">API Calls This Month</span>
             <span className="font-medium">
               {monthlyApiCalls.toLocaleString()} /{" "}
-              {apiCallsLimit.toLocaleString()}
+              {apiCallsLimit === -1
+                ? "Unlimited"
+                : apiCallsLimit.toLocaleString()}
             </span>
           </div>
           <Progress value={apiCallsPercentage} className="h-2" />
