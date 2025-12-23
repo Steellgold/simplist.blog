@@ -13,7 +13,7 @@ import {
   Python,
   ReactDark,
   ReactLight,
-  TypeScript
+  TypeScript,
 } from "@ridemountainpig/svgl-react";
 import { IconThemed } from "@simplist/ui/components/icon-themed";
 

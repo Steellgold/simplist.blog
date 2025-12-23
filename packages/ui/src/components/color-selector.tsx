@@ -134,7 +134,9 @@ export const ColorSelector: FC<ColorSelectorProps> = ({
 
       {displayLabel}
 
-      {!dialog && <ChevronDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />}
+      {!dialog && (
+        <ChevronDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+      )}
     </Button>
   );
 

@@ -44,11 +44,9 @@ export const CodeBlock: FC<CodeBlockProps> = async ({
         <Card className={cn("max-w-full overflow-hidden p-0", className)}>
           <div className="bg-muted/50 flex min-w-0 items-center justify-between border-b px-4 py-2">
             <div className="flex items-center gap-2 overflow-hidden">
-              {
-                cusLang
-                  ? (cusLang && languages.find((l) => l.value === cusLang)?.icon)
-                  : (lang && languages.find((l) => l.value === lang)?.icon)
-              }
+              {cusLang
+                ? cusLang && languages.find((l) => l.value === cusLang)?.icon
+                : lang && languages.find((l) => l.value === lang)?.icon}
 
               <code className="text-muted-foreground truncate text-sm">
                 {filename}
@@ -84,5 +82,11 @@ export const CodeBlock: FC<CodeBlockProps> = async ({
     })),
   );
 
-  return <CodeBlockTabsClient tabs={highlightedTabs} className={className} cusLang={cusLang} />;
+  return (
+    <CodeBlockTabsClient
+      tabs={highlightedTabs}
+      className={className}
+      cusLang={cusLang}
+    />
+  );
 };
