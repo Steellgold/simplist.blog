@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/next";
 import { DocsSidebar } from "@/components/docs-sidebar";
 import { SearchCommand } from "@/components/search-command";
 import { ThemeSwitcher } from "@simplist/ui/components/shared/switch-theme";
@@ -118,6 +119,7 @@ const RootLayout: FC<PropsWithChildren> = ({ children }) => {
             <SearchCommand />
           </SidebarProvider>
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
