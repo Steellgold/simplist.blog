@@ -26,6 +26,22 @@ export const metadata: Metadata = {
   },
   description:
     "Complete documentation for Simplist - a simple, fast content management API. Learn how to use the REST API, SDK, analytics, and more.",
+  keywords: [
+    "Simplist documentation",
+    "Simplist API docs",
+    "headless CMS API",
+    "REST API documentation",
+    "TypeScript SDK",
+    "content management API tutorial",
+    "API reference",
+    "blog API guide",
+    "analytics API",
+    "webhook documentation",
+    "CMS integration",
+    "developer documentation",
+    "API examples",
+    "SDK guide",
+  ],
   icons: {
     icon: "/favicon.ico",
   },
