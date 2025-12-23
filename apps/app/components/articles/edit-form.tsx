@@ -8,6 +8,11 @@ import {
   updateArticleCoverImage,
 } from "@/lib/actions/articles";
 import { createTag, updateTagAppearance } from "@/lib/actions/tags";
+import { type ProjectSubscription } from "@/lib/subscription/quota-check";
+import {
+  type ArticleFormStatus,
+  type ArticleWithVariantsAndTags,
+} from "@/lib/types/articles";
 import { type LanguageCode, getLanguageName } from "@/lib/types/languages";
 import { type Tag } from "@simplist/db";
 import { buttonVariants } from "@simplist/ui/components/button";
@@ -23,42 +28,16 @@ import { ArticleTagsCard } from "./tags-card";
 import { VariantCard } from "./variant-card";
 import { ArticleVisibilityCard } from "./visibility-card";
 
-type ArticleStatus = "draft" | "published" | "scheduled";
-
-type Article = {
-  id: string;
-  title: string;
-  excerpt: string | null;
-  content: string;
-  status: string;
-  coverImage: string | null;
-  projectId: string;
-  scheduledPublishAt?: Date | null;
-  variants?: Array<{
-    id: string;
-    lang: string;
-    title: string;
-    excerpt: string | null;
-    content: string;
-    coverImage: string | null;
-  }>;
-  tags?: Array<{
-    id: string;
-    name: string;
-  }>;
-  project: {
-    defaultLanguage?: string;
-  };
-};
-
 type EditArticleFormProps = {
-  article: Article;
+  article: ArticleWithVariantsAndTags;
   availableTags: Tag[];
+  subscription?: ProjectSubscription;
 };
 
 export const EditArticleForm: FC<EditArticleFormProps> = ({
   article,
   availableTags: initialAvailableTags,
+  subscription,
 }) => {
   const router = useRouter();
   const { currentProject } = useProject();
@@ -112,8 +91,8 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({
   const [title, setTitle] = useState(article.title);
   const [excerpt, setExcerpt] = useState(article.excerpt || "");
   const [content, setContent] = useState(article.content);
-  const [status, setStatus] = useState<ArticleStatus>(
-    article.status as ArticleStatus,
+  const [status, setStatus] = useState<ArticleFormStatus>(
+    article.status as ArticleFormStatus,
   );
   const [scheduledPublishAt, setScheduledPublishAt] = useState<Date | null>(
     article.scheduledPublishAt ? new Date(article.scheduledPublishAt) : null,
@@ -550,6 +529,7 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({
             onVariantSelect={setActiveVariant}
             activeVariant={activeVariant}
             disabled={isSubmitting}
+            subscription={subscription}
           />
         </div>
       </div>

@@ -7,11 +7,11 @@ import {
   SUBSCRIPTION_PLANS as LIMITS_PLANS,
   type Plan as LimitsPlan,
   type PlanId,
-  getPlan as getBasePlan,
-  getAllPlans as getAllBasePlans,
-  getPlanPrice as getBasePlanPrice,
-  getPlanLimits as getBasePlanLimits,
   planHasFeature as basePlanHasFeature,
+  getAllPlans as getAllBasePlans,
+  getPlan as getBasePlan,
+  getPlanLimits as getBasePlanLimits,
+  getPlanPrice as getBasePlanPrice,
 } from "@simplist/limits";
 
 // Type mapping for compatibility

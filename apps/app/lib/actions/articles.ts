@@ -17,6 +17,7 @@ import {
 import { isValidLanguageCode, type LanguageCode } from "@/lib/types/languages";
 import { generateSlug } from "@/lib/utils";
 import {
+  ArticleStatus,
   articlesCacheUtils,
   prisma,
   sendWebhookEvent,
@@ -1434,12 +1435,16 @@ export const bulkImportArticles = async (
         counter++;
       }
 
-      // Parse status
-      const status = ["draft", "published", "scheduled"].includes(
-        article.status?.toLowerCase() || "",
-      )
-        ? article.status!.toLowerCase()
+      // Parse status with validation
+      const statusValue = article.status
+        ? article.status.toLowerCase()
         : "draft";
+      const status: ArticleStatus =
+        statusValue === "published" ||
+        statusValue === "draft" ||
+        statusValue === "scheduled"
+          ? (statusValue as ArticleStatus)
+          : "draft";
 
       // Parse tags
       const tagNames = article.tags

@@ -5,29 +5,14 @@ import { PageLayout } from "@/components/layout/page-layout";
 import { getArticleBySlugWithVariants } from "@/lib/actions/articles";
 import { getProjectTagsWithMetadata } from "@/lib/actions/tags";
 import { getCurrentUser } from "@/lib/auth-helper";
+import { getProjectSubscription } from "@/lib/subscription/quota-check";
 import { type Tag } from "@simplist/db";
-import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 type PageParams = Promise<{
   "project-slug": string;
   slug: string;
 }>;
-
-export const generateMetadata = async ({
-  params,
-}: {
-  params: PageParams;
-}): Promise<Metadata> => {
-  const { "project-slug": projectSlug, slug } = await params;
-
-  const article = await getArticleBySlugWithVariants(slug, projectSlug);
-
-  return {
-    title: article?.title ?? "Edit Article",
-    robots: { index: false, follow: false },
-  };
-};
 
 const EditArticlePage = async ({ params }: { params: Promise<PageParams> }) => {
   const resolvedParams = await params;
@@ -44,7 +29,11 @@ const EditArticlePage = async ({ params }: { params: Promise<PageParams> }) => {
       return <ArticleRestore slug={projectSlug} articleId={article.id} />;
     }
 
-    const tags = await getProjectTagsWithMetadata(article.projectId);
+    const [tags, subscription] = await Promise.all([
+      getProjectTagsWithMetadata(article.projectId),
+      getProjectSubscription(article.projectId),
+    ]);
+
     const availableTags: Tag[] = tags.map((tag) => ({
       ...tag,
       projectId: article.projectId,
@@ -55,7 +44,11 @@ const EditArticlePage = async ({ params }: { params: Promise<PageParams> }) => {
         title="Edit Article"
         description="Update your article content and settings."
       >
-        <EditArticleForm article={article} availableTags={availableTags} />
+        <EditArticleForm
+          article={article}
+          availableTags={availableTags}
+          subscription={subscription}
+        />
       </PageLayout>
     );
   }

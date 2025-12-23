@@ -8,8 +8,18 @@ export interface QuotaCheckResult {
   limit?: number;
 }
 
+export type ProjectSubscription = {
+  tier: SubscriptionTier;
+  limits: ReturnType<typeof getPlanLimits>;
+  usage: {
+    apiCalls: number;
+    storage: number;
+    apiCallsResetAt: Date | null;
+  };
+}
+
 /** Get project's subscription tier and limits */
-export const getProjectSubscription = async (projectId: string) => {
+export const getProjectSubscription = async (projectId: string): Promise<ProjectSubscription> => {
   const project = await prisma.project.findUnique({
     where: { id: projectId },
     select: {

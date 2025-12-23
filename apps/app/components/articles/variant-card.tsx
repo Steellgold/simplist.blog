@@ -7,6 +7,7 @@ import {
   useVariantOperations,
   type ArticleVariant,
 } from "@/hooks/use-variant-operations";
+import { type ProjectSubscription } from "@/lib/subscription/quota-check";
 import {
   getAllLanguages,
   getFlagUrl,
@@ -66,6 +67,7 @@ interface VariantCardProps {
   disabled?: boolean;
   onVariantSelect?: (lang: LanguageCode) => void;
   activeVariant?: LanguageCode;
+  subscription?: ProjectSubscription;
 }
 
 export const VariantCard = ({
@@ -75,6 +77,7 @@ export const VariantCard = ({
   disabled = false,
   onVariantSelect,
   activeVariant,
+  subscription: initialSubscription,
 }: VariantCardProps) => {
   const { currentProject } = useProject();
   const [addVariantOpen, setAddVariantOpen] = useState(false);
@@ -92,12 +95,35 @@ export const VariantCard = ({
     defaultLanguage,
   );
 
+  // Use subscription from props if available, otherwise fetch it
   const {
-    canAdd,
-    isFreeTier,
-    quotaError,
+    canAdd: fetchedCanAdd,
+    isFreeTier: fetchedIsFreeTier,
+    quotaError: fetchedQuotaError,
     isLoading: isLoadingLimits,
-  } = useVariantLimits(currentProject?.id, variantCount);
+    tier: fetchedTier,
+    max: fetchedMax,
+  } = useVariantLimits(
+    initialSubscription ? undefined : currentProject?.id,
+    variantCount,
+  );
+
+  // Use values from initialSubscription if provided, otherwise use fetched values
+  const tier = initialSubscription?.tier ?? fetchedTier;
+  const max = initialSubscription?.limits.maxVariantsPerArticle ?? fetchedMax;
+  const isFree = tier === "STARTER";
+  const canAdd = initialSubscription
+    ? !isFree && (max === -1 || variantCount < max)
+    : fetchedCanAdd;
+  const isFreeTier = initialSubscription ? isFree : fetchedIsFreeTier;
+  const isAtLimit = isFree || (max !== -1 && variantCount >= max);
+  const quotaError = initialSubscription
+    ? isAtLimit && !isFree
+      ? `You have reached the limit. Your ${tier} plan allows ${max} variant${max === 1 ? "" : "s"} per article.`
+      : isFree
+        ? "Language variants require the Pro plan."
+        : undefined
+    : fetchedQuotaError;
 
   const handleAddVariant = () => {
     if (!selectedLanguage) {

@@ -4,6 +4,8 @@ import { useProject } from "@/hooks/use-project-context";
 import { type ArticleVariant } from "@/hooks/use-variant-operations";
 import { createArticle, updateArticleCoverImage } from "@/lib/actions/articles";
 import { createTag, updateTagAppearance } from "@/lib/actions/tags";
+import { type ProjectSubscription } from "@/lib/subscription/quota-check";
+import { type ArticleFormStatus } from "@/lib/types/articles";
 import { type LanguageCode, getLanguageName } from "@/lib/types/languages";
 import { type Tag } from "@simplist/db";
 import { buttonVariants } from "@simplist/ui/components/button";
@@ -11,7 +13,7 @@ import { toast } from "@simplist/ui/components/sonner";
 import { X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { ArticleBannerUpload } from "./banner-upload";
 import { ArticleContentEditor } from "./content-editor";
 import { ArticleInfoFields } from "./info-fields";
@@ -19,17 +21,17 @@ import { ArticleTagsCard } from "./tags-card";
 import { VariantCard } from "./variant-card";
 import { ArticleVisibilityCard } from "./visibility-card";
 
-type ArticleStatus = "draft" | "published" | "scheduled";
-
 type CreateArticleFormProps = {
   projectId: string;
   availableTags: Tag[];
+  subscription?: ProjectSubscription;
 };
 
-export const CreateArticleForm = ({
+export const CreateArticleForm: FC<CreateArticleFormProps> = ({
   projectId,
   availableTags: initialAvailableTags,
-}: CreateArticleFormProps) => {
+  subscription,
+}) => {
   const router = useRouter();
   const { currentProject } = useProject();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -44,7 +46,7 @@ export const CreateArticleForm = ({
   const [title, setTitle] = useState("");
   const [excerpt, setExcerpt] = useState("");
   const [content, setContent] = useState("");
-  const [status, setStatus] = useState<ArticleStatus>("draft");
+  const [status, setStatus] = useState<ArticleFormStatus>("draft");
   const [scheduledPublishAt, setScheduledPublishAt] = useState<Date | null>(
     null,
   );
@@ -427,6 +429,7 @@ export const CreateArticleForm = ({
             onVariantSelect={setActiveVariant}
             activeVariant={activeVariant}
             disabled={isSubmitting}
+            subscription={subscription}
           />
         </div>
       </div>
