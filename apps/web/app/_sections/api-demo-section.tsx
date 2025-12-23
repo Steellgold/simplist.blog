@@ -2,7 +2,7 @@ export const ApiDemoSection = () => {
   return (
     <section id="demo" className="mb-16 px-4 py-24 md:py-28">
       <div className="container mx-auto max-w-5xl">
-        <div className="intersect-once">
+        <div className="intersect-once mb-14 text-center">
           <p className="text-primary mb-2 text-sm font-medium tracking-[0.18em] uppercase">
             Built for Developers
           </p>
