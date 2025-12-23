@@ -10,11 +10,11 @@ const HomePage = async () => {
   return (
     <div className="from-background via-background to-secondary/20 min-h-screen bg-linear-to-br">
       <LightRays
-        count={16}
+        count={8}
         color="rgba(240, 187, 59, 0.3)"
-        blur={60}
+        blur={100}
         speed={10}
-        length="80vh"
+        length="30vh"
         className="absolute inset-0 z-40"
       />
 
