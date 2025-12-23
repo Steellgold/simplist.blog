@@ -36,7 +36,7 @@ export const PricingSection = () => {
   return (
     <section id="pricing" className="px-4 py-20 md:py-24">
       <div className="container mx-auto max-w-6xl">
-        <div className="intersect-once intersect:motion-preset-fade mb-10 flex flex-col items-center text-center">
+        <div className="intersect-once mb-10 flex flex-col items-center text-center">
           <Badge variant="secondary" className="mb-3">
             Simple, transparent pricing
           </Badge>

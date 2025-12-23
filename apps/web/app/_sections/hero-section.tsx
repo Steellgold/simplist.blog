@@ -1,4 +1,8 @@
+import { AstroDark, AstroLight, Nextjs, RemixDark, RemixLight } from "@ridemountainpig/svgl-react";
+import { Avatar, AvatarFallback } from "@simplist/ui/components/avatar";
 import { buttonVariants } from "@simplist/ui/components/button";
+import { IconThemed } from "@simplist/ui/components/icon-themed";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@simplist/ui/components/tooltip";
 import { ArrowRight, Play } from "lucide-react";
 import Link from "next/link";
 
@@ -11,21 +15,21 @@ export const HeroSection = () => {
 
           <div className="space-y-4">
             <h1
-              className="motion-preset-slide-up motion-delay-[300ms] text-4xl font-semibold tracking-tight md:text-5xl lg:text-6xl"
+              className="text-4xl font-semibold tracking-tight md:text-5xl lg:text-6xl"
               style={{ fontFamily: "var(--font-syne)" }}
             >
               Ship content
               <span className="text-primary"> like you ship code</span>.
             </h1>
 
-            <p className="text-muted-foreground motion-preset-fade motion-delay-[450ms] mx-auto max-w-xl text-lg md:text-xl lg:mx-0">
+            <p className="text-muted-foreground mx-auto max-w-xl text-lg md:text-xl lg:mx-0">
               Simplist is a headless CMS designed for developers who live in Git
               and ship with APIs. Create, version and deliver articles with a
               single, blazing fast content API.
             </p>
           </div>
 
-          <div className="motion-preset-slide-up motion-delay-[600ms] space-y-2">
+          <div className="space-y-2">
             <div className="flex flex-col items-center justify-center gap-3 sm:flex-row lg:justify-start">
               <Link
                 href="/auth/register"
@@ -49,15 +53,49 @@ export const HeroSection = () => {
             </p>
           </div>
 
-          <div className="text-muted-foreground motion-preset-fade motion-delay-[750ms] flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs lg:justify-start">
-            <div className="flex items-center gap-2">
-              <span className="h-1 w-3 rounded-full bg-emerald-700/60 dark:bg-emerald-400/60" />
-              Built for Next.js, Remix, Astro & more
+          <div className="text-muted-foreground flex flex-wrap items-center justify-center gap-x-1.5 gap-y-2 text-xs lg:justify-start">
+            <div className="flex items-center gap-2 dark:bg-white/5 bg-black/5 py-1.5 pl-2.5 pr-2 rounded-full">
+              Built for
+
+              <TooltipProvider>
+                <div className="*:data-[slot=avatar]:ring-background flex -space-x-2">
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Avatar className="h-5 w-5">
+                        <AvatarFallback>
+                          <Nextjs className="size-3.5" />
+                        </AvatarFallback>
+                      </Avatar>
+                    </TooltipTrigger>
+                    <TooltipContent>Next.js</TooltipContent>
+                  </Tooltip>
+                  
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Avatar className="h-5 w-5">
+                        <AvatarFallback>
+                          <IconThemed light={<RemixLight className="size-3.5" />} dark={<RemixDark className="size-3.5" />} />
+                        </AvatarFallback>
+                      </Avatar>
+                    </TooltipTrigger>
+                    <TooltipContent>Remix</TooltipContent>
+                  </Tooltip>
+
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Avatar className="h-5 w-5">
+                        <AvatarFallback>
+                          <IconThemed light={<AstroLight className="size-3.5" />} dark={<AstroDark className="size-3.5" />} />
+                        </AvatarFallback>
+                      </Avatar>
+                    </TooltipTrigger>
+                    <TooltipContent>Astro</TooltipContent>
+                  </Tooltip>
+                </div>
+              </TooltipProvider>
             </div>
 
-            <span className="text-border hidden md:inline">•</span>
-
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 bg-black/5 dark:bg-white/5 py-1.5 pl-1.5 pr-2 rounded-full">
               <span className="inline-flex h-5 items-center rounded-full bg-emerald-900/10 px-2 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-300">
                 50ms
               </span>
@@ -69,7 +107,7 @@ export const HeroSection = () => {
         <div className="relative">
           <div className="from-primary/15 via-primary/0 pointer-events-none absolute -inset-8 rounded-3xl bg-linear-to-tr to-emerald-400/20 blur-3xl" />
 
-          <div className="bg-card/80 shadow-primary/10 motion-preset-slide-left motion-delay-[400ms] relative rounded-2xl border p-5 shadow-xl backdrop-blur-sm">
+          <div className="bg-card/80 shadow-primary/10 relative rounded-2xl border p-5 shadow-xl backdrop-blur-sm">
             <div className="text-muted-foreground mb-4 flex items-center justify-between text-xs">
               <span className="inline-flex items-center gap-2">
                 <span className="flex h-2 w-2 items-center justify-center">

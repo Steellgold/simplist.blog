@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@number-flow/react": "^0.5.10",
+    "@ridemountainpig/svgl-react": "^1.0.14",
     "@simplist/limits": "workspace:*",
     "@simplist/ui": "workspace:*",
     "clsx": "^2.1.1",

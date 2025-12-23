@@ -2,7 +2,7 @@ export const ApiDemoSection = () => {
   return (
     <section id="demo" className="mb-16 px-4 py-24 md:py-28">
       <div className="container mx-auto max-w-5xl">
-        <div className="intersect-once intersect:motion-preset-fade mb-14 text-center">
+        <div className="intersect-once">
           <p className="text-primary mb-2 text-sm font-medium tracking-[0.18em] uppercase">
             Built for Developers
           </p>
@@ -19,7 +19,7 @@ export const ApiDemoSection = () => {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 md:gap-8">
-          <div className="intersect-once intersect:motion-preset-slide-right intersect:motion-delay-[200ms]">
+          <div className="intersect-once">
             <h3 className="text-muted-foreground mb-2 text-sm font-medium tracking-[0.18em] uppercase">
               1 ・ Initialize the client
             </h3>
@@ -69,7 +69,7 @@ export const ApiDemoSection = () => {
             </div>
           </div>
 
-          <div className="intersect-once intersect:motion-preset-slide-left intersect:motion-delay-[350ms]">
+          <div className="intersect-once">
             <h3 className="text-muted-foreground mb-2 text-sm font-medium tracking-[0.18em] uppercase">
               3 ・ Render on your blog
             </h3>
