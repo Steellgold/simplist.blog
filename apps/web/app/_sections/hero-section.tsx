@@ -108,8 +108,9 @@ export const HeroSection = () => {
                 <span className="text-yellow-400">articles</span>
                 {`.list({
   limit: 10,
-  tag: `}
+  tags: [`}
                 <span className="text-green-400">"changelog"</span>
+                {`]`}
                 {`,
 })`}
               </pre>
