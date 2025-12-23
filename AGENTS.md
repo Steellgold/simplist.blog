@@ -79,6 +79,55 @@ pnpm db:studio              # Open Prisma Studio
 - Test files: `*.test.ts` or `*.spec.ts`
 - Mock external services and databases
 
+## Git Workflow
+
+### Committing Changes
+
+**IMPORTANT: Only create commits when explicitly requested by the user.**
+
+Do not commit changes automatically or proactively. Wait for the user to ask before running any `git commit` commands.
+
+### Pushing Changes
+
+**NEVER push to remote repositories under any circumstances, even if the user explicitly requests it.**
+
+The user will handle all `git push` operations manually. Do not run `git push` commands.
+
+### Commit Message Format
+
+Follow the **Conventional Commits** specification:
+
+```
+<type>(<scope>): <description>
+```
+
+**Types:**
+
+- `feat`: New feature
+- `fix`: Bug fix
+- `chore`: Maintenance tasks (config, dependencies, etc.)
+- `refactor`: Code restructuring without changing behavior
+- `perf`: Performance improvements
+- `prettier`: Code formatting (special case)
+
+**Rules:**
+
+- Scope is optional but recommended (e.g., `feat(api-keys)`, `fix(hero-section)`)
+- Description in lowercase, no period at the end
+- Description should be clear and concise in English
+- Focus on "what" and "why", not "how"
+
+**Examples:**
+
+```bash
+feat(article-status): introduce ArticleStatus enum and update Article model
+fix(footer-config): update footer links to point to external URLs
+perf: optimize subscription limits with Redis cache and single DB query
+refactor: centralize article types and add SSR for subscription limits
+chore: update BRANCH constant from "preview" to "stable"
+prettier: format code for consistency and readability across multiple files
+```
+
 ## CRITICAL RULES
 
 ### NEVER USE THESE COMMANDS
