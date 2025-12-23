@@ -32,7 +32,7 @@ export const HeroSection = () => {
           <div className="space-y-2">
             <div className="flex flex-col items-center justify-center gap-3 sm:flex-row lg:justify-start">
               <Link
-                href="/auth/register"
+                href="https://app.simplist.blog/auth/register"
                 className={buttonVariants({ variant: "default" })}
               >
                 Start for free
