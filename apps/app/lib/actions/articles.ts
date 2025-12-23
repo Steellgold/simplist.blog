@@ -16,7 +16,12 @@ import {
 } from "@/lib/subscription/quota-check";
 import { isValidLanguageCode, type LanguageCode } from "@/lib/types/languages";
 import { generateSlug } from "@/lib/utils";
-import { prisma, sendWebhookEvent, type WebhookEvent } from "@simplist/db";
+import {
+  articlesCacheUtils,
+  prisma,
+  sendWebhookEvent,
+  type WebhookEvent,
+} from "@simplist/db";
 import { revalidatePath } from "next/cache";
 import { forbidden, notFound, redirect } from "next/navigation";
 
@@ -286,6 +291,11 @@ export const createArticle = async (formData: {
   revalidatePath(`/${project.slug}`, "layout");
   revalidatePath(`/${project.slug}/articles`, "page");
 
+  // Invalidate API cache for this project
+  articlesCacheUtils.invalidate(project.id).catch((err) => {
+    console.error("Failed to invalidate articles cache:", err);
+  });
+
   // Webhook: published or scheduled
   if (article.status === "published") {
     triggerArticleWebhook(project.id, "article.published", article.id).catch(
@@ -362,6 +372,12 @@ export const updateArticleCoverImage = async (params: {
 
   revalidatePath(`/${article.project.slug}`, "layout");
   revalidatePath(`/${article.project.slug}/articles`, "page");
+
+  // Invalidate API cache for this project
+  articlesCacheUtils.invalidate(article.projectId).catch((err) => {
+    console.error("Failed to invalidate articles cache:", err);
+  });
+
   return { coverImageUrl };
 };
 
@@ -449,6 +465,12 @@ export const removeArticleCoverImage = async (
 
   revalidatePath(`/${article.project.slug}`, "layout");
   revalidatePath(`/${article.project.slug}/articles`, "page");
+
+  // Invalidate API cache for this project
+  articlesCacheUtils.invalidate(article.projectId).catch((err) => {
+    console.error("Failed to invalidate articles cache:", err);
+  });
+
   return { success: true };
 };
 
@@ -544,10 +566,7 @@ export const getUserProjectWithArticles = async (projectSlugOrId: string) => {
   const project = await prisma.project.findFirst({
     where: {
       userId: user.id,
-      OR: [
-        { slug: projectSlugOrId },
-        { id: projectSlugOrId },
-      ]
+      OR: [{ slug: projectSlugOrId }, { id: projectSlugOrId }],
     },
     select: {
       id: true,
@@ -627,7 +646,10 @@ export const getUserProjectWithArticles = async (projectSlugOrId: string) => {
   };
 };
 
-export const getArticle = async (articleId: string, projectSlugOrId: string) => {
+export const getArticle = async (
+  articleId: string,
+  projectSlugOrId: string,
+) => {
   const user = await getCurrentUser();
   if (!user) {
     redirect("/auth/login");
@@ -640,11 +662,8 @@ export const getArticle = async (articleId: string, projectSlugOrId: string) => 
         not: "deleted",
       },
       project: {
-        OR: [
-          { slug: projectSlugOrId },
-          { id: projectSlugOrId },
-        ]
-      }
+        OR: [{ slug: projectSlugOrId }, { id: projectSlugOrId }],
+      },
     },
     include: {
       project: true,
@@ -661,7 +680,10 @@ export const getArticle = async (articleId: string, projectSlugOrId: string) => 
   return article;
 };
 
-export const getArticleBySlug = async (slug: string, projectSlugOrId: string) => {
+export const getArticleBySlug = async (
+  slug: string,
+  projectSlugOrId: string,
+) => {
   const user = await getCurrentUser();
   if (!user) {
     redirect("/auth/login");
@@ -671,11 +693,8 @@ export const getArticleBySlug = async (slug: string, projectSlugOrId: string) =>
     where: {
       slug,
       project: {
-        OR: [
-          { slug: projectSlugOrId },
-          { id: projectSlugOrId },
-        ]
-      }
+        OR: [{ slug: projectSlugOrId }, { id: projectSlugOrId }],
+      },
     },
     include: {
       project: true,
@@ -731,12 +750,12 @@ export const updateArticle = async (
   projectSlugOrId: string,
 ) => {
   const article = await prisma.article.findFirst({
-    where: { id: articleId, project: {
-      OR: [
-        { slug: projectSlugOrId },
-        { id: projectSlugOrId },
-      ]
-    } },
+    where: {
+      id: articleId,
+      project: {
+        OR: [{ slug: projectSlugOrId }, { id: projectSlugOrId }],
+      },
+    },
     select: {
       id: true,
       projectId: true,
@@ -820,11 +839,8 @@ export const updateArticle = async (
       where: {
         id: articleId,
         project: {
-          OR: [
-            { slug: projectSlugOrId },
-            { id: projectSlugOrId },
-          ]
-        }
+          OR: [{ slug: projectSlugOrId }, { id: projectSlugOrId }],
+        },
       },
       data: {
         title: formData.title,
@@ -881,6 +897,11 @@ export const updateArticle = async (
   revalidatePath(`/${article.project.slug}`, "layout");
   revalidatePath(`/${article.project.slug}/articles`, "page");
 
+  // Invalidate API cache for this project
+  articlesCacheUtils.invalidate(article.projectId).catch((err) => {
+    console.error("Failed to invalidate articles cache:", err);
+  });
+
   // Trigger webhooks
   const event: WebhookEvent =
     updated.status === "published" && article.publishedAt === null
@@ -894,17 +915,17 @@ export const updateArticle = async (
   return updated;
 };
 
-export const deleteArticle = async (articleId: string, projectSlugOrId: string) => {
+export const deleteArticle = async (
+  articleId: string,
+  projectSlugOrId: string,
+) => {
   // Verify the article belongs to the user's project
   const article = await prisma.article.findUnique({
     where: {
       id: articleId,
       project: {
-        OR: [
-          { slug: projectSlugOrId },
-          { id: projectSlugOrId },
-        ]
-      }
+        OR: [{ slug: projectSlugOrId }, { id: projectSlugOrId }],
+      },
     },
     select: {
       id: true,
@@ -931,11 +952,8 @@ export const deleteArticle = async (articleId: string, projectSlugOrId: string) 
     where: {
       id: articleId,
       project: {
-        OR: [
-          { slug: projectSlugOrId },
-          { id: projectSlugOrId },
-        ]
-      }
+        OR: [{ slug: projectSlugOrId }, { id: projectSlugOrId }],
+      },
     },
     data: {
       status: "deleted",
@@ -946,22 +964,27 @@ export const deleteArticle = async (articleId: string, projectSlugOrId: string) 
   revalidatePath(`/${article.project.slug}`, "layout");
   revalidatePath(`/${article.project.slug}/articles`, "page");
 
+  // Invalidate API cache for this project
+  articlesCacheUtils.invalidate(article.projectId).catch((err) => {
+    console.error("Failed to invalidate articles cache:", err);
+  });
+
   triggerArticleWebhook(article.projectId, "article.deleted", articleId).catch(
     () => {},
   );
 };
 
-export const permanentlyDeleteArticle = async (articleId: string, projectSlugOrId: string) => {
+export const permanentlyDeleteArticle = async (
+  articleId: string,
+  projectSlugOrId: string,
+) => {
   // Verify the article exists and is already soft-deleted
   const article = await prisma.article.findUnique({
     where: {
       id: articleId,
       project: {
-        OR: [
-          { slug: projectSlugOrId },
-          { id: projectSlugOrId },
-        ]
-      }
+        OR: [{ slug: projectSlugOrId }, { id: projectSlugOrId }],
+      },
     },
     select: {
       id: true,
@@ -1004,20 +1027,28 @@ export const permanentlyDeleteArticle = async (articleId: string, projectSlugOrI
 
     // Finally delete the article
     await tx.article.delete({
-      where: { id: articleId, project: {
-        OR: [
-          { slug: projectSlugOrId },
-          { id: projectSlugOrId },
-        ]
-      } },
+      where: {
+        id: articleId,
+        project: {
+          OR: [{ slug: projectSlugOrId }, { id: projectSlugOrId }],
+        },
+      },
     });
   });
 
   revalidatePath(`/${article.project.slug}`, "layout");
   revalidatePath(`/${article.project.slug}/articles`, "page");
+
+  // Invalidate API cache for this project
+  articlesCacheUtils.invalidate(article.projectId).catch((err) => {
+    console.error("Failed to invalidate articles cache:", err);
+  });
 };
 
-export const bulkDeleteArticles = async (articleIds: string[], projectSlugOrId: string) => {
+export const bulkDeleteArticles = async (
+  articleIds: string[],
+  projectSlugOrId: string,
+) => {
   if (!articleIds || articleIds.length === 0) {
     throw new Error("No articles specified for deletion");
   }
@@ -1029,11 +1060,8 @@ export const bulkDeleteArticles = async (articleIds: string[], projectSlugOrId: 
         in: articleIds,
       },
       project: {
-        OR: [
-          { slug: projectSlugOrId },
-          { id: projectSlugOrId },
-        ]
-      }
+        OR: [{ slug: projectSlugOrId }, { id: projectSlugOrId }],
+      },
     },
     select: {
       id: true,
@@ -1078,11 +1106,8 @@ export const bulkDeleteArticles = async (articleIds: string[], projectSlugOrId: 
         in: articleIds,
       },
       project: {
-        OR: [
-          { slug: projectSlugOrId },
-          { id: projectSlugOrId },
-        ]
-      }
+        OR: [{ slug: projectSlugOrId }, { id: projectSlugOrId }],
+      },
     },
     data: {
       status: "deleted",
@@ -1100,20 +1125,25 @@ export const bulkDeleteArticles = async (articleIds: string[], projectSlugOrId: 
 
   revalidatePath(`/${projectSlug}`, "layout");
   revalidatePath(`/${projectSlug}/articles`, "page");
+
+  // Invalidate API cache for this project
+  articlesCacheUtils.invalidate(projectId).catch((err) => {
+    console.error("Failed to invalidate articles cache:", err);
+  });
 };
 
-export const restoreArticle = async (articleId: string, projectSlugOrId: string) => {
+export const restoreArticle = async (
+  articleId: string,
+  projectSlugOrId: string,
+) => {
   // Verify the article belongs to the user's project and is deleted
   const article = await prisma.article.findFirst({
     where: {
       id: articleId,
       status: "deleted",
       project: {
-        OR: [
-          { slug: projectSlugOrId },
-          { id: projectSlugOrId },
-        ]
-      }
+        OR: [{ slug: projectSlugOrId }, { id: projectSlugOrId }],
+      },
     },
     select: {
       id: true,
@@ -1150,6 +1180,12 @@ export const restoreArticle = async (articleId: string, projectSlugOrId: string)
 
   revalidatePath(`/${article.project.slug}`, "layout");
   revalidatePath(`/${article.project.slug}/articles`, "page");
+
+  // Invalidate API cache for this project
+  articlesCacheUtils.invalidate(article.projectId).catch((err) => {
+    console.error("Failed to invalidate articles cache:", err);
+  });
+
   return true;
 };
 
@@ -1188,7 +1224,10 @@ export const getScheduledArticles = async () => {
   return scheduledArticles;
 };
 
-export const getArticleWithVariants = async (articleId: string, projectSlugOrId: string) => {
+export const getArticleWithVariants = async (
+  articleId: string,
+  projectSlugOrId: string,
+) => {
   const user = await getCurrentUser();
   if (!user) {
     redirect("/auth/login");
@@ -1201,11 +1240,8 @@ export const getArticleWithVariants = async (articleId: string, projectSlugOrId:
         not: "deleted",
       },
       project: {
-        OR: [
-          { slug: projectSlugOrId },
-          { id: projectSlugOrId },
-        ]
-      }
+        OR: [{ slug: projectSlugOrId }, { id: projectSlugOrId }],
+      },
     },
     include: {
       project: {
@@ -1233,7 +1269,10 @@ export const getArticleWithVariants = async (articleId: string, projectSlugOrId:
   return article;
 };
 
-export const getArticleBySlugWithVariants = async (slug: string, projectSlugOrId: string) => {
+export const getArticleBySlugWithVariants = async (
+  slug: string,
+  projectSlugOrId: string,
+) => {
   const user = await getCurrentUser();
   if (!user) {
     redirect("/auth/login");
@@ -1243,11 +1282,8 @@ export const getArticleBySlugWithVariants = async (slug: string, projectSlugOrId
     where: {
       slug,
       project: {
-        OR: [
-          { slug: projectSlugOrId },
-          { id: projectSlugOrId },
-        ]
-      }
+        OR: [{ slug: projectSlugOrId }, { id: projectSlugOrId }],
+      },
     },
     include: {
       project: {
@@ -1510,6 +1546,11 @@ export const bulkImportArticles = async (
     }
 
     revalidatePath(`/${project.slug}/articles`);
+
+    // Invalidate API cache for this project
+    articlesCacheUtils.invalidate(projectId).catch((err) => {
+      console.error("Failed to invalidate articles cache:", err);
+    });
 
     return {
       success: true,

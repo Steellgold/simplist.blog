@@ -2,7 +2,7 @@
 
 import { getCurrentUser } from "@/lib/auth-helper";
 import { requirePermission } from "@/lib/auth/permissions";
-import { MediaType, prisma } from "@simplist/db";
+import { articlesCacheUtils, MediaType, prisma } from "@simplist/db";
 import { getPlanLimits } from "@simplist/limits";
 import { revalidatePath } from "next/cache";
 import { unauthorized } from "next/navigation";
@@ -282,6 +282,11 @@ export async function deleteMedia(
     },
   });
 
+  // Invalidate API cache for this project
+  articlesCacheUtils.invalidate(media.projectId).catch((err) => {
+    console.error("Failed to invalidate articles cache:", err);
+  });
+
   // Delete from database
   await prisma.media.delete({
     where: { id: mediaId },
@@ -393,6 +398,11 @@ export async function deleteMultipleMedia(
     },
   });
 
+  // Invalidate API cache for this project
+  articlesCacheUtils.invalidate(projectId).catch((err) => {
+    console.error("Failed to invalidate articles cache:", err);
+  });
+
   // Delete from database
   await prisma.media.deleteMany({
     where: { id: { in: ids } },
@@ -491,6 +501,11 @@ export async function applyMediaAsBanner(
   await prisma.media.update({
     where: { id: mediaId },
     data: { type: "BANNER" },
+  });
+
+  // Invalidate API cache for this project
+  articlesCacheUtils.invalidate(media.projectId).catch((err) => {
+    console.error("Failed to invalidate articles cache:", err);
   });
 
   revalidatePath(`/[project-slug]/articles/${article.id}`);

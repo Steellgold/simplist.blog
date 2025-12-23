@@ -9,7 +9,7 @@ import {
   type CreateTagInput,
   type UpdateTagInput,
 } from "@/lib/validations/tags";
-import { Color, prisma } from "@simplist/db";
+import { articlesCacheUtils, Color, prisma } from "@simplist/db";
 import { revalidatePath } from "next/cache";
 import { forbidden, redirect } from "next/navigation";
 
@@ -629,6 +629,11 @@ export const applyTagToArticles = async (
     revalidatePath(`/${tag.project.slug}/tags`);
     revalidatePath(`/${tag.project.slug}/articles`);
 
+    // Invalidate API cache for this project
+    articlesCacheUtils.invalidate(projectId).catch((err) => {
+      console.error("Failed to invalidate articles cache:", err);
+    });
+
     return {
       success: true,
       appliedCount,
@@ -700,6 +705,11 @@ export const removeTagFromArticles = async (
 
     revalidatePath(`/${tag.project.slug}/tags`);
     revalidatePath(`/${tag.project.slug}/articles`);
+
+    // Invalidate API cache for this project
+    articlesCacheUtils.invalidate(projectId).catch((err) => {
+      console.error("Failed to invalidate articles cache:", err);
+    });
 
     return {
       success: true,

@@ -1,5 +1,6 @@
 export * from "../generated/client";
 export { analyticsCacheUtils } from "./analytics-cache";
+export { articlesCacheUtils } from "./articles-cache";
 export { prisma } from "./client";
 export { apiKeyCache, getRedis } from "./redis";
 export {
