@@ -1,0 +1,402 @@
+---
+title: SEO API
+description: Generate sitemaps, RSS feeds, and structured data
+category: SDK Reference
+order: 15
+icon: Search
+---
+
+# SEO API
+
+The SEO API provides tools to improve your content's search engine visibility. Generate sitemaps, RSS feeds, and structured data with minimal code.
+
+## Quick Reference
+
+<ApiMethodTable
+  methods={[
+    { method: "getArticle", description: "Get article with SEO metadata", returns: "Promise<ApiResponse<ArticleWithSeo>>" },
+    { method: "getSitemap", description: "Generate sitemap (XML or JSON)", returns: "Promise<string | Sitemap>" },
+    { method: "getRssFeed", description: "Generate RSS 2.0 feed", returns: "Promise<string>" },
+    { method: "getStructuredData", description: "Get JSON-LD structured data", returns: "Promise<ApiResponse<StructuredDataResponse>>" }
+  ]}
+/>
+
+## getArticle()
+
+Retrieve an article with complete SEO metadata for use in meta tags.
+
+<MethodSignature
+  name="client.seo.getArticle"
+  parameters={[
+    { name: "slug", type: "string", required: true },
+    { name: "baseUrl", type: "string", optional: true }
+  ]}
+  returnType="Promise<ApiResponse<ArticleWithSeo>>"
+  async={true}
+/>
+
+### Response
+
+<TypeTable
+  title="ArticleWithSeo"
+  properties={[
+    { name: "id", type: "string", required: true },
+    { name: "title", type: "string", required: true },
+    { name: "slug", type: "string", required: true },
+    { name: "content", type: "string", required: true },
+    { name: "seo", type: "SeoMetadata", description: "SEO metadata", required: true },
+    { name: "project", type: "{ name, slug, description }", required: true }
+  ]}
+/>
+
+### Example
+
+<CodeBlock cusLang="nextjs" language="typescript" filename="app/blog/[slug]/page.tsx">
+{`
+  import { SimplistClient } from "@simplist.blog/sdk"
+  import type { Metadata } from "next"
+
+  export async function generateMetadata({
+    params
+  }: {
+    params: { slug: string }
+  }): Promise<Metadata> {
+    // Uses SIMPLIST_API_KEY from environment variables
+    const client = new SimplistClient()
+
+    const { data: article } = await client.seo.getArticle(
+      params.slug,
+      'https://myblog.com'
+    )
+
+    return {
+      title: article.seo.metaTitle,
+      description: article.seo.metaDescription,
+      keywords: article.seo.keywords,
+      authors: article.seo.author ? [{ name: article.seo.author }] : undefined,
+      openGraph: {
+        title: article.seo.ogTitle || article.seo.metaTitle,
+        description: article.seo.ogDescription || article.seo.metaDescription,
+        images: article.seo.ogImage ? [article.seo.ogImage] : undefined,
+        type: 'article',
+        publishedTime: article.seo.publishedTime,
+        modifiedTime: article.seo.modifiedTime
+      },
+      twitter: {
+        card: article.seo.twitterCard,
+        title: article.seo.twitterTitle || article.seo.metaTitle,
+        description: article.seo.twitterDescription || article.seo.metaDescription,
+        images: article.seo.twitterImage ? [article.seo.twitterImage] : undefined
+      },
+      alternates: {
+        canonical: article.seo.canonicalUrl
+      }
+    }
+  }
+`}
+</CodeBlock>
+
+---
+
+## getSitemap()
+
+Generate a sitemap for your articles in XML or JSON format.
+
+<MethodSignature
+  name="client.seo.getSitemap"
+  parameters={[
+    { name: "baseUrl", type: "string", required: true },
+    { name: "format", type: "'xml' | 'json'", defaultValue: "'xml'" },
+    { name: "path", type: "string", optional: true }
+  ]}
+  returnType="Promise<string | Sitemap>"
+  async={true}
+/>
+
+### Examples
+
+<CodeBlock
+  tabs={[
+    {
+      label: "Sitemap XML",
+      language: "typescript",
+      filename: "app/sitemap.xml/route.ts",
+      code: `
+  import { SimplistClient } from "@simplist.blog/sdk"
+
+  export async function GET() {
+    // Uses SIMPLIST_API_KEY from environment variables
+    const client = new SimplistClient()
+
+    const sitemapXml = await client.seo.getSitemap(
+      'https://myblog.com',
+      'xml',
+      'blog'  // Articles at myblog.com/blog/article-slug
+    )
+
+    return new Response(sitemapXml, {
+      headers: {
+        'Content-Type': 'application/xml',
+        'Cache-Control': 'public, max-age=3600'
+      }
+    })
+  }
+      `.trim(),
+    },
+    {
+      label: "Sitemap JSON",
+      language: "typescript",
+      code: `
+  const sitemap = await client.seo.getSitemap(
+    'https://myblog.com',
+    'json',
+    'blog'
+  )
+
+  console.log(sitemap.entries.length) // Number of URLs
+  sitemap.entries.forEach(entry => {
+    console.log(entry.url)
+    console.log(entry.lastModified)
+    console.log(entry.changeFrequency)
+    console.log(entry.priority)
+  })
+      `.trim(),
+    },
+  ]}
+/>
+
+---
+
+## getRssFeed()
+
+Generate an RSS 2.0 feed for your articles.
+
+<MethodSignature
+  name="client.seo.getRssFeed"
+  parameters={[
+    { name: "baseUrl", type: "string", required: true },
+    { name: "limit", type: "number", defaultValue: "20" },
+    { name: "path", type: "string", optional: true }
+  ]}
+  returnType="Promise<string>"
+  async={true}
+/>
+
+### Example
+
+<CodeBlock language="typescript" filename="app/feed.xml/route.ts">
+{`
+  import { SimplistClient } from "@simplist.blog/sdk"
+
+  export async function GET() {
+    // Uses SIMPLIST_API_KEY from environment variables
+    const client = new SimplistClient()
+
+    const rssXml = await client.seo.getRssFeed(
+      'https://myblog.com',
+      50,    // Include last 50 articles
+      'blog' // Articles at myblog.com/blog/article-slug
+    )
+
+    return new Response(rssXml, {
+      headers: {
+        'Content-Type': 'application/xml',
+        'Cache-Control': 'public, max-age=3600'
+      }
+    })
+  }
+`}
+</CodeBlock>
+
+---
+
+## getStructuredData()
+
+Get JSON-LD structured data for all articles. Useful for search engine rich results.
+
+<MethodSignature
+  name="client.seo.getStructuredData"
+  parameters={[
+    { name: "baseUrl", type: "string", optional: true }
+  ]}
+  returnType="Promise<ApiResponse<StructuredDataResponse>>"
+  async={true}
+/>
+
+### Response
+
+<TypeTable
+  title="StructuredDataResponse"
+  properties={[
+    { name: "project", type: "{ name, slug, description }", required: true },
+    { name: "articles", type: "Array<{ slug, structuredData }>", required: true },
+    { name: "generatedAt", type: "string", description: "ISO 8601 timestamp", required: true }
+  ]}
+/>
+
+### Example
+
+<CodeBlock language="typescript">
+{`
+  const { data } = await client.seo.getStructuredData('https://myblog.com')
+
+  // Add to each article page
+  data.articles.forEach(article => {
+    console.log(\`Article: \${article.slug}\`)
+    console.log(JSON.stringify(article.structuredData, null, 2))
+  })
+
+  // Example structured data format:
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Getting Started with Simplist",
+    "author": {
+      "@type": "Person",
+      "name": "John Doe"
+    },
+    "datePublished": "2025-01-15T10:30:00Z",
+    "dateModified": "2025-01-20T14:00:00Z",
+    "image": "https://cdn.simplist.blog/covers/getting-started.jpg",
+    "publisher": {
+      "@type": "Organization",
+      "name": "My Blog",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://myblog.com/logo.png"
+      }
+    }
+  }
+`}
+</CodeBlock>
+
+---
+
+## Complete Example
+
+A complete example of a Next.js article page with full SEO metadata and structured data.
+
+<CodeBlock
+  tabs={[
+    {
+      label: "Metadata",
+      language: "tsx",
+      filename: "app/blog/[slug]/metadata.ts",
+      code: `
+  import { SimplistClient } from "@simplist.blog/sdk"
+  import type { Metadata } from "next"
+
+  // Uses SIMPLIST_API_KEY from environment variables
+  const client = new SimplistClient()
+
+  export async function generateMetadata({
+    params
+  }: {
+    params: { slug: string }
+  }): Promise<Metadata> {
+    const { data: article } = await client.seo.getArticle(
+      params.slug,
+      process.env.NEXT_PUBLIC_BASE_URL
+    )
+
+    return {
+      title: article.seo.metaTitle,
+      description: article.seo.metaDescription,
+      keywords: article.seo.keywords,
+      openGraph: {
+        title: article.seo.ogTitle || article.title,
+        description: article.seo.ogDescription || article.excerpt,
+        images: article.seo.ogImage ? [article.seo.ogImage] : undefined,
+        type: 'article'
+      },
+      twitter: {
+        card: article.seo.twitterCard,
+        title: article.seo.twitterTitle || article.title,
+        description: article.seo.twitterDescription || article.excerpt
+      }
+    }
+  }
+      `.trim(),
+    },
+    {
+      label: "Page",
+      language: "tsx",
+      filename: "app/blog/[slug]/page.tsx",
+      code: `
+  import { SimplistClient } from "@simplist.blog/sdk"
+  import { generateMetadata } from "./metadata"
+
+  // Uses SIMPLIST_API_KEY from environment variables
+  const client = new SimplistClient()
+
+  export default async function ArticlePage({
+    params
+  }: {
+    params: { slug: string }
+  }) {
+    const { data: article } = await client.seo.getArticle(params.slug)
+
+    return (
+      <>
+        {/* JSON-LD Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(article.seo.structuredData)
+          }}
+        />
+
+        {/* Article Content */}
+        <article>
+          <h1>{article.title}</h1>
+          <div dangerouslySetInnerHTML={{ __html: article.content }} />
+        </article>
+      </>
+    )
+  }
+      `.trim(),
+    },
+  ]}
+/>
+
+---
+
+## HTTP Endpoints
+
+These SDK methods use the following API endpoints:
+
+- `getArticle()` → <InlineRouteLink method="GET" path="/v1/seo/article/:slug" href="/api/get-seo-article" />
+- `getSitemap()` → <InlineRouteLink method="GET" path="/v1/seo/sitemap" href="/api/get-sitemap" />
+- `getRssFeed()` → <InlineRouteLink method="GET" path="/v1/seo/rss" href="/api/get-rss" />
+- `getStructuredData()` → <InlineRouteLink method="GET" path="/v1/seo/structured-data" href="/api/get-structured-data" />
+
+---
+
+## Best Practices
+
+- **Cache sitemaps and RSS**: Use HTTP caching headers (max-age: 3600)
+- **Update frequency**: Regenerate sitemaps when content changes
+- **Canonical URLs**: Always set canonical URLs to avoid duplicate content
+- **Structured data**: Include JSON-LD on every article page
+
+---
+
+## Frequently Asked Questions
+
+<Faq
+  title="Quick Help"
+  items={[
+    {
+      question: "Should I generate sitemaps at build time or runtime?",
+      answer: "Generate sitemaps at runtime using Next.js Route Handlers (/sitemap.xml/route.ts). This ensures your sitemap is always up-to-date when new articles are published."
+    },
+    {
+      question: "What's the difference between sitemap 'xml' and 'urlset' formats?",
+      answer: "Both are valid XML formats. 'xml' returns a complete sitemap with <?xml> declaration, while 'urlset' returns just the <urlset> if you need to combine multiple sitemaps."
+    },
+    {
+      question: "How do I add custom metadata to RSS feeds?",
+      answer: "Use getRssFeed() which includes title, excerpt, and publication date. For custom fields, you'll need to generate the RSS manually or extend the SDK."
+    }
+  ]}
+/>

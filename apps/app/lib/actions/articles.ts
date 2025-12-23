@@ -1,0 +1,1572 @@
+"use server";
+
+import {
+  assertR2ObjectIsImage,
+  deleteBannerFromR2,
+  getR2PublicUrl,
+} from "@/lib/actions/images";
+import { getCurrentUser } from "@/lib/auth-helper";
+import { hasProjectAccess, requirePermission } from "@/lib/auth/permissions";
+import { getPlanLimits } from "@/lib/subscription/plans";
+import {
+  checkArticleQuota,
+  checkFeatureAccess,
+  checkVariantQuota,
+  getProjectSubscription,
+} from "@/lib/subscription/quota-check";
+import { isValidLanguageCode, type LanguageCode } from "@/lib/types/languages";
+import { generateSlug } from "@/lib/utils";
+import {
+  ArticleStatus,
+  articlesCacheUtils,
+  prisma,
+  sendWebhookEvent,
+  type WebhookEvent,
+} from "@simplist/db";
+import { revalidatePath } from "next/cache";
+import { forbidden, notFound, redirect } from "next/navigation";
+
+// Types for article variants
+export interface ArticleVariantInput {
+  lang: LanguageCode;
+  title: string;
+  excerpt: string;
+  content: string;
+  coverImage?: string;
+}
+
+// Calculate content statistics
+const calculateStats = (content: string) => {
+  const words = content.trim() ? content.trim().split(/\s+/).length : 0;
+  const characters = content.length;
+  const lines = content.split("\n").length;
+  const readTimeMinutes = Math.ceil(words / 200); // Average reading speed: 200 words/min
+
+  return {
+    wordCount: words,
+    characterCount: characters,
+    lineCount: lines,
+    readTimeMinutes,
+  };
+};
+
+const triggerArticleWebhook = async (
+  projectId: string,
+  event: WebhookEvent,
+  articleId: string,
+) => {
+  try {
+    // Get article with all necessary data
+    const article = await prisma.article.findUnique({
+      where: { id: articleId },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        excerpt: true,
+        coverImage: true,
+        wordCount: true,
+        characterCount: true,
+        lineCount: true,
+        readTimeMinutes: true,
+        publishedAt: true,
+        author: {
+          select: {
+            name: true,
+          },
+        },
+        tags: {
+          select: {
+            name: true,
+          },
+        },
+        variants: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+
+    if (!article) {
+      return;
+    }
+
+    // Get project to build URL
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+      select: {
+        baseUrl: true,
+        articleUrlPattern: true,
+      },
+    });
+
+    // Build URL if baseUrl is configured
+    let url: string | undefined;
+    if (project?.baseUrl) {
+      const pattern = project.articleUrlPattern || "/blog/{slug}";
+      url = `${project.baseUrl}${pattern.replace("{slug}", article.slug)}`;
+    }
+
+    await sendWebhookEvent(projectId, event, {
+      id: article.id,
+      title: article.title,
+      slug: article.slug,
+      excerpt: article.excerpt ?? undefined,
+      author: article.author?.name,
+      tags: article.tags.map((t) => t.name),
+      publishedAt: article.publishedAt?.toISOString(),
+      url,
+      coverImage: article.coverImage ?? undefined,
+      wordCount: article.wordCount ?? undefined,
+      characterCount: article.characterCount ?? undefined,
+      lineCount: article.lineCount ?? undefined,
+      readTimeMinutes: article.readTimeMinutes ?? undefined,
+      variantCount: article.variants.length,
+    });
+  } catch (error) {
+    // Silently fail webhook triggers to not break the main operation
+    console.error("Failed to trigger webhook:", error);
+  }
+};
+
+export const createArticle = async (formData: {
+  title: string;
+  excerpt: string;
+  content: string;
+  status: "draft" | "published" | "scheduled";
+  coverImage?: string;
+  scheduledPublishAt?: Date;
+  projectId: string;
+  variants?: ArticleVariantInput[];
+  tags?: string[];
+}) => {
+  const { user, membership } = await requirePermission(
+    formData.projectId,
+    "canManageArticles",
+  );
+
+  const project = membership.project;
+
+  // Check article quota
+  const quotaCheck = await checkArticleQuota(user.id, project.id);
+  if (!quotaCheck.allowed) {
+    throw new Error(quotaCheck.reason);
+  }
+
+  // Validate and check quota for variants
+  if (formData.variants && formData.variants.length > 0) {
+    // Validate language codes
+    for (const variant of formData.variants) {
+      if (!isValidLanguageCode(variant.lang)) {
+        throw new Error(`Invalid language code: ${variant.lang}`);
+      }
+    }
+
+    // Check variant quota
+    const variantQuotaCheck = await checkVariantQuota(user.id, project.id);
+    if (!variantQuotaCheck.allowed) {
+      throw new Error(variantQuotaCheck.reason);
+    }
+
+    // Ensure we don't exceed the per-article variant limit
+    if (
+      variantQuotaCheck.limit &&
+      variantQuotaCheck.limit !== -1 &&
+      formData.variants.length > variantQuotaCheck.limit
+    ) {
+      throw new Error(
+        `Cannot create ${formData.variants.length} variants. Your plan allows up to ${variantQuotaCheck.limit} variants per article.`,
+      );
+    }
+
+    // Check for duplicate languages
+    const langs = formData.variants.map((v) => v.lang);
+    const duplicates = langs.filter(
+      (lang, index) => langs.indexOf(lang) !== index,
+    );
+    if (duplicates.length > 0) {
+      throw new Error(
+        `Duplicate language variants found: ${duplicates.join(", ")}`,
+      );
+    }
+  }
+
+  // Validate scheduled publishing
+  if (formData.status === "scheduled") {
+    if (!formData.scheduledPublishAt) {
+      throw new Error(
+        "Scheduled publish date is required for scheduled articles",
+      );
+    }
+    if (formData.scheduledPublishAt <= new Date()) {
+      throw new Error("Scheduled publish date must be in the future");
+    }
+  }
+
+  // Use transaction to ensure atomicity
+  const article = await prisma.$transaction(async (tx) => {
+    // Generate slug from title
+    const baseSlug = generateSlug(formData.title);
+
+    // Generate unique slug within transaction
+    const existingSlugs = await tx.article.findMany({
+      where: {
+        slug: {
+          startsWith: baseSlug,
+        },
+        projectId: project.id,
+      },
+      select: {
+        slug: true,
+      },
+    });
+
+    let slug = baseSlug;
+    if (existingSlugs.length > 0) {
+      const slugSet = new Set(existingSlugs.map((a) => a.slug));
+
+      if (slugSet.has(baseSlug)) {
+        let counter = 1;
+        while (slugSet.has(`${baseSlug}-${counter}`)) {
+          counter++;
+        }
+        slug = `${baseSlug}-${counter}`;
+      }
+    }
+
+    // Calculate content statistics
+    const stats = calculateStats(formData.content);
+
+    // Handle tags: connect existing tags by ID
+    let tagConnections: { id: string }[] = [];
+    if (formData.tags && formData.tags.length > 0) {
+      tagConnections = formData.tags.map((tagId) => ({ id: tagId }));
+    }
+
+    // Create article within transaction
+    const newArticle = await tx.article.create({
+      data: {
+        title: formData.title,
+        slug,
+        excerpt: formData.excerpt,
+        content: formData.content,
+        coverImage: formData.coverImage,
+        status: formData.status,
+        published: formData.status === "published",
+        publishedAt: formData.status === "published" ? new Date() : null,
+        scheduledPublishAt: formData.scheduledPublishAt || null,
+        projectId: project.id,
+        createdBy: user.id,
+        tags: {
+          connect: tagConnections,
+        },
+        ...stats,
+      },
+    });
+
+    // Create article variants if provided
+    if (formData.variants && formData.variants.length > 0) {
+      const variantData = formData.variants.map((variant) => {
+        const variantStats = calculateStats(variant.content);
+        return {
+          articleId: newArticle.id,
+          lang: variant.lang,
+          title: variant.title,
+          excerpt: variant.excerpt,
+          content: variant.content,
+          coverImage: variant.coverImage,
+          ...variantStats,
+        };
+      });
+
+      await tx.articleVariant.createMany({
+        data: variantData,
+      });
+    }
+
+    return newArticle;
+  });
+
+  // Revalidate all relevant paths
+  revalidatePath(`/${project.slug}`, "layout");
+  revalidatePath(`/${project.slug}/articles`, "page");
+
+  // Invalidate API cache for this project
+  articlesCacheUtils.invalidate(project.id).catch((err) => {
+    console.error("Failed to invalidate articles cache:", err);
+  });
+
+  // Webhook: published or scheduled
+  if (article.status === "published") {
+    triggerArticleWebhook(project.id, "article.published", article.id).catch(
+      () => {},
+    );
+  } else if (article.status === "scheduled") {
+    triggerArticleWebhook(project.id, "article.scheduled", article.id).catch(
+      () => {},
+    );
+  }
+
+  return article;
+};
+
+export const updateArticleCoverImage = async (params: {
+  articleId: string;
+  objectKey: string;
+  variantLang?: string;
+}) => {
+  const article = await prisma.article.findUnique({
+    where: { id: params.articleId },
+    select: {
+      id: true,
+      coverImage: true,
+      projectId: true,
+      project: {
+        select: {
+          id: true,
+          slug: true,
+          defaultLanguage: true,
+        },
+      },
+    },
+  });
+
+  if (!article) {
+    throw new Error("Article not found");
+  }
+
+  const { user } = await requirePermission(
+    article.projectId,
+    "canManageArticles",
+  );
+
+  // Validate the uploaded object is an image
+  await assertR2ObjectIsImage(params.objectKey);
+
+  const coverImageUrl = await getR2PublicUrl(params.objectKey);
+
+  // If variantLang is providdeed and it's NOT the default language, update the variant
+  // Otherwise, update the main article
+  if (
+    params.variantLang &&
+    params.variantLang !== article.project.defaultLanguage
+  ) {
+    await prisma.articleVariant.update({
+      where: {
+        articleId_lang: {
+          articleId: params.articleId,
+          lang: params.variantLang,
+        },
+      },
+      data: { coverImage: coverImageUrl },
+    });
+  } else {
+    await prisma.article.update({
+      where: { id: params.articleId },
+      data: {
+        coverImage: coverImageUrl,
+        updatedBy: user.id,
+      },
+    });
+  }
+
+  revalidatePath(`/${article.project.slug}`, "layout");
+  revalidatePath(`/${article.project.slug}/articles`, "page");
+
+  // Invalidate API cache for this project
+  articlesCacheUtils.invalidate(article.projectId).catch((err) => {
+    console.error("Failed to invalidate articles cache:", err);
+  });
+
+  return { coverImageUrl };
+};
+
+export const removeArticleCoverImage = async (
+  articleId: string,
+  variantLang?: string,
+) => {
+  const article = await prisma.article.findUnique({
+    where: { id: articleId },
+    select: {
+      id: true,
+      coverImage: true,
+      projectId: true,
+      variants: {
+        select: {
+          lang: true,
+          coverImage: true,
+        },
+      },
+      project: {
+        select: {
+          slug: true,
+          defaultLanguage: true,
+        },
+      },
+    },
+  });
+
+  if (!article) {
+    throw new Error("Article not found");
+  }
+
+  const { user } = await requirePermission(
+    article.projectId,
+    "canManageArticles",
+  );
+
+  // Determine which cover image URL to delete
+  let coverImageToDelete: string | null = null;
+
+  // If variantLang is provided and it's NOT the default language, remove from variant
+  // Otherwise, remove from main article
+  if (variantLang && variantLang !== article.project.defaultLanguage) {
+    const variant = article.variants.find((v) => v.lang === variantLang);
+    if (variant?.coverImage) {
+      coverImageToDelete = variant.coverImage;
+    }
+
+    await prisma.articleVariant.update({
+      where: {
+        articleId_lang: {
+          articleId,
+          lang: variantLang,
+        },
+      },
+      data: { coverImage: null },
+    });
+  } else {
+    if (article.coverImage) {
+      coverImageToDelete = article.coverImage;
+    }
+
+    await prisma.article.update({
+      where: { id: articleId },
+      data: {
+        coverImage: null,
+        updatedBy: user.id,
+      },
+    });
+  }
+
+  // Delete the actual file from R2 CDN
+  if (coverImageToDelete) {
+    try {
+      await deleteBannerFromR2({
+        coverImageUrl: coverImageToDelete,
+        projectId: article.projectId,
+      });
+    } catch (error) {
+      console.error("Failed to delete banner from R2:", error);
+      // Don't fail the entire operation if R2 deletion fails
+      // The database is already updated, and we can clean up orphaned files later
+    }
+  }
+
+  revalidatePath(`/${article.project.slug}`, "layout");
+  revalidatePath(`/${article.project.slug}/articles`, "page");
+
+  // Invalidate API cache for this project
+  articlesCacheUtils.invalidate(article.projectId).catch((err) => {
+    console.error("Failed to invalidate articles cache:", err);
+  });
+
+  return { success: true };
+};
+
+export const getProjectArticles = async (
+  projectId: string,
+  userId?: string,
+) => {
+  if (!userId) {
+    const user = await getCurrentUser();
+
+    if (!user) {
+      redirect("/auth/login");
+    }
+
+    userId = user.id;
+
+    // Verify user has access to this project (either as owner or member)
+    const hasAccess = await hasProjectAccess(projectId, user.id);
+    if (!hasAccess) forbidden();
+  }
+
+  const articles = await prisma.article.findMany({
+    where: {
+      projectId,
+      // Include all articles including deleted ones (for filtering in UI)
+    },
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      excerpt: true,
+      content: true,
+      coverImage: true,
+      published: true,
+      status: true,
+      viewCount: true,
+      wordCount: true,
+      characterCount: true,
+      lineCount: true,
+      readTimeMinutes: true,
+      createdAt: true,
+      updatedAt: true,
+      publishedAt: true,
+      scheduledPublishAt: true,
+      deletedAt: true,
+      projectId: true,
+      createdBy: true,
+      updatedBy: true,
+      author: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      variants: {
+        select: {
+          id: true,
+          lang: true,
+          title: true,
+          excerpt: true,
+          content: true,
+          coverImage: true,
+          wordCount: true,
+          characterCount: true,
+          lineCount: true,
+          readTimeMinutes: true,
+        },
+      },
+      tags: {
+        select: {
+          name: true,
+          icon: true,
+          color: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: 100,
+  });
+
+  return articles;
+};
+
+export const getUserProjectWithArticles = async (projectSlugOrId: string) => {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    redirect("/auth/login");
+  }
+
+  const project = await prisma.project.findFirst({
+    where: {
+      userId: user.id,
+      OR: [{ slug: projectSlugOrId }, { id: projectSlugOrId }],
+    },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      userId: true,
+      articles: {
+        where: {
+          status: {
+            not: "deleted",
+          },
+        },
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          excerpt: true,
+          coverImage: true,
+          published: true,
+          status: true,
+          viewCount: true,
+          wordCount: true,
+          characterCount: true,
+          lineCount: true,
+          readTimeMinutes: true,
+          createdAt: true,
+          updatedAt: true,
+          publishedAt: true,
+          scheduledPublishAt: true,
+          deletedAt: true,
+          projectId: true,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  if (!project) {
+    return null;
+  }
+
+  // Calculate view counts for all articles in a single query using groupBy
+  const articleIds = project.articles.map((a) => a.id);
+
+  const viewCounts =
+    articleIds.length > 0
+      ? await prisma.pageView.groupBy({
+          by: ["articleId"],
+          where: {
+            articleId: { in: articleIds },
+          },
+          _count: {
+            id: true,
+          },
+        })
+      : [];
+
+  // Create a map for O(1) lookup
+  const viewCountMap = new Map(
+    viewCounts.map((vc) => [vc.articleId, vc._count.id]),
+  );
+
+  // Merge view counts with articles
+  const articlesWithViewCount = project.articles.map((article) => ({
+    ...article,
+    viewCount: viewCountMap.get(article.id) ?? 0,
+  }));
+
+  return {
+    ...project,
+    articles: articlesWithViewCount,
+  };
+};
+
+export const getArticle = async (
+  articleId: string,
+  projectSlugOrId: string,
+) => {
+  const user = await getCurrentUser();
+  if (!user) {
+    redirect("/auth/login");
+  }
+
+  const article = await prisma.article.findFirst({
+    where: {
+      id: articleId,
+      status: {
+        not: "deleted",
+      },
+      project: {
+        OR: [{ slug: projectSlugOrId }, { id: projectSlugOrId }],
+      },
+    },
+    include: {
+      project: true,
+    },
+  });
+
+  if (!article) return null;
+
+  const hasAccess = await hasProjectAccess(article.projectId, user.id);
+  if (!hasAccess) {
+    return null;
+  }
+
+  return article;
+};
+
+export const getArticleBySlug = async (
+  slug: string,
+  projectSlugOrId: string,
+) => {
+  const user = await getCurrentUser();
+  if (!user) {
+    redirect("/auth/login");
+  }
+
+  const article = await prisma.article.findFirst({
+    where: {
+      slug,
+      project: {
+        OR: [{ slug: projectSlugOrId }, { id: projectSlugOrId }],
+      },
+    },
+    include: {
+      project: true,
+    },
+  });
+
+  if (!article) return null;
+
+  // Verify user has access to this article's project (either as owner or member)
+  const hasAccess = await hasProjectAccess(article.projectId, user.id);
+  if (!hasAccess) return null;
+
+  return article;
+};
+
+export const getDeletedArticleBySlug = async (slug: string) => {
+  const user = await getCurrentUser();
+  if (!user) {
+    redirect("/auth/login");
+  }
+
+  const article = await prisma.article.findFirst({
+    where: {
+      slug,
+      status: "deleted",
+    },
+    include: {
+      project: true,
+    },
+  });
+
+  if (!article) return null;
+
+  // Verify user has access to this article's project (either as owner or member)
+  const hasAccess = await hasProjectAccess(article.projectId, user.id);
+  if (!hasAccess) return null;
+
+  return article;
+};
+
+export const updateArticle = async (
+  articleId: string,
+  formData: {
+    title: string;
+    excerpt: string;
+    content: string;
+    status: "draft" | "published" | "scheduled";
+    coverImage?: string | null;
+    scheduledPublishAt?: Date | null;
+    variants?: ArticleVariantInput[];
+    tags?: string[];
+  },
+  projectSlugOrId: string,
+) => {
+  const article = await prisma.article.findFirst({
+    where: {
+      id: articleId,
+      project: {
+        OR: [{ slug: projectSlugOrId }, { id: projectSlugOrId }],
+      },
+    },
+    select: {
+      id: true,
+      projectId: true,
+      publishedAt: true,
+      project: {
+        select: {
+          id: true,
+          subscriptionTier: true,
+          slug: true,
+        },
+      },
+    },
+  });
+
+  if (!article) {
+    throw new Error("Article not found");
+  }
+
+  const { user } = await requirePermission(
+    article.projectId,
+    "canManageArticles",
+  );
+
+  // Validate scheduled publishing
+  if (formData.status === "scheduled") {
+    if (!formData.scheduledPublishAt) {
+      throw new Error(
+        "Scheduled publish date is required for scheduled articles",
+      );
+    }
+    if (formData.scheduledPublishAt <= new Date()) {
+      throw new Error("Scheduled publish date must be in the future");
+    }
+  }
+
+  // Validate and check quota for variants
+  if (formData.variants && formData.variants.length > 0) {
+    // Validate language codes
+    for (const variant of formData.variants) {
+      if (!isValidLanguageCode(variant.lang)) {
+        throw new Error(`Invalid language code: ${variant.lang}`);
+      }
+    }
+
+    // Check variant quota based on the number of variants being saved (not existing in DB)
+    const subscription = await getProjectSubscription(article.project.id);
+    const maxVariants = subscription.limits.maxVariantsPerArticle;
+
+    // -1 means unlimited
+    if (maxVariants !== -1 && formData.variants.length > maxVariants) {
+      throw new Error(
+        `Variant limit reached. Your ${subscription.tier} plan allows up to ${maxVariants} variant${maxVariants === 1 ? "" : "s"} per article.${subscription.tier === "STARTER" ? " Upgrade to Pro for unlimited variants." : ""}`,
+      );
+    }
+
+    // Check for duplicate languages
+    const langs = formData.variants.map((v) => v.lang);
+    const duplicates = langs.filter(
+      (lang, index) => langs.indexOf(lang) !== index,
+    );
+    if (duplicates.length > 0) {
+      throw new Error(
+        `Duplicate language variants found: ${duplicates.join(", ")}`,
+      );
+    }
+  }
+
+  // Use transaction to ensure atomicity
+  const updated = await prisma.$transaction(async (tx) => {
+    // Calculate content statistics
+    const stats = calculateStats(formData.content);
+
+    // Handle tags: connect existing tags by ID
+    let tagConnections: { id: string }[] = [];
+    if (formData.tags && formData.tags.length > 0) {
+      tagConnections = formData.tags.map((tagId) => ({ id: tagId }));
+    }
+
+    // Update article
+    const updatedArticle = await tx.article.update({
+      where: {
+        id: articleId,
+        project: {
+          OR: [{ slug: projectSlugOrId }, { id: projectSlugOrId }],
+        },
+      },
+      data: {
+        title: formData.title,
+        excerpt: formData.excerpt,
+        content: formData.content,
+        status: formData.status,
+        coverImage:
+          formData.coverImage !== undefined ? formData.coverImage : undefined,
+        published: formData.status === "published",
+        publishedAt:
+          formData.status === "published" && !article.publishedAt
+            ? new Date()
+            : article.publishedAt,
+        scheduledPublishAt: formData.scheduledPublishAt,
+        updatedBy: user.id,
+        tags: {
+          set: tagConnections,
+        },
+        ...stats,
+      },
+    });
+
+    // Handle variants if provided
+    if (formData.variants) {
+      // Delete all existing variants
+      await tx.articleVariant.deleteMany({
+        where: { articleId },
+      });
+
+      // Create new variants
+      if (formData.variants.length > 0) {
+        const variantData = formData.variants.map((variant) => {
+          const variantStats = calculateStats(variant.content);
+          return {
+            articleId,
+            lang: variant.lang,
+            title: variant.title,
+            excerpt: variant.excerpt,
+            content: variant.content,
+            coverImage: variant.coverImage,
+            ...variantStats,
+          };
+        });
+
+        await tx.articleVariant.createMany({
+          data: variantData,
+        });
+      }
+    }
+
+    return updatedArticle;
+  });
+
+  revalidatePath(`/${article.project.slug}`, "layout");
+  revalidatePath(`/${article.project.slug}/articles`, "page");
+
+  // Invalidate API cache for this project
+  articlesCacheUtils.invalidate(article.projectId).catch((err) => {
+    console.error("Failed to invalidate articles cache:", err);
+  });
+
+  // Trigger webhooks
+  const event: WebhookEvent =
+    updated.status === "published" && article.publishedAt === null
+      ? "article.published"
+      : updated.status === "scheduled"
+        ? "article.scheduled"
+        : "article.updated";
+
+  triggerArticleWebhook(article.project.id, event, updated.id).catch(() => {});
+
+  return updated;
+};
+
+export const deleteArticle = async (
+  articleId: string,
+  projectSlugOrId: string,
+) => {
+  // Verify the article belongs to the user's project
+  const article = await prisma.article.findUnique({
+    where: {
+      id: articleId,
+      project: {
+        OR: [{ slug: projectSlugOrId }, { id: projectSlugOrId }],
+      },
+    },
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      excerpt: true,
+      projectId: true,
+      project: {
+        select: {
+          slug: true,
+        },
+      },
+    },
+  });
+
+  if (!article) {
+    throw new Error("Article not found");
+  }
+
+  await requirePermission(article.projectId, "canManageArticles");
+
+  // Soft delete: update status and deletedAt instead of deleting
+  await prisma.article.update({
+    where: {
+      id: articleId,
+      project: {
+        OR: [{ slug: projectSlugOrId }, { id: projectSlugOrId }],
+      },
+    },
+    data: {
+      status: "deleted",
+      deletedAt: new Date(),
+    },
+  });
+
+  revalidatePath(`/${article.project.slug}`, "layout");
+  revalidatePath(`/${article.project.slug}/articles`, "page");
+
+  // Invalidate API cache for this project
+  articlesCacheUtils.invalidate(article.projectId).catch((err) => {
+    console.error("Failed to invalidate articles cache:", err);
+  });
+
+  triggerArticleWebhook(article.projectId, "article.deleted", articleId).catch(
+    () => {},
+  );
+};
+
+export const permanentlyDeleteArticle = async (
+  articleId: string,
+  projectSlugOrId: string,
+) => {
+  // Verify the article exists and is already soft-deleted
+  const article = await prisma.article.findUnique({
+    where: {
+      id: articleId,
+      project: {
+        OR: [{ slug: projectSlugOrId }, { id: projectSlugOrId }],
+      },
+    },
+    select: {
+      id: true,
+      status: true,
+      projectId: true,
+      project: {
+        select: {
+          slug: true,
+        },
+      },
+    },
+  });
+
+  if (!article) {
+    throw new Error("Article not found");
+  }
+
+  if (article.status !== "deleted") {
+    throw new Error("Article must be in trash before permanent deletion");
+  }
+
+  await requirePermission(article.projectId, "canManageArticles");
+
+  // Permanently delete the article and all related data
+  await prisma.$transaction(async (tx) => {
+    // Delete variants first
+    await tx.articleVariant.deleteMany({
+      where: { articleId },
+    });
+
+    // Delete page events
+    await tx.pageEvent.deleteMany({
+      where: { articleId },
+    });
+
+    // Delete page views
+    await tx.pageView.deleteMany({
+      where: { articleId },
+    });
+
+    // Finally delete the article
+    await tx.article.delete({
+      where: {
+        id: articleId,
+        project: {
+          OR: [{ slug: projectSlugOrId }, { id: projectSlugOrId }],
+        },
+      },
+    });
+  });
+
+  revalidatePath(`/${article.project.slug}`, "layout");
+  revalidatePath(`/${article.project.slug}/articles`, "page");
+
+  // Invalidate API cache for this project
+  articlesCacheUtils.invalidate(article.projectId).catch((err) => {
+    console.error("Failed to invalidate articles cache:", err);
+  });
+};
+
+export const bulkDeleteArticles = async (
+  articleIds: string[],
+  projectSlugOrId: string,
+) => {
+  if (!articleIds || articleIds.length === 0) {
+    throw new Error("No articles specified for deletion");
+  }
+
+  // Verify all articles exist and belong to the same project
+  const articles = await prisma.article.findMany({
+    where: {
+      id: {
+        in: articleIds,
+      },
+      project: {
+        OR: [{ slug: projectSlugOrId }, { id: projectSlugOrId }],
+      },
+    },
+    select: {
+      id: true,
+      projectId: true,
+      project: {
+        select: {
+          slug: true,
+        },
+      },
+    },
+  });
+
+  // Verify count matches (no missing articles)
+  if (articles.length !== articleIds.length) {
+    throw new Error("Some articles were not found");
+  }
+
+  // Verify all articles belong to the same project
+  const projectIds = new Set(articles.map((a) => a.projectId));
+  if (projectIds.size !== 1) {
+    throw new Error("All articles must belong to the same project");
+  }
+
+  const projectId = articles[0].projectId;
+
+  // Check permission for the project
+  const { user } = await requirePermission(projectId, "canManageArticles");
+
+  // Check if user has access to bulk operations
+  const hasBulkAccess = await checkFeatureAccess(projectId, "bulkOperations");
+
+  if (!hasBulkAccess) {
+    throw new Error(
+      "Bulk delete is a Pro feature. Upgrade to Pro to delete multiple articles at once.",
+    );
+  }
+
+  // Soft delete all articles
+  await prisma.article.updateMany({
+    where: {
+      id: {
+        in: articleIds,
+      },
+      project: {
+        OR: [{ slug: projectSlugOrId }, { id: projectSlugOrId }],
+      },
+    },
+    data: {
+      status: "deleted",
+      deletedAt: new Date(),
+    },
+  });
+
+  // Get project slug for revalidation
+  const projectSlug = articles[0].project.slug;
+
+  // Trigger webhook for each deleted article (non-blocking)
+  articleIds.forEach((id) =>
+    triggerArticleWebhook(projectId, "article.deleted", id).catch(() => {}),
+  );
+
+  revalidatePath(`/${projectSlug}`, "layout");
+  revalidatePath(`/${projectSlug}/articles`, "page");
+
+  // Invalidate API cache for this project
+  articlesCacheUtils.invalidate(projectId).catch((err) => {
+    console.error("Failed to invalidate articles cache:", err);
+  });
+};
+
+export const restoreArticle = async (
+  articleId: string,
+  projectSlugOrId: string,
+) => {
+  // Verify the article belongs to the user's project and is deleted
+  const article = await prisma.article.findFirst({
+    where: {
+      id: articleId,
+      status: "deleted",
+      project: {
+        OR: [{ slug: projectSlugOrId }, { id: projectSlugOrId }],
+      },
+    },
+    select: {
+      id: true,
+      status: true,
+      projectId: true,
+      project: {
+        select: {
+          slug: true,
+        },
+      },
+    },
+  });
+
+  if (!article) {
+    throw new Error("Article not found or not deleted");
+  }
+
+  const { user } = await requirePermission(
+    article.projectId,
+    "canManageArticles",
+  );
+
+  // Restore the article by updating its status and clearing deletedAt
+  await prisma.article.update({
+    where: {
+      id: articleId,
+    },
+    data: {
+      status: "draft", // Restore as draft by default
+      deletedAt: null,
+      updatedBy: user.id,
+    },
+  });
+
+  revalidatePath(`/${article.project.slug}`, "layout");
+  revalidatePath(`/${article.project.slug}/articles`, "page");
+
+  // Invalidate API cache for this project
+  articlesCacheUtils.invalidate(article.projectId).catch((err) => {
+    console.error("Failed to invalidate articles cache:", err);
+  });
+
+  return true;
+};
+
+export const getScheduledArticles = async () => {
+  const user = await getCurrentUser();
+  if (!user) redirect("/auth/login");
+
+  // Get user's first project (single project mode)
+  const project = await prisma.project.findFirst({
+    where: {
+      members: {
+        some: {
+          userId: user.id,
+        },
+      },
+    },
+  });
+
+  if (!project) notFound();
+
+  // Get articles that are scheduled and ready to publish
+  const now = new Date();
+  const scheduledArticles = await prisma.article.findMany({
+    where: {
+      projectId: project.id,
+      status: "scheduled",
+      scheduledPublishAt: {
+        lte: now,
+      },
+    },
+    include: {
+      project: true,
+    },
+  });
+
+  return scheduledArticles;
+};
+
+export const getArticleWithVariants = async (
+  articleId: string,
+  projectSlugOrId: string,
+) => {
+  const user = await getCurrentUser();
+  if (!user) {
+    redirect("/auth/login");
+  }
+
+  const article = await prisma.article.findFirst({
+    where: {
+      id: articleId,
+      status: {
+        not: "deleted",
+      },
+      project: {
+        OR: [{ slug: projectSlugOrId }, { id: projectSlugOrId }],
+      },
+    },
+    include: {
+      project: {
+        select: {
+          id: true,
+          slug: true,
+          defaultLanguage: true,
+        },
+      },
+      variants: {
+        orderBy: {
+          lang: "asc",
+        },
+      },
+    },
+  });
+
+  if (!article) return null;
+
+  const hasAccess = await hasProjectAccess(article.project.id, user.id);
+  if (!hasAccess) {
+    return null;
+  }
+
+  return article;
+};
+
+export const getArticleBySlugWithVariants = async (
+  slug: string,
+  projectSlugOrId: string,
+) => {
+  const user = await getCurrentUser();
+  if (!user) {
+    redirect("/auth/login");
+  }
+
+  const article = await prisma.article.findFirst({
+    where: {
+      slug,
+      project: {
+        OR: [{ slug: projectSlugOrId }, { id: projectSlugOrId }],
+      },
+    },
+    include: {
+      project: {
+        select: {
+          userId: true,
+          slug: true,
+          defaultLanguage: true,
+        },
+      },
+      variants: {
+        orderBy: {
+          lang: "asc",
+        },
+      },
+      tags: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+  });
+
+  return article;
+};
+
+export const getProjectTags = async (projectId: string) => {
+  const user = await getCurrentUser();
+  if (!user) {
+    redirect("/auth/login");
+  }
+
+  // Verify user has access to this project
+  const hasAccess = await hasProjectAccess(projectId, user.id);
+  if (!hasAccess) {
+    forbidden();
+  }
+
+  const tags = await prisma.tag.findMany({
+    where: {
+      projectId,
+    },
+    select: {
+      id: true,
+      name: true,
+      icon: true,
+      color: true,
+    },
+    orderBy: {
+      name: "asc",
+    },
+  });
+
+  return tags.map((tag) => tag.name);
+};
+
+export type ImportArticleInput = {
+  title: string;
+  slug?: string;
+  excerpt?: string;
+  content?: string;
+  status?: string;
+  tags?: string;
+  variants?: Array<{
+    lang: string;
+    title: string;
+    excerpt: string;
+    content: string;
+  }>;
+};
+
+/**
+ * Bulk import articles from CSV/JSON/XML
+ */
+export const bulkImportArticles = async (
+  projectId: string,
+  articles: ImportArticleInput[],
+  variantSelections?: Record<number, number>,
+): Promise<{ success: boolean; count?: number; error?: string }> => {
+  try {
+    const { user } = await requirePermission(projectId, "canManageArticles");
+
+    // Check article quota
+    const quotaCheck = await checkArticleQuota(user.id, projectId);
+    if (!quotaCheck.allowed) {
+      return {
+        success: false,
+        error: quotaCheck.reason || "Article limit reached",
+      };
+    }
+
+    // Check variant quota for the project
+    const variantQuotaCheck = await checkVariantQuota(user.id, projectId);
+    if (!variantQuotaCheck.allowed) {
+      return {
+        success: false,
+        error: variantQuotaCheck.reason || "Variant limit reached",
+      };
+    }
+
+    // Get project for revalidation
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+      select: {
+        slug: true,
+        subscriptionTier: true,
+      },
+    });
+
+    if (!project) {
+      return { success: false, error: "Project not found" };
+    }
+
+    // Get plan limits
+    const limits = getPlanLimits(project.subscriptionTier);
+    const maxVariantsPerArticle = limits.maxVariantsPerArticle;
+
+    // Get existing slugs to avoid duplicates (including soft-deleted articles)
+    const existingArticles = await prisma.article.findMany({
+      where: { projectId },
+      select: { slug: true },
+    });
+    const existingSlugs = new Set(
+      existingArticles.map((a) => a.slug.toLowerCase()),
+    );
+
+    // Get existing tags for the project
+    const existingTags = await prisma.tag.findMany({
+      where: { projectId },
+      select: { id: true, name: true },
+    });
+    const tagNameToId = new Map(
+      existingTags.map((t) => [t.name.toLowerCase(), t.id]),
+    );
+
+    let createdCount = 0;
+
+    for (const [articleIndex, article] of articles.entries()) {
+      if (!article.title || article.title.trim() === "") continue;
+
+      // Generate unique slug
+      let baseSlug = article.slug?.trim() || generateSlug(article.title);
+      let slug = baseSlug;
+      let counter = 1;
+
+      while (existingSlugs.has(slug.toLowerCase())) {
+        slug = `${baseSlug}-${counter}`;
+        counter++;
+      }
+
+      // Parse status with validation
+      const statusValue = article.status
+        ? article.status.toLowerCase()
+        : "draft";
+      const status: ArticleStatus =
+        statusValue === "published" ||
+        statusValue === "draft" ||
+        statusValue === "scheduled"
+          ? (statusValue as ArticleStatus)
+          : "draft";
+
+      // Parse tags
+      const tagNames = article.tags
+        ? article.tags
+            .split(",")
+            .map((t) => t.trim())
+            .filter(Boolean)
+        : [];
+
+      const tagIds: string[] = [];
+      for (const tagName of tagNames) {
+        const existingTagId = tagNameToId.get(tagName.toLowerCase());
+        if (existingTagId) {
+          tagIds.push(existingTagId);
+        }
+      }
+
+      // Calculate stats for main article
+      const content = article.content || "";
+      const stats = {
+        wordCount: content.trim() ? content.trim().split(/\s+/).length : 0,
+        characterCount: content.length,
+        lineCount: content.split("\n").length,
+        readTimeMinutes: Math.ceil(
+          (content.trim() ? content.trim().split(/\s+/).length : 0) / 200,
+        ),
+      };
+
+      // Prepare variants data
+      let variants = article.variants || [];
+
+      // If variant selection is provided for this article, use only the selected variant
+      if (variantSelections && variantSelections[articleIndex] !== undefined) {
+        const selectedIndex = variantSelections[articleIndex];
+        if (selectedIndex !== undefined && variants[selectedIndex]) {
+          variants = [variants[selectedIndex]!];
+        }
+      }
+
+      // Filter variants to respect plan limits
+      if (maxVariantsPerArticle !== -1) {
+        variants = variants.slice(0, maxVariantsPerArticle);
+      }
+
+      const variantsData = variants.map((variant) => {
+        const variantContent = variant.content || "";
+        const variantStats = {
+          wordCount: variantContent.trim()
+            ? variantContent.trim().split(/\s+/).length
+            : 0,
+          characterCount: variantContent.length,
+          lineCount: variantContent.split("\n").length,
+          readTimeMinutes: Math.ceil(
+            (variantContent.trim()
+              ? variantContent.trim().split(/\s+/).length
+              : 0) / 200,
+          ),
+        };
+
+        return {
+          lang: variant.lang,
+          title: variant.title,
+          excerpt: variant.excerpt || null,
+          content: variantContent,
+          coverImage: null,
+          ...variantStats,
+        };
+      });
+
+      try {
+        await prisma.article.create({
+          data: {
+            title: article.title.trim(),
+            slug,
+            excerpt: article.excerpt?.trim() || null,
+            content,
+            status,
+            projectId,
+            createdBy: user.id,
+            publishedAt: status === "published" ? new Date() : null,
+            ...stats,
+            tags: {
+              connect: tagIds.map((id) => ({ id })),
+            },
+            variants: {
+              create: variantsData,
+            },
+          },
+        });
+
+        createdCount++;
+        existingSlugs.add(slug.toLowerCase());
+      } catch (createError) {
+        // Handle unique constraint violation - skip this article
+        if (
+          createError instanceof Error &&
+          createError.message.includes("Unique constraint")
+        ) {
+          console.warn(`Skipping duplicate article with slug: ${slug}`);
+          continue;
+        }
+        throw createError;
+      }
+    }
+
+    revalidatePath(`/${project.slug}/articles`);
+
+    // Invalidate API cache for this project
+    articlesCacheUtils.invalidate(projectId).catch((err) => {
+      console.error("Failed to invalidate articles cache:", err);
+    });
+
+    return {
+      success: true,
+      count: createdCount,
+    };
+  } catch (error) {
+    console.error("Error importing articles:", error);
+    return {
+      success: false,
+      error:
+        error instanceof Error ? error.message : "Failed to import articles",
+    };
+  }
+};

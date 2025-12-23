@@ -1,0 +1,50 @@
+---
+title: Webhook Builder
+description: Build custom webhook payloads for Discord, Slack, and Microsoft Teams
+category: Webhooks
+order: 1
+---
+
+# Webhook Builder
+
+Create custom webhook payloads for Discord, Slack, and Microsoft Teams. Use the interactive builder below to configure your payload, then copy the generated JSON to your webhook configuration.
+
+## Available Variables
+
+You can use these variables in your webhook payloads:
+
+<TypeTable properties={[
+  { name: "{title}", type: "string", description: "Article title" },
+  { name: "{slug}", type: "string", description: "Article slug" },
+  { name: "{excerpt}", type: "string", description: "Article excerpt/summary" },
+  { name: "{author}", type: "string", description: "Author name" },
+  { name: "{tags}", type: "string", description: "Comma-separated tags" },
+  { name: "{publishedAt}", type: "string", description: "Publication date (ISO 8601)" },
+  { name: "{url}", type: "string", description: "Full article URL" },
+  { name: "{event}", type: "string", description: "Event type (e.g. article.published)" },
+  { name: "{coverImage}", type: "string", description: "Cover image URL" },
+  { name: "{wordCount}", type: "number", description: "Number of words" },
+  { name: "{characterCount}", type: "number", description: "Number of characters" },
+  { name: "{lineCount}", type: "number", description: "Number of lines" },
+  { name: "{readTimeMinutes}", type: "number", description: "Estimated reading time in minutes" },
+  { name: "{variantCount}", type: "number", description: "Number of language variants" },
+]} />
+
+## How to Use
+
+1. Select your platform (Discord, Slack, or Teams)
+2. Fill in the form fields to configure your webhook payload
+3. The JSON will be generated automatically in real-time
+4. Click "Copy JSON" to copy the payload to your clipboard
+5. Paste it into the "Custom Payload" field when creating or editing a webhook
+
+<WebhookBuilder />
+
+## Platform Documentation
+
+For more details on webhook formats, see the official documentation:
+
+- [Discord Webhooks](https://discord.com/developers/docs/resources/webhook#execute-webhook)
+- [Slack Incoming Webhooks](https://api.slack.com/messaging/webhooks)
+- [Microsoft Teams Incoming Webhooks](https://learn.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/add-incoming-webhook)
+

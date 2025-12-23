@@ -1,0 +1,47 @@
+{
+  "name": "@simplist/web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3001 --experimental-https",
+    "dev-ns": "next dev -p 3001",
+    "build": "next build",
+    "analyze": "ANALYZE=true next build",
+    "start": "next start -p 3001",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "@number-flow/react": "^0.5.10",
+    "@ridemountainpig/svgl-react": "^1.0.14",
+    "@simplist/limits": "workspace:*",
+    "@simplist/ui": "workspace:*",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.561.0",
+    "motion": "^12.23.26",
+    "next": "16.0.10",
+    "next-themes": "^0.4.6",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "tailwind-merge": "^3.4.0"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.3",
+    "@next/bundle-analyzer": "^16.0.10",
+    "@simplist/eslint-config": "workspace:*",
+    "@simplist/typescript-config": "workspace:*",
+    "@tailwindcss/postcss": "^4.1.18",
+    "@types/node": "^25.0.2",
+    "@types/react": "19.2.7",
+    "@types/react-dom": "19.2.3",
+    "eslint": "^9.39.2",
+    "eslint-config-next": "16.0.10",
+    "tailwindcss": "^4.1.18",
+    "tailwindcss-intersect": "^2.2.0",
+    "tailwindcss-motion": "^1.1.1",
+    "typescript": "^5.9.3"
+  },
+  "nextBundleAnalysis": {
+    "showDetails": true,
+    "buildOutputDirectory": ".next"
+  }
+}

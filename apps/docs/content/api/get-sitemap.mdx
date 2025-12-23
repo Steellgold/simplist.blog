@@ -1,0 +1,116 @@
+---
+title: /v1/seo/sitemap
+description: Generate sitemap in XML or JSON format
+category: REST API
+order: 58
+icon: GET
+---
+
+# /v1/seo/sitemap
+
+Generate a sitemap for all published articles in XML or JSON format.
+
+## Endpoint
+
+<ApiPath
+  method="GET"
+  path="/v1/seo/sitemap"
+  baseUrl="https://api.simplist.blog"
+  testable={true}
+  requiresAuth={true}
+  parameters={[
+    { name: "baseUrl", type: "string", required: true, description: "Base URL for article links (e.g., 'https://myblog.com')" },
+    { name: "format", type: "string", required: false, description: "'xml' or 'json' (default: 'xml')" },
+    { name: "path", type: "string", required: false, description: "Path prefix for articles (e.g., 'blog')" }
+  ]}
+/>
+
+## Query Parameters
+
+<TypeTable
+  properties={[
+    { name: "baseUrl", type: "string", description: "Base URL for all links", required: true },
+    { name: "format", type: "'xml' | 'json'", description: "Output format", defaultValue: "'xml'" },
+    { name: "path", type: "string", description: "Path prefix (e.g., 'blog' for /blog/article-slug)" }
+  ]}
+/>
+
+## Response (XML)
+
+Returns XML sitemap conforming to the Sitemap protocol.
+
+## Response (JSON)
+
+<TypeTable
+  title="Sitemap"
+  properties={[
+    { name: "entries", type: "SitemapEntry[]", required: true },
+    { name: "generatedAt", type: "string", required: true }
+  ]}
+/>
+
+<TypeTable
+  title="SitemapEntry"
+  properties={[
+    { name: "url", type: "string", required: true },
+    { name: "lastModified", type: "string", required: true },
+    { name: "changeFrequency", type: "'daily' | 'weekly' | 'monthly'", required: true },
+    { name: "priority", type: "number", required: true }
+  ]}
+/>
+
+## Example Request (XML)
+
+<CurlCommand
+  method="GET"
+  url="https://api.simplist.blog/v1/seo/sitemap?baseUrl=https://myblog.com&format=xml&path=blog"
+  headers={{
+    'X-API-Key': 'YOUR_API_KEY'
+  }}
+/>
+
+## Example Response (XML)
+
+<CodeBlock language="xml" filename="sitemap.xml">
+{`
+  <?xml version="1.0" encoding="UTF-8"?>
+  <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+      <loc>https://myblog.com/blog/getting-started</loc>
+      <lastmod>2025-01-15</lastmod>
+      <changefreq>weekly</changefreq>
+      <priority>0.8</priority>
+    </url>
+    <url>
+      <loc>https://myblog.com/blog/advanced-features</loc>
+      <lastmod>2025-01-20</lastmod>
+      <changefreq>weekly</changefreq>
+      <priority>0.8</priority>
+    </url>
+  </urlset>
+`}
+</CodeBlock>
+
+## Example Response (JSON)
+
+<CodeBlock language="json" filename="sitemap.json">
+{`
+  {
+    "data": {
+      "entries": [
+        {
+          "url": "https://myblog.com/blog/getting-started",
+          "lastModified": "2025-01-15T10:30:00Z",
+          "changeFrequency": "weekly",
+          "priority": 0.8
+        }
+      ],
+      "generatedAt": "2025-12-09T12:00:00Z"
+    }
+  }
+`}
+</CodeBlock>
+
+## SDK Equivalent
+
+If you're using TypeScript/JavaScript, you can use the SDK instead: [client.seo.getSitemap()](/sdk/seo)

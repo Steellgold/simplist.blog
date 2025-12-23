@@ -1,0 +1,19 @@
+/*
+  Warnings:
+
+  - The values [SLATE,STONE,ZINC,NEON_GREEN,NEON_PINK,MINT,AQUA,TURQUOISE,BRONZE,GOLD,SILVER,COPPER,MAROON,OLIVE,NAVY,LAVENDER,BEIGE,PEACH,BROWN,CHARCOAL,MAGENTA,CORAL,SAPPHIRE,RUBY,SAND,MUSTARD,ICE,JADE,PLUM,SEAFOAM,INDIGO_DARK,LIME_DARK,BERRY,MOSS,FLAMINGO,ICE_BLUE,MULBERRY,MANGO,OBSIDIAN,WISTERIA] on the enum `Color` will be removed. If these variants are still used in the database, this will fail.
+
+*/
+-- AlterEnum
+BEGIN;
+CREATE TYPE "Color_new" AS ENUM ('RED', 'ORANGE', 'AMBER', 'YELLOW', 'LIME', 'GREEN', 'EMERALD', 'TEAL', 'CYAN', 'SKY', 'BLUE', 'INDIGO', 'VIOLET', 'PURPLE', 'FUCHSIA', 'PINK', 'ROSE', 'BLACK', 'WHITE', 'GRAY');
+ALTER TABLE "public"."project" ALTER COLUMN "color" DROP DEFAULT;
+ALTER TABLE "public"."tag" ALTER COLUMN "color" DROP DEFAULT;
+ALTER TABLE "project" ALTER COLUMN "color" TYPE "Color_new" USING ("color"::text::"Color_new");
+ALTER TABLE "tag" ALTER COLUMN "color" TYPE "Color_new" USING ("color"::text::"Color_new");
+ALTER TYPE "Color" RENAME TO "Color_old";
+ALTER TYPE "Color_new" RENAME TO "Color";
+DROP TYPE "public"."Color_old";
+ALTER TABLE "project" ALTER COLUMN "color" SET DEFAULT 'CYAN';
+ALTER TABLE "tag" ALTER COLUMN "color" SET DEFAULT 'CYAN';
+COMMIT;

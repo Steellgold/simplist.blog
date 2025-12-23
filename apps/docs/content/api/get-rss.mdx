@@ -1,0 +1,80 @@
+---
+title: /v1/seo/rss
+description: Generate RSS 2.0 feed for articles
+category: REST API
+order: 59
+icon: GET
+---
+
+# /v1/seo/rss
+
+Generate an RSS 2.0 feed for your published articles.
+
+## Endpoint
+
+<ApiPath
+  method="GET"
+  path="/v1/seo/rss"
+  baseUrl="https://api.simplist.blog"
+  testable={true}
+  requiresAuth={true}
+  parameters={[
+    { name: "baseUrl", type: "string", required: true, description: "Base URL for article links" },
+    { name: "limit", type: "number", required: false, description: "Number of articles to include (default: 20)" },
+    { name: "path", type: "string", required: false, description: "Path prefix for articles" }
+  ]}
+/>
+
+## Query Parameters
+
+<TypeTable
+  properties={[
+    { name: "baseUrl", type: "string", description: "Base URL for all links", required: true },
+    { name: "limit", type: "number", description: "Number of articles", defaultValue: "20" },
+    { name: "path", type: "string", description: "Path prefix (e.g., 'blog')" }
+  ]}
+/>
+
+## Response
+
+Returns RSS 2.0 XML feed.
+
+## Example Request
+
+<CurlCommand
+  method="GET"
+  url="https://api.simplist.blog/v1/seo/rss?baseUrl=https://myblog.com&limit=50&path=blog"
+  headers={{
+    'X-API-Key': 'YOUR_API_KEY'
+  }}
+/>
+
+## Example Response
+
+<CodeBlock language="xml">
+{`
+  <?xml version="1.0" encoding="UTF-8"?>
+  <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+      <title>My Blog</title>
+      <link>https://myblog.com</link>
+      <description>A blog about web development</description>
+      <language>en</language>
+      <lastBuildDate>Mon, 09 Dec 2025 12:00:00 GMT</lastBuildDate>
+      <atom:link href="https://myblog.com/feed.xml" rel="self" type="application/rss+xml"/>
+
+      <item>
+        <title>Getting Started with Simplist</title>
+        <link>https://myblog.com/blog/getting-started</link>
+        <guid>https://myblog.com/blog/getting-started</guid>
+        <pubDate>Wed, 15 Jan 2025 10:30:00 GMT</pubDate>
+        <description>Learn how to get started with Simplist</description>
+      </item>
+    </channel>
+  </rss>
+`}
+</CodeBlock>
+
+## SDK Equivalent
+
+If you're using TypeScript/JavaScript, you can use the SDK instead: [client.seo.getRssFeed()](/sdk/seo)

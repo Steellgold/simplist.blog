@@ -1,0 +1,146 @@
+name: 'Next.js Bundle Analysis - App'
+
+on:
+  pull_request:
+    paths:
+      - 'apps/app/**'
+      - 'packages/ui/**'
+      - 'packages/limits/**'
+      - 'packages/db/**'
+      - 'pnpm-lock.yaml'
+      - 'package.json'
+  push:
+    branches:
+      - preview
+      - prod
+    paths:
+      - 'apps/app/**'
+      - 'packages/ui/**'
+      - 'packages/limits/**'
+      - 'packages/db/**'
+      - 'pnpm-lock.yaml'
+      - 'package.json'
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: ./
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '10.4.1'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build workspace dependencies
+        env:
+          DATABASE_URL: postgresql://user:password@localhost:5432/db
+        run: pnpm --filter @simplist/db run build && pnpm --filter @simplist/ui run build && pnpm --filter @simplist/limits run build
+
+      - name: Restore next build
+        uses: actions/cache@v4
+        id: restore-build-cache
+        env:
+          cache-name: cache-next-build-app
+        with:
+          path: apps/app/.next/cache
+          key: ${{ runner.os }}-build-${{ env.cache-name }}
+
+      - name: Build next.js app
+        env:
+          SKIP_BUILD_STATIC_GENERATION: true
+          DATABASE_URL: postgresql://user:password@localhost:5432/db
+          BETTER_AUTH_SECRET: build-time-secret-not-used
+          BETTER_AUTH_URL: https://app.simplist.blog
+          STRIPE_SECRET_KEY: sk_test_fake
+          STRIPE_WEBHOOK_SECRET: whsec_fake
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_test_fake
+          R2_ACCOUNT_ID: fake
+          R2_ACCESS_KEY_ID: fake
+          R2_SECRET_ACCESS_KEY: fake
+          R2_BUCKET_NAME: fake
+          AWS_ACCESS_KEY_ID: fake
+          AWS_SECRET_ACCESS_KEY: fake
+          SES_FROM_EMAIL: noreply@example.com
+          UPSTASH_REDIS_REST_URL: https://fake.upstash.io
+          UPSTASH_REDIS_REST_TOKEN: fake
+        run: pnpm --filter @simplist/app run build
+
+      - name: Analyze bundle
+        working-directory: apps/app
+        run: npx -p nextjs-bundle-analysis report
+
+      - name: Upload bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundle-app
+          path: apps/app/.next/analyze/__bundle_analysis.json
+
+      - name: Download base branch bundle stats
+        uses: dawidd6/action-download-artifact@v6
+        if: success() && github.event.number
+        continue-on-error: true
+        with:
+          workflow: nextjs_bundle_analysis_app.yml
+          branch: ${{ github.event.pull_request.base.ref }}
+          path: apps/app/.next/analyze/base
+
+      - name: Compare with base branch bundle
+        if: success() && github.event.number
+        working-directory: apps/app
+        run: |
+          if [ -d ".next/analyze/base" ]; then
+            echo "Base bundle found, comparing..."
+            npx -p nextjs-bundle-analysis compare
+          else
+            echo "No base bundle found, skipping comparison (this is normal for the first run)"
+          fi
+
+      - name: Get comment body
+        id: get-comment-body
+        if: success() && github.event.number
+        working-directory: apps/app
+        run: |
+          if [ -f ".next/analyze/__bundle_analysis_comment.txt" ]; then
+            echo "body<<EOF" >> $GITHUB_OUTPUT
+            echo "$(cat .next/analyze/__bundle_analysis_comment.txt)" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "body=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Find Comment
+        uses: peter-evans/find-comment@v3
+        if: success() && github.event.number
+        id: fc
+        with:
+          issue-number: ${{ github.event.number }}
+          body-includes: '<!-- __NEXTJS_BUNDLE_@simplist/app -->'
+
+      - name: Create Comment
+        uses: peter-evans/create-or-update-comment@v4
+        if: success() && github.event.number && steps.fc.outputs.comment-id == '' && steps.get-comment-body.outputs.body != ''
+        with:
+          issue-number: ${{ github.event.number }}
+          body: ${{ steps.get-comment-body.outputs.body }}
+
+      - name: Update Comment
+        uses: peter-evans/create-or-update-comment@v4
+        if: success() && github.event.number && steps.fc.outputs.comment-id != '' && steps.get-comment-body.outputs.body != ''
+        with:
+          issue-number: ${{ github.event.number }}
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          body: ${{ steps.get-comment-body.outputs.body }}
+          edit-mode: replace

@@ -1,0 +1,433 @@
+---
+title: Analytics Script
+description: Zero-code analytics tracking with a simple script tag
+category: SDK Reference
+order: 15
+icon: Code
+---
+
+# Analytics Script
+
+The easiest way to add analytics to your blog. Just add a single script tag - no build step, no configuration needed.
+
+## Quick Start
+
+Add this script tag to your article pages:
+
+<CodeBlock language="html" filename="article.html">
+{`
+  <script
+    src="https://cdn.simplist.blog/analytics.js"
+    data-api-key="prj_your_api_key"
+  ></script>
+`}
+</CodeBlock>
+
+<br />
+The script automatically tracks:
+
+- Page views
+- Time on page
+- Scroll depth (with milestones at 25%, 50%, 75%, 90%)
+- Bounce rate
+- Geographic location
+- Device and browser info
+- Referrer and UTM parameters
+
+---
+
+## Configuration
+
+### Data Attributes
+
+<TypeTable
+  title="Script Attributes"
+  properties={[
+    {
+      name: "data-api-key",
+      type: "string",
+      description: "Your Simplist API key (required)",
+      required: true,
+    },
+    {
+      name: "data-slug",
+      type: "string",
+      description:
+        "Article slug to track. Auto-detected from URL if not provided",
+    },
+    {
+      name: "data-api-url",
+      type: "string",
+      description: "Override API endpoint",
+      defaultValue: "https://api.simplist.blog/v1",
+    },
+    {
+      name: "data-debug",
+      type: "boolean",
+      description: "Enable debug logging in console",
+      defaultValue: "false",
+    },
+  ]}
+/>
+
+### Auto-Detection
+
+When `data-slug` is not provided, the script automatically extracts the slug from the URL path:
+
+<ComparisonTable
+  headers={["URL", "Detected Slug"]}
+  rows={[
+    { label: "/blog/my-article", values: ["my-article"] },
+    { label: "/articles/getting-started", values: ["getting-started"] },
+    { label: "/posts/2024/hello-world", values: ["hello-world"] },
+  ]}
+/>
+
+### Examples
+
+**Basic usage** - auto-detect slug from URL:
+
+<CodeBlock language="html">
+  {`
+  <script
+    src="https://cdn.simplist.blog/analytics.js"
+    data-api-key="prj_abc123"
+  ></script>
+  `}
+</CodeBlock>
+
+**Explicit slug** - when URL doesn't match article slug:
+
+<CodeBlock language="html">
+  {`
+  <script
+    src="https://cdn.simplist.blog/analytics.js"
+    data-api-key="prj_abc123"
+    data-slug="my-custom-slug"
+  ></script>
+  `}
+</CodeBlock>
+
+**Debug mode** - for troubleshooting:
+
+<CodeBlock language="html">
+  {`
+  <script
+    src="https://cdn.simplist.blog/analytics.js"
+    data-api-key="prj_abc123"
+    data-debug="true"
+  ></script>
+  `}
+</CodeBlock>
+
+---
+
+## What Gets Tracked
+
+### Automatic Metrics
+
+The script tracks these metrics automatically:
+
+<ComparisonTable
+  headers={["Metric", "Description"]}
+  rows={[
+    { label: "Page View", values: ["Recorded when the script loads"] },
+    { label: "Time on Page", values: ["Calculated from page load to unload"] },
+    {
+      label: "Scroll Depth",
+      values: ["Maximum scroll position reached (0-100%)"],
+    },
+    { label: "Exit Position", values: ["Scroll position when user leaves"] },
+    { label: "Bounce", values: ["true if time < 10s AND scroll < 25%"] },
+    { label: "Screen Size", values: ["Viewport width and height"] },
+    { label: "Referrer", values: ["The page that linked to this one"] },
+    {
+      label: "UTM Parameters",
+      values: ["utm_source, utm_medium, utm_campaign, etc."],
+    },
+  ]}
+/>
+
+### Scroll Milestones
+
+The script automatically tracks when users reach these scroll positions:
+
+- **25%** - User started reading
+- **50%** - User is engaged
+- **75%** - User read most of the content
+- **90%** - User reached the end
+
+These are stored as events and can be used to build engagement funnels.
+
+### Geographic Data
+
+The script fetches geographic data from the client side (via ipinfo.io):
+
+- Country and country code
+- Region/State
+- City
+- Timezone
+
+---
+
+## JavaScript API
+
+The script exposes a global `SimplistAnalytics` object for custom tracking.
+
+### Track Custom Events
+
+<CodeBlock language="javascript">
+  {`
+  // Track a button click
+  SimplistAnalytics.track('button_click', {
+    buttonId: 'cta-signup',
+    buttonText: 'Sign Up Now'
+  })
+
+// Track a video play
+SimplistAnalytics.track('video_play', {
+videoId: 'intro-video',
+duration: 120
+}, 45) // 45 = scroll position when event occurred
+
+// Track a form submission
+SimplistAnalytics.track('form_submit', {
+formId: 'newsletter',
+email: 'user@example.com'
+})
+`}
+
+</CodeBlock>
+
+### Flush Events
+
+Force send all pending events immediately:
+
+<CodeBlock language="javascript">
+  {`
+  // Send all pending data before navigation
+  SimplistAnalytics.flush()
+  `}
+</CodeBlock>
+
+---
+
+## Framework Integration
+
+<CodeBlock
+  tabs={[
+    {
+      label: "Next.js",
+      cusLang: "nextjs",
+      language: "tsx",
+      filename: "app/blog/[slug]/page.tsx",
+      code: `import Script from "next/script"
+
+  export default function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
+    const { slug } = await params
+
+    return (
+      <>
+        <Script
+          src="https://cdn.simplist.blog/analytics.js"
+          data-api-key={process.env.NEXT_PUBLIC_SIMPLIST_API_KEY}
+          data-slug={params.slug}
+          strategy="afterInteractive"
+        />
+        
+        <article>
+          {/* Your article content */}
+        </article>
+      </>
+    )
+  }`},
+    {
+      label: "Astro",
+      language: "astro",
+      filename: "src/pages/blog/[slug].astro",
+      code: `
+---
+const { slug } = Astro.params
+---
+
+<html>
+  <head>
+    <script
+      src="https://cdn.simplist.blog/analytics.js"
+      data-api-key={import.meta.env.PUBLIC_SIMPLIST_API_KEY}
+      data-slug={slug}
+    />
+  </head>
+  <body>
+    <article>
+      <!-- Your article content -->
+    </article>
+  </body>
+</html>
+      `.trim(),
+    },
+    {
+      label: "Hugo",
+      cusLang: "hugo",
+      language: "html",
+      filename: "layouts/partials/analytics.html",
+      code: `
+{{ if .IsPage }}
+    <script
+      src="https://cdn.simplist.blog/analytics.js"
+      data-api-key="{{ .Site.Params.simplistApiKey }}"
+      data-slug="{{ .File.BaseFileName }}"
+    ></script>
+{{ end }}
+      `.trim(),
+    },
+    {
+      label: "Plain HTML",
+      language: "html",
+      filename: "article.html",
+      code: `
+<!DOCTYPE html>
+  <html>
+    <head>
+      <title>My Article</title>
+    </head>
+
+    <body>
+      <article>
+        <h1>My Article Title</h1>
+        <p>Article content here...</p>
+      </article>
+
+      <!-- Add at the end of body -->
+      <script
+        src="https://cdn.simplist.blog/analytics.js"
+        data-api-key="prj_your_api_key"
+        data-slug="my-article"
+      ></script>
+
+    </body>
+  </html>
+      `.trim(),
+    },
+  ]}
+/>
+
+## Script vs SDK
+
+Choose the right approach for your needs:
+
+<ComparisonTable
+  headers={["Feature", "Script", "SDK"]}
+  rows={[
+    { label: "Setup", values: ["One line of HTML", "npm install + code"] },
+    {
+      label: "Auto-tracking",
+      values: ["Yes (scroll, time, geo)", "Manual implementation"],
+    },
+    {
+      label: "Custom events",
+      values: ["SimplistAnalytics.track()", "client.analytics.track()"],
+    },
+    { label: "Server-side", values: ["No", "Yes"] },
+    {
+      label: "Bundle size",
+      values: ["~5KB (external)", "~15KB (in your bundle)"],
+    },
+    { label: "Control", values: ["Limited", "Full"] },
+  ]}
+/>
+
+**Use the Script when:**
+
+- You want zero-code analytics
+- You're using a static site generator
+- You don't need server-side tracking
+
+**Use the SDK when:**
+
+- You need server-side tracking
+- You want full control over when/what to track
+- You're building a React/Next.js app with complex requirements
+
+## Bot Detection
+
+The script automatically detects and ignores bot traffic:
+
+- Search engine crawlers (Googlebot, Bingbot, etc.)
+- Social media bots (Facebook, Twitter, LinkedIn)
+- Monitoring tools (Pingdom, UptimeRobot)
+- Headless browsers (Puppeteer, Playwright)
+- Common HTTP clients (curl, wget, axios)
+
+Bot visits are not counted in your analytics.
+
+## Privacy & GDPR
+
+The analytics script is designed to be privacy-friendly:
+
+- **No cookies** - Uses localStorage for session persistence
+- **Anonymous tracking** - No personal data collected
+- **IP anonymization** - IPs are never stored
+- **GDPR compliant** - No consent banner needed
+- **Adblocker-friendly** - First-party domain, not blocked
+
+## Troubleshooting
+
+### Script not tracking
+
+1. Check the browser console for errors
+2. Enable debug mode with `data-debug="true"`
+3. Verify your API key is correct
+4. Ensure the article slug exists in your project
+
+### Slug not detected
+
+If auto-detection fails, explicitly set the slug:
+
+<CodeBlock language="html">
+{`
+  <script
+    src="https://cdn.simplist.blog/analytics.js"
+    data-api-key="prj_abc123"
+    data-slug="your-article-slug"
+  ></script>
+`}
+</CodeBlock>
+
+### Events not sending on page leave
+
+The script uses `navigator.sendBeacon()` for reliable delivery on page unload. This works in all modern browsers. If you're using an older browser, events may be lost on fast navigation.
+
+## Frequently Asked Questions
+
+<Faq
+  title="Quick Help"
+  items={[
+    {
+      question: "Can I use both the script and the SDK?",
+      answer:
+        "Yes, but be careful not to double-track. The script is best for client-side pages, while the SDK is for server-side or when you need more control. Don't use both on the same page.",
+    },
+    {
+      question: "Does the script work with SPAs (Single Page Apps)?",
+      answer:
+        "The script tracks the initial page load. For SPAs with client-side routing, you'll need to manually call SimplistAnalytics.flush() before navigation and re-initialize tracking. Consider using the SDK for SPAs.",
+    },
+    {
+      question: "How do I track multiple articles on the same page?",
+      answer:
+        "The script tracks one article per page. If you have a list of articles, only track the main article being viewed. For article previews or lists, don't include the analytics script.",
+    },
+    {
+      question: "Is the script loaded asynchronously?",
+      answer:
+        "Yes, the script loads asynchronously and won't block page rendering. It initializes after the DOM is ready.",
+    },
+  ]}
+/>
+
+## See Also
+
+- [Analytics SDK](/sdk/analytics) - Full SDK documentation
+- [Analytics Examples](/examples/analytics) - Complete integration examples
+- [REST API: Track](/api/post-track) - Direct API access

@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm lint:*)",
+      "Bash(pnpm build:*)",
+      "Bash(pnpm run:*)",
+      "Bash(git commit:*)",
+      "Bash(git add:*)",
+      "Bash(git mv:*)",
+      "Bash(cat:*)",
+      "Bash(find:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

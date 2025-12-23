@@ -1,0 +1,109 @@
+---
+title: /v1/articles/:slug
+description: Retrieve a specific article by slug
+category: REST API
+order: 52
+icon: GET
+---
+
+# /v1/articles/:slug
+
+Retrieve a single article by its unique slug identifier, including full content.
+
+## Endpoint
+
+<ApiPath
+  method="GET"
+  path="/v1/articles/:slug"
+  baseUrl="https://api.simplist.blog"
+  testable={true}
+  requiresAuth={true}
+  parameters={[
+    { name: "slug", type: "string", required: true, description: "Article slug (URL-friendly identifier)" }
+  ]}
+/>
+
+## Path Parameters
+
+<TypeTable
+  properties={[
+    { name: "slug", type: "string", description: "Unique article identifier (e.g., 'getting-started')", required: true }
+  ]}
+/>
+
+## Response
+
+Returns a complete `Article` object with full content.
+
+<TypeTable
+  title="Article"
+  properties={[
+    { name: "id", type: "string", required: true },
+    { name: "title", type: "string", required: true },
+    { name: "slug", type: "string", required: true },
+    { name: "content", type: "string", description: "Full Markdown content", required: true },
+    { name: "excerpt", type: "string | null" },
+    { name: "coverImage", type: "string | null" },
+    { name: "published", type: "boolean", required: true },
+    { name: "viewCount", type: "number", required: true },
+    { name: "readTimeMinutes", type: "number", required: true },
+    { name: "author", type: "Author", required: true },
+    { name: "createdAt", type: "string", required: true },
+    { name: "publishedAt", type: "string | null" }
+  ]}
+/>
+
+## Example Request
+
+<CurlCommand
+  method="GET"
+  url="https://api.simplist.blog/v1/articles/getting-started"
+  headers={{
+    'X-API-Key': 'YOUR_API_KEY'
+  }}
+/>
+
+## Example Response
+
+<CodeBlock language="json">
+{`
+  {
+    "data": {
+      "id": "art_123",
+      "title": "Getting Started with Simplist",
+      "slug": "getting-started",
+      "content": "# Introduction\n\nThis is the full article content in Markdown...",
+      "excerpt": "Learn how to get started with Simplist",
+      "coverImage": "https://cdn.simplist.blog/covers/getting-started.jpg",
+      "published": true,
+      "viewCount": 1547,
+      "wordCount": 850,
+      "readTimeMinutes": 5,
+      "author": {
+        "name": "John Doe",
+        "image": "https://cdn.simplist.blog/authors/john.jpg"
+      },
+      "createdAt": "2025-01-15T10:30:00Z",
+      "publishedAt": "2025-01-15T14:00:00Z"
+    }
+  }
+`}
+</CodeBlock>
+
+## Error Responses
+
+### 404 Not Found
+
+<CodeBlock language="json">
+{`
+  {
+    "error": "Not Found",
+    "message": "Article with slug 'invalid-slug' not found",
+    "statusCode": 404
+  }
+`}
+</CodeBlock>
+
+## SDK Equivalent
+
+If you're using TypeScript/JavaScript, you can use the SDK instead: [client.articles.get()](/sdk/articles#get)

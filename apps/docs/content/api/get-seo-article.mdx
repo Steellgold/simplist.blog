@@ -1,0 +1,105 @@
+---
+title: /v1/seo/article/:slug
+description: Get article with complete SEO metadata
+category: REST API
+order: 57
+icon: GET
+---
+
+# /v1/seo/article/:slug
+
+Retrieve an article with complete SEO metadata for use in meta tags, Open Graph, and Twitter Cards.
+
+## Endpoint
+
+<ApiPath
+  method="GET"
+  path="/v1/seo/article/:slug"
+  baseUrl="https://api.simplist.blog"
+  testable={true}
+  requiresAuth={true}
+  parameters={[
+    { name: "slug", type: "string", required: true, description: "Article slug" }
+  ]}
+/>
+
+## Response
+
+<TypeTable
+  title="ArticleWithSeo"
+  properties={[
+    { name: "id", type: "string", required: true },
+    { name: "title", type: "string", required: true },
+    { name: "slug", type: "string", required: true },
+    { name: "content", type: "string", required: true },
+    { name: "seo", type: "SeoMetadata", required: true },
+    { name: "project", type: "{ name, slug, description }", required: true }
+  ]}
+/>
+
+### SeoMetadata
+
+<TypeTable
+  title="SeoMetadata"
+  properties={[
+    { name: "metaTitle", type: "string", required: true },
+    { name: "metaDescription", type: "string", required: true },
+    { name: "ogTitle", type: "string" },
+    { name: "ogDescription", type: "string" },
+    { name: "ogImage", type: "string" },
+    { name: "twitterCard", type: "'summary' | 'summary_large_image'", required: true },
+    { name: "canonicalUrl", type: "string" },
+    { name: "keywords", type: "string[]" },
+    { name: "structuredData", type: "object", description: "JSON-LD data" }
+  ]}
+/>
+
+## Example Request
+
+<CurlCommand
+  method="GET"
+  url="https://api.simplist.blog/v1/seo/article/getting-started?baseUrl=https://myblog.com"
+  headers={{
+    'X-API-Key': 'YOUR_API_KEY'
+  }}
+/>
+
+## Example Response
+
+<CodeBlock language="json">
+{`
+  {
+    "data": {
+      "id": "art_123",
+      "title": "Getting Started",
+      "slug": "getting-started",
+      "content": "# Introduction...",
+      "seo": {
+        "metaTitle": "Getting Started with Simplist - Complete Guide",
+        "metaDescription": "Learn how to get started with Simplist in this comprehensive guide",
+        "ogTitle": "Getting Started with Simplist",
+        "ogDescription": "Complete guide to getting started",
+        "ogImage": "https://cdn.simplist.blog/covers/getting-started.jpg",
+        "ogType": "article",
+        "twitterCard": "summary_large_image",
+        "canonicalUrl": "https://myblog.com/blog/getting-started",
+        "keywords": ["simplist", "tutorial", "getting started"],
+        "structuredData": {
+          "@context": "https://schema.org",
+          "@type": "Article",
+          "headline": "Getting Started"
+        }
+      },
+      "project": {
+        "name": "My Blog",
+        "slug": "my-blog",
+        "description": "A blog about web development"
+      }
+    }
+  }
+`}
+</CodeBlock>
+
+## SDK Equivalent
+
+If you're using TypeScript/JavaScript, you can use the SDK instead: [client.seo.getArticle()](/sdk/seo)

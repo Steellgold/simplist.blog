@@ -1,0 +1,117 @@
+---
+title: /v1/seo/structured-data
+description: Get JSON-LD structured data for all articles
+category: REST API
+order: 60
+icon: GET
+---
+
+# /v1/seo/structured-data
+
+Retrieve JSON-LD structured data for all published articles. Useful for implementing schema.org markup for rich search results.
+
+## Endpoint
+
+<ApiPath
+  method="GET"
+  path="/v1/seo/structured-data"
+  baseUrl="https://api.simplist.blog"
+  testable={true}
+  requiresAuth={true}
+  parameters={[
+    { name: "baseUrl", type: "string", required: false, description: "Base URL for article links" }
+  ]}
+/>
+
+## Query Parameters
+
+<TypeTable
+  properties={[
+    { name: "baseUrl", type: "string", description: "Base URL for all links" }
+  ]}
+/>
+
+## Response
+
+<TypeTable
+  title="StructuredDataResponse"
+  properties={[
+    { name: "project", type: "{ name, slug, description }", required: true },
+    { name: "articles", type: "Array<{ slug, structuredData }>", required: true },
+    { name: "generatedAt", type: "string", required: true }
+  ]}
+/>
+
+## Example Request
+
+<CurlCommand
+  method="GET"
+  url="https://api.simplist.blog/v1/seo/structured-data?baseUrl=https://myblog.com"
+  headers={{
+    'X-API-Key': 'YOUR_API_KEY'
+  }}
+/>
+
+## Example Response
+
+<CodeBlock language="json" filename="structured-data.json">
+{`
+  {
+    "data": {
+      "project": {
+        "name": "My Blog",
+        "slug": "my-blog",
+        "description": "A blog about web development"
+      },
+      "articles": [
+        {
+          "slug": "getting-started",
+          "structuredData": {
+            "@context": "https://schema.org",
+            "@type": "Article",
+            "headline": "Getting Started with Simplist",
+            "description": "Learn how to get started",
+            "author": {
+              "@type": "Person",
+              "name": "John Doe"
+            },
+            "datePublished": "2025-01-15T10:30:00Z",
+            "dateModified": "2025-01-20T14:00:00Z",
+            "image": "https://cdn.simplist.blog/covers/getting-started.jpg",
+            "publisher": {
+              "@type": "Organization",
+              "name": "My Blog",
+              "logo": {
+                "@type": "ImageObject",
+                "url": "https://myblog.com/logo.png"
+              }
+            }
+          }
+        }
+      ],
+      "generatedAt": "2025-12-09T12:00:00Z"
+    }
+  }
+`}
+</CodeBlock>
+
+## Usage
+
+Add the structured data to each article page's `<head>`:
+
+<CodeBlock language="html" filename="article-page.html">
+{`
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "Getting Started",
+      ...
+    }
+  </script>
+`}
+</CodeBlock>
+
+## SDK Equivalent
+
+If you're using TypeScript/JavaScript, you can use the SDK instead: [client.seo.getStructuredData()](/sdk/seo)

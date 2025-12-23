@@ -1,0 +1,110 @@
+---
+title: /v1/analytics/stats
+description: Retrieve analytics statistics for your project
+category: REST API
+order: 56
+icon: GET
+---
+
+# /v1/analytics/stats
+
+Retrieve comprehensive analytics statistics for your project, including total views, top articles, and geographic data.
+
+## Endpoint
+
+<ApiPath
+  method="GET"
+  path="/v1/analytics/stats"
+  baseUrl="https://api.simplist.blog"
+  testable={true}
+  requiresAuth={true}
+  parameters={[
+    { name: "days", type: "number", required: false, description: "Number of days to include (default: 30, max: 365)" }
+  ]}
+/>
+
+## Query Parameters
+
+<TypeTable
+  properties={[
+    { name: "days", type: "number", description: "Number of days to include in stats", defaultValue: "30" }
+  ]}
+/>
+
+## Response
+
+<TypeTable
+  title="AnalyticsStats"
+  properties={[
+    { name: "period", type: "{ days: number, startDate: string, endDate: string }", required: true },
+    { name: "summary", type: "{ totalViews, uniqueVisitors, avgViewsPerVisitor }", required: true },
+    { name: "requestSource", type: "{ sdk: number, direct: number }", description: "Percentage breakdown" },
+    { name: "topArticles", type: "Array<{ articleId, title, slug, views }>", required: true },
+    { name: "topCountries", type: "Array<{ country, views }>", required: true }
+  ]}
+/>
+
+## Example Request
+
+<CurlCommand
+  method="GET"
+  url="https://api.simplist.blog/v1/analytics/stats?days=7"
+  headers={{
+    'X-API-Key': 'YOUR_API_KEY'
+  }}
+/>
+
+## Example Response
+
+<CodeBlock language="json" filename="stats.json">
+{`
+  {
+    "data": {
+      "period": {
+        "days": 7,
+        "startDate": "2025-12-02T00:00:00Z",
+        "endDate": "2025-12-09T23:59:59Z"
+      },
+      "summary": {
+        "totalViews": 3542,
+        "uniqueVisitors": 1876,
+        "avgViewsPerVisitor": 1.89
+      },
+      "requestSource": {
+        "sdk": 75,
+        "direct": 25
+      },
+      "topArticles": [
+        {
+          "articleId": "art_123",
+          "title": "Getting Started with Simplist",
+          "slug": "getting-started",
+          "views": 847
+        },
+        {
+          "articleId": "art_456",
+          "title": "Advanced Features",
+          "slug": "advanced-features",
+          "views": 623
+        }
+      ],
+      "topCountries": [
+        { "country": "United States", "views": 1245 },
+        { "country": "France", "views": 687 },
+        { "country": "Germany", "views": 432 }
+      ]
+    }
+  }
+`}
+</CodeBlock>
+
+## Use Cases
+
+- **Dashboard**: Display project statistics
+- **Reports**: Generate analytics reports
+- **Monitoring**: Track trends over time
+- **Content strategy**: Identify popular articles
+
+## SDK Equivalent
+
+If you're using TypeScript/JavaScript, you can use the SDK instead: [client.analytics.getStats()](/sdk/analytics)

@@ -1,0 +1,205 @@
+---
+title: /v1/analytics/track
+description: Track a new page view
+category: REST API
+order: 54
+icon: POST
+---
+
+# /v1/analytics/track
+
+Create a new page view tracking entry for an article.
+
+## Endpoint
+
+<ApiPath
+  method="POST"
+  path="/v1/analytics/track"
+  baseUrl="https://api.simplist.blog"
+  testable={true}
+  requiresAuth={true}
+/>
+
+## Request Body
+
+<TypeTable
+  title="PageViewData"
+  properties={[
+    {
+      name: "slug",
+      type: "string",
+      description: "Article slug (required)",
+      required: true,
+    },
+    {
+      name: "sessionId",
+      type: "string",
+      description: "User session identifier",
+    },
+    { name: "pageUrl", type: "string", description: "Full page URL" },
+    { name: "pageTitle", type: "string", description: "Page title" },
+    { name: "referrer", type: "string", description: "Referrer URL" },
+    { name: "utmSource", type: "string", description: "UTM source parameter" },
+    { name: "utmMedium", type: "string", description: "UTM medium parameter" },
+    {
+      name: "utmCampaign",
+      type: "string",
+      description: "UTM campaign parameter",
+    },
+    { name: "utmTerm", type: "string", description: "UTM term parameter" },
+    {
+      name: "utmContent",
+      type: "string",
+      description: "UTM content parameter",
+    },
+    {
+      name: "screenWidth",
+      type: "number",
+      description: "Screen width in pixels",
+    },
+    {
+      name: "screenHeight",
+      type: "number",
+      description: "Screen height in pixels",
+    },
+    {
+      name: "timeOnPage",
+      type: "number",
+      description: "Time spent in seconds",
+    },
+    {
+      name: "scrollDepth",
+      type: "number",
+      description: "Scroll depth (0-100%)",
+    },
+    {
+      name: "exitPosition",
+      type: "number",
+      description: "Exit position (0-100%)",
+    },
+    { name: "bounced", type: "boolean", description: "Whether user bounced" },
+    { name: "events", type: "PageEvent[]", description: "Custom events array" },
+    {
+      name: "fetchGeo",
+      type: "boolean",
+      description: "Fetch geolocation data",
+    },
+  ]}
+/>
+
+## Response
+
+<TypeTable
+  title="PageViewResponse"
+  properties={[
+    {
+      name: "id",
+      type: "string",
+      description: "Page view tracking ID",
+      required: true,
+    },
+    {
+      name: "success",
+      type: "boolean",
+      description: "Whether tracking succeeded",
+      required: true,
+    },
+  ]}
+/>
+
+## Example Request
+
+<CurlCommand
+  method="POST"
+  url="https://api.simplist.blog/v1/analytics/track"
+  headers={{
+    "X-API-Key": "YOUR_API_KEY",
+    "Content-Type": "application/json",
+  }}
+  body={`{"slug":"getting-started","sessionId":"sess_abc123","pageUrl":"https://myblog.com/blog/getting-started","timeOnPage":0,"fetchGeo":true}`}
+/>
+
+### Minimal Example
+
+<CodeBlock language="json" filename="minimal-example.json">
+  {`
+  {
+    "slug": "getting-started"
+  }
+`}
+</CodeBlock>
+
+### Complete Example
+
+<CodeBlock language="json" filename="complete-example.json">
+  {`
+  {
+    "slug": "getting-started",
+    "sessionId": "sess_abc123",
+    "pageUrl": "https://myblog.com/blog/getting-started",
+    "pageTitle": "Getting Started with Simplist",
+    "referrer": "https://google.com",
+    "utmSource": "google",
+    "utmMedium": "cpc",
+    "utmCampaign": "launch",
+    "screenWidth": 1920,
+    "screenHeight": 1080,
+    "timeOnPage": 0,
+    "scrollDepth": 0,
+    "exitPosition": 0,
+    "bounced": false,
+    "fetchGeo": true,
+    "events": []
+  }
+`}
+</CodeBlock>
+
+## Example Response
+
+<CodeBlock language="json" filename="response.json">
+  {`
+  {
+    "success": true,
+    "pageViewId": "pv_xyz789",
+    "visitorId": "visitor_def456",
+    "sessionId": "session_abc123"
+  }
+`}
+</CodeBlock>
+
+## Workflow
+
+1. **Initialize tracking** when user lands on page (timeOnPage: 0)
+2. **Store the page view ID** returned in response
+3. **Update metrics** periodically using <InlineRouteLink method="PUT" path="/v1/analytics/track/:id" href="/api/put-track" />
+4. **Send final update** when user leaves (with final timeOnPage, scrollDepth, etc.)
+
+## Use Cases
+
+- **Server-side analytics**: Track views without JavaScript
+- **Privacy-friendly tracking**: No cookies, no client-side scripts
+- **Custom events**: Track button clicks, video plays, etc.
+- **UTM tracking**: Campaign attribution
+- **Geolocation**: Optional IP-based location (GDPR compliant)
+
+## SDK Equivalent
+
+If you're using TypeScript/JavaScript, you can use the SDK instead: [client.analytics.track()](/sdk/analytics)
+
+<FootNotes
+  notes={[
+    {
+      label: "Session ID",
+      content: "Generate a unique ID per user session (e.g., UUID)",
+    },
+    {
+      label: "Geolocation",
+      content: "Only fetched if fetchGeo: true (based on IP address)",
+    },
+    { label: "Privacy", content: "All data is anonymized and GDPR compliant" },
+    {
+      label: "Update",
+      content: "Use the returned id to update metrics with PUT request",
+    },
+  ]}
+/>
