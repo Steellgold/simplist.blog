@@ -41,7 +41,9 @@ export const Navbar: FC<NavbarProps> = ({ sticky = true }) => {
               </Link>
 
               <Link
-                href="#docs"
+                href="https://docs.simplist.blog"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors"
               >
                 Documentation

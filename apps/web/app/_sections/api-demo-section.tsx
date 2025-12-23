@@ -39,12 +39,7 @@ export const ApiDemoSection = () => {
                   {` `}
                   <span className="text-yellow-400">SimplistClient</span>
                   {`({
-  apiKey: process.env.SIMPLIST_API_KEY,
-  baseUrl: `}
-                  <span className="text-green-400">
-                    "https://api.simplist.blog"
-                  </span>
-                  {`,
+  apiKey: process.env.SIMPLIST_API_KEY
 })`}
                 </pre>
               </div>
