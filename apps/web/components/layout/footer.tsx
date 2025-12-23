@@ -1,141 +1,52 @@
 "use client";
 
+import {
+  defaultFooterSections,
+  footerBrandName,
+  footerTagline,
+  type FooterSection,
+} from "@simplist/ui/components/footer-config";
+import { MagicSVG } from "@simplist/ui/components/magic-svg";
 import { ThemeSwitcher } from "@simplist/ui/components/shared/switch-theme";
 import { useVariableThemed } from "@simplist/ui/components/variable-themed";
-import { useTheme } from "next-themes";
-import { Syne } from "next/font/google";
 import Link from "next/link";
-import { MagicSVG } from "../magic";
-
-const syne = Syne({
-  variable: "--font-syne",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-});
 
 export const Footer = () => {
-  const { theme } = useTheme();
-
   return (
     <footer className="px-4 pt-12">
       <div className="container mx-auto max-w-4xl">
         <div className="mb-16 grid gap-8 md:grid-cols-4">
           <div>
-            <div className={`mb-2 text-2xl font-extrabold ${syne.className}`}>
-              Simplist
+            <div className="mb-2 text-2xl font-extrabold">
+              {footerBrandName}
             </div>
             <p className="text-muted-foreground mb-2 text-sm">
-              Simple, fast content management API for modern developers.
+              {footerTagline}
             </p>
 
             <ThemeSwitcher className="w-fit" />
           </div>
 
-          <div>
-            <div className="mb-4 font-semibold">Product</div>
-            <ul className="text-muted-foreground space-y-2 text-sm">
-              <li>
-                <Link
-                  href="#features"
-                  className="hover:text-foreground transition-colors"
-                >
-                  Features
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/pricing"
-                  className="hover:text-foreground transition-colors"
-                >
-                  Pricing
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="https://docs.simplist.blog"
-                  className="hover:text-foreground transition-colors"
-                >
-                  Documentation
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <div className="mb-4 font-semibold">Legal</div>
-            <ul className="text-muted-foreground space-y-2 text-sm">
-              <li>
-                <Link
-                  href="/legal/terms"
-                  className="hover:text-foreground transition-colors"
-                >
-                  Terms of Service
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/legal/privacy"
-                  className="hover:text-foreground transition-colors"
-                >
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/legal/cookies"
-                  className="hover:text-foreground transition-colors"
-                >
-                  Cookie Policy
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/legal/gdpr"
-                  className="hover:text-foreground transition-colors"
-                >
-                  GDPR &amp; Data Protection
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/legal/legal-notice"
-                  className="hover:text-foreground transition-colors"
-                >
-                  Legal Notice
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <div className="mb-4 font-semibold">Developers</div>
-            <ul className="text-muted-foreground space-y-2 text-sm">
-              <li>
-                <Link
-                  href="https://docs.simplist.blog"
-                  className="hover:text-foreground transition-colors"
-                >
-                  API Reference
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="https://www.npmjs.com/package/@simplist.blog/sdk"
-                  className="hover:text-foreground transition-colors"
-                >
-                  SDK
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="https://app.simplist.blog"
-                  className="hover:text-foreground transition-colors"
-                >
-                  Dashboard
-                </Link>
-              </li>
-            </ul>
-          </div>
+          {defaultFooterSections.map((section: FooterSection) => (
+            <div key={section.title}>
+              <div className="mb-4 font-semibold">{section.title}</div>
+              <ul className="text-muted-foreground space-y-2 text-sm">
+                {section.links.map((link) => (
+                  <li key={link.href}>
+                    <Link
+                      href={link.href}
+                      className="hover:text-foreground transition-colors"
+                      {...(link.external
+                        ? { target: "_blank", rel: "noopener noreferrer" }
+                        : {})}
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
 
         <div className="flex w-full justify-center">
