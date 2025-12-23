@@ -1,4 +1,4 @@
->
+<img width="1077" height="225" alt="Simplist Banner" src="https://github.com/user-attachments/assets/1f5112dd-6813-4203-acb8-20e026a3d8f1" />
 
 A modern, full-stack blogging platform with API, dashboard, and SDK.
 
