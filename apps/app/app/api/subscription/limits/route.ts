@@ -1,6 +1,5 @@
 import { getCurrentUser } from "@/lib/auth-helper";
-import { hasProjectAccess } from "@/lib/auth/permissions";
-import { prisma } from "@simplist/db";
+import { prisma, subscriptionCache } from "@simplist/db";
 import { NextResponse } from "next/server";
 
 export const GET = async (request: Request) => {
@@ -22,21 +21,34 @@ export const GET = async (request: Request) => {
       );
     }
 
-    // Verify user has access to this project (either as owner or member)
-    const hasAccess = await hasProjectAccess(projectId, currentUser.id);
-    if (!hasAccess) {
-      return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    // Try to get from cache first
+    const cached = await subscriptionCache.get(projectId);
+    if (cached) {
+      return NextResponse.json(cached);
     }
 
-    // Get project subscription data
-    const project = await prisma.project.findUnique({
+    // Get project with article count and verify access in a single query
+    const project = await prisma.project.findFirst({
       where: {
         id: projectId,
+        OR: [
+          { userId: currentUser.id },
+          { members: { some: { userId: currentUser.id } } },
+        ],
       },
       select: {
         id: true,
         subscriptionTier: true,
         subscriptionExpiresAt: true,
+        _count: {
+          select: {
+            articles: {
+              where: {
+                status: { not: "deleted" },
+              },
+            },
+          },
+        },
       },
     });
 
@@ -44,23 +56,23 @@ export const GET = async (request: Request) => {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
-    const articleCount = await prisma.article.count({
-      where: {
-        projectId: project.id,
-        status: { not: "deleted" },
-      },
-    });
+    const articleCount = project._count.articles;
 
     // Determine subscription tier (default to free if null)
     const subscriptionTier = project.subscriptionTier || "STARTER";
 
-    return NextResponse.json({
+    const responseData = {
       subscription: {
         tier: subscriptionTier,
         subscriptionExpiresAt: project.subscriptionExpiresAt,
       },
       articleCount,
-    });
+    };
+
+    // Cache the result
+    await subscriptionCache.set(projectId, responseData);
+
+    return NextResponse.json(responseData);
   } catch (error) {
     console.error("Error fetching subscription limits:", error);
     return NextResponse.json(

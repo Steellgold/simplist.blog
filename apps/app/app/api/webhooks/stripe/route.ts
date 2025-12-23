@@ -1,4 +1,4 @@
-import { prisma } from "@simplist/db";
+import { prisma, subscriptionCache } from "@simplist/db";
 import { getSubscriptionExpiryDate, stripe } from "@/lib/stripe/client";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
@@ -70,6 +70,9 @@ export const POST = async (req: Request) => {
             },
           });
 
+          // Invalidate subscription cache
+          await subscriptionCache.invalidate(projectId);
+
           console.log(
             `Subscription activated for project ${projectId} (user ${userId})`,
           );
@@ -103,6 +106,9 @@ export const POST = async (req: Request) => {
           },
         });
 
+        // Invalidate subscription cache
+        await subscriptionCache.invalidate(projectId);
+
         console.log(
           `Subscription updated for project ${projectId} (user ${userId}): ${subscription.status}`,
         );
@@ -131,6 +137,9 @@ export const POST = async (req: Request) => {
             stripeSubscriptionId: null,
           },
         });
+
+        // Invalidate subscription cache
+        await subscriptionCache.invalidate(projectId);
 
         console.log(
           `Subscription canceled for project ${projectId} (user ${userId})`,
@@ -165,6 +174,9 @@ export const POST = async (req: Request) => {
               subscriptionExpiresAt: getSubscriptionExpiryDate(subscription),
             },
           });
+
+          // Invalidate subscription cache
+          await subscriptionCache.invalidate(projectId);
 
           console.log(
             `Payment succeeded for project ${projectId} (user ${userId})`,

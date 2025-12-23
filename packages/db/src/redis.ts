@@ -23,9 +23,11 @@ export const getRedis = (): Redis => {
   return redis;
 };
 
-// API Key cache utilities
-const CACHE_TTL = 300; // 5 minutes in seconds
+// Cache utilities
+const CACHE_TTL = 5 * 60; // 5 minutes in seconds
 const CACHE_PREFIX = "apikey:";
+const SUBSCRIPTION_CACHE_PREFIX = "subscription:";
+const SUBSCRIPTION_CACHE_TTL = 25 * 60; // 25 minutes in seconds
 
 export const apiKeyCache = {
   async get(key: string) {
@@ -74,6 +76,45 @@ export const apiKeyCache = {
       }
     } catch (error) {
       console.error("Error invalidating cache pattern:", error);
+    }
+  },
+};
+
+export const subscriptionCache = {
+  async get(projectId: string) {
+    try {
+      const redis = getRedis();
+      const cacheKey = `${SUBSCRIPTION_CACHE_PREFIX}${projectId}`;
+      const cached = await redis.get(cacheKey);
+      if (!cached) return null;
+
+      // Ensure cached is a string before parsing
+      const cacheString =
+        typeof cached === "string" ? cached : JSON.stringify(cached);
+      return JSON.parse(cacheString);
+    } catch (error) {
+      console.error("Error getting subscription from cache:", error);
+      return null;
+    }
+  },
+
+  async set(projectId: string, data: any, ttl = SUBSCRIPTION_CACHE_TTL) {
+    try {
+      const redis = getRedis();
+      const cacheKey = `${SUBSCRIPTION_CACHE_PREFIX}${projectId}`;
+      await redis.setex(cacheKey, ttl, JSON.stringify(data));
+    } catch (error) {
+      console.error("Error setting subscription cache:", error);
+    }
+  },
+
+  async invalidate(projectId: string) {
+    try {
+      const redis = getRedis();
+      const cacheKey = `${SUBSCRIPTION_CACHE_PREFIX}${projectId}`;
+      await redis.del(cacheKey);
+    } catch (error) {
+      console.error("Error invalidating subscription cache:", error);
     }
   },
 };

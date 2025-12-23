@@ -2,7 +2,7 @@ export * from "../generated/client";
 export { analyticsCacheUtils } from "./analytics-cache";
 export { articlesCacheUtils } from "./articles-cache";
 export { prisma } from "./client";
-export { apiKeyCache, getRedis } from "./redis";
+export { apiKeyCache, subscriptionCache, getRedis } from "./redis";
 export {
   getWebhookDeliveries,
   sendTestWebhook,
@@ -24,7 +24,7 @@ export type {
 } from "../generated/client";
 
 // Re-export enums
-export { MediaType } from "../generated/client";
+export { ArticleStatus, MediaType } from "../generated/client";
 
 export type { ApiKeyWithProject } from "./types";
 
