@@ -7,14 +7,22 @@ type SectionWrapperProps = {
   className?: string;
 };
 
-export const SectionWrapper: FC<SectionWrapperProps> = ({ children, variant = "default", className = "" }) => {
+export const SectionWrapper: FC<SectionWrapperProps> = ({
+  children,
+  variant = "default",
+  className = "",
+}) => {
   return (
-    <section className={cn(
-      "relative", {
-        "bg-secondary/10 backdrop-blur-xl border-y border-border/50": variant === "accent"
-      },
-      className
-    )}>
+    <section
+      className={cn(
+        "relative",
+        {
+          "bg-secondary/10 border-border/50 border-y backdrop-blur-xl":
+            variant === "accent",
+        },
+        className,
+      )}
+    >
       <div className="relative z-10">{children}</div>
     </section>
   );

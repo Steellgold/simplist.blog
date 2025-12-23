@@ -1,8 +1,19 @@
-import { AstroDark, AstroLight, Nextjs, RemixDark, RemixLight } from "@ridemountainpig/svgl-react";
+import {
+  AstroDark,
+  AstroLight,
+  Nextjs,
+  RemixDark,
+  RemixLight,
+} from "@ridemountainpig/svgl-react";
 import { Avatar, AvatarFallback } from "@simplist/ui/components/avatar";
 import { buttonVariants } from "@simplist/ui/components/button";
 import { IconThemed } from "@simplist/ui/components/icon-themed";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@simplist/ui/components/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@simplist/ui/components/tooltip";
 import { ArrowRight, Play } from "lucide-react";
 import Link from "next/link";
 
@@ -54,9 +65,8 @@ export const HeroSection = () => {
           </div>
 
           <div className="text-muted-foreground flex flex-wrap items-center justify-center gap-x-1.5 gap-y-2 text-xs lg:justify-start">
-            <div className="flex items-center gap-2 dark:bg-white/5 bg-black/5 py-1.5 pl-2.5 pr-2 rounded-full">
+            <div className="flex items-center gap-2 rounded-full bg-black/5 py-1.5 pr-2 pl-2.5 dark:bg-white/5">
               Built for
-
               <TooltipProvider>
                 <div className="*:data-[slot=avatar]:ring-background flex -space-x-2">
                   <Tooltip>
@@ -69,12 +79,15 @@ export const HeroSection = () => {
                     </TooltipTrigger>
                     <TooltipContent>Next.js</TooltipContent>
                   </Tooltip>
-                  
+
                   <Tooltip>
                     <TooltipTrigger>
                       <Avatar className="h-5 w-5">
                         <AvatarFallback>
-                          <IconThemed light={<RemixLight className="size-3.5" />} dark={<RemixDark className="size-3.5" />} />
+                          <IconThemed
+                            light={<RemixLight className="size-3.5" />}
+                            dark={<RemixDark className="size-3.5" />}
+                          />
                         </AvatarFallback>
                       </Avatar>
                     </TooltipTrigger>
@@ -85,7 +98,10 @@ export const HeroSection = () => {
                     <TooltipTrigger>
                       <Avatar className="h-5 w-5">
                         <AvatarFallback>
-                          <IconThemed light={<AstroLight className="size-3.5" />} dark={<AstroDark className="size-3.5" />} />
+                          <IconThemed
+                            light={<AstroLight className="size-3.5" />}
+                            dark={<AstroDark className="size-3.5" />}
+                          />
                         </AvatarFallback>
                       </Avatar>
                     </TooltipTrigger>
@@ -95,7 +111,7 @@ export const HeroSection = () => {
               </TooltipProvider>
             </div>
 
-            <div className="flex items-center gap-1.5 bg-black/5 dark:bg-white/5 py-1.5 pl-1.5 pr-2 rounded-full">
+            <div className="flex items-center gap-1.5 rounded-full bg-black/5 py-1.5 pr-2 pl-1.5 dark:bg-white/5">
               <span className="inline-flex h-5 items-center rounded-full bg-emerald-900/10 px-2 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-300">
                 50ms
               </span>

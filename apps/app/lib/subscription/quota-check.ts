@@ -16,10 +16,12 @@ export type ProjectSubscription = {
     storage: number;
     apiCallsResetAt: Date | null;
   };
-}
+};
 
 /** Get project's subscription tier and limits */
-export const getProjectSubscription = async (projectId: string): Promise<ProjectSubscription> => {
+export const getProjectSubscription = async (
+  projectId: string,
+): Promise<ProjectSubscription> => {
   const project = await prisma.project.findUnique({
     where: { id: projectId },
     select: {
