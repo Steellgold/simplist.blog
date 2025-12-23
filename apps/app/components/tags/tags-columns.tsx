@@ -101,7 +101,9 @@ const TagActionsCell = ({
 
           {tag._count.articles > 0 && (
             <DropdownMenuItem asChild>
-              <Link href={`/${currentProject?.slug}/articles?tag=${tag.name}`}>
+              <Link
+                href={`/${currentProject?.slug}/articles?tags=${encodeURIComponent(tag.name)}`}
+              >
                 <FileText />
                 View articles ({tag._count.articles})
               </Link>

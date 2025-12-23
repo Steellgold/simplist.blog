@@ -93,10 +93,42 @@ export const ArticleContentEditor = ({
   // Handler for inserting image from media picker
   const handleImageSelect = useCallback(
     (url: string) => {
-      insertMarkdown(`![](${url})`, "");
+      const textarea = document.getElementById(
+        textareaId,
+      ) as HTMLTextAreaElement | null;
+
+      if (!textarea) return;
+
+      // Get selected text to use as alt text
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const selectedText = content.substring(start, end);
+
+      // Save scroll positions before insertion
+      const textareaScrollTop = textarea.scrollTop;
+      const textareaScrollLeft = textarea.scrollLeft;
+      const pageScrollY = window.scrollY;
+      const pageScrollX = window.scrollX;
+
+      // Insert image with selected text as alt text
+      const imageMarkdown = `![${selectedText}](${url})`;
+      const newText =
+        content.substring(0, start) + imageMarkdown + content.substring(end);
+      onContentChange(newText);
+
+      // Restore scroll positions and set cursor after the image
+      setTimeout(() => {
+        textarea.focus({ preventScroll: true });
+        const newCursorPos = start + imageMarkdown.length;
+        textarea.setSelectionRange(newCursorPos, newCursorPos);
+        textarea.scrollTop = textareaScrollTop;
+        textarea.scrollLeft = textareaScrollLeft;
+        window.scrollTo(pageScrollX, pageScrollY);
+      }, 0);
+
       toast.success("Image link inserted!");
     },
-    [insertMarkdown],
+    [textareaId, content, onContentChange],
   );
 
   const markdownActions = useMemo(

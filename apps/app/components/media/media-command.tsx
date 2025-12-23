@@ -2,18 +2,26 @@
 
 import { getProjectMedia, type MediaItem } from "@/lib/actions/media";
 import { formatBytes } from "@/lib/utils";
+import { Button } from "@simplist/ui/components/button";
 import {
-  CommandDialog,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@simplist/ui/components/command";
-import { Spinner } from "@simplist/ui/components/spinner";
-import { ImageIcon } from "lucide-react";
-import Image from "next/image";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@simplist/ui/components/dialog";
+import {
+  SelectListContent,
+  SelectListItem,
+  SelectListItemSubtitle,
+  SelectListItemThumbnail,
+  SelectListItemTitle,
+  SelectListSearch,
+} from "@simplist/ui/components/select-list";
+import { Check, ImageIcon } from "lucide-react";
 import { FC, useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 interface MediaCommandProps {
   open: boolean;
@@ -30,21 +38,21 @@ export const MediaCommand: FC<MediaCommandProps> = ({
 }) => {
   const [media, setMedia] = useState<MediaItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [search, setSearch] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedUrl, setSelectedUrl] = useState<string | null>(null);
 
-  // Load media when dialog opens
   const loadMedia = useCallback(
-    async (searchQuery?: string) => {
+    async (search?: string) => {
       setIsLoading(true);
       try {
         const result = await getProjectMedia(projectId, {
           page: 1,
-          limit: 50, // Load more items for command palette
-          search: searchQuery || undefined,
+          limit: 50,
+          search: search || undefined,
         });
         setMedia(result.media);
-      } catch (error) {
-        console.error("Failed to load media:", error);
+      } catch {
+        toast.error("Failed to load media");
       } finally {
         setIsLoading(false);
       }
@@ -52,83 +60,101 @@ export const MediaCommand: FC<MediaCommandProps> = ({
     [projectId],
   );
 
-  // Load media when dialog opens
+  // Load on open
   useEffect(() => {
     if (open) {
-      setSearch("");
+      setSelectedUrl(null);
+      setSearchQuery("");
       loadMedia();
     }
   }, [open, loadMedia]);
 
   // Debounced search
   useEffect(() => {
-    if (!open) return;
+    if (!open || searchQuery === "") return;
 
     const timer = setTimeout(() => {
-      loadMedia(search);
+      loadMedia(searchQuery);
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [search, open, loadMedia]);
+  }, [searchQuery, open, loadMedia]);
 
-  const handleSelect = (url: string) => {
-    onSelect(url);
-    onOpenChange(false);
+  const handleConfirm = () => {
+    if (selectedUrl) {
+      onSelect(selectedUrl);
+      onOpenChange(false);
+    }
+  };
+
+  const handleSelectMedia = (url: string) => {
+    setSelectedUrl((prev) => (prev === url ? null : url));
   };
 
   return (
-    <CommandDialog open={open} onOpenChange={onOpenChange}>
-      <CommandInput
-        placeholder="Search images..."
-        value={search}
-        onValueChange={setSearch}
-      />
-      <CommandList>
-        {isLoading ? (
-          <div className="flex items-center justify-center py-6">
-            <Spinner />
-          </div>
-        ) : (
-          <>
-            <CommandEmpty>
-              <div className="flex flex-col items-center gap-2 py-6">
-                <ImageIcon className="text-muted-foreground h-10 w-10" />
-                <p className="text-muted-foreground text-sm">No images found</p>
-              </div>
-            </CommandEmpty>
-            <CommandGroup heading="Images">
-              {media.map((item) => (
-                <CommandItem
-                  key={item.id}
-                  value={item.filename}
-                  onSelect={() => handleSelect(item.url)}
-                  className="cursor-pointer"
-                >
-                  <div className="flex w-full items-center gap-3">
-                    <div className="bg-muted relative h-10 w-14 flex-shrink-0 overflow-hidden rounded">
-                      <Image
-                        src={item.url}
-                        alt={item.filename}
-                        fill
-                        className="object-cover"
-                        sizes="56px"
-                      />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium">
-                        {item.filename}
-                      </p>
-                      <p className="text-muted-foreground text-xs">
-                        {formatBytes(item.size)}
-                      </p>
-                    </div>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="overflow-hidden sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Insert from library</DialogTitle>
+          <DialogDescription>
+            Select an image from your media library to insert into the content.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="flex min-w-0 flex-col gap-4">
+          <SelectListSearch
+            value={searchQuery}
+            onChange={setSearchQuery}
+            placeholder="Search images..."
+          />
+
+          <SelectListContent
+            isLoading={isLoading}
+            isEmpty={media.length === 0}
+            emptyMessage={
+              searchQuery ? "No images found" : "No images in library"
+            }
+          >
+            {media.map((item) => (
+              <SelectListItem
+                key={item.id}
+                id={item.id}
+                checked={selectedUrl === item.url}
+                onCheckedChange={() => handleSelectMedia(item.url)}
+              >
+                <div className="flex min-w-0 items-center gap-3">
+                  <SelectListItemThumbnail
+                    src={item.url}
+                    alt={item.filename}
+                    variant="landscape"
+                    fallback={
+                      <ImageIcon className="text-muted-foreground h-4 w-4" />
+                    }
+                  />
+                  <div className="min-w-0 flex-1">
+                    <SelectListItemTitle>{item.filename}</SelectListItemTitle>
+                    <SelectListItemSubtitle>
+                      {formatBytes(item.size)}
+                    </SelectListItemSubtitle>
                   </div>
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </>
-        )}
-      </CommandList>
-    </CommandDialog>
+                  {selectedUrl === item.url && (
+                    <Check className="text-primary h-4 w-4 shrink-0" />
+                  )}
+                </div>
+              </SelectListItem>
+            ))}
+          </SelectListContent>
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button onClick={handleConfirm} disabled={!selectedUrl}>
+            Insert image
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };

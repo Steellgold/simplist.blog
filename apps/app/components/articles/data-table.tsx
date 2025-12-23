@@ -20,7 +20,8 @@ import {
 } from "@tanstack/react-table";
 import { SearchX, Trash, TrendingUp, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { parseAsArrayOf, parseAsString, useQueryStates } from "nuqs";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
   ExportDropdown,
@@ -90,6 +91,16 @@ export const ArticlesDataTable = <
 
   const STORAGE_KEY = "articles-table-column-visibility";
 
+  const [urlFilters, setUrlFilters] = useQueryStates(
+    {
+      tags: parseAsArrayOf(parseAsString).withDefault([]),
+      status: parseAsArrayOf(parseAsString).withDefault([]),
+    },
+    {
+      history: "push",
+    },
+  );
+
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
     () => {
       if (typeof window === "undefined") return {};
@@ -105,6 +116,58 @@ export const ArticlesDataTable = <
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [showBulkDeleteDialog, setShowBulkDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const isSyncingRef = useRef(false);
+
+  // Sync URL filters to table filters on mount and URL change
+  useEffect(() => {
+    if (isSyncingRef.current) return;
+
+    isSyncingRef.current = true;
+    const newFilters: ColumnFiltersState = [];
+
+    if (urlFilters.tags.length > 0) {
+      newFilters.push({ id: "tags", value: urlFilters.tags });
+    }
+
+    if (urlFilters.status.length > 0) {
+      newFilters.push({ id: "status", value: urlFilters.status });
+    }
+
+    setColumnFilters(newFilters);
+
+    // Reset flag after state update completes
+    setTimeout(() => {
+      isSyncingRef.current = false;
+    }, 0);
+  }, [urlFilters.tags, urlFilters.status]);
+
+  // Sync table filters to URL when changed manually
+  useEffect(() => {
+    if (isSyncingRef.current) return;
+
+    const tagsFilter = columnFilters.find((f) => f.id === "tags");
+    const statusFilter = columnFilters.find((f) => f.id === "status");
+
+    const newTags = (tagsFilter?.value as string[]) || [];
+    const newStatus = (statusFilter?.value as string[]) || [];
+
+    // Only update URL if values actually changed
+    if (
+      JSON.stringify(newTags) !== JSON.stringify(urlFilters.tags) ||
+      JSON.stringify(newStatus) !== JSON.stringify(urlFilters.status)
+    ) {
+      isSyncingRef.current = true;
+      setUrlFilters({
+        tags: newTags.length > 0 ? newTags : null,
+        status: newStatus.length > 0 ? newStatus : null,
+      });
+
+      // Reset flag after state update completes
+      setTimeout(() => {
+        isSyncingRef.current = false;
+      }, 0);
+    }
+  }, [columnFilters, urlFilters.tags, urlFilters.status, setUrlFilters]);
 
   // Persist column visibility to localStorage
   useEffect(() => {
