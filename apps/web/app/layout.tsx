@@ -37,6 +37,20 @@ export const metadata: Metadata = {
   },
   description:
     "Simplist is a simple, fast content management API. Post your content in the simplest way possible, and just get your content back with an API.",
+  icons: {
+    icon: "/favicon.ico",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
   openGraph: {
     type: "website",
     locale: "en_US",
