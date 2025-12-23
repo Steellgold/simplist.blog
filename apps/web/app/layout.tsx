@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/next";
 import { ObserverProvider } from "@simplist/ui/components/shared/observer-provider";
 import { ThemeProvider } from "@simplist/ui/components/shared/theme-provider";
 import { Toaster } from "@simplist/ui/components/sonner";
@@ -120,6 +121,7 @@ const RootLayout: FC<{ children: React.ReactNode }> = ({ children }) => {
         </ThemeProvider>
 
         <Toaster />
+        <Analytics />
       </body>
     </html>
   );
