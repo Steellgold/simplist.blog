@@ -252,6 +252,13 @@ model ApiKey {
   @@map("api_key")
 }
 
+enum ArticleStatus {
+  draft
+  published
+  deleted
+  scheduled
+}
+
 model Article {
   id                 String           @id @default(cuid())
   //
@@ -261,7 +268,7 @@ model Article {
   excerpt            String?
   coverImage         String?
   published          Boolean          @default(false)
-  status             String           @default("draft") // draft, published, deleted, scheduled
+  status             ArticleStatus    @default(draft)
   viewCount          Int              @default(0)
   // Content statistics
   wordCount          Int              @default(0)
