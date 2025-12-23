@@ -412,7 +412,7 @@ const ContentPage: FC<PageProps> = async ({ params }) => {
 
   const githubPath = contentPath.join("/");
   const githubUrl = `${GITHUB_DOCS_URL}/${githubPath}.mdx`;
-  const markdownUrl = `${process.env.NEXT_PUBLIC_BASE_URL || "https://docs.simplist.blog"}${currentHref}.mdx`;
+  const markdownUrl = `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3002"}${currentHref}.mdx`;
 
   return (
     <TestableApiProvider>
