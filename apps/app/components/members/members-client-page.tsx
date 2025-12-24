@@ -9,7 +9,12 @@ import {
 } from "@/lib/actions/members";
 import { getPlanLimits } from "@/lib/subscription/plans";
 import type { MemberListItem } from "@/lib/types/members";
-import { EllipsisVertical, PersonPlus, Persons, PersonXmark } from "@gravity-ui/icons";
+import {
+  EllipsisVertical,
+  PersonPlus,
+  Persons,
+  PersonXmark,
+} from "@gravity-ui/icons";
 import type { ProjectInvitation, ProjectRole } from "@simplist/db";
 import {
   Avatar,
@@ -188,6 +193,14 @@ export const MembersClientPage = ({
             </Button>
           </EmptyContent>
         </Empty>
+
+        {showInviteDialog && (
+          <InviteMemberDialog
+            projectId={project.id}
+            roles={roles.filter((r) => !r.isOwner)}
+            onClose={() => setShowInviteDialog(false)}
+          />
+        )}
       </div>
     );
   }
