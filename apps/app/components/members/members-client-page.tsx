@@ -9,7 +9,7 @@ import {
 } from "@/lib/actions/members";
 import { getPlanLimits } from "@/lib/subscription/plans";
 import type { MemberListItem } from "@/lib/types/members";
-import { EllipsisVertical, PersonPlus, Persons, PersonXmark, UserMinus } from "@gravity-ui/icons";
+import { EllipsisVertical, PersonPlus, Persons, PersonXmark } from "@gravity-ui/icons";
 import type { ProjectInvitation, ProjectRole } from "@simplist/db";
 import {
   Avatar,
@@ -307,7 +307,7 @@ export const MembersClientPage = ({
                                   })
                                 }
                               >
-                                <UserMinus />
+                                <PersonXmark />
                                 Remove from project
                               </DropdownMenuItem>
                             </DropdownMenuContent>

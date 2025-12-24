@@ -8,7 +8,7 @@ import { deleteProjectRole } from "@/lib/actions/roles";
 import {
   CreditCard,
   EllipsisVertical,
-  FileText, Key,
+  FileText, Gear, Key,
   Lock,
   Magnifier, Pencil,
   Persons,
@@ -29,6 +29,7 @@ import {
   DropdownMenuTrigger,
 } from "@simplist/ui/components/dropdown-menu";
 import { Empty, EmptyHeader, EmptyMedia } from "@simplist/ui/components/empty";
+import { Webhook } from "@simplist/ui/components/icons";
 import { toast } from "@simplist/ui/components/sonner";
 import { useState } from "react";
 import { BarChart } from "recharts";
@@ -260,7 +261,7 @@ export const RolesClientPage = ({
                 <div className="space-y-2 pl-4">
                   <div className="flex items-center gap-3">
                     <div className="bg-muted flex size-6 items-center justify-center rounded-full">
-                      <Settings className="h-3 w-3" />
+                      <Gear className="h-3 w-3" />
                     </div>
                     <span className="text-muted-foreground text-sm">
                       Manage project settings

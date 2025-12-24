@@ -1,17 +1,18 @@
 import { ReactivateActions } from "@/components/account/reactivate-actions";
 import { getCurrentUser } from "@/lib/auth-helper";
 import { formatTimeRemaining } from "@/lib/utils/time";
+import { TriangleExclamationFill } from "@gravity-ui/icons";
 import {
-    Alert,
-    AlertDescription,
-    AlertTitle,
+  Alert,
+  AlertDescription,
+  AlertTitle,
 } from "@simplist/ui/components/alert";
 import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
 } from "@simplist/ui/components/card";
 import { redirect } from "next/navigation";
 

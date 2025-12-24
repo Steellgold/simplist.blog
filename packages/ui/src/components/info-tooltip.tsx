@@ -4,7 +4,7 @@ import {
   TooltipTrigger,
 } from "@simplist/ui/components/tooltip";
 import { Kbd } from "@simplist/ui/components/kbd";
-import { Info } from "lucide-react";
+import { CircleInfo } from "@gravity-ui/icons";
 
 type InfoTooltipProps = {
   content: string;
@@ -31,7 +31,7 @@ export const InfoTooltip = ({
     <Tooltip>
       <TooltipTrigger asChild>
         <button className="bg-muted rounded-full p-0.5">
-          <Info className="size-3.5" />
+          <CircleInfo className="size-3.5" />
         </button>
       </TooltipTrigger>
       <TooltipContent>

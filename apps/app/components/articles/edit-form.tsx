@@ -26,6 +26,7 @@ import { ArticleInfoFields } from "./info-fields";
 import { ArticleTagsCard } from "./tags-card";
 import { VariantCard } from "./variant-card";
 import { ArticleVisibilityCard } from "./visibility-card";
+import { Xmark } from "@gravity-ui/icons";
 
 type EditArticleFormProps = {
   article: ArticleWithVariantsAndTags;

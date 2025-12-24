@@ -1,8 +1,4 @@
-import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  MoreHorizontalIcon,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, Ellipsis } from "@gravity-ui/icons";
 import * as React from "react";
 
 import { Button, buttonVariants } from "@simplist/ui/components/button";
@@ -76,7 +72,7 @@ function PaginationPrevious({
       className={cn("gap-1 px-2.5 sm:pl-2.5", className)}
       {...props}
     >
-      <ChevronLeftIcon />
+      <ChevronLeft />
       <span className="hidden sm:block">Previous</span>
     </PaginationLink>
   );
@@ -94,7 +90,7 @@ function PaginationNext({
       {...props}
     >
       <span className="hidden sm:block">Next</span>
-      <ChevronRightIcon />
+      <ChevronRight />
     </PaginationLink>
   );
 }
@@ -110,7 +106,7 @@ function PaginationEllipsis({
       className={cn("flex size-9 items-center justify-center", className)}
       {...props}
     >
-      <MoreHorizontalIcon className="size-4" />
+      <Ellipsis className="size-4" />
       <span className="sr-only">More pages</span>
     </span>
   );

@@ -6,7 +6,7 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@simplist/ui/components/input-group";
-import { Eye, EyeOff, RefreshCcw } from "lucide-react";
+import { ArrowsRotateLeft, Eye, EyeSlash } from "@gravity-ui/icons";
 import { FC, forwardRef, useState } from "react";
 
 type UsePasswordInputProps = {
@@ -101,7 +101,7 @@ const PasswordActions: FC<PasswordActionsProps> = ({
         type="button"
         disabled={disabled}
       >
-        {showPassword ? <EyeOff /> : <Eye />}
+        {showPassword ? <EyeSlash /> : <Eye />}
       </InputGroupButton>
 
       {showGenerator && (
@@ -111,7 +111,7 @@ const PasswordActions: FC<PasswordActionsProps> = ({
           type="button"
           disabled={disabled}
         >
-          <RefreshCcw />
+          <ArrowsRotateLeft />
         </InputGroupButton>
       )}
     </InputGroupAddon>
