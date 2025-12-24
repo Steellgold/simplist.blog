@@ -2,6 +2,7 @@
 
 import { BillingItem } from "@/components/billing/billing-item";
 import type { BillingEntry } from "@/lib/stripe/types";
+import { Receipt } from "@gravity-ui/icons";
 import { Button } from "@simplist/ui/components/button";
 import { ButtonGroup } from "@simplist/ui/components/button-group";
 import {
@@ -19,7 +20,6 @@ import {
   EmptyTitle,
 } from "@simplist/ui/components/empty";
 import { ItemGroup, ItemSeparator } from "@simplist/ui/components/item";
-import { PiggyBank } from "lucide-react";
 import React, { useState } from "react";
 
 type InvoicesCardProps = {
@@ -37,7 +37,7 @@ export const InvoicesCard = ({ billingEntries }: InvoicesCardProps) => {
           <Empty>
             <EmptyHeader className="max-w-md">
               <EmptyMedia variant="icon">
-                <PiggyBank />
+                <Receipt />
               </EmptyMedia>
 
               <EmptyTitle>No billing history</EmptyTitle>

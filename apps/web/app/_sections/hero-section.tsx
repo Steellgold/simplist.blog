@@ -1,3 +1,4 @@
+import { ArrowRight, Play } from "@gravity-ui/icons";
 import {
   AstroDark,
   AstroLight,
@@ -14,7 +15,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@simplist/ui/components/tooltip";
-import { ArrowRight, Play } from "lucide-react";
 import Link from "next/link";
 
 export const HeroSection = () => {
@@ -32,7 +32,7 @@ export const HeroSection = () => {
               Ship content
               <span className="text-primary"> like you ship code</span>.
             </h1>
-
+            
             <p className="text-muted-foreground mx-auto max-w-xl text-lg md:text-xl lg:mx-0">
               Simplist is a headless CMS designed for developers who live in Git
               and ship with APIs. Create, version and deliver articles with a

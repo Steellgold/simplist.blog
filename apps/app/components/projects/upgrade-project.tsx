@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowRight, Folder } from "@gravity-ui/icons";
 import { Button } from "@simplist/ui/components/button";
 import {
   Empty,
@@ -9,7 +10,6 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@simplist/ui/components/empty";
-import { ArrowRightIcon, FolderIcon } from "lucide-react";
 
 export const UpgradeProject = () => {
   return (
@@ -17,7 +17,7 @@ export const UpgradeProject = () => {
       <Empty>
         <EmptyHeader>
           <EmptyMedia variant="icon">
-            <FolderIcon />
+            <Folder />
           </EmptyMedia>
           <EmptyTitle>Upgrade Your Project</EmptyTitle>
           <EmptyDescription>
@@ -38,7 +38,7 @@ export const UpgradeProject = () => {
           size="sm"
         >
           <a href="#">
-            Learn More <ArrowRightIcon />
+            Learn More <ArrowRight />
           </a>
         </Button>
       </Empty>

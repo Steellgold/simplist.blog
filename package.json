@@ -17,6 +17,7 @@
     "api:start": "pnpm --filter api run start"
   },
   "devDependencies": {
+    "@gravity-ui/icons": "^2.16.0",
     "@simplist/eslint-config": "workspace:*",
     "@simplist/typescript-config": "workspace:*",
     "prettier": "^3.7.4",

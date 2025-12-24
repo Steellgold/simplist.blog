@@ -9,6 +9,7 @@ import { useForm } from "react-hook-form";
 import { authClient } from "@/lib/auth-client";
 import { cn, getRedirectUrl } from "@/lib/utils";
 import { LoginInput, loginSchema } from "@/lib/validations/auth";
+import { CircleExclamation } from "@gravity-ui/icons";
 import {
   Alert,
   AlertDescription,
@@ -28,7 +29,6 @@ import { Input } from "@simplist/ui/components/input";
 import { PasswordInput } from "@simplist/ui/components/password-input";
 import { toast } from "@simplist/ui/components/sonner";
 import { Spinner } from "@simplist/ui/components/spinner";
-import { AlertCircleIcon } from "lucide-react";
 import {
   OAuthProviders,
   OAuthProvidersProvider,
@@ -138,7 +138,7 @@ const LoginFormContent = ({
               <div className="flex flex-col gap-4">
                 {errors.root && (
                   <Alert variant="destructive">
-                    <AlertCircleIcon />
+                    <CircleExclamation />
                     <AlertTitle>Error logging in</AlertTitle>
                     <AlertDescription>{errors.root.message}</AlertDescription>
                   </Alert>

@@ -3,6 +3,7 @@
 import { deletePasskey } from "@/lib/actions/security";
 import { User } from "@/lib/auth-client";
 import { Passkey } from "@better-auth/passkey";
+import { Key, TrashBin } from "@gravity-ui/icons";
 import { Button } from "@simplist/ui/components/button";
 import { Card, CardContent, CardHeader } from "@simplist/ui/components/card";
 import {
@@ -23,7 +24,6 @@ import {
   ItemTitle,
 } from "@simplist/ui/components/item";
 import { Switch } from "@simplist/ui/components/switch";
-import { Key, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -156,7 +156,7 @@ export const SecuritySettingsForm = ({
                         size="icon-sm"
                         onClick={() => handleDeletePasskey(passkey.id)}
                       >
-                        <Trash2 className="size-4" />
+                        <TrashBin className="size-4" />
                       </Button>
                     </ItemActions>
                   </Item>

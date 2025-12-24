@@ -3,6 +3,7 @@
 import { UserIconAvatar } from "@/components/icon-avatar";
 import { authClient, type User } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
+import { ArrowRightFromSquare, CircleExclamationFill, Gear, Tray } from "@gravity-ui/icons";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,7 +20,6 @@ import {
   SidebarMenuItem,
 } from "@simplist/ui/components/sidebar";
 import { Spinner } from "@simplist/ui/components/spinner";
-import { LogOut, MailWarning, Mailbox, Settings } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -39,7 +39,7 @@ export const SidebarFooterItem = ({
 
   const router = useRouter();
 
-  const handleLogout = async () => {
+  const handleArrowRightFromSquare = async () => {
     setIsLoading(true);
     toast.promise(
       authClient.signOut({
@@ -118,7 +118,7 @@ export const SidebarFooterItem = ({
                     },
                   )}
                 >
-                  <MailWarning className="size-3" />
+                  <CircleExclamationFill className="size-3" />
                   {isSent ? "Email sent" : "Email not verified"}
                 </div>
               )}
@@ -151,7 +151,7 @@ export const SidebarFooterItem = ({
                     onClick={handleSendVerificationEmail}
                     disabled={isSent}
                   >
-                    {isSent ? <Mailbox /> : <MailWarning />}
+                    {isSent ? <Tray /> : <CircleExclamationFill />}
                     {isSent ? "Email sent" : "Resend verification email"}
                   </DropdownMenuItem>
 
@@ -160,12 +160,12 @@ export const SidebarFooterItem = ({
               )}
 
               <DropdownMenuItemLink as={Link} href="/account/settings">
-                <Settings />
+                <Gear />
                 Settings
               </DropdownMenuItemLink>
 
-              <DropdownMenuItem onClick={handleLogout} disabled={isLoading}>
-                {isLoading ? <Spinner /> : <LogOut />}
+              <DropdownMenuItem onClick={handleArrowRightFromSquare} disabled={isLoading}>
+                {isLoading ? <Spinner /> : <ArrowRightFromSquare />}
                 Log out
               </DropdownMenuItem>
             </DropdownMenuContent>

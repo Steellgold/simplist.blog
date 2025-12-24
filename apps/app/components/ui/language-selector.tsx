@@ -7,6 +7,7 @@ import {
   getFlagUrl,
   getPopularLanguages,
 } from "@/lib/types/languages";
+import { Check, ChevronsExpandVertical } from "@gravity-ui/icons";
 import { Button } from "@simplist/ui/components/button";
 import {
   Command,
@@ -31,7 +32,6 @@ import {
   PopoverTrigger,
 } from "@simplist/ui/components/popover";
 import { cn } from "@simplist/ui/lib/utils";
-import { Check, ChevronsUpDown } from "lucide-react";
 import { useEffect, useState } from "react";
 
 interface LanguageSelectorProps {
@@ -141,7 +141,7 @@ export function LanguageSelector({
         ) : (
           placeholder
         )}
-        <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
+        <ChevronsExpandVertical className="ml-2 size-4 shrink-0 opacity-50" />
       </Button>
     );
   }
@@ -177,7 +177,7 @@ export function LanguageSelector({
             ) : (
               placeholder
             )}
-            <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
+            <ChevronsExpandVertical className="ml-2 size-4 shrink-0 opacity-50" />
           </Button>
         </DialogTrigger>
         <DialogContent className="max-w-md">
@@ -328,7 +328,7 @@ export function LanguageSelector({
           ) : (
             placeholder
           )}
-          <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
+          <ChevronsExpandVertical className="ml-2 size-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[400px] p-0" align="start">
@@ -515,7 +515,7 @@ export function CompactLanguageSelector({
         ) : (
           <span className="text-muted-foreground text-sm">Select language</span>
         )}
-        <ChevronsUpDown className="ml-1 size-3 shrink-0 opacity-50" />
+        <ChevronsExpandVertical className="ml-1 size-3 shrink-0 opacity-50" />
       </Button>
     );
   }
@@ -552,7 +552,7 @@ export function CompactLanguageSelector({
                 Select language
               </span>
             )}
-            <ChevronsUpDown className="ml-1 size-3 shrink-0 opacity-50" />
+            <ChevronsExpandVertical className="ml-1 size-3 shrink-0 opacity-50" />
           </Button>
         </DialogTrigger>
         <DialogContent className="max-w-md">
@@ -656,7 +656,7 @@ export function CompactLanguageSelector({
               Select language
             </span>
           )}
-          <ChevronsUpDown className="ml-1 size-3 shrink-0 opacity-50" />
+          <ChevronsExpandVertical className="ml-1 size-3 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[350px] p-0" align="start">

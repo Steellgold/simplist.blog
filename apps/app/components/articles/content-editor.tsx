@@ -1,6 +1,23 @@
 "use client";
 
 import { MediaCommand } from "@/components/media/media-command";
+import {
+  Bold,
+  Code, Ellipsis,
+  FolderArrowDown,
+  Heading1,
+  Heading2,
+  Heading3,
+  Heading4,
+  Heading5,
+  Heading6,
+  Italic,
+  Link as LinkIcon,
+  ListOl,
+  ListUl,
+  Picture,
+  QuoteOpen as Quote
+} from "@gravity-ui/icons";
 import { Button } from "@simplist/ui/components/button";
 import { ButtonGroup } from "@simplist/ui/components/button-group";
 import { Card, CardContent } from "@simplist/ui/components/card";
@@ -15,20 +32,6 @@ import {
   InputGroupAddon,
   InputGroupTextarea,
 } from "@simplist/ui/components/input-group";
-import {
-  Bold,
-  Code,
-  FileCode2,
-  Heading2,
-  Image as ImageIcon,
-  ImagePlus,
-  Italic,
-  Link as LinkIcon,
-  List,
-  ListOrdered,
-  MoreHorizontal,
-  Quote,
-} from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -142,9 +145,9 @@ export const ArticleContentEditor = ({
         },
       ],
       lists: [
-        { icon: List, label: "List", action: () => insertMarkdown("- ", "") },
+        { icon: ListUl, label: "List", action: () => insertMarkdown("- ", "") },
         {
-          icon: ListOrdered,
+          icon: ListOl,
           label: "Numbered List",
           action: () => insertMarkdown("1. ", ""),
         },
@@ -153,7 +156,7 @@ export const ArticleContentEditor = ({
         { icon: Quote, label: "Quote", action: () => insertMarkdown("> ", "") },
         { icon: Code, label: "Code", action: () => insertMarkdown("`", "`") },
         {
-          icon: FileCode2,
+          icon: Code,
           label: "Code Block",
           action: () => insertMarkdown("\n```\n", "\n```\n"),
         },
@@ -165,7 +168,7 @@ export const ArticleContentEditor = ({
           action: () => insertMarkdown("[", "](url)"),
         },
         {
-          icon: ImageIcon,
+          icon: Picture,
           label: "Image",
           action: () => insertMarkdown("![alt](", ")"),
         },
@@ -261,7 +264,6 @@ export const ArticleContentEditor = ({
                           </Button>
                         ))}
 
-                        {/* Add "Insert from library" button after media group */}
                         {groupName === "media" && projectId && (
                           <Button
                             type="button"
@@ -270,7 +272,7 @@ export const ArticleContentEditor = ({
                             title="Insert from library"
                             className="h-8 px-2"
                           >
-                            <ImagePlus className="h-4 w-4" />
+                            <FolderArrowDown className="h-4 w-4" />
                           </Button>
                         )}
                       </ButtonGroup>
@@ -299,7 +301,14 @@ export const ArticleContentEditor = ({
                           }
                           className="cursor-pointer"
                         >
-                          <span className="font-semibold">H{level}</span>
+                          {
+                            level === 1 ? <Heading1 className="h-4 w-4" /> :
+                            level === 2 ? <Heading2 className="h-4 w-4" /> :
+                            level === 3 ? <Heading3 className="h-4 w-4" /> :
+                            level === 4 ? <Heading4 className="h-4 w-4" /> :
+                            level === 5 ? <Heading5 className="h-4 w-4" /> :
+                            <Heading6 className="h-4 w-4" />
+                          }
                           <span className="text-muted-foreground ml-2 text-xs">
                             Heading {level}
                           </span>
@@ -327,9 +336,10 @@ export const ArticleContentEditor = ({
                         variant="outline"
                         title="More options"
                       >
-                        <MoreHorizontal />
+                        <Ellipsis />
                       </Button>
                     </DropdownMenuTrigger>
+
                     <DropdownMenuContent align="end" className="w-48">
                       {secondaryActions.map((action, index) => (
                         <DropdownMenuItem
@@ -341,12 +351,13 @@ export const ArticleContentEditor = ({
                           <span>{action.label}</span>
                         </DropdownMenuItem>
                       ))}
+
                       {projectId && (
                         <DropdownMenuItem
                           onClick={() => setIsMediaCommandOpen(true)}
                           className="cursor-pointer"
                         >
-                          <ImagePlus className="mr-2 h-4 w-4" />
+                          <FolderArrowDown className="mr-2 h-4 w-4" />
                           <span>Insert from library</span>
                         </DropdownMenuItem>
                       )}

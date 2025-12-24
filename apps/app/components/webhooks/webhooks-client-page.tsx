@@ -3,6 +3,7 @@
 import { PageLayout } from "@/components/layout/page-layout";
 import { useWebhooksColumns } from "@/components/webhooks/columns";
 import { WebhooksDataTable } from "@/components/webhooks/webhooks-data-table";
+import { Plus } from "@gravity-ui/icons";
 import { buttonVariants } from "@simplist/ui/components/button";
 import {
   Empty,
@@ -12,9 +13,9 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@simplist/ui/components/empty";
+import { Webhook } from "@simplist/ui/components/icons";
 import { Kbd } from "@simplist/ui/components/kbd";
 import { ProgressLink } from "@simplist/ui/components/progress-button";
-import { Plus, Webhook } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FC } from "react";

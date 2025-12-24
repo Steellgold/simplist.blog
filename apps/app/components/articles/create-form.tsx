@@ -7,10 +7,10 @@ import { createTag, updateTagAppearance } from "@/lib/actions/tags";
 import { type ProjectSubscription } from "@/lib/subscription/quota-check";
 import { type ArticleFormStatus } from "@/lib/types/articles";
 import { type LanguageCode, getLanguageName } from "@/lib/types/languages";
+import { Xmark } from "@gravity-ui/icons";
 import { type Tag } from "@simplist/db";
 import { buttonVariants } from "@simplist/ui/components/button";
 import { toast } from "@simplist/ui/components/sonner";
-import { X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FC, useEffect, useState } from "react";
@@ -375,7 +375,7 @@ export const CreateArticleForm: FC<CreateArticleFormProps> = ({
                   size: "sm",
                 })}
               >
-                <X />
+                <Xmark />
                 Cancel
               </Link>
             }

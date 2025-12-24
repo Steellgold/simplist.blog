@@ -9,6 +9,7 @@ import {
   CreateApiKeyInput,
   createApiKeySchema,
 } from "@/lib/validations/api-key";
+import { Check, Copy, Plus } from "@gravity-ui/icons";
 import { Button } from "@simplist/ui/components/button";
 import { Checkbox } from "@simplist/ui/components/checkbox";
 import {
@@ -27,6 +28,7 @@ import {
   FieldSet,
 } from "@simplist/ui/components/field";
 import { Input } from "@simplist/ui/components/input";
+import { Kbd } from "@simplist/ui/components/kbd";
 import {
   Select,
   SelectContent,
@@ -37,8 +39,6 @@ import {
 import { toast } from "@simplist/ui/components/sonner";
 import { Spinner } from "@simplist/ui/components/spinner";
 import { cn } from "@simplist/ui/lib/utils";
-import { Kbd } from "@simplist/ui/components/kbd";
-import { Check, Copy, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface CreateApiKeyFormProps {

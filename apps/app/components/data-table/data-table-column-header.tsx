@@ -1,7 +1,7 @@
 "use client";
 
+import { ArrowDown, ArrowUp, ChevronsExpandVertical, EyeSlash } from "@gravity-ui/icons";
 import { type Column } from "@tanstack/react-table";
-import { ArrowDown, ArrowUp, ChevronsUpDown, EyeOff } from "lucide-react";
 
 import { Button } from "@simplist/ui/components/button";
 import {
@@ -44,7 +44,7 @@ export function DataTableColumnHeader<TData, TValue>({
             ) : column.getIsSorted() === "asc" ? (
               <ArrowUp />
             ) : (
-              <ChevronsUpDown />
+              <ChevronsExpandVertical />
             )}
           </Button>
         </DropdownMenuTrigger>
@@ -61,7 +61,7 @@ export function DataTableColumnHeader<TData, TValue>({
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => column.toggleVisibility(false)}>
-                <EyeOff className="text-muted-foreground/70" />
+                <EyeSlash className="text-muted-foreground/70" />
                 Hide
               </DropdownMenuItem>
             </>

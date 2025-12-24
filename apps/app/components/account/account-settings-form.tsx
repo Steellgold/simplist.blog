@@ -9,6 +9,7 @@ import {
   UpdateUserInformationInput,
   updateUserInformationSchema,
 } from "@/lib/validations/user";
+import { CircleCheckFill } from "@gravity-ui/icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Alert,
@@ -33,7 +34,6 @@ import {
 import { Input } from "@simplist/ui/components/input";
 import { toast } from "@simplist/ui/components/sonner";
 import { Spinner } from "@simplist/ui/components/spinner";
-import { CheckCircle2Icon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -189,7 +189,7 @@ export const AccountSettingsForm = ({
           <CardContent>
             {isEmailSubmitted && (
               <Alert className="mb-4" variant="default">
-                <CheckCircle2Icon />
+                <CircleCheckFill />
                 <AlertTitle>Success! Your email has been updated</AlertTitle>
                 <AlertDescription>
                   You will receive an email with a link to verify your new email

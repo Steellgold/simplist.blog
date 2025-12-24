@@ -1,5 +1,6 @@
 "use client";
 
+import { Check, Copy } from "@gravity-ui/icons";
 import {
   Alert,
   AlertDescription,
@@ -13,7 +14,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@simplist/ui/components/card";
-import { Check, Copy } from "lucide-react";
 import { useState } from "react";
 
 interface AnalyticsIntegrationGuideProps {

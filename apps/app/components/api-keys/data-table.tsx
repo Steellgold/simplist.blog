@@ -1,6 +1,7 @@
 "use client";
 
 import { DataTableViewOptions } from "@/components/data-table/data-table-view-options";
+import { Magnifier } from "@gravity-ui/icons";
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -13,7 +14,6 @@ import {
   useReactTable,
   type VisibilityState,
 } from "@tanstack/react-table";
-import { SearchX } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Button } from "@simplist/ui/components/button";
@@ -147,7 +147,7 @@ export const ApiKeysDataTable = <TData, TValue>({
                   <Empty className="border-none">
                     <EmptyHeader>
                       <EmptyMedia variant="icon">
-                        <SearchX />
+                        <Magnifier />
                       </EmptyMedia>
                       <EmptyTitle>No API keys found</EmptyTitle>
                       <EmptyDescription>

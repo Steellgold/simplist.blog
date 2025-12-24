@@ -1,11 +1,11 @@
 "use client";
 
 import { cancelAccountDeletion } from "@/lib/actions/account-deletion";
+import { ArrowRightFromSquare, CircleCheckFill } from "@gravity-ui/icons";
 import { Button } from "@simplist/ui/components/button";
 import { CardFooter } from "@simplist/ui/components/card";
 import { toast } from "@simplist/ui/components/sonner";
 import { Spinner } from "@simplist/ui/components/spinner";
-import { CheckCircle2, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useQueryState } from "nuqs";
 import { useState } from "react";
@@ -51,7 +51,7 @@ export const ReactivateActions = ({ hasPendingDeletion }: Props) => {
           </>
         ) : (
           <>
-            <CheckCircle2 />
+            <CircleCheckFill />
             Cancel deletion
           </>
         )}
@@ -62,7 +62,7 @@ export const ReactivateActions = ({ hasPendingDeletion }: Props) => {
         className="flex-1"
         onClick={() => router.push("/auth/login?redirect=/reactivate")}
       >
-        <LogOut />
+        <ArrowRightFromSquare />
         Go to login
       </Button>
     </CardFooter>

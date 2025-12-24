@@ -1,5 +1,6 @@
 "use client";
 
+import { CircleCheck, CircleXmark } from "@gravity-ui/icons";
 import { Button } from "@simplist/ui/components/button";
 import {
   Dialog,
@@ -10,7 +11,6 @@ import {
 } from "@simplist/ui/components/dialog";
 import { Dropzone } from "@simplist/ui/components/dropzone";
 import { Progress } from "@simplist/ui/components/progress";
-import { CheckCircle2, X, XCircle } from "lucide-react";
 import { FC, useCallback, useEffect, useState } from "react";
 
 interface MediaUploadDialogProps {
@@ -204,10 +204,10 @@ export const MediaUploadDialog: FC<MediaUploadDialogProps> = ({
                 {/* Status icon */}
                 <div className="shrink-0">
                   {item.status === "success" && (
-                    <CheckCircle2 className="h-5 w-5 text-green-500" />
+                    <CircleCheck className="h-5 w-5 text-green-500" />
                   )}
                   {item.status === "error" && (
-                    <XCircle className="text-destructive h-5 w-5" />
+                    <CircleXmark className="text-destructive h-5 w-5" />
                   )}
                   {(item.status === "pending" ||
                     item.status === "uploading") && (
@@ -235,7 +235,7 @@ export const MediaUploadDialog: FC<MediaUploadDialogProps> = ({
                     size="icon-sm"
                     onClick={() => removeFile(index)}
                   >
-                    <X className="h-4 w-4" />
+                    <CircleXmark className="h-4 w-4" />
                   </Button>
                 )}
               </div>

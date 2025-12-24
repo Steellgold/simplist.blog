@@ -6,6 +6,7 @@ import {
   getLanguage,
   LanguageCode,
 } from "@/lib/types/languages";
+import { Clock, Xmark } from "@gravity-ui/icons";
 import { Button } from "@simplist/ui/components/button";
 import { Calendar } from "@simplist/ui/components/calendar";
 import {
@@ -24,7 +25,6 @@ import {
 } from "@simplist/ui/components/item";
 import { ScrollArea } from "@simplist/ui/components/scroll-area";
 import { format } from "date-fns";
-import { Clock, X } from "lucide-react";
 import { useState } from "react";
 
 type ArticleSchedulePickerProps = {
@@ -125,7 +125,7 @@ export const ArticleSchedulePicker = ({
               disabled={disabled}
               className="absolute top-2 right-2 border"
             >
-              <X />
+              <Xmark />
               Clear
             </Button>
           </ItemContent>

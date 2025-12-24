@@ -1,5 +1,6 @@
 "use client";
 
+import { FileArrowDown } from "@gravity-ui/icons";
 import { Button } from "@simplist/ui/components/button";
 import {
   DropdownMenu,
@@ -7,9 +8,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@simplist/ui/components/dropdown-menu";
-import { Upload, FileCode, FileJson, FileSpreadsheet } from "lucide-react";
-import { useExport } from "./use-export";
+import { Kbd } from "@simplist/ui/components/kbd";
 import type { ExportDropdownProps } from "./types";
+import { useExport } from "./use-export";
 
 export const ExportDropdown = ({
   selectedCount = 0,
@@ -25,22 +26,22 @@ export const ExportDropdown = ({
       <DropdownMenuTrigger asChild>
         {children || (
           <Button variant="outline">
-            <Upload />
+            <FileArrowDown />
             Export{countLabel}
           </Button>
         )}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={() => run("csv")}>
-          <FileSpreadsheet />
+          <Kbd>CSV</Kbd>
           Export as CSV
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => run("json")}>
-          <FileJson />
+          <Kbd>JSON</Kbd>
           Export as JSON
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => run("xml")}>
-          <FileCode />
+          <Kbd>XML</Kbd>
           Export as XML
         </DropdownMenuItem>
       </DropdownMenuContent>

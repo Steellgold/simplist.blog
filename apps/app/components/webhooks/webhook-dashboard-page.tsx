@@ -9,6 +9,15 @@ import {
   testWebhook,
   updateWebhook,
 } from "@/lib/actions/webhooks";
+import {
+  ArrowUpRightFromSquare,
+  ChevronLeft, CircleCheck, CircleCheckFill, CircleXmarkFill, Copy,
+  EllipsisVertical,
+  Pencil,
+  Play,
+  TrashBin,
+  TriangleExclamationFill
+} from "@gravity-ui/icons";
 import { Badge } from "@simplist/ui/components/badge";
 import { Button, buttonVariants } from "@simplist/ui/components/button";
 import { ButtonGroup } from "@simplist/ui/components/button-group";
@@ -28,21 +37,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@simplist/ui/components/dropdown-menu";
+import { Webhook, WebhookOff } from "@simplist/ui/components/icons";
 import { toast } from "@simplist/ui/components/sonner";
-import {
-  AlertTriangle,
-  CheckCircle,
-  ChevronLeft,
-  Copy,
-  ExternalLink,
-  MoreVertical,
-  Pencil,
-  Play,
-  Trash2,
-  Webhook,
-  WebhookOff,
-  XCircle,
-} from "lucide-react";
 import Link from "next/link";
 import { FC, useState, useTransition } from "react";
 import type { WebhookFormData } from "./types";
@@ -219,7 +215,7 @@ export const WebhookDashboardPage: FC<Props> = ({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm" disabled={isPending}>
-                  <MoreVertical />
+                  <EllipsisVertical />
                 </Button>
               </DropdownMenuTrigger>
 
@@ -256,7 +252,7 @@ export const WebhookDashboardPage: FC<Props> = ({
                 <DropdownMenuSeparator />
 
                 <DropdownMenuItem onClick={() => setDeleteDialog(true)}>
-                  <Trash2 />
+                  <TrashBin />
                   Delete
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -270,7 +266,7 @@ export const WebhookDashboardPage: FC<Props> = ({
             title="Status"
             value={webhook.status === "active" ? "Active" : "Disabled"}
             description={`Webhook is ${webhook.status === "active" ? "receiving" : "not receiving"} events`}
-            icon={webhook.status === "active" ? CheckCircle : XCircle}
+            icon={webhook.status === "active" ? CircleCheckFill : CircleXmarkFill}
             variant={webhook.status === "active" ? "default" : "destructive"}
           />
 
@@ -285,7 +281,7 @@ export const WebhookDashboardPage: FC<Props> = ({
             title="Failure Count"
             value={webhook.failureCount}
             description="Recent consecutive failures"
-            icon={AlertTriangle}
+            icon={TriangleExclamationFill}
             variant={webhook.failureCount > 0 ? "destructive" : "default"}
           />
 
@@ -297,7 +293,7 @@ export const WebhookDashboardPage: FC<Props> = ({
                 : "Never"
             }
             description="Most recent delivery attempt"
-            icon={CheckCircle}
+            icon={CircleCheck}
           />
         </div>
 
@@ -322,7 +318,7 @@ export const WebhookDashboardPage: FC<Props> = ({
                       rel="noopener noreferrer"
                       className={buttonVariants({ variant: "ghost" })}
                     >
-                      <ExternalLink />
+                      <ArrowUpRightFromSquare />
                     </Link>
                   </div>
                 </div>

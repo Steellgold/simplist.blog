@@ -3,6 +3,7 @@
 import { DataTableFacetedFilter } from "@/components/data-table/data-table-faceted-filter";
 import { DataTableViewOptions } from "@/components/data-table/data-table-view-options";
 import { useProjectContext } from "@/components/projects/context-provider";
+import { ChartAreaStackedNormalized, Magnifier, TrashBin } from "@gravity-ui/icons";
 import {
   flexRender,
   getCoreRowModel,
@@ -18,7 +19,6 @@ import {
   type SortingState,
   type VisibilityState,
 } from "@tanstack/react-table";
-import { SearchX, Trash, TrendingUp, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { parseAsArrayOf, parseAsString, useQueryStates } from "nuqs";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -28,6 +28,7 @@ import {
   type ExportColumn,
 } from "@/components/export-dropdown";
 import { bulkDeleteArticles } from "@/lib/actions/articles";
+import { Xmark } from "@gravity-ui/icons";
 import { Button, buttonVariants } from "@simplist/ui/components/button";
 import { ButtonGroup } from "@simplist/ui/components/button-group";
 import { ConfirmDialog } from "@simplist/ui/components/confirm-dialog";
@@ -399,7 +400,7 @@ export const ArticlesDataTable = <
           {isFiltered && (
             <Button variant="ghost" onClick={() => table.resetColumnFilters()}>
               Reset
-              <X />
+              <Xmark />
             </Button>
           )}
         </div>
@@ -414,7 +415,7 @@ export const ArticlesDataTable = <
                   size: "sm",
                 })}
               >
-                <TrendingUp />
+                <ChartAreaStackedNormalized />
                 Analytics
               </Link>
 
@@ -422,7 +423,7 @@ export const ArticlesDataTable = <
                 variant="outline-destructive"
                 onClick={() => setShowBulkDeleteDialog(true)}
               >
-                <Trash />
+                <TrashBin />
                 Delete
               </Button>
             </ButtonGroup>
@@ -485,7 +486,7 @@ export const ArticlesDataTable = <
                   <Empty className="border-none">
                     <EmptyHeader>
                       <EmptyMedia variant="icon">
-                        <SearchX />
+                        <Magnifier />
                       </EmptyMedia>
                       <EmptyTitle>No articles found</EmptyTitle>
                       <EmptyDescription>

@@ -3,7 +3,8 @@
 import { useCallback, type ReactNode } from "react";
 import { useDropzone, type Accept, type DropzoneOptions } from "react-dropzone";
 import { cva, type VariantProps } from "class-variance-authority";
-import { Upload, FileUp, X, Loader2 } from "lucide-react";
+import { FileArrowUp, Xmark } from "@gravity-ui/icons";
+import { Spinner } from "@simplist/ui/components/spinner";
 
 import { cn } from "@simplist/ui/lib/utils";
 import { Button } from "@simplist/ui/components/button";
@@ -144,7 +145,7 @@ export function Dropzone({
   };
 
   const IconComponent = icon ?? (
-    <Upload className={cn(size === "sm" ? "size-4" : "size-8")} />
+    <FileArrowUp className={cn(size === "sm" ? "size-4" : "size-8")} />
   );
 
   // Small variant with file selected
@@ -156,7 +157,7 @@ export function Dropzone({
       >
         <input {...getInputProps()} />
         <div className="flex items-center gap-2">
-          <FileUp className="text-foreground size-4" />
+          <FileArrowUp className="text-foreground size-4" />
           <span className="text-sm font-medium">{file.name}</span>
           {onClear && (
             <Button
@@ -168,7 +169,7 @@ export function Dropzone({
                 onClear();
               }}
             >
-              <X className="size-3" />
+              <Xmark className="size-3" />
             </Button>
           )}
         </div>
@@ -205,7 +206,7 @@ export function Dropzone({
 
       {isLoading ? (
         <div className="flex flex-col items-center gap-2">
-          <Loader2 className="text-muted-foreground size-8 animate-spin" />
+          <Spinner className="text-muted-foreground size-8" />
           <p className="text-muted-foreground text-sm">Uploading...</p>
         </div>
       ) : isDragActive ? (

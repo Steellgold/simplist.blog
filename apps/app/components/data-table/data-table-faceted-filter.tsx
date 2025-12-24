@@ -1,7 +1,7 @@
 "use client";
 
+import { Check, CirclePlus } from "@gravity-ui/icons";
 import { type Column } from "@tanstack/react-table";
-import { Check, PlusCircle } from "lucide-react";
 import * as React from "react";
 
 import { Badge } from "@simplist/ui/components/badge";
@@ -47,7 +47,7 @@ export function DataTableFacetedFilter<TData, TValue>({
     <Popover>
       <PopoverTrigger asChild>
         <Button variant="outline" className="h-8 border-dashed">
-          <PlusCircle />
+          <CirclePlus />
           {title}
           {selectedValues?.size > 0 && (
             <>

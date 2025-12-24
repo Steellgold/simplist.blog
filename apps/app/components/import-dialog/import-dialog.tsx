@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { FileArrowUp } from "@gravity-ui/icons";
 import { Button } from "@simplist/ui/components/button";
 import {
   Dialog,
@@ -11,12 +11,12 @@ import {
   DialogTrigger,
 } from "@simplist/ui/components/dialog";
 import { toast } from "@simplist/ui/components/sonner";
-import { Download } from "lucide-react";
-import { useImportDialog } from "./use-import-dialog";
-import { ImportDropzone } from "./import-dropzone";
-import { ImportDialogVariants } from "./import-dialog-variants";
+import { useMemo, useState } from "react";
 import { ImportDialogFooter } from "./import-dialog-footer";
+import { ImportDialogVariants } from "./import-dialog-variants";
+import { ImportDropzone } from "./import-dropzone";
 import type { ImportDialogProps } from "./types";
+import { useImportDialog } from "./use-import-dialog";
 
 interface Variant {
   lang: string;
@@ -110,7 +110,7 @@ export const ImportDialog = <T extends Record<string, unknown>>({
       <DialogTrigger asChild disabled={disabled}>
         {children || (
           <Button variant="outline" disabled={disabled}>
-            <Download />
+            <FileArrowUp />
             Import
           </Button>
         )}

@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { TriangleExclamationFill } from "@gravity-ui/icons";
 import {
   Alert,
   AlertDescription,
@@ -11,7 +12,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@simplist/ui/components/select";
-import { AlertTriangle } from "lucide-react";
 
 interface Variant {
   lang: string;
@@ -45,7 +45,7 @@ export const ImportDialogVariants = ({
         variant="destructive"
         className="rounded-t-xl rounded-b-none border-b-0"
       >
-        <AlertTriangle className="h-4 w-4" />
+        <TriangleExclamationFill className="h-4 w-4" />
         <AlertTitle>Multiple variants detected</AlertTitle>
         <AlertDescription>
           {itemsWithMultipleVariants.length} article(s) have more than{" "}

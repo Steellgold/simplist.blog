@@ -6,6 +6,15 @@ import {
   testWebhook,
   updateWebhook,
 } from "@/lib/actions/webhooks";
+import {
+  ArrowUpRightFromSquare, CircleCheckFill, CircleXmarkFill, ClockArrowRotateLeft,
+  Copy,
+  EllipsisVertical,
+  Pencil,
+  Play,
+  TrashBin,
+  TriangleExclamationFill
+} from "@gravity-ui/icons";
 import { Badge } from "@simplist/ui/components/badge";
 import { Button } from "@simplist/ui/components/button";
 import { ConfirmDialog } from "@simplist/ui/components/confirm-dialog";
@@ -18,23 +27,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@simplist/ui/components/dropdown-menu";
+import { Webhook, WebhookOff } from "@simplist/ui/components/icons";
 import { toast } from "@simplist/ui/components/sonner";
 import { Spinner } from "@simplist/ui/components/spinner";
 import { ColumnDef } from "@tanstack/react-table";
-import {
-  AlertTriangle,
-  CheckCircle,
-  Copy,
-  ExternalLink,
-  History,
-  MoreVertical,
-  Pencil,
-  Play,
-  Trash2,
-  Webhook,
-  WebhookOff,
-  XCircle,
-} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
@@ -124,7 +120,7 @@ const WebhookActionsCell = ({ webhook }: { webhook: WebhookWithProject }) => {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon-sm" disabled={isPending}>
             <span className="sr-only">Open menu</span>
-            <MoreVertical />
+            <EllipsisVertical />
           </Button>
         </DropdownMenuTrigger>
 
@@ -142,7 +138,7 @@ const WebhookActionsCell = ({ webhook }: { webhook: WebhookWithProject }) => {
             as={Link}
             href={`/${webhook.projectSlug}/webhooks/${webhook.id}`}
           >
-            <History />
+            <ClockArrowRotateLeft />
             View dashboard
           </DropdownMenuItemLink>
 
@@ -164,7 +160,7 @@ const WebhookActionsCell = ({ webhook }: { webhook: WebhookWithProject }) => {
             href={webhook.url}
             rel="noopener noreferrer"
           >
-            <ExternalLink />
+            <ArrowUpRightFromSquare />
             Open URL
           </DropdownMenuItemLink>
 
@@ -190,7 +186,7 @@ const WebhookActionsCell = ({ webhook }: { webhook: WebhookWithProject }) => {
             onClick={() => setDeleteDialog(true)}
             className="text-destructive focus:text-destructive"
           >
-            <Trash2 className="text-destructive" />
+            <TrashBin className="text-destructive" />
             Delete webhook
           </DropdownMenuItem>
         </DropdownMenuContent>
@@ -231,12 +227,12 @@ export const useWebhooksColumns = (
             >
               {isActive ? (
                 <>
-                  <CheckCircle />
+                  <CircleCheckFill />
                   Active
                 </>
               ) : (
                 <>
-                  <XCircle />
+                  <CircleXmarkFill />
                   Disabled
                 </>
               )}
@@ -244,7 +240,7 @@ export const useWebhooksColumns = (
 
             {webhook.failureCount > 0 && (
               <Badge variant="destructive" className="shrink-0">
-                <AlertTriangle />
+                <TriangleExclamationFill />
                 {webhook.failureCount}
               </Badge>
             )}

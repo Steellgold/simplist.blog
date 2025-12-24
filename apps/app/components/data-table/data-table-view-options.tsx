@@ -1,7 +1,7 @@
 "use client";
 
+import { Gear } from "@gravity-ui/icons";
 import { type Table } from "@tanstack/react-table";
-import { Settings2 } from "lucide-react";
 
 import { Button } from "@simplist/ui/components/button";
 import {
@@ -24,7 +24,7 @@ export function DataTableViewOptions<TData>({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" className="h-8">
-          <Settings2 />
+          <Gear />
           View
         </Button>
       </DropdownMenuTrigger>

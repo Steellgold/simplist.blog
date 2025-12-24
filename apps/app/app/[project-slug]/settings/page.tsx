@@ -11,6 +11,7 @@ import {
   UpdateProjectSettingsInput,
   updateProjectSettingsSchema,
 } from "@/lib/validations/project";
+import { Camera, Palette, Plus, TrashBin, Xmark } from "@gravity-ui/icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   AlertDialog,
@@ -51,7 +52,6 @@ import { toast } from "@simplist/ui/components/sonner";
 import { Spinner } from "@simplist/ui/components/spinner";
 import { c } from "@simplist/ui/lib/color";
 import { i } from "@simplist/ui/lib/icons.enum";
-import { Camera, Palette, Plus, Trash2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
@@ -584,7 +584,7 @@ const SettingsPage = () => {
                         onClick={() => remove(index)}
                         disabled={isDisabled}
                       >
-                        <X />
+                        <Xmark />
                       </InputGroupButton>
                     </InputGroupAddon>
                   </InputGroup>
@@ -758,7 +758,7 @@ const SettingsPage = () => {
                   variant="destructive"
                   disabled={deleteDisabled}
                 >
-                  {isDeleting ? <Spinner /> : <Trash2 />}
+                  {isDeleting ? <Spinner /> : <TrashBin />}
                   {isDeleting ? "Deleting..." : "Delete project"}
                 </Button>
               </AlertDialogTrigger>

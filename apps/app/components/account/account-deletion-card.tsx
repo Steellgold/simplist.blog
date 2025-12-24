@@ -10,6 +10,7 @@ import {
   RequestAccountDeletionInput,
   requestAccountDeletionSchema,
 } from "@/lib/validations/user";
+import { Shield, TrashBin, TriangleExclamationFill } from "@gravity-ui/icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Alert, AlertDescription } from "@simplist/ui/components/alert";
 import { Badge } from "@simplist/ui/components/badge";
@@ -32,7 +33,6 @@ import { Input } from "@simplist/ui/components/input";
 import { Kbd } from "@simplist/ui/components/kbd";
 import { toast } from "@simplist/ui/components/sonner";
 import { Spinner } from "@simplist/ui/components/spinner";
-import { AlertTriangle, Shield, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -117,7 +117,7 @@ export const AccountDeletionCard = ({ user, ownedProjects }: Props) => {
       <Card variant="form-danger">
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-base">
-            <Trash2 className="h-4 w-4" />
+            <TrashBin className="h-4 w-4" />
             Deletion scheduled
           </CardTitle>
         </CardHeader>
@@ -158,7 +158,7 @@ export const AccountDeletionCard = ({ user, ownedProjects }: Props) => {
 
       {hasOwnershipBlocker && (
         <Alert variant="destructive">
-          <AlertTriangle className="h-4 w-4" />
+          <TriangleExclamationFill className="h-4 w-4" />
           <AlertDescription>
             You must transfer ownership of the following project
             {ownedProjects.length > 1 ? "s" : ""} before deleting your account.

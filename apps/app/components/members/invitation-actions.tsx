@@ -4,13 +4,13 @@ import {
   acceptProjectInvitation,
   declineProjectInvitation,
 } from "@/lib/actions/members";
+import { CircleCheck, CircleXmark } from "@gravity-ui/icons";
 import { Button } from "@simplist/ui/components/button";
-import { CheckCircle, XCircle } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { CardFooter } from "@simplist/ui/components/card";
 import { Spinner } from "@simplist/ui/components/spinner";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { CardFooter } from "@simplist/ui/components/card";
 
 type InvitationActionsProps = {
   token: string;
@@ -65,7 +65,7 @@ export const InvitationActions = ({
           </>
         ) : (
           <>
-            <CheckCircle />
+            <CircleCheck />
             Accept Invitation
           </>
         )}
@@ -83,7 +83,7 @@ export const InvitationActions = ({
           </>
         ) : (
           <>
-            <XCircle />
+            <CircleXmark />
             Decline
           </>
         )}

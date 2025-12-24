@@ -1,6 +1,7 @@
 "use client";
 
 import { inviteProjectMember } from "@/lib/actions/members";
+import { Plus, Xmark } from "@gravity-ui/icons";
 import { Button } from "@simplist/ui/components/button";
 import {
   Dialog,
@@ -26,7 +27,6 @@ import {
 } from "@simplist/ui/components/select";
 import { toast } from "@simplist/ui/components/sonner";
 import { Spinner } from "@simplist/ui/components/spinner";
-import { Plus, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -193,7 +193,7 @@ export const InviteMemberDialog = ({
                           onClick={() => removeInvitation(index)}
                           disabled={isSubmitting}
                         >
-                          <X />
+                          <Xmark />
                         </InputGroupButton>
                       </InputGroupAddon>
                     )}

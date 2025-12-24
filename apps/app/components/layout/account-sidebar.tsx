@@ -1,6 +1,7 @@
 "use client";
 
 import type { User } from "@/lib/auth-client";
+import { ChevronLeft, Person, Shield, TrashBin } from "@gravity-ui/icons";
 import {
   Sidebar,
   SidebarContent,
@@ -13,7 +14,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@simplist/ui/components/sidebar";
-import { ChevronLeft, Shield, Trash2, User as UserIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FC } from "react";
@@ -26,7 +26,7 @@ interface AccountSidebarProps {
 const accountNavigationItems = [
   {
     title: "Information",
-    icon: UserIcon,
+    icon: Person,
     href: "/account/settings",
   },
   {
@@ -36,7 +36,7 @@ const accountNavigationItems = [
   },
   {
     title: "Account",
-    icon: Trash2,
+    icon: TrashBin,
     href: "/account/settings/account",
   },
 ];

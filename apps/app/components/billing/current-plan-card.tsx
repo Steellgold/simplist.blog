@@ -3,6 +3,7 @@
 import { UpgradeModal } from "@/components/billing/upgrade-modal";
 import { createBillingPortalSession } from "@/lib/stripe/actions";
 import { getPlan } from "@/lib/subscription/plans";
+import { Check, NutHex } from "@gravity-ui/icons";
 import { SubscriptionTier } from "@simplist/db/types";
 import { Badge } from "@simplist/ui/components/badge";
 import { Button } from "@simplist/ui/components/button";
@@ -18,7 +19,6 @@ import {
   FieldTitle,
 } from "@simplist/ui/components/field";
 import { Spinner } from "@simplist/ui/components/spinner";
-import { Check, CircleGauge } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -77,7 +77,7 @@ export const CurrentPlanCard = ({
                 <UpgradeModal projectId={projectId} projectName={projectName} />
               ) : (
                 <Button onClick={handleManageBilling} disabled={isLoading}>
-                  {isLoading ? <Spinner /> : <CircleGauge />}
+                  {isLoading ? <Spinner /> : <NutHex />}
                   Manage billing
                 </Button>
               )}

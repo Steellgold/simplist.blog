@@ -2,6 +2,7 @@
 
 import { authClient } from "@/lib/auth-client";
 import { getRedirectUrl } from "@/lib/utils";
+import { CircleExclamation } from "@gravity-ui/icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Alert,
@@ -33,7 +34,6 @@ import {
   InputOTPSlot,
 } from "@simplist/ui/components/input-otp";
 import { Spinner } from "@simplist/ui/components/spinner";
-import { AlertCircleIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -122,7 +122,7 @@ export const Verify2FAForm = () => {
           <FieldGroup>
             {error && (
               <Alert variant="destructive">
-                <AlertCircleIcon />
+                <CircleExclamation />
                 <AlertTitle>Verification failed</AlertTitle>
                 <AlertDescription>{error}</AlertDescription>
               </Alert>

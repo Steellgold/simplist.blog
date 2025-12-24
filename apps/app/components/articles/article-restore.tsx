@@ -1,6 +1,7 @@
 "use client";
 
 import { restoreArticle } from "@/lib/actions/articles";
+import { ArrowLeft, ArrowsRotateLeft, FileXmark } from "@gravity-ui/icons";
 import { Button, buttonVariants } from "@simplist/ui/components/button";
 import {
   Empty,
@@ -11,7 +12,6 @@ import {
   EmptyTitle,
 } from "@simplist/ui/components/empty";
 import { Spinner } from "@simplist/ui/components/spinner";
-import { ArrowLeftIcon, File, RotateCcwIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -56,7 +56,7 @@ export const ArticleRestore = ({ slug, articleId }: Props) => {
       <Empty>
         <EmptyHeader>
           <EmptyMedia variant="icon">
-            <File />
+            <FileXmark />
           </EmptyMedia>
           <EmptyTitle>Article is in trash</EmptyTitle>
           <EmptyDescription>
@@ -74,7 +74,7 @@ export const ArticleRestore = ({ slug, articleId }: Props) => {
               </>
             ) : (
               <>
-                <RotateCcwIcon />
+                <ArrowsRotateLeft />
                 Restore Article
               </>
             )}
@@ -85,7 +85,7 @@ export const ArticleRestore = ({ slug, articleId }: Props) => {
           className={buttonVariants({ variant: "link" })}
           href={`/${slug}/articles`}
         >
-          <ArrowLeftIcon />
+          <ArrowLeft />
           Back to Articles
         </Link>
       </Empty>

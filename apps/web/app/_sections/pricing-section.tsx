@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowRight, SealCheck, Xmark } from "@gravity-ui/icons";
 import NumberFlow from "@number-flow/react";
 import {
   getAllPlans,
@@ -18,7 +19,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@simplist/ui/components/card";
-import { ArrowRight, BadgeCheck, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -111,12 +111,12 @@ export const PricingSection = () => {
                 <div className="flex items-center justify-center gap-1 py-1 text-center">
                   {starterLimits.features.analytics ? (
                     <>
-                      <BadgeCheck className="text-primary h-3.5 w-3.5" />
+                      <SealCheck className="text-primary h-3.5 w-3.5" />
                       <span>Included</span>
                     </>
                   ) : (
                     <>
-                      <X className="text-muted-foreground/50 h-3.5 w-3.5" />
+                      <Xmark className="text-muted-foreground/50 h-3.5 w-3.5" />
                       <span className="text-muted-foreground/60">
                         Not included
                       </span>
@@ -126,12 +126,12 @@ export const PricingSection = () => {
                 <div className="flex items-center justify-center gap-1 py-1 text-center">
                   {proLimits.features.analytics ? (
                     <>
-                      <BadgeCheck className="text-primary h-3.5 w-3.5" />
+                      <SealCheck className="text-primary h-3.5 w-3.5" />
                       <span>Included</span>
                     </>
                   ) : (
                     <>
-                      <X className="text-muted-foreground/50 h-3.5 w-3.5" />
+                      <Xmark className="text-muted-foreground/50 h-3.5 w-3.5" />
                       <span className="text-muted-foreground/60">
                         Not included
                       </span>
@@ -145,12 +145,12 @@ export const PricingSection = () => {
                 <div className="flex items-center justify-center gap-1 py-1 text-center">
                   {starterLimits.features.scheduledPublishing ? (
                     <>
-                      <BadgeCheck className="text-primary h-3.5 w-3.5" />
+                      <SealCheck className="text-primary h-3.5 w-3.5" />
                       <span>Included</span>
                     </>
                   ) : (
                     <>
-                      <X className="text-muted-foreground/50 h-3.5 w-3.5" />
+                      <Xmark className="text-muted-foreground/50 h-3.5 w-3.5" />
                       <span className="text-muted-foreground/60">
                         Not included
                       </span>
@@ -160,12 +160,12 @@ export const PricingSection = () => {
                 <div className="flex items-center justify-center gap-1 py-1 text-center">
                   {proLimits.features.scheduledPublishing ? (
                     <>
-                      <BadgeCheck className="text-primary h-3.5 w-3.5" />
+                      <SealCheck className="text-primary h-3.5 w-3.5" />
                       <span>Included</span>
                     </>
                   ) : (
                     <>
-                      <X className="text-muted-foreground/50 h-3.5 w-3.5" />
+                      <Xmark className="text-muted-foreground/50 h-3.5 w-3.5" />
                       <span className="text-muted-foreground/60">
                         Not included
                       </span>

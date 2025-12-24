@@ -9,8 +9,21 @@ import type { ProjectStats } from "@/lib/actions/projects";
 import type { User } from "@/lib/auth-client";
 import type { RolePermission } from "@/lib/auth/permissions";
 import { formatBytes } from "@/lib/utils";
+import {
+  Ban,
+  ChartLine,
+  CreditCard,
+  Gear,
+  HouseFill,
+  Key, Layers3Diagonal,
+  ListCheckLock,
+  Persons,
+  Picture,
+  Tags
+} from "@gravity-ui/icons";
 import type { ProjectRole } from "@simplist/db";
 import type { Project } from "@simplist/db/types";
+import { Webhook } from "@simplist/ui/components/icons";
 import {
   Sidebar,
   SidebarContent,
@@ -24,21 +37,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@simplist/ui/components/sidebar";
-import type { LucideIcon } from "lucide-react";
-import {
-  Ban,
-  ChartLine,
-  ClipboardList,
-  ImageIcon,
-  Layers,
-  LayoutDashboard,
-  Settings,
-  Tag,
-  Unplug,
-  Users,
-  Wallet,
-  Webhook,
-} from "lucide-react";
+import { ComponentType, SVGProps } from "react";
 import { SidebarFooterItem } from "./sidebar-footer-item";
 
 /**
@@ -55,13 +54,13 @@ interface AppSidebarProps {
   stats?: ProjectStats;
   onProjectChange?: (projectId: string) => void;
   onCreateProject?: () => void;
-  onLogout?: () => void;
+  onArrowRightFromSquare?: () => void;
   isCreatingProject?: boolean;
 }
 
 type NavigationItem = {
   title: string;
-  icon: LucideIcon;
+  icon: ComponentType<SVGProps<SVGSVGElement>>;
   href: string;
   disabled?: boolean;
   showProBadge?: boolean;
@@ -76,7 +75,7 @@ const getNavigationItems = (
 ): NavigationItem[] => [
   {
     title: "Dashboard",
-    icon: LayoutDashboard,
+    icon: HouseFill,
     href: `/${projectSlug}`,
     matchStrategy: "exact",
     requiredPermissions: [],
@@ -84,21 +83,21 @@ const getNavigationItems = (
   },
   {
     title: "Articles",
-    icon: Layers,
+    icon: Layers3Diagonal,
     href: `/${projectSlug}/articles`,
     requiredPermissions: ["canManageArticles"],
     category: "Content",
   },
   {
     title: "Tags",
-    icon: Tag,
+    icon: Tags,
     href: `/${projectSlug}/tags`,
     requiredPermissions: ["canManageTags"],
     category: "Content",
   },
   {
     title: "Media",
-    icon: ImageIcon,
+    icon: Picture,
     href: `/${projectSlug}/media`,
     requiredPermissions: ["canManageArticles"],
     category: "Content",
@@ -114,7 +113,7 @@ const getNavigationItems = (
   },
   {
     title: "API Keys",
-    icon: Unplug,
+    icon: Key,
     href: `/${projectSlug}/api-keys`,
     requiredPermissions: ["canManageApiKeys"],
     category: "API",
@@ -128,7 +127,7 @@ const getNavigationItems = (
   },
   {
     title: "General",
-    icon: Settings,
+    icon: Gear,
     href: `/${projectSlug}/settings`,
     matchStrategy: "exact",
     requiredPermissions: ["canManageProject"],
@@ -136,21 +135,21 @@ const getNavigationItems = (
   },
   {
     title: "Billing",
-    icon: Wallet,
+    icon: CreditCard,
     href: `/${projectSlug}/settings/billing`,
     requiredPermissions: ["canManageBilling"],
     category: "Settings",
   },
   {
     title: "Members",
-    icon: Users,
+    icon: Persons,
     href: `/${projectSlug}/settings/members`,
     requiredPermissions: ["canManageMembers"],
     category: "Settings",
   },
   {
     title: "Roles",
-    icon: ClipboardList,
+    icon: ListCheckLock,
     href: `/${projectSlug}/settings/roles`,
     disabled: !isPro,
     showProBadge: !isPro,

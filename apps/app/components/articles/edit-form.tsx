@@ -17,7 +17,6 @@ import { type LanguageCode, getLanguageName } from "@/lib/types/languages";
 import { type Tag } from "@simplist/db";
 import { buttonVariants } from "@simplist/ui/components/button";
 import { toast } from "@simplist/ui/components/sonner";
-import { X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FC, useEffect, useState } from "react";
@@ -27,6 +26,7 @@ import { ArticleInfoFields } from "./info-fields";
 import { ArticleTagsCard } from "./tags-card";
 import { VariantCard } from "./variant-card";
 import { ArticleVisibilityCard } from "./visibility-card";
+import { Xmark } from "@gravity-ui/icons";
 
 type EditArticleFormProps = {
   article: ArticleWithVariantsAndTags;
@@ -476,7 +476,7 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({
                   size: "sm",
                 })}
               >
-                <X />
+                <Xmark />
                 Cancel
               </Link>
             }

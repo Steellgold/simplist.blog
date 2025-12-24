@@ -8,7 +8,7 @@ import {
   TooltipTrigger,
 } from "@simplist/ui/components/tooltip";
 import { cn } from "@simplist/ui/lib/utils";
-import { CheckIcon, CopyIcon } from "lucide-react";
+import { Check, Copy } from "@gravity-ui/icons";
 import { type FC, type ReactNode, useState } from "react";
 
 type CopyButtonProps = {
@@ -46,9 +46,9 @@ export const CopyButton: FC<CopyButtonProps> = ({
             >
               {children}
               {copied ? (
-                <CheckIcon className="size-3.5 text-green-500" />
+                <Check className="size-3.5 text-green-500" />
               ) : (
-                <CopyIcon className="text-muted-foreground size-3.5" />
+                <Copy className="text-muted-foreground size-3.5" />
               )}
             </button>
           </TooltipTrigger>
@@ -73,9 +73,9 @@ export const CopyButton: FC<CopyButtonProps> = ({
             className={className}
           >
             {copied ? (
-              <CheckIcon className="size-3.5" />
+              <Check className="size-3.5" />
             ) : (
-              <CopyIcon className="size-3.5" />
+              <Copy className="size-3.5" />
             )}
             <span className="sr-only">Copy to clipboard</span>
           </Button>

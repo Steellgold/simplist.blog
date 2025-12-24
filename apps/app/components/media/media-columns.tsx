@@ -2,6 +2,13 @@
 
 import type { MediaItem } from "@/lib/actions/media";
 import { formatBytes } from "@/lib/utils";
+import {
+  ArrowUpRightFromSquare,
+  Check,
+  Copy, EllipsisVertical,
+  Picture,
+  TrashBin
+} from "@gravity-ui/icons";
 import { MediaType } from "@simplist/db";
 import {
   AlertDialog,
@@ -35,14 +42,6 @@ import {
   TooltipTrigger,
 } from "@simplist/ui/components/tooltip";
 import { ColumnDef } from "@tanstack/react-table";
-import {
-  Check,
-  Copy,
-  ExternalLink,
-  ImageIcon,
-  MoreHorizontal,
-  Trash2,
-} from "lucide-react";
 import Image from "next/image";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -117,7 +116,7 @@ const ActionsCell = ({
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon-sm">
-            <MoreHorizontal className="h-4 w-4" />
+            <EllipsisVertical className="h-4 w-4" />
             <span className="sr-only">Open menu</span>
           </Button>
         </DropdownMenuTrigger>
@@ -125,18 +124,18 @@ const ActionsCell = ({
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuItem onClick={handleCopyLink}>
             {copied ? (
-              <Check className="mr-2 h-4 w-4" />
+              <Check />
             ) : (
-              <Copy className="mr-2 h-4 w-4" />
+              <Copy />
             )}
             Copy link
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => window.open(media.url, "_blank")}>
-            <ExternalLink className="mr-2 h-4 w-4" />
+            <ArrowUpRightFromSquare />
             Open in new tab
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setShowApplyBannerDialog(true)}>
-            <ImageIcon className="mr-2 h-4 w-4" />
+            <Picture />
             Apply as banner
           </DropdownMenuItem>
           <DropdownMenuSeparator />
@@ -144,7 +143,7 @@ const ActionsCell = ({
             className="text-destructive focus:text-destructive"
             onClick={() => setShowDeleteDialog(true)}
           >
-            <Trash2 className="mr-2 h-4 w-4" />
+            <TrashBin />
             Delete
           </DropdownMenuItem>
         </DropdownMenuContent>
