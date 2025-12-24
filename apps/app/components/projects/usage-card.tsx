@@ -1,6 +1,7 @@
 "use client";
 
 import { formatBytes } from "@/lib/utils";
+import { ChartAreaStackedNormalized, TriangleExclamationFill } from "@gravity-ui/icons";
 import {
   Card,
   CardContent,
@@ -9,7 +10,6 @@ import {
   CardTitle,
 } from "@simplist/ui/components/card";
 import { Progress } from "@simplist/ui/components/progress";
-import { AlertTriangle, BarChart3 } from "lucide-react";
 
 interface UsageCardProps {
   usage: {
@@ -59,7 +59,7 @@ export const UsageCard = ({ usage }: UsageCardProps) => {
     <Card>
       <CardHeader>
         <div className="flex items-center gap-2">
-          <BarChart3 className="text-muted-foreground h-5 w-5" />
+          <ChartAreaStackedNormalized className="text-muted-foreground h-5 w-5" />
           <CardTitle>Usage</CardTitle>
         </div>
         <CardDescription>Monitor your current usage and limits</CardDescription>
@@ -83,7 +83,7 @@ export const UsageCard = ({ usage }: UsageCardProps) => {
               />
               {isArticleLimitWarning && (
                 <div className="flex items-center gap-1 text-xs text-yellow-600 dark:text-yellow-500">
-                  <AlertTriangle className="h-3 w-3" />
+                  <TriangleExclamationFill className="h-3 w-3" />
                   <span>Approaching limit</span>
                 </div>
               )}
@@ -108,7 +108,7 @@ export const UsageCard = ({ usage }: UsageCardProps) => {
           />
           {isStorageLimitWarning && (
             <div className="flex items-center gap-1 text-xs text-yellow-600 dark:text-yellow-500">
-              <AlertTriangle className="h-3 w-3" />
+              <TriangleExclamationFill className="h-3 w-3" />
               <span>Approaching limit</span>
             </div>
           )}
@@ -145,7 +145,7 @@ export const UsageCard = ({ usage }: UsageCardProps) => {
           />
           {isApiCallLimitWarning && (
             <div className="flex items-center gap-1 text-xs text-yellow-600 dark:text-yellow-500">
-              <AlertTriangle className="h-3 w-3" />
+              <TriangleExclamationFill className="h-3 w-3" />
               <span>Approaching limit</span>
             </div>
           )}

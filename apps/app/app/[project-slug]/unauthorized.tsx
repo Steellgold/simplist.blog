@@ -1,6 +1,6 @@
 "use client";
 
-import { ShieldAlert } from "lucide-react";
+import { ShieldExclamation } from "@gravity-ui/icons";
 import {
   Empty,
   EmptyContent,
@@ -19,7 +19,7 @@ export function Unauthorized({ actions }: Props) {
     <Empty className="flex h-full min-h-[calc(90vh-4rem)] items-center justify-center">
       <EmptyHeader>
         <EmptyMedia variant="icon">
-          <ShieldAlert />
+          <ShieldExclamation />
         </EmptyMedia>
         <EmptyTitle>Unauthorized Access</EmptyTitle>
         <EmptyDescription>

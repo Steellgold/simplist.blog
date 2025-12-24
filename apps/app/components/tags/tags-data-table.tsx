@@ -12,6 +12,7 @@ import {
   type ImportTagInput,
   type TagWithMetadata,
 } from "@/lib/actions/tags";
+import { Magnifier, TrashBin } from "@gravity-ui/icons";
 import { Button } from "@simplist/ui/components/button";
 import { ButtonGroup } from "@simplist/ui/components/button-group";
 import { ConfirmDialog } from "@simplist/ui/components/confirm-dialog";
@@ -47,7 +48,6 @@ import {
   type SortingState,
   type VisibilityState,
 } from "@tanstack/react-table";
-import { SearchX, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { FC, useEffect, useState } from "react";
 
@@ -204,7 +204,7 @@ export const TagsDataTable: FC<TagsDataTableProps> = ({
                 variant="outline-destructive"
                 onClick={() => setShowBulkDeleteDialog(true)}
               >
-                <Trash />
+                <TrashBin />
                 Delete ({selectedCount})
               </Button>
             </ButtonGroup>
@@ -277,7 +277,7 @@ export const TagsDataTable: FC<TagsDataTableProps> = ({
                     <Empty className="border-none">
                       <EmptyHeader>
                         <EmptyMedia variant="icon">
-                          <SearchX />
+                          <Magnifier />
                         </EmptyMedia>
                         <EmptyTitle>No tags found</EmptyTitle>
                         <EmptyDescription>

@@ -1,25 +1,25 @@
 import {
+  Bulb,
+  ChartAreaStacked,
+  ChevronsExpandHorizontal,
+  Cubes3Overlap,
+  Fingerprint,
+  Lock,
+  Minus,
+} from "@gravity-ui/icons";
+import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@simplist/ui/components/card";
-import {
-  Blocks,
-  Cctv,
-  ChartNoAxesColumn,
-  ChevronsLeftRight,
-  Fingerprint,
-  Lightbulb,
-  Minus,
-  type LucideIcon,
-} from "lucide-react";
+import { ComponentType, SVGProps } from "react";
 
 type Feature = {
   title: string;
   description: string;
-  icon: LucideIcon;
+  icon: ComponentType<SVGProps<SVGSVGElement>>;
   list: string[];
 };
 
@@ -27,7 +27,7 @@ const features: Feature[] = [
   {
     title: "Global performance by default",
     description: "Your content loads instantly anywhere in the world.",
-    icon: Lightbulb,
+    icon: Bulb,
     list: [
       "Sub-50ms response times worldwide",
       "Built-in caching for zero latency",
@@ -37,7 +37,7 @@ const features: Feature[] = [
   {
     title: "Security first",
     description: "Enterprise-grade security baked into every request.",
-    icon: Cctv,
+    icon: Lock,
     list: [
       "Secure API keys with granular permissions",
       "Rate limiting to prevent abuse",
@@ -57,7 +57,7 @@ const features: Feature[] = [
   {
     title: "Developer experience first",
     description: "Modern SDKs, great docs and an API that feels familiar.",
-    icon: ChevronsLeftRight,
+    icon: ChevronsExpandHorizontal,
     list: [
       "TypeScript SDK with auto-completion",
       "Interactive API documentation",
@@ -67,7 +67,7 @@ const features: Feature[] = [
   {
     title: "Analytics that actually help",
     description: "Understand your readers and what they care about.",
-    icon: ChartNoAxesColumn,
+    icon: ChartAreaStacked,
     list: [
       "Track views, time on page & engagement",
       "Geographic data of your readers",
@@ -77,7 +77,7 @@ const features: Feature[] = [
   {
     title: "Scales with your projects",
     description: "From side project to production-grade content platform.",
-    icon: Blocks,
+    icon: Cubes3Overlap,
     list: [
       "From side project to production",
       "Handle millions of requests effortlessly",
@@ -114,9 +114,11 @@ export const FeaturesSection = () => {
                   <div className="bg-secondary/70 w-fit rounded-lg p-1.5">
                     <feature.icon className="h-6 w-6 opacity-30 transition-opacity duration-300 group-hover:opacity-100" />
                   </div>
+
                   <CardTitle className="text-base md:text-lg">
                     {feature.title}
                   </CardTitle>
+
                   <CardDescription className="text-sm md:text-[15px]">
                     {feature.description}
                   </CardDescription>
@@ -126,7 +128,7 @@ export const FeaturesSection = () => {
                   <ul className="text-muted-foreground space-y-1.5 text-xs md:text-sm">
                     {feature.list.map((item) => (
                       <li key={item} className="flex items-center gap-2">
-                        <Minus size={16} className="text-muted-foreground/50" />
+                        <Minus className="text-muted-foreground/50" />
                         <span>{item}</span>
                       </li>
                     ))}

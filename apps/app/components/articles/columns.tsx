@@ -1,16 +1,9 @@
 "use client";
 
 import { useProjectContext } from "@/components/projects/context-provider";
+import { ChartAreaStackedNormalized, Copy, EllipsisVertical, PencilToSquare, Picture, TrashBin } from "@gravity-ui/icons";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
-import {
-  Copy,
-  Edit,
-  ImageIcon,
-  MoreVertical,
-  Trash,
-  TrendingUp,
-} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -104,7 +97,7 @@ const ArticleActionsCell = ({ article }: { article: Article }) => {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon-sm">
             <span className="sr-only">Open menu</span>
-            <MoreVertical />
+            <EllipsisVertical />
           </Button>
         </DropdownMenuTrigger>
 
@@ -122,7 +115,7 @@ const ArticleActionsCell = ({ article }: { article: Article }) => {
             as={Link}
             href={`/${currentProject?.slug}/articles/${article.slug}/edit`}
           >
-            <Edit />
+            <PencilToSquare />
             Edit article
           </DropdownMenuItemLink>
 
@@ -130,7 +123,7 @@ const ArticleActionsCell = ({ article }: { article: Article }) => {
             as={Link}
             href={`/${currentProject?.slug}/analytics?articles=${article.id}`}
           >
-            <TrendingUp />
+            <ChartAreaStackedNormalized />
             Analytics
           </DropdownMenuItemLink>
 
@@ -138,7 +131,7 @@ const ArticleActionsCell = ({ article }: { article: Article }) => {
             onClick={() => setShowDeleteDialog(true)}
             className="text-destructive focus:text-destructive"
           >
-            <Trash className="text-destructive" />
+            <TrashBin className="text-destructive" />
             Delete article
           </DropdownMenuItem>
         </DropdownMenuContent>
@@ -192,7 +185,7 @@ export const useArticlesColumns = ({
 
   const columns: ColumnDef<Article>[] = [];
 
-  // Only add select column for Pro users
+  // Only add select column for Pro Persons
   if (isPro) {
     columns.push({
       id: "select",
@@ -251,7 +244,7 @@ export const useArticlesColumns = ({
               />
             ) : (
               <div className="flex h-full w-full items-center justify-center">
-                <ImageIcon className="text-muted-foreground h-4 w-4" />
+                <Picture className="text-muted-foreground h-4 w-4" />
               </div>
             )}
           </div>

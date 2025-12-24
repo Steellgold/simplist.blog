@@ -1,7 +1,7 @@
 "use client";
 
 import { MiniBadge } from "@/components/ui/mini-badge";
-import { ChevronsUpDown, Plus } from "lucide-react";
+import { ChevronsExpandVertical, Plus } from "@gravity-ui/icons";
 import { useEffect, useState } from "react";
 
 import { ProjectIconAvatar } from "@/components/icon-avatar";
@@ -91,7 +91,7 @@ export const ProjectSwitcher = ({
                 </div>
               </div>
 
-              <ChevronsUpDown className="ml-auto group-data-[collapsible=icon]:hidden" />
+              <ChevronsExpandVertical className="ml-auto group-data-[collapsible=icon]:hidden" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
 

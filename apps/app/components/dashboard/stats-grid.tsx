@@ -1,3 +1,4 @@
+import { Eye, FileText, HardDrive, Key } from "@gravity-ui/icons";
 import {
   Card,
   CardAction,
@@ -6,7 +7,6 @@ import {
   CardTitle,
 } from "@simplist/ui/components/card";
 import { Progress } from "@simplist/ui/components/progress";
-import { Eye, FileText, HardDrive, Key } from "lucide-react";
 
 interface StatsGridProps {
   publishedArticles: number;

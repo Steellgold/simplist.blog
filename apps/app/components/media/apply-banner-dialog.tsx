@@ -5,6 +5,7 @@ import {
   getProjectArticles,
   type MediaItem,
 } from "@/lib/actions/media";
+import { Check, FileText } from "@gravity-ui/icons";
 import { Button } from "@simplist/ui/components/button";
 import {
   Dialog,
@@ -23,7 +24,6 @@ import {
   SelectListSearch,
 } from "@simplist/ui/components/select-list";
 import { Spinner } from "@simplist/ui/components/spinner";
-import { Check, FileText } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";

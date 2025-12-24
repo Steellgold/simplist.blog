@@ -1,20 +1,19 @@
 import { ReactivateActions } from "@/components/account/reactivate-actions";
+import { getCurrentUser } from "@/lib/auth-helper";
+import { formatTimeRemaining } from "@/lib/utils/time";
 import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
+    Alert,
+    AlertDescription,
+    AlertTitle,
 } from "@simplist/ui/components/alert";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
 } from "@simplist/ui/components/card";
-import { AlertTriangle } from "lucide-react";
-import { getCurrentUser } from "@/lib/auth-helper";
 import { redirect } from "next/navigation";
-import { formatTimeRemaining } from "@/lib/utils/time";
 
 const ReactivatePage = async () => {
   const user = await getCurrentUser();
@@ -50,7 +49,7 @@ const ReactivatePage = async () => {
 
         <CardContent className="space-y-4">
           <Alert>
-            <AlertTriangle className="h-4 w-4" />
+            <TriangleExclamationFill className="h-4 w-4" />
             <AlertTitle>Deletion scheduled</AlertTitle>
             <AlertDescription>
               Your account will be permanently deleted in {timeRemaining}

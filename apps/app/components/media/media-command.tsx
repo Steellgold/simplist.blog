@@ -2,6 +2,7 @@
 
 import { getProjectMedia, type MediaItem } from "@/lib/actions/media";
 import { formatBytes } from "@/lib/utils";
+import { Check, Picture } from "@gravity-ui/icons";
 import { Button } from "@simplist/ui/components/button";
 import {
   Dialog,
@@ -19,7 +20,6 @@ import {
   SelectListItemTitle,
   SelectListSearch,
 } from "@simplist/ui/components/select-list";
-import { Check, ImageIcon } from "lucide-react";
 import { FC, useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -128,7 +128,7 @@ export const MediaCommand: FC<MediaCommandProps> = ({
                     alt={item.filename}
                     variant="landscape"
                     fallback={
-                      <ImageIcon className="text-muted-foreground h-4 w-4" />
+                      <Picture className="text-muted-foreground h-4 w-4" />
                     }
                   />
                   <div className="min-w-0 flex-1">

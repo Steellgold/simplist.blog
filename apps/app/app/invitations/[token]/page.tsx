@@ -1,4 +1,12 @@
+import { InvitationActions } from "@/components/members/invitation-actions";
 import { getInvitationDetails } from "@/lib/actions/members";
+import { ArrowsExpandHorizontal, CircleXmarkFill, HouseFill } from "@gravity-ui/icons";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@simplist/ui/components/avatar";
+import { buttonVariants } from "@simplist/ui/components/button";
 import {
   Card,
   CardContent,
@@ -6,18 +14,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@simplist/ui/components/card";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@simplist/ui/components/avatar";
-import { getInitials } from "@simplist/ui/lib/utils";
-import { XCircle, X, MoveHorizontal } from "lucide-react";
-import Link from "next/link";
-import { buttonVariants } from "@simplist/ui/components/button";
-import { InvitationActions } from "@/components/members/invitation-actions";
 import { IconRender } from "@simplist/ui/components/icon-renderer";
 import { getColorValue } from "@simplist/ui/lib/color";
+import { getInitials } from "@simplist/ui/lib/utils";
+import Link from "next/link";
 
 type PageProps = {
   params: Promise<{
@@ -48,7 +48,7 @@ export default async function InvitationPage({ params }: PageProps) {
         <Card className="w-full max-w-md">
           <CardHeader>
             <div className="mb-4 flex items-center justify-center">
-              <XCircle className="text-destructive" />
+              <CircleXmarkFill className="text-destructive" />
             </div>
 
             <CardTitle className="text-center">Invitation Error</CardTitle>
@@ -58,6 +58,7 @@ export default async function InvitationPage({ params }: PageProps) {
 
           <CardContent className="flex justify-center">
             <Link href="/" className={buttonVariants({ variant: "default" })}>
+              <HouseFill />
               Go to Dashboard
             </Link>
           </CardContent>
@@ -123,7 +124,7 @@ export default async function InvitationPage({ params }: PageProps) {
 
         {/* X symbol */}
         <div className="bg-muted/10 rounded-full p-1.5">
-          <MoveHorizontal className="text-muted-foreground size-5" />
+          <ArrowsExpandHorizontal className="text-muted-foreground size-5" />
         </div>
 
         {/* Invited user */}

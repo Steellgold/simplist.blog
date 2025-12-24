@@ -1,9 +1,9 @@
 "use client";
 
 import type { SubscriptionInfo } from "@/lib/stripe/types";
+import { Calendar, CircleCheck, CircleExclamation, CircleXmark } from "@gravity-ui/icons";
 import { Badge } from "@simplist/ui/components/badge";
 import { Card, CardContent, CardHeader } from "@simplist/ui/components/card";
-import { Calendar, CircleAlert, CircleCheck, CircleX } from "lucide-react";
 import type Stripe from "stripe";
 
 type SubscriptionInfoCardProps = {
@@ -22,14 +22,14 @@ const getStatusBadge = (status: Stripe.Subscription.Status) => {
     case "canceled":
       return (
         <Badge variant="destructive" className="gap-1">
-          <CircleX className="size-3" />
+          <CircleXmark className="size-3" />
           Canceled
         </Badge>
       );
     case "past_due":
       return (
         <Badge variant="destructive" className="gap-1">
-          <CircleAlert className="size-3" />
+          <CircleExclamation className="size-3" />
           Past Due
         </Badge>
       );
@@ -37,7 +37,7 @@ const getStatusBadge = (status: Stripe.Subscription.Status) => {
     case "incomplete_expired":
       return (
         <Badge variant="secondary" className="gap-1">
-          <CircleAlert className="size-3" />
+          <CircleExclamation className="size-3" />
           Incomplete
         </Badge>
       );
@@ -51,7 +51,7 @@ const getStatusBadge = (status: Stripe.Subscription.Status) => {
     case "unpaid":
       return (
         <Badge variant="destructive" className="gap-1">
-          <CircleAlert className="size-3" />
+          <CircleExclamation className="size-3" />
           Unpaid
         </Badge>
       );

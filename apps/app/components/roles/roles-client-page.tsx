@@ -5,6 +5,17 @@ import { CreateRoleDialog } from "@/components/roles/create-role-dialog";
 import { EditRoleDialog } from "@/components/roles/edit-role-dialog";
 import { MiniBadge } from "@/components/ui/mini-badge";
 import { deleteProjectRole } from "@/lib/actions/roles";
+import {
+  CreditCard,
+  EllipsisVertical,
+  FileText, Key,
+  Lock,
+  Magnifier, Pencil,
+  Persons,
+  Plus,
+  Shield,
+  TrashBin
+} from "@gravity-ui/icons";
 import type { ProjectRole } from "@simplist/db";
 import { Badge } from "@simplist/ui/components/badge";
 import { Button } from "@simplist/ui/components/button";
@@ -19,23 +30,8 @@ import {
 } from "@simplist/ui/components/dropdown-menu";
 import { Empty, EmptyHeader, EmptyMedia } from "@simplist/ui/components/empty";
 import { toast } from "@simplist/ui/components/sonner";
-import {
-  BarChart,
-  CreditCard,
-  FileText,
-  Key,
-  Lock,
-  MoreVertical,
-  Pencil,
-  Plus,
-  SearchX,
-  Settings,
-  Shield,
-  Trash2,
-  Users,
-  Webhook,
-} from "lucide-react";
 import { useState } from "react";
+import { BarChart } from "recharts";
 
 type RolesClientPageProps = {
   project: {
@@ -135,7 +131,7 @@ export const RolesClientPage = ({
               <Empty className="flex h-full min-h-[calc(90vh-4rem)] items-center justify-center">
                 <EmptyHeader>
                   <EmptyMedia variant="icon">
-                    <SearchX />
+                    <Magnifier />
                   </EmptyMedia>
                 </EmptyHeader>
               </Empty>
@@ -195,7 +191,7 @@ export const RolesClientPage = ({
                                 size="icon"
                                 className="shrink-0"
                               >
-                                <MoreVertical />
+                                <EllipsisVertical />
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
@@ -224,7 +220,7 @@ export const RolesClientPage = ({
                                       );
                                     }}
                                   >
-                                    <Trash2 />
+                                    <TrashBin />
                                     Delete role
                                   </DropdownMenuItem>
                                 </>
@@ -272,7 +268,7 @@ export const RolesClientPage = ({
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="bg-muted flex size-6 items-center justify-center rounded-full">
-                      <Trash2 className="h-3 w-3" />
+                      <TrashBin className="h-3 w-3" />
                     </div>
                     <span className="text-muted-foreground text-sm">
                       Delete project
@@ -300,7 +296,7 @@ export const RolesClientPage = ({
                 <div className="space-y-2 pl-4">
                   <div className="flex items-center gap-3">
                     <div className="bg-muted flex size-6 items-center justify-center rounded-full">
-                      <Users className="h-3 w-3" />
+                      <Persons className="h-3 w-3" />
                     </div>
                     <span className="text-muted-foreground text-sm">
                       Manage members

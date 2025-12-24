@@ -1,6 +1,7 @@
 "use client";
 
 import { authClient } from "@/lib/auth-client";
+import { Copy } from "@gravity-ui/icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@simplist/ui/components/button";
 import {
@@ -27,7 +28,6 @@ import {
 import { PasswordInput } from "@simplist/ui/components/password-input";
 import { ThemeSwitcher } from "@simplist/ui/components/shared/switch-theme";
 import { Spinner } from "@simplist/ui/components/spinner";
-import { CopyIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -241,7 +241,7 @@ export const Enable2FADialog = ({
                           onClick={handleCopySecret}
                           disabled={isSubmitting}
                         >
-                          <CopyIcon className="size-4" />
+                          <Copy className="size-4" />
                         </Button>
                       </div>
                       <FieldDescription className="mt-2">

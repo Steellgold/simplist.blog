@@ -1,5 +1,6 @@
 "use client";
 
+import { Xmark } from "@gravity-ui/icons";
 import { type Color, type Tag } from "@simplist/db";
 import { ColorSelector } from "@simplist/ui/components/color-selector";
 import { DialogTrigger } from "@simplist/ui/components/dialog";
@@ -9,7 +10,6 @@ import type { ColorsEnumType } from "@simplist/ui/lib/color";
 import { getTagColorClasses } from "@simplist/ui/lib/color";
 import type { IconsEnumType } from "@simplist/ui/lib/icons.enum";
 import { cn } from "@simplist/ui/lib/utils";
-import { X } from "lucide-react";
 import { FC, useEffect, useMemo, useRef, useState } from "react";
 
 type ArticleTagsInputProps = {
@@ -287,7 +287,7 @@ export const ArticleTagsInput: FC<ArticleTagsInputProps> = ({
                 className="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-sm opacity-70 transition-opacity hover:opacity-100"
                 title="Remove tag"
               >
-                <X className="h-3 w-3" />
+                <Xmark className="h-3 w-3" />
               </button>
             </span>
           );

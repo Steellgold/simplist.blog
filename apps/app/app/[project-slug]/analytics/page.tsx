@@ -4,6 +4,8 @@ import { getAllProjectAnalytics } from "@/lib/actions/analytics";
 import { getCurrentUser } from "@/lib/auth-helper";
 import { getUserProjectMembership } from "@/lib/auth/permissions";
 import { getProjectSubscription } from "@/lib/subscription/quota-check";
+import { ChartPie } from "@gravity-ui/icons";
+import { prisma } from "@simplist/db";
 import {
   Empty,
   EmptyDescription,
@@ -11,8 +13,6 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@simplist/ui/components/empty";
-import { prisma } from "@simplist/db";
-import { BarChart3 } from "lucide-react";
 import { redirect } from "next/navigation";
 
 interface AnalyticsPageProps {
@@ -58,7 +58,7 @@ const AnalyticsPage = async ({ params }: AnalyticsPageProps) => {
       <Empty className="flex h-full min-h-[calc(90vh-4rem)] items-center justify-center">
         <EmptyHeader>
           <EmptyMedia variant="icon">
-            <BarChart3 />
+            <ChartPie />
           </EmptyMedia>
           <EmptyTitle>No analytics data yet</EmptyTitle>
           <EmptyDescription>

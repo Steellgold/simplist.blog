@@ -16,6 +16,7 @@ import {
   type LanguageCode,
 } from "@/lib/types/languages";
 import { cn } from "@/lib/utils";
+import { Check, Plus, TrashBin } from "@gravity-ui/icons";
 import { Button } from "@simplist/ui/components/button";
 import { ButtonGroup } from "@simplist/ui/components/button-group";
 import {
@@ -55,7 +56,6 @@ import {
 } from "@simplist/ui/components/item";
 import { toast } from "@simplist/ui/components/sonner";
 import { Toggle } from "@simplist/ui/components/toggle";
-import { Check, Plus, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import { UpgradeProject } from "../projects/upgrade-project";
@@ -400,7 +400,7 @@ export const VariantCard = ({
                           className="hover:text-destructive hover:bg-destructive/10"
                           title={`Delete ${getLanguageName(variant.lang)} variant`}
                         >
-                          <Trash2 />
+                          <TrashBin />
                         </Button>
                       )}
                     </ButtonGroup>

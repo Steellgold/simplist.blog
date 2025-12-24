@@ -2,6 +2,7 @@
 
 import { PageLayout } from "@/components/layout/page-layout";
 import { useProjectContext } from "@/components/projects/context-provider";
+import { ArrowsRotateLeft, FileArrowUp, Picture } from "@gravity-ui/icons";
 import { MediaType } from "@simplist/db";
 import { Button } from "@simplist/ui/components/button";
 import {
@@ -13,7 +14,6 @@ import {
   EmptyTitle,
 } from "@simplist/ui/components/empty";
 import { Kbd } from "@simplist/ui/components/kbd";
-import { ImageIcon, RefreshCw, Upload } from "lucide-react";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 
@@ -263,7 +263,7 @@ export const MediaClientPage = ({
         <Empty>
           <EmptyHeader>
             <EmptyMedia variant="icon">
-              <ImageIcon />
+              <Picture />
             </EmptyMedia>
             <EmptyTitle>No media yet</EmptyTitle>
             <EmptyDescription>
@@ -273,7 +273,7 @@ export const MediaClientPage = ({
           </EmptyHeader>
           <EmptyContent>
             <Button onClick={() => setUploadDialogOpen(true)}>
-              <Upload className="mr-2 h-4 w-4" />
+              <FileArrowUp className="mr-2 h-4 w-4" />
               Upload images
               <Kbd>N</Kbd>
             </Button>
@@ -302,11 +302,11 @@ export const MediaClientPage = ({
             onClick={() => fetchMedia(currentPage, filter, search)}
             disabled={isLoading}
           >
-            <RefreshCw className={isLoading ? "animate-spin" : ""} />
+            <ArrowsRotateLeft className={isLoading ? "animate-spin" : ""} />
           </Button>
 
           <Button onClick={() => setUploadDialogOpen(true)}>
-            <Upload />
+            <FileArrowUp />
             Upload
             <Kbd>N</Kbd>
           </Button>

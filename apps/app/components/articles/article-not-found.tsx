@@ -1,5 +1,6 @@
 "use client";
 
+import { File, Plus } from "@gravity-ui/icons";
 import { buttonVariants } from "@simplist/ui/components/button";
 import {
   Empty,
@@ -9,7 +10,6 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@simplist/ui/components/empty";
-import { ArrowRightIcon, File, PlusIcon } from "lucide-react";
 import Link from "next/link";
 
 type Props = {
@@ -31,11 +31,11 @@ export const ArticleNotFound = ({ slug }: Props) => {
         </EmptyHeader>
         <EmptyContent>
           <Link
-            className={buttonVariants({ variant: "default", size: "sm" })}
+            className={buttonVariants({ variant: "default" })}
             href={`/${slug}/articles/new`}
           >
             Create New Article
-            <PlusIcon />
+            <Plus />
           </Link>
         </EmptyContent>
       </Empty>

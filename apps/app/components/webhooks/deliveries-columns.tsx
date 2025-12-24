@@ -1,6 +1,7 @@
 "use client";
 
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
+import { ArrowUpRightFromSquare, ChevronDown, CircleCheck, CircleXmark } from "@gravity-ui/icons";
 import { Badge } from "@simplist/ui/components/badge";
 import { Button } from "@simplist/ui/components/button";
 import {
@@ -10,7 +11,6 @@ import {
 } from "@simplist/ui/components/collapsible";
 import { ScrollArea } from "@simplist/ui/components/scroll-area";
 import { ColumnDef } from "@tanstack/react-table";
-import { CheckCircle, ChevronDown, ExternalLink, XCircle } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { formatDate, formatResponse } from "./utils";
@@ -94,7 +94,7 @@ const DeliveryTypeCell = ({ delivery }: { delivery: DeliveryWithProject }) => {
             className="block max-w-[120px] truncate text-xs text-blue-600 hover:text-blue-800"
             title={article.title}
           >
-            <ExternalLink />
+            <ArrowUpRightFromSquare />
             {article.title}
           </Link>
         )}
@@ -141,12 +141,12 @@ export const useDeliveriesColumns = (
             >
               {isSuccess ? (
                 <>
-                  <CheckCircle />
+                  <CircleCheck />
                   Success
                 </>
               ) : (
                 <>
-                  <XCircle />
+                  <CircleXmark />
                   Failed
                 </>
               )}

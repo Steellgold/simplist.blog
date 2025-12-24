@@ -2,6 +2,12 @@
 
 import { getPaymentMethodIcon } from "@/lib/payment-method-icons";
 import type { BillingEntry, PaymentMethodInfo } from "@/lib/stripe/types";
+import {
+  ArrowDownToSquare,
+  CircleCheck,
+  CircleDashed,
+  CircleXmark, LifeRing, Receipt
+} from "@gravity-ui/icons";
 import { Badge } from "@simplist/ui/components/badge";
 import { buttonVariants } from "@simplist/ui/components/button";
 import { ButtonGroup } from "@simplist/ui/components/button-group";
@@ -13,14 +19,6 @@ import {
   ItemMedia,
   ItemTitle,
 } from "@simplist/ui/components/item";
-import {
-  CheckCircle,
-  CircleX,
-  Download,
-  LifeBuoy,
-  Loader2,
-  Receipt,
-} from "lucide-react";
 import Link from "next/link";
 
 type BillingItemProps = {
@@ -49,23 +47,23 @@ const getStatusColor = (status: string | null) => {
 };
 
 const getStatusLabelAndIcon = (status: string | null) => {
-  if (!status) return { label: "Unknown", icon: CheckCircle };
+  if (!status) return { label: "Unknown", icon: CircleCheck };
 
   switch (status) {
     case "succeeded":
     case "paid":
-      return { label: "Paid", icon: CheckCircle };
+      return { label: "Paid", icon: CircleCheck };
     case "open":
     case "processing":
-      return { label: "Processing", icon: Loader2 };
+      return { label: "Processing", icon: CircleDashed };
     case "void":
     case "canceled":
     case "failed":
-      return { label: "Failed", icon: CircleX };
+      return { label: "Failed", icon: CircleXmark };
     default:
       return {
         label: status.charAt(0).toUpperCase() + status.slice(1),
-        icon: CheckCircle,
+        icon: CircleCheck,
       };
   }
 };
@@ -154,7 +152,7 @@ export const BillingItem = ({ entry }: BillingItemProps) => {
             rel="noopener noreferrer"
             className={buttonVariants({ variant: "outline", size: "sm" })}
           >
-            <Download />
+            <ArrowDownToSquare />
             Download
           </Link>
 
@@ -162,7 +160,7 @@ export const BillingItem = ({ entry }: BillingItemProps) => {
             href={`mailto:support@simplist.blog?subject=Invoice ${entry.number}`}
             className={buttonVariants({ variant: "outline", size: "sm" })}
           >
-            <LifeBuoy />
+            <LifeRing />
             Support
           </Link>
         </ButtonGroup>

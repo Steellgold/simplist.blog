@@ -1,4 +1,5 @@
 import { PageLayout } from "@/components/layout/page-layout";
+import { ChevronLeft, EllipsisVertical } from "@gravity-ui/icons";
 import { Button, buttonVariants } from "@simplist/ui/components/button";
 import { ButtonGroup } from "@simplist/ui/components/button-group";
 import {
@@ -9,7 +10,6 @@ import {
   CardTitle,
 } from "@simplist/ui/components/card";
 import { Skeleton } from "@simplist/ui/components/skeleton";
-import { ChevronLeft, MoreVertical } from "lucide-react";
 import Link from "next/link";
 import { FC } from "react";
 
@@ -65,7 +65,7 @@ export const WebhookDashboardLoading: FC<Props> = ({ projectSlug }) => {
             Back to webhooks
           </Link>
           <Button variant="outline" size="sm" disabled>
-            <MoreVertical />
+            <EllipsisVertical />
           </Button>
         </div>
       }

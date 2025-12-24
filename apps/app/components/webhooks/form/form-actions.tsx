@@ -2,8 +2,8 @@
 
 import { FC } from "react";
 
+import { Play } from "@gravity-ui/icons";
 import { Button } from "@simplist/ui/components/button";
-import { Play } from "lucide-react";
 import type { WebhookFormMode } from "../types";
 import { useWebhookFormContext } from "./form-context";
 

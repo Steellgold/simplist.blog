@@ -9,6 +9,7 @@ import {
 } from "@/lib/actions/members";
 import { getPlanLimits } from "@/lib/subscription/plans";
 import type { MemberListItem } from "@/lib/types/members";
+import { EllipsisVertical, PersonPlus, Persons, PersonXmark, UserMinus } from "@gravity-ui/icons";
 import type { ProjectInvitation, ProjectRole } from "@simplist/db";
 import {
   Avatar,
@@ -43,7 +44,6 @@ import {
 import { toast } from "@simplist/ui/components/sonner";
 import { getInitials } from "@simplist/ui/lib/utils";
 import { formatDistanceToNow } from "date-fns";
-import { MoreVertical, UserMinus, UserPlus, Users, UserX } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -171,7 +171,7 @@ export const MembersClientPage = ({
         <Empty>
           <EmptyHeader>
             <EmptyMedia variant="icon">
-              <Users />
+              <Persons />
             </EmptyMedia>
             <EmptyTitle>No members yet</EmptyTitle>
             <EmptyDescription>
@@ -183,7 +183,7 @@ export const MembersClientPage = ({
               onClick={() => setShowInviteDialog(true)}
               disabled={!canInviteMore}
             >
-              <UserPlus />
+              <PersonPlus />
               Invite Member
             </Button>
           </EmptyContent>
@@ -202,7 +202,7 @@ export const MembersClientPage = ({
           onClick={() => setShowInviteDialog(true)}
           disabled={!canInviteMore}
         >
-          <UserPlus />
+          <PersonPlus />
           Invite Member
         </Button>
       }
@@ -270,7 +270,7 @@ export const MembersClientPage = ({
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button variant="ghost" size="icon-sm">
-                                <MoreVertical />
+                                <EllipsisVertical />
                               </Button>
                             </DropdownMenuTrigger>
 
@@ -383,7 +383,7 @@ export const MembersClientPage = ({
                             })
                           }
                         >
-                          <UserX />
+                          <PersonXmark />
                         </Button>
                       </div>
                     </div>

@@ -2,10 +2,10 @@
 
 import { authClient } from "@/lib/auth-client";
 import { getRedirectUrl } from "@/lib/utils";
+import { Key } from "@gravity-ui/icons";
 import { Button } from "@simplist/ui/components/button";
 import { toast } from "@simplist/ui/components/sonner";
 import { Spinner } from "@simplist/ui/components/spinner";
-import { KeyRoundIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -52,7 +52,7 @@ export const PasskeyButton = ({
       onClick={handleClick}
       disabled={disabled || loading}
     >
-      {loading ? <Spinner /> : <KeyRoundIcon />}
+      {loading ? <Spinner /> : <Key />}
       Login with Passkey
     </Button>
   );

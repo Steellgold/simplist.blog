@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowRight } from "@gravity-ui/icons";
 import { Badge } from "@simplist/ui/components/badge";
 import { buttonVariants } from "@simplist/ui/components/button";
 import {
@@ -20,7 +21,6 @@ import {
   ItemTitle,
 } from "@simplist/ui/components/item";
 import { formatDistanceToNow } from "date-fns";
-import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React from "react";
@@ -71,7 +71,7 @@ export const RecentArticlesCard = ({
             className={buttonVariants({ variant: "outline", size: "sm" })}
           >
             All articles
-            <ArrowUpRight />
+            <ArrowRight />
           </Link>
         </CardAction>
       </CardHeader>

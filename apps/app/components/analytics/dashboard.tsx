@@ -6,6 +6,23 @@ import {
   getCountryFlagUrl,
   getCountryInfo,
 } from "@/lib/utils/countries";
+import {
+  Binoculars,
+  CaretUp,
+  Clock,
+  Display,
+  Eye,
+  FileText,
+  Ghost,
+  Globe,
+  LayoutFooter,
+  Link,
+  Megaphone,
+  Percent,
+  Persons,
+  Pulse,
+  Smartphone,
+} from "@gravity-ui/icons";
 import { Button } from "@simplist/ui/components/button";
 import { ButtonGroup } from "@simplist/ui/components/button-group";
 import {
@@ -29,22 +46,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@simplist/ui/components/select";
-import {
-  Activity,
-  Clock,
-  Eye,
-  FileText,
-  Globe,
-  Link2,
-  Megaphone,
-  Monitor,
-  MousePointerClick,
-  ScrollText,
-  Smartphone,
-  Tablet,
-  TrendingUp,
-  Users,
-} from "lucide-react";
 import Image from "next/image";
 import { parseAsInteger, useQueryState } from "nuqs";
 import {
@@ -101,7 +102,7 @@ const StatCard = ({
           <div
             className={`flex items-center text-xs ${trend >= 0 ? "text-green-600" : "text-red-600"}`}
           >
-            <TrendingUp
+            <CaretUp
               className={`h-3 w-3 ${trend < 0 ? "rotate-180" : ""}`}
             />
             <span className="ml-1">{Math.abs(trend)}%</span>
@@ -117,9 +118,9 @@ const DeviceIcon = ({ device }: { device: string }) => {
     case "mobile":
       return <Smartphone className="h-4 w-4" />;
     case "tablet":
-      return <Tablet className="h-4 w-4" />;
+      return <LayoutFooter className="h-4 w-4" />;
     default:
-      return <Monitor className="h-4 w-4" />;
+      return <Display className="h-4 w-4" />;
   }
 };
 
@@ -324,7 +325,7 @@ export const AnalyticsDashboardContent = ({
           title="Unique Visitors"
           value={analytics.summary.uniqueVisitors?.toLocaleString() || "0"}
           description="Different visitors"
-          icon={Users}
+          icon={Persons}
         />
 
         <StatCard
@@ -339,7 +340,7 @@ export const AnalyticsDashboardContent = ({
           title="Engagement Rate"
           value={100 - (analytics.summary.bounceRate || 0)}
           description="Engaged visitors"
-          icon={Activity}
+          icon={Pulse}
           suffix="%"
         />
       </div>
@@ -349,7 +350,7 @@ export const AnalyticsDashboardContent = ({
         <CardHeader>
           <div className="flex items-center gap-3">
             <div className="bg-muted flex size-8 items-center justify-center rounded-sm border">
-              <TrendingUp className="size-4" />
+              <Binoculars className="size-4" />
             </div>
             <div>
               <CardTitle>
@@ -714,7 +715,7 @@ export const AnalyticsDashboardContent = ({
             <CardHeader>
               <div className="flex items-center gap-3">
                 <div className="bg-muted flex size-8 items-center justify-center rounded-sm border">
-                  <Link2 className="size-4" />
+                  <Link className="size-4" />
                 </div>
                 <div>
                   <CardTitle>Top Referrers</CardTitle>
@@ -739,7 +740,7 @@ export const AnalyticsDashboardContent = ({
                         />
                         <div className="relative flex min-w-0 items-center space-x-2">
                           {isDirect ? (
-                            <MousePointerClick className="h-4 w-4 flex-shrink-0" />
+                            <Ghost className="h-4 w-4 flex-shrink-0" />
                           ) : referrer.faviconUrl ? (
                             <Image
                               src={referrer.faviconUrl}
@@ -749,7 +750,7 @@ export const AnalyticsDashboardContent = ({
                               className="h-4 w-4 flex-shrink-0"
                             />
                           ) : (
-                            <Link2 className="h-4 w-4 flex-shrink-0" />
+                            <Link className="h-4 w-4 flex-shrink-0" />
                           )}
                           <span className="truncate text-sm font-medium">
                             {referrer.referrer}
@@ -778,7 +779,7 @@ export const AnalyticsDashboardContent = ({
             <CardHeader>
               <div className="flex items-center gap-3">
                 <div className="bg-muted flex size-8 items-center justify-center rounded-sm border">
-                  <Monitor className="size-4" />
+                  <Display className="size-4" />
                 </div>
                 <div>
                   <CardTitle>Device Types</CardTitle>
@@ -1130,7 +1131,7 @@ export const AnalyticsDashboardContent = ({
           <CardHeader>
             <div className="flex items-center gap-3">
               <div className="bg-muted flex size-8 items-center justify-center rounded-sm border">
-                <ScrollText className="size-4" />
+                <Percent className="size-4" />
               </div>
               <div>
                 <CardTitle>Read Depth</CardTitle>
@@ -1219,7 +1220,7 @@ export const AnalyticsDashboardContent = ({
         <CardHeader>
           <div className="flex items-center gap-3">
             <div className="bg-muted flex size-8 items-center justify-center rounded-sm border">
-              <Activity className="size-4" />
+              <Pulse className="size-4" />
             </div>
             <div>
               <CardTitle>Recent Activity</CardTitle>

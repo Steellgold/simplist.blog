@@ -1,5 +1,4 @@
-import { Ban } from "lucide-react";
-import { LayoutDashboardIcon } from "lucide-react";
+import { Ban, HouseFill } from "@gravity-ui/icons";
 import { buttonVariants } from "@simplist/ui/components/button";
 import {
   Empty,
@@ -29,7 +28,7 @@ export function Forbidden() {
           href="/"
           className={buttonVariants({ variant: "outline", size: "sm" })}
         >
-          <LayoutDashboardIcon />
+          <HouseFill />
           Go to Dashboard
         </Link>
       </EmptyContent>

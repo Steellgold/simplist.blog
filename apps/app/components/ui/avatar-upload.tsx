@@ -1,9 +1,9 @@
 "use client";
 
+import { FileArrowUp, Xmark } from "@gravity-ui/icons";
 import { Button } from "@simplist/ui/components/button";
 import { toast } from "@simplist/ui/components/sonner";
 import { cn } from "@simplist/ui/lib/utils";
-import { Upload, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 interface AvatarUploadProps {
@@ -107,13 +107,13 @@ export function AvatarUpload({
                 onClick={handleRemoveAvatar}
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90 absolute -top-2 -right-2 rounded-full p-1 transition-colors"
               >
-                <X className="size-3" />
+                <Xmark className="size-3" />
               </button>
             )}
           </div>
         ) : (
           <div className="border-muted-foreground/25 flex h-20 w-20 items-center justify-center rounded-md border-2 border-dashed">
-            <Upload className="text-muted-foreground/50" />
+            <FileArrowUp className="text-muted-foreground/50" />
           </div>
         )}
       </div>
@@ -134,7 +134,7 @@ export function AvatarUpload({
           disabled={disabled}
           onClick={() => fileInputRef.current?.click()}
         >
-          <Upload />
+          <FileArrowUp />
           {previewUrl ? "Change Avatar" : "Upload Avatar"}
         </Button>
 
