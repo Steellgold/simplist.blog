@@ -1,5 +1,10 @@
 "use client";
 
+import { useArticleImage } from "@/hooks/use-article-image";
+import {
+  EditorFullscreenProvider,
+  useEditorFullscreenState,
+} from "@/hooks/use-editor-fullscreen";
 import { useProject } from "@/hooks/use-project-context";
 import { type ArticleVariant } from "@/hooks/use-variant-operations";
 import {
@@ -14,13 +19,16 @@ import {
   type ArticleWithVariantsAndTags,
 } from "@/lib/types/articles";
 import { type LanguageCode, getLanguageName } from "@/lib/types/languages";
+import { uploadBannerWithProgress } from "@/lib/uploads/banner";
 import { type Tag } from "@simplist/db";
 import { buttonVariants } from "@simplist/ui/components/button";
 import { toast } from "@simplist/ui/components/sonner";
+import { cn } from "@simplist/ui/lib/utils";
 import { X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FC, useEffect, useState } from "react";
+import { FC, useCallback, useEffect, useState } from "react";
+import { ArticleFormLayout } from "./article-form-layout";
 import { ArticleBannerUpload } from "./banner-upload";
 import { ArticleContentEditor } from "./content-editor";
 import { ArticleInfoFields } from "./info-fields";
@@ -32,23 +40,25 @@ type EditArticleFormProps = {
   article: ArticleWithVariantsAndTags;
   availableTags: Tag[];
   subscription?: ProjectSubscription;
+  title: string;
+  description?: string;
 };
 
 export const EditArticleForm: FC<EditArticleFormProps> = ({
   article,
   availableTags: initialAvailableTags,
   subscription,
+  title: pageTitle,
+  description: pageDescription,
 }) => {
   const router = useRouter();
   const { currentProject } = useProject();
+  const { isFullscreen, providerValue } = useEditorFullscreenState();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isBannerUploading, setIsBannerUploading] = useState(false);
-  const [bannerUploadProgress, setBannerUploadProgress] = useState(0);
   const [imagesToDelete, setImagesToDelete] = useState<Set<LanguageCode>>(
     new Set(),
   );
-  const [availableTags, setAvailableTags] =
-    useState<Tag[]>(initialAvailableTags);
+  const [availableTags] = useState<Tag[]>(initialAvailableTags);
 
   // Default language from project or fallback to English
   const defaultLanguage: LanguageCode =
@@ -97,12 +107,6 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({
   const [scheduledPublishAt, setScheduledPublishAt] = useState<Date | null>(
     article.scheduledPublishAt ? new Date(article.scheduledPublishAt) : null,
   );
-  const [imagePreview, setImagePreview] = useState<string | null>(
-    article.coverImage,
-  );
-  const [imageFiles, setImageFiles] = useState<Map<LanguageCode, File>>(
-    new Map(),
-  );
 
   // Initialize tags by matching article tag names with available tags
   const [tags, setTags] = useState<Tag[]>(() => {
@@ -122,72 +126,51 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({
   const [activeVariant, setActiveVariant] =
     useState<LanguageCode>(defaultLanguage);
 
-  // Sync form fields with active variant (default or selected)
-  useEffect(() => {
-    const currentVariant = variants.find((v) => v.lang === activeVariant);
-    if (currentVariant) {
-      setTitle(currentVariant.title);
-      setExcerpt(currentVariant.excerpt);
-      setContent(currentVariant.content);
-      setImagePreview(currentVariant.coverImage || null);
-    }
-  }, [activeVariant, variants]);
-
   // Update variant when form fields change
-  const updateActiveVariant = (updates: Partial<ArticleVariant>) => {
-    setVariants((prev) =>
-      prev.map((variant) =>
-        variant.lang === activeVariant ? { ...variant, ...updates } : variant,
-      ),
-    );
-  };
+  const updateActiveVariant = useCallback(
+    (updates: Partial<ArticleVariant>) => {
+      setVariants((prev) =>
+        prev.map((variant) =>
+          variant.lang === activeVariant ? { ...variant, ...updates } : variant,
+        ),
+      );
+    },
+    [activeVariant],
+  );
 
-  // Handle image upload
-  const handlePickedImage = (file: File | null) => {
-    if (!file) {
-      setImageFiles((prev) => {
-        const next = new Map(prev);
+  // Image management hook
+  const {
+    imagePreview,
+    setImagePreview,
+    imageFiles,
+    isBannerUploading,
+    setIsBannerUploading,
+    bannerUploadProgress,
+    setBannerUploadProgress,
+    handlePickedImage,
+    handleImageSelect: baseHandleImageSelect,
+    handleRemoveImage: baseHandleRemoveImage,
+    resetUploadState,
+  } = useArticleImage({
+    activeVariant,
+    updateActiveVariant,
+  });
+
+  // Extended handleImageSelect to also clear from imagesToDelete
+  const handleImageSelect = useCallback(
+    (url: string) => {
+      setImagesToDelete((prev) => {
+        const next = new Set(prev);
         next.delete(activeVariant);
         return next;
       });
-      setImagePreview(null);
-      updateActiveVariant({ coverImage: undefined });
-      return;
-    }
-    setImageFiles((prev) => {
-      const next = new Map(prev);
-      next.set(activeVariant, file);
-      return next;
-    });
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const imageUrl = reader.result as string;
-      setImagePreview(imageUrl);
-      updateActiveVariant({ coverImage: imageUrl });
-    };
-    reader.readAsDataURL(file);
-  };
+      baseHandleImageSelect(url);
+    },
+    [activeVariant, baseHandleImageSelect],
+  );
 
-  // Handle image selection from media library
-  const handleImageSelect = (url: string) => {
-    // Clear any pending file upload for this variant
-    setImageFiles((prev) => {
-      const next = new Map(prev);
-      next.delete(activeVariant);
-      return next;
-    });
-    // Remove from images to delete if it was marked
-    setImagesToDelete((prev) => {
-      const next = new Set(prev);
-      next.delete(activeVariant);
-      return next;
-    });
-    setImagePreview(url);
-    updateActiveVariant({ coverImage: url });
-  };
-
-  // Remove image (deferred deletion - only marks for deletion)
-  const handleRemoveImage = () => {
+  // Extended handleRemoveImage to also mark for deletion
+  const handleRemoveImage = useCallback(() => {
     const currentVariant = variants.find((v) => v.lang === activeVariant);
     const hasNewImageFile = imageFiles.has(activeVariant);
     const hasServerImage = currentVariant?.coverImage && !hasNewImageFile;
@@ -197,17 +180,21 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({
       setImagesToDelete((prev) => new Set(prev).add(activeVariant));
     }
 
-    setImagePreview(null);
-    setImageFiles((prev) => {
-      const next = new Map(prev);
-      next.delete(activeVariant);
-      return next;
-    });
-    updateActiveVariant({ coverImage: undefined });
-    // Reset file input
-    const input = document.getElementById("image-upload") as HTMLInputElement;
-    if (input) input.value = "";
-  };
+    baseHandleRemoveImage();
+  }, [activeVariant, variants, imageFiles, baseHandleRemoveImage]);
+
+  // Sync form fields with active variant when switching variants
+  // Only trigger on activeVariant change, not on variants change
+  useEffect(() => {
+    const currentVariant = variants.find((v) => v.lang === activeVariant);
+    if (currentVariant) {
+      setTitle(currentVariant.title);
+      setExcerpt(currentVariant.excerpt);
+      setContent(currentVariant.content);
+      setImagePreview(currentVariant.coverImage || null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeVariant]);
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
@@ -362,43 +349,11 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({
           setIsBannerUploading(true);
           setBannerUploadProgress(0);
 
-          const form = new FormData();
-          form.append("file", file);
-          form.append("projectId", article.projectId);
-          form.append("postId", article.id);
-
-          // Use XMLHttpRequest for progress tracking
-          const data = await new Promise<{ key: string }>((resolve, reject) => {
-            const xhr = new XMLHttpRequest();
-
-            xhr.upload.addEventListener("progress", (event) => {
-              if (event.lengthComputable) {
-                const percentComplete = Math.round(
-                  (event.loaded / event.total) * 100,
-                );
-                setBannerUploadProgress(percentComplete);
-              }
-            });
-
-            xhr.addEventListener("load", () => {
-              if (xhr.status >= 200 && xhr.status < 300) {
-                try {
-                  const response = JSON.parse(xhr.responseText);
-                  resolve(response);
-                } catch {
-                  reject(new Error("Failed to parse response"));
-                }
-              } else {
-                reject(new Error(`Upload failed with status ${xhr.status}`));
-              }
-            });
-
-            xhr.addEventListener("error", () => {
-              reject(new Error("Upload failed"));
-            });
-
-            xhr.open("POST", "/api/uploads/banner");
-            xhr.send(form);
+          const data = await uploadBannerWithProgress({
+            file,
+            projectId: article.projectId,
+            postId: article.id,
+            onProgress: setBannerUploadProgress,
           });
 
           setIsBannerUploading(false);
@@ -423,116 +378,133 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({
         id: toastId,
       });
       setIsSubmitting(false);
-      setIsBannerUploading(false);
-      setBannerUploadProgress(0);
+      resetUploadState();
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <div className="space-y-4 lg:col-span-2">
-          <ArticleInfoFields
-            title={title}
-            excerpt={excerpt}
-            onTitleChange={(newTitle) => {
-              setTitle(newTitle);
-              updateActiveVariant({ title: newTitle });
-            }}
-            onExcerptChange={(newExcerpt) => {
-              setExcerpt(newExcerpt);
-              updateActiveVariant({ excerpt: newExcerpt });
-            }}
-          />
+    <EditorFullscreenProvider value={providerValue}>
+      <ArticleFormLayout title={pageTitle} description={pageDescription}>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div
+            className={cn(
+              "grid grid-cols-1 gap-4 lg:grid-cols-3",
+              isFullscreen && "lg:grid-cols-1",
+            )}
+          >
+            <div
+              className={cn(
+                "space-y-4 lg:col-span-2",
+                isFullscreen && "lg:col-span-1",
+              )}
+            >
+              {!isFullscreen && (
+                <ArticleInfoFields
+                  title={title}
+                  excerpt={excerpt}
+                  onTitleChange={(newTitle) => {
+                    setTitle(newTitle);
+                    updateActiveVariant({ title: newTitle });
+                  }}
+                  onExcerptChange={(newExcerpt) => {
+                    setExcerpt(newExcerpt);
+                    updateActiveVariant({ excerpt: newExcerpt });
+                  }}
+                />
+              )}
 
-          <ArticleContentEditor
-            content={content}
-            onContentChange={(newContent) => {
-              setContent(newContent);
-              updateActiveVariant({ content: newContent });
-            }}
-            textareaId="content"
-            placeholder="Write your article content..."
-            projectId={article.projectId}
-          />
-        </div>
+              <ArticleContentEditor
+                content={content}
+                onContentChange={(newContent) => {
+                  setContent(newContent);
+                  updateActiveVariant({ content: newContent });
+                }}
+                textareaId="content"
+                placeholder="Write your article content..."
+                projectId={article.projectId}
+              />
+            </div>
 
-        <div className="space-y-4 lg:col-span-1">
-          <ArticleVisibilityCard
-            status={status}
-            onStatusChange={(v) => setStatus(v)}
-            isSubmitting={isSubmitting}
-            submitLabel="Update"
-            scheduledPublishAt={scheduledPublishAt}
-            onScheduleChange={setScheduledPublishAt}
-            projectTimezone="UTC"
-            projectDefaultLanguage={defaultLanguage}
-            projectId={currentProject?.id}
-            leftAction={
-              <Link
-                href={`/${currentProject?.slug}/articles`}
-                className={buttonVariants({
-                  variant: "outline-destructive",
-                  size: "sm",
-                })}
-              >
-                <X />
-                Cancel
-              </Link>
-            }
-          />
+            {!isFullscreen && (
+              <div className="space-y-4 lg:col-span-1">
+                <ArticleVisibilityCard
+                  status={status}
+                  onStatusChange={(v) => setStatus(v)}
+                  isSubmitting={isSubmitting}
+                  submitLabel="Update"
+                  scheduledPublishAt={scheduledPublishAt}
+                  onScheduleChange={setScheduledPublishAt}
+                  projectTimezone="UTC"
+                  projectDefaultLanguage={defaultLanguage}
+                  projectId={currentProject?.id}
+                  leftAction={
+                    <Link
+                      href={`/${currentProject?.slug}/articles`}
+                      className={buttonVariants({
+                        variant: "outline-destructive",
+                        size: "sm",
+                      })}
+                    >
+                      <X />
+                      Cancel
+                    </Link>
+                  }
+                />
 
-          <ArticleBannerUpload
-            projectId={article.projectId}
-            imagePreview={imagePreview}
-            onImageChange={handlePickedImage}
-            onImageSelect={handleImageSelect}
-            onRemoveImage={handleRemoveImage}
-            isUploading={isBannerUploading}
-            uploadProgress={bannerUploadProgress}
-            uploadLabel={
-              activeVariant === defaultLanguage
-                ? "Change Image"
-                : `Change Image for ${getLanguageName(activeVariant)}`
-            }
-            emptyDescription={
-              activeVariant === defaultLanguage
-                ? "Update the article cover image."
-                : `Upload a specific image for ${getLanguageName(activeVariant)} variant. Each variant can have its own image.`
-            }
-          />
+                <ArticleBannerUpload
+                  projectId={article.projectId}
+                  imagePreview={imagePreview}
+                  onImageChange={handlePickedImage}
+                  onImageSelect={handleImageSelect}
+                  onRemoveImage={handleRemoveImage}
+                  isUploading={isBannerUploading}
+                  uploadProgress={bannerUploadProgress}
+                  uploadLabel={
+                    activeVariant === defaultLanguage
+                      ? "Change Image"
+                      : `Change Image for ${getLanguageName(activeVariant)}`
+                  }
+                  emptyDescription={
+                    activeVariant === defaultLanguage
+                      ? "Update the article cover image."
+                      : `Upload a specific image for ${getLanguageName(activeVariant)} variant. Each variant can have its own image.`
+                  }
+                />
 
-          <ArticleTagsCard
-            tags={tags}
-            availableTags={availableTags}
-            onTagsChange={setTags}
-            onCreateTag={async (name) => {
-              const tempTag: Tag = {
-                id: `temp-${Date.now()}`,
-                name,
-                slug: null,
-                description: null,
-                icon: "tag",
-                color: null,
-                projectId: article.projectId,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-              };
-              return tempTag;
-            }}
-          />
+                <ArticleTagsCard
+                  tags={tags}
+                  availableTags={availableTags}
+                  onTagsChange={setTags}
+                  onCreateTag={async (name) => {
+                    const tempTag: Tag = {
+                      id: `temp-${Date.now()}`,
+                      name,
+                      slug: null,
+                      description: null,
+                      icon: "tag",
+                      color: null,
+                      projectId: article.projectId,
+                      createdAt: new Date(),
+                      updatedAt: new Date(),
+                    };
+                    return tempTag;
+                  }}
+                />
 
-          <VariantCard
-            defaultLanguage={defaultLanguage}
-            variants={variants}
-            onVariantsUpdate={setVariants}
-            onVariantSelect={setActiveVariant}
-            activeVariant={activeVariant}
-            disabled={isSubmitting}
-            subscription={subscription}
-          />
-        </div>
-      </div>
-    </form>
+                <VariantCard
+                  defaultLanguage={defaultLanguage}
+                  variants={variants}
+                  onVariantsUpdate={setVariants}
+                  onVariantSelect={setActiveVariant}
+                  activeVariant={activeVariant}
+                  disabled={isSubmitting}
+                  subscription={subscription}
+                />
+              </div>
+            )}
+          </div>
+        </form>
+      </ArticleFormLayout>
+    </EditorFullscreenProvider>
   );
 };
