@@ -13,8 +13,7 @@ type PageParams = {
 };
 
 const NewArticlePage: FC<PageParams> = async ({ params }) => {
-  const resolvedParams = await params;
-  const projectSlug = resolvedParams["project-slug"];
+  const { "project-slug": projectSlug } = await params;
 
   const user = await getCurrentUser();
   if (!user) redirect("/auth/login");

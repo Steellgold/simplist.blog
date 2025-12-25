@@ -13,14 +13,8 @@ type PageParams = Promise<{
   slug: string;
 }>;
 
-const EditArticlePage = async ({
-  params,
-}: {
-  params: PageParams;
-}) => {
-  const resolvedParams = await params;
-  const projectSlug = resolvedParams["project-slug"];
-  const slug = resolvedParams.slug;
+const EditArticlePage = async ({ params }: { params: PageParams }) => {
+  const { "project-slug": projectSlug, slug } = await params;
 
   const user = await getCurrentUser();
   if (!user) redirect("/auth/login");

@@ -13,7 +13,7 @@ const BillingPage = async ({
 }: {
   params: Promise<{ "project-slug": string }>;
 }) => {
-  const resolvedParams = await params;
+  const { "project-slug": projectSlug } = await params;
   const user = await getCurrentUser();
 
   if (!user) redirect("/auth/login");
@@ -21,7 +21,7 @@ const BillingPage = async ({
   // Get project by slug
   const project = await prisma.project.findUnique({
     where: {
-      slug: resolvedParams["project-slug"],
+      slug: projectSlug,
     },
   });
 

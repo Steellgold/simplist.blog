@@ -5,15 +5,16 @@ import { getUserProjectMembership } from "@/lib/auth/permissions";
 import { getPlanLimits } from "@/lib/subscription/plans";
 import { prisma } from "@simplist/db";
 import { redirect } from "next/navigation";
+import { FC } from "react";
 
-type ArticlesPageProps = {
+type PageParams = {
   params: Promise<{
     "project-slug": string;
   }>;
 };
 
-const ArticlesPage = async ({ params }: ArticlesPageProps) => {
-  const resolvedParams = await params;
+const ArticlesPage: FC<PageParams> = async ({ params }) => {
+  const { "project-slug": projectSlug } = await params;
 
   const user = await getCurrentUser();
   if (!user) redirect("/auth/login");
@@ -21,7 +22,7 @@ const ArticlesPage = async ({ params }: ArticlesPageProps) => {
   // Find project by slug
   const project = await prisma.project.findUnique({
     where: {
-      slug: resolvedParams["project-slug"],
+      slug: projectSlug,
     },
     include: {
       members: {
