@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import { getProjectMedia, type MediaItem } from "@/lib/actions/media";
 import { formatBytes } from "@/lib/utils";
 import { Button } from "@simplist/ui/components/button";
@@ -20,9 +19,13 @@ import {
   SelectListItemTitle,
   SelectListSearch,
 } from "@simplist/ui/components/select-list";
+import { Input } from "@simplist/ui/components/input";
+import { Label } from "@simplist/ui/components/label";
 import { Check, ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@simplist/ui/lib/utils";
+import { Separator } from "@simplist/ui/components/separator";
+import { Children, createContext, isValidElement, useCallback, useContext, useEffect, useState } from "react";
 
 // Context for sharing state between MediaPicker components
 interface MediaPickerContextValue {
@@ -36,17 +39,17 @@ interface MediaPickerContextValue {
   setSearchQuery: (query: string) => void;
 }
 
-const MediaPickerContext = React.createContext<MediaPickerContextValue | null>(
+const MediaPickerContext = createContext<MediaPickerContextValue | null>(
   null,
 );
 
-function useMediaPickerContext() {
-  const context = React.useContext(MediaPickerContext);
+const useMediaPickerContext = () => {
+  const context = useContext(MediaPickerContext);
   if (!context) {
     throw new Error("MediaPicker components must be used within a MediaPicker");
   }
   return context;
-}
+};
 
 // Main MediaPicker component
 interface MediaPickerProps {
@@ -65,7 +68,7 @@ interface MediaPickerProps {
   children?: React.ReactNode;
 }
 
-function MediaPicker({
+const MediaPicker = ({
   open,
   onOpenChange,
   projectId,
@@ -75,14 +78,14 @@ function MediaPicker({
   description = "Select an image from your media library or enter a URL.",
   confirmText = "Confirm",
   children,
-}: MediaPickerProps) {
-  const [media, setMedia] = React.useState<MediaItem[]>([]);
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [searchQuery, setSearchQuery] = React.useState("");
-  const [selectedUrl, setSelectedUrl] = React.useState<string | null>(null);
-  const [customUrl, setCustomUrl] = React.useState(initialUrl);
+}: MediaPickerProps) => {
+  const [media, setMedia] = useState<MediaItem[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedUrl, setSelectedUrl] = useState<string | null>(null);
+  const [customUrl, setCustomUrl] = useState(initialUrl);
 
-  const loadMedia = React.useCallback(
+  const loadMedia = useCallback(
     async (search?: string) => {
       setIsLoading(true);
       try {
@@ -102,7 +105,7 @@ function MediaPicker({
   );
 
   // Load on open and reset state
-  React.useEffect(() => {
+  useEffect(() => {
     if (open) {
       setSelectedUrl(null);
       setCustomUrl(initialUrl);
@@ -112,7 +115,7 @@ function MediaPicker({
   }, [open, loadMedia, initialUrl]);
 
   // Debounced search
-  React.useEffect(() => {
+  useEffect(() => {
     if (!open) return;
 
     const timer = setTimeout(() => {
@@ -151,15 +154,15 @@ function MediaPicker({
   const finalUrl = getFinalUrl();
 
   // Check if children contains specific slots
-  const childArray = React.Children.toArray(children);
+  const childArray = Children.toArray(children);
   const hasCustomHeader = childArray.some(
-    (child) => React.isValidElement(child) && child.type === MediaPickerHeader,
+    (child) => isValidElement(child) && child.type === MediaPickerHeader,
   );
   const hasCustomContent = childArray.some(
-    (child) => React.isValidElement(child) && child.type === MediaPickerContent,
+    (child) => isValidElement(child) && child.type === MediaPickerContent,
   );
   const hasCustomFooter = childArray.some(
-    (child) => React.isValidElement(child) && child.type === MediaPickerFooter,
+    (child) => isValidElement(child) && child.type === MediaPickerFooter,
   );
 
   return (
@@ -176,15 +179,24 @@ function MediaPicker({
             {hasCustomHeader &&
               childArray.filter(
                 (child) =>
-                  React.isValidElement(child) &&
+                  isValidElement(child) &&
                   child.type === MediaPickerHeader,
               )}
+
+            {/* OR separator between header and content */}
+            {hasCustomHeader && (
+              <div className="flex items-center gap-3">
+                <Separator className="flex-1" />
+                <span className="text-muted-foreground text-xs uppercase">or</span>
+                <Separator className="flex-1" />
+              </div>
+            )}
 
             {/* Custom content or default content */}
             {hasCustomContent ? (
               childArray.filter(
                 (child) =>
-                  React.isValidElement(child) &&
+                  isValidElement(child) &&
                   child.type === MediaPickerContent,
               )
             ) : (
@@ -196,7 +208,7 @@ function MediaPicker({
           {hasCustomFooter ? (
             childArray.filter(
               (child) =>
-                React.isValidElement(child) && child.type === MediaPickerFooter,
+                isValidElement(child) && child.type === MediaPickerFooter,
             )
           ) : (
             <DialogFooter>
@@ -220,9 +232,9 @@ interface MediaPickerHeaderProps {
   className?: string;
 }
 
-function MediaPickerHeader({ children, className }: MediaPickerHeaderProps) {
+const MediaPickerHeader = ({ children, className }: MediaPickerHeaderProps) => {
   return <div className={cn("shrink-0", className)}>{children}</div>;
-}
+};
 
 // Content slot - the media list
 interface MediaPickerContentProps {
@@ -230,7 +242,10 @@ interface MediaPickerContentProps {
   children?: React.ReactNode;
 }
 
-function MediaPickerContent({ className, children }: MediaPickerContentProps) {
+const MediaPickerContent = ({
+  className,
+  children,
+}: MediaPickerContentProps) => {
   const {
     media,
     isLoading,
@@ -312,9 +327,9 @@ interface MediaPickerFooterProps {
   className?: string;
 }
 
-function MediaPickerFooter({ children, className }: MediaPickerFooterProps) {
+const MediaPickerFooter = ({ children, className }: MediaPickerFooterProps) => {
   return <DialogFooter className={className}>{children}</DialogFooter>;
-}
+};
 
 // Pre-built URL input header component
 interface MediaPickerUrlInputProps {
@@ -323,11 +338,11 @@ interface MediaPickerUrlInputProps {
   className?: string;
 }
 
-function MediaPickerUrlInput({
+const MediaPickerUrlInput = ({
   label = "Or enter URL",
   placeholder = "https://example.com/image.jpg",
   className,
-}: MediaPickerUrlInputProps) {
+}: MediaPickerUrlInputProps) => {
   const { customUrl, setCustomUrl, setSelectedUrl } = useMediaPickerContext();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -340,22 +355,21 @@ function MediaPickerUrlInput({
 
   return (
     <div className={cn("space-y-2", className)}>
-      <label className="text-sm font-medium">{label}</label>
-      <input
+      <Label>{label}</Label>
+      <Input
         type="url"
         value={customUrl}
         onChange={handleChange}
         placeholder={placeholder}
-        className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
       />
     </div>
   );
 }
 
 // Hook to access context from custom components
-function useMediaPicker() {
+const useMediaPicker = () => {
   return useMediaPickerContext();
-}
+};
 
 export {
   MediaPicker,
