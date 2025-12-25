@@ -26,19 +26,19 @@ import { INSERT_HORIZONTAL_RULE_COMMAND } from "@lexical/extension";
 import { createPortal } from "react-dom";
 import {
   Code,
-  FileCode2,
+  FileCode,
   Heading1,
   Heading2,
   Heading3,
-  Image as ImageIcon,
+  Picture,
   Link,
-  List,
-  ListChecks,
-  ListOrdered,
+  ListUl,
+  ListCheck,
+  ListOl,
   Minus,
-  Pilcrow,
-  Quote,
-} from "lucide-react";
+  QuoteOpen,
+} from "@gravity-ui/icons";
+import { Pilcrow } from "@simplist/ui/components/icons";
 import {
   Command,
   CommandGroup,
@@ -135,28 +135,28 @@ export const ComponentPickerMenuPlugin = ({
         },
       }),
       new ComponentPickerOption("Bulleted List", {
-        icon: <List className="size-4" />,
+        icon: <ListUl className="size-4" />,
         keywords: ["bulleted list", "ul", "unordered", "bullet"],
         onSelect: () => {
           editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
         },
       }),
       new ComponentPickerOption("Numbered List", {
-        icon: <ListOrdered className="size-4" />,
+        icon: <ListOl className="size-4" />,
         keywords: ["numbered list", "ol", "ordered", "number"],
         onSelect: () => {
           editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
         },
       }),
       new ComponentPickerOption("Check List", {
-        icon: <ListChecks className="size-4" />,
+        icon: <ListCheck className="size-4" />,
         keywords: ["check list", "todo", "checkbox", "task"],
         onSelect: () => {
           editor.dispatchCommand(INSERT_CHECK_LIST_COMMAND, undefined);
         },
       }),
       new ComponentPickerOption("Quote", {
-        icon: <Quote className="size-4" />,
+        icon: <QuoteOpen className="size-4" />,
         keywords: ["quote", "blockquote", "citation"],
         onSelect: () => {
           editor.update(() => {
@@ -168,7 +168,7 @@ export const ComponentPickerMenuPlugin = ({
         },
       }),
       new ComponentPickerOption("Code Block", {
-        icon: <FileCode2 className="size-4" />,
+        icon: <FileCode className="size-4" />,
         keywords: ["code", "block", "codeblock", "snippet"],
         onSelect: () => {
           editor.update(() => {
@@ -201,7 +201,7 @@ export const ComponentPickerMenuPlugin = ({
       ...(onInsertImage
         ? [
             new ComponentPickerOption("Image", {
-              icon: <ImageIcon className="size-4" />,
+              icon: <Picture className="size-4" />,
               keywords: ["image", "photo", "picture", "img"],
               onSelect: () => {
                 onInsertImage();

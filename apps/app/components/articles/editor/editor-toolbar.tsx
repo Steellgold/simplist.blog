@@ -38,19 +38,19 @@ import {
   Heading4,
   Heading5,
   Heading6,
-  Image as ImageIcon,
+  Picture,
   Italic,
   Link as LinkIcon,
-  List,
-  ListChecks,
-  ListOrdered,
-  Maximize2,
-  Minimize2,
-  Pilcrow,
-  Quote,
+  ListUl,
+  ListCheck,
+  ListOl,
+  ChevronsExpandUpRight,
+  ChevronsCollapseUpRight,
+  QuoteOpen,
   Strikethrough,
   Underline,
-} from "lucide-react";
+} from "@gravity-ui/icons";
+import { Pilcrow } from "@simplist/ui/components/icons";
 
 import { useEditorFullscreenOptional } from "@/hooks/use-editor-fullscreen";
 import { getSelectedNode } from "./utils/get-selected-node";
@@ -76,15 +76,15 @@ const blockTypeToBlockName: Record<string, string> = {
   code: "Code Block",
 };
 
-const blockTypeToIcon: Record<string, typeof Pilcrow> = {
+const blockTypeToIcon: Record<string, React.ComponentType> = {
   paragraph: Pilcrow,
   h1: Heading1,
   h2: Heading2,
   h3: Heading3,
-  bullet: List,
-  number: ListOrdered,
-  check: ListChecks,
-  quote: Quote,
+  bullet: ListUl,
+  number: ListOl,
+  check: ListCheck,
+  quote: QuoteOpen,
   code: Code,
 };
 
@@ -109,7 +109,7 @@ export const EditorToolbar = ({
   // In markdown mode, only show fullscreen button
   if (isMarkdownMode) {
     return (
-      <div className="bg-muted/30 flex justify-end items-center gap-1 px-2 py-1.5">
+      <div className="bg-muted/30 flex items-center justify-end gap-1 px-2 py-1.5">
         <Toggle
           variant="outline"
           pressed={isFullscreen}
@@ -118,9 +118,9 @@ export const EditorToolbar = ({
           title={isFullscreen ? "Exit fullscreen (Esc)" : "Fullscreen"}
         >
           {isFullscreen ? (
-            <Minimize2 />
+            <ChevronsCollapseUpRight />
           ) : (
-            <Maximize2 />
+            <ChevronsExpandUpRight />
           )}
         </Toggle>
       </div>
@@ -343,9 +343,7 @@ const EditorToolbarWithLexical = ({
           <DropdownMenuTrigger asChild>
             <Button type="button" variant="outline" className="gap-2">
               <BlockIcon />
-              <span className="text-sm">
-                {blockTypeToBlockName[blockType]}
-              </span>
+              <span className="text-sm">{blockTypeToBlockName[blockType]}</span>
               <ChevronDown />
             </Button>
           </DropdownMenuTrigger>
@@ -375,19 +373,19 @@ const EditorToolbarWithLexical = ({
             </DropdownMenuItem>
 
             <DropdownMenuItem onClick={formatBulletList}>
-              <List /> Bulleted List
+              <ListUl /> Bulleted List
             </DropdownMenuItem>
 
             <DropdownMenuItem onClick={formatNumberedList}>
-              <ListOrdered /> Numbered List
+              <ListOl /> Numbered List
             </DropdownMenuItem>
 
             <DropdownMenuItem onClick={formatCheckList}>
-              <ListChecks /> Check List
+              <ListCheck /> Check List
             </DropdownMenuItem>
 
             <DropdownMenuItem onClick={formatQuote}>
-              <Quote /> Quote
+              <QuoteOpen /> Quote
             </DropdownMenuItem>
 
             <DropdownMenuItem onClick={formatCode}>
@@ -469,7 +467,7 @@ const EditorToolbarWithLexical = ({
             size="icon-sm"
             onClick={onInsertImage}
           >
-            <ImageIcon />
+            <Picture />
           </Button>
         )}
       </div>
@@ -481,7 +479,7 @@ const EditorToolbarWithLexical = ({
         onPressedChange={toggleFullscreen}
         title={isFullscreen ? "Exit fullscreen (Esc)" : "Fullscreen"}
       >
-        {isFullscreen ? <Minimize2 /> : <Maximize2 />}
+        {isFullscreen ? <ChevronsCollapseUpRight /> : <ChevronsExpandUpRight />}
       </Toggle>
     </div>
   );

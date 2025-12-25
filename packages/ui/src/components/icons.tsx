@@ -28,32 +28,56 @@ export const Webhook = forwardRef<SVGSVGElement, SVGProps<SVGSVGElement>>(
 
 Webhook.displayName = "Webhook";
 
-export const WebhookOff = forwardRef<
-  SVGSVGElement,
-  SVGProps<SVGSVGElement>
->(({ className, ...props }, ref) => (
-  <svg
-    ref={ref}
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-    {...props}
-  >
-    <path d="M17 17h-5c-1.09-.02-1.94.92-2.5 1.9A3 3 0 1 1 2.57 15" />
-    <path d="M9 3.4a4 4 0 0 1 6.52.66" />
-    <path d="m6 17 3.1-5.8a2.5 2.5 0 0 0 .057-2.05" />
-    <path d="M20.3 20.3a4 4 0 0 1-2.3.7" />
-    <path d="M18.6 13a4 4 0 0 1 3.357 3.414" />
-    <path d="m12 6 .6 1" />
-    <path d="m2 2 20 20" />
-  </svg>
-));
+export const WebhookOff = forwardRef<SVGSVGElement, SVGProps<SVGSVGElement>>(
+  ({ className, ...props }, ref) => (
+    <svg
+      ref={ref}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      {...props}
+    >
+      <path d="M17 17h-5c-1.09-.02-1.94.92-2.5 1.9A3 3 0 1 1 2.57 15" />
+      <path d="M9 3.4a4 4 0 0 1 6.52.66" />
+      <path d="m6 17 3.1-5.8a2.5 2.5 0 0 0 .057-2.05" />
+      <path d="M20.3 20.3a4 4 0 0 1-2.3.7" />
+      <path d="M18.6 13a4 4 0 0 1 3.357 3.414" />
+      <path d="m12 6 .6 1" />
+      <path d="m2 2 20 20" />
+    </svg>
+  ),
+);
 
 WebhookOff.displayName = "WebhookOff";
+
+export const Pilcrow = forwardRef<SVGSVGElement, SVGProps<SVGSVGElement>>(
+  ({ className, ...props }, ref) => (
+    <svg
+      ref={ref}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      {...props}
+    >
+      <path d="M13 4v16" />
+      <path d="M17 4v16" />
+      <path d="M19 4H9.5a4.5 4.5 0 0 0 0 9H13" />
+    </svg>
+  ),
+);
+
+Pilcrow.displayName = "Pilcrow";

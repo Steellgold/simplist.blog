@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { Code2, FileText } from "lucide-react";
+import { Code, FileText } from "@gravity-ui/icons";
 import { Toggle } from "@simplist/ui/components/toggle";
 import { CardFooter } from "@simplist/ui/components/card";
 
@@ -65,7 +65,7 @@ export const EditorFooter = ({
         >
           {isMarkdownMode ? (
             <>
-              <Code2 className="size-3" />
+              <Code className="size-3" />
               <span>Markdown</span>
             </>
           ) : (

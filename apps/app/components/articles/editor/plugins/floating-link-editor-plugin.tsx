@@ -23,7 +23,13 @@ import {
   type BaseSelection,
   type LexicalEditor,
 } from "lexical";
-import { Check, ExternalLink, Pencil, Trash2, X } from "lucide-react";
+import {
+  Check,
+  ArrowUpRightFromSquare,
+  Pencil,
+  TrashBin,
+  Xmark,
+} from "@gravity-ui/icons";
 import { createPortal } from "react-dom";
 
 import { getSelectedNode } from "../utils/get-selected-node";
@@ -248,7 +254,7 @@ const FloatingLinkEditor = ({
             asChild
           >
             <a href={linkUrl} target="_blank" rel="noopener noreferrer">
-              <ExternalLink className="size-3.5" />
+              <ArrowUpRightFromSquare className="size-3.5" />
             </a>
           </Button>
           <Button
@@ -258,7 +264,7 @@ const FloatingLinkEditor = ({
             className="text-destructive hover:text-destructive size-7"
             onClick={deleteLink}
           >
-            <Trash2 className="size-3.5" />
+            <TrashBin className="size-3.5" />
           </Button>
         </>
       ) : isLinkEditMode ? (
@@ -282,7 +288,7 @@ const FloatingLinkEditor = ({
               setIsLinkEditMode(false);
             }}
           >
-            <X className="size-3.5" />
+            <Xmark className="size-3.5" />
           </Button>
           <Button
             type="button"

@@ -21,7 +21,7 @@ import {
 } from "@simplist/ui/components/select-list";
 import { Input } from "@simplist/ui/components/input";
 import { Label } from "@simplist/ui/components/label";
-import { Check, ImageIcon } from "lucide-react";
+import { Check, Picture } from "@gravity-ui/icons";
 import { toast } from "sonner";
 import { cn } from "@simplist/ui/lib/utils";
 import { Separator } from "@simplist/ui/components/separator";
@@ -307,9 +307,7 @@ const MediaPickerContent = ({
                 src={item.url}
                 alt={item.filename}
                 variant="landscape"
-                fallback={
-                  <ImageIcon className="text-muted-foreground h-4 w-4" />
-                }
+                fallback={<Picture className="text-muted-foreground h-4 w-4" />}
               />
               <div className="min-w-0 flex-1">
                 <SelectListItemTitle>{item.filename}</SelectListItemTitle>

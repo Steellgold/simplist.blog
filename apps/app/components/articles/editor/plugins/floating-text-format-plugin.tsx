@@ -23,7 +23,7 @@ import {
   Link as LinkIcon,
   Strikethrough,
   Underline,
-} from "lucide-react";
+} from "@gravity-ui/icons";
 import { createPortal } from "react-dom";
 
 import { getDOMRangeRect } from "../utils/get-dom-range-rect";
