@@ -1,7 +1,9 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { ArrowLeftIcon, SearchX } from "lucide-react";
+import { useProject } from "@/hooks/use-project-context";
+import { ArrowLeft, EnvelopeOpenXmark } from "@gravity-ui/icons";
+import { buttonVariants } from "@simplist/ui/components/button";
 import {
   Empty,
   EmptyContent,
@@ -11,8 +13,6 @@ import {
   EmptyTitle,
 } from "@simplist/ui/components/empty";
 import Link from "next/link";
-import { buttonVariants } from "@simplist/ui/components/button";
-import { useProject } from "@/hooks/use-project-context";
 
 type Props = {
   actions?: ReactNode[];
@@ -25,7 +25,7 @@ export function NotFound({ actions }: Props) {
     <Empty className="flex h-full min-h-[calc(90vh-4rem)] items-center justify-center">
       <EmptyHeader>
         <EmptyMedia variant="icon">
-          <SearchX />
+          <EnvelopeOpenXmark />
         </EmptyMedia>
         <EmptyTitle>Page Not Found</EmptyTitle>
         <EmptyDescription>
@@ -40,7 +40,7 @@ export function NotFound({ actions }: Props) {
             size: "sm",
           })}
         >
-          <ArrowLeftIcon />
+          <ArrowLeft />
           Back to Project
         </Link>
       </EmptyContent>

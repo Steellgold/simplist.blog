@@ -1,10 +1,10 @@
 "use client";
 
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
+import { TrashBin } from "@gravity-ui/icons";
 import { Badge } from "@simplist/ui/components/badge";
 import { Button } from "@simplist/ui/components/button";
 import { ColumnDef } from "@tanstack/react-table";
-import { Trash2 } from "lucide-react";
 
 export type ApiKey = {
   id: string;
@@ -139,7 +139,7 @@ export const columns: ColumnDef<ApiKey>[] = [
             className="text-destructive hover:text-destructive hover:bg-destructive/10"
           >
             <span className="sr-only">Delete API key</span>
-            <Trash2 />
+            <TrashBin />
           </Button>
         </div>
       );

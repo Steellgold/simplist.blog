@@ -7,6 +7,8 @@ import {
   formatFileSizeLimit,
   isAllowedImageType,
 } from "@/lib/uploads/constants";
+import { FileArrowUp, Folder, TrashBin } from "@gravity-ui/icons";
+import type { ChangeEvent } from "react";
 import { Button } from "@simplist/ui/components/button";
 import {
   Card,
@@ -18,8 +20,6 @@ import {
 import { ConfirmDialog } from "@simplist/ui/components/confirm-dialog";
 import { Progress } from "@simplist/ui/components/progress";
 import { Spinner } from "@simplist/ui/components/spinner";
-import { Images, Trash2, Upload } from "lucide-react";
-import type { ChangeEvent } from "react";
 import Image from "next/image";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -115,7 +115,7 @@ export const ArticleBannerUpload = ({
                   className="bg-muted/50 hover:bg-muted/80 flex h-36 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed transition-colors"
                 >
                   <div className="flex flex-col items-center justify-center py-6">
-                    <Upload className="text-muted-foreground mb-2 h-4.5 w-4.5" />
+                    <FileArrowUp className="text-muted-foreground mb-2 h-4.5 w-4.5" />
                     <p className="text-muted-foreground mb-1 px-2 text-center text-sm">
                       <span className="font-semibold">Upload Image</span>
                     </p>
@@ -129,14 +129,15 @@ export const ArticleBannerUpload = ({
                   />
                 </label>
               </div>
+
               <Button
                 type="button"
                 variant="outline"
                 className="w-full"
                 onClick={() => setLibraryOpen(true)}
               >
-                <Images className="mr-2 h-4 w-4" />
-                Choose from library
+                <Folder />
+                Library
               </Button>
             </div>
           ) : (
@@ -149,6 +150,7 @@ export const ArticleBannerUpload = ({
                   sizes="(max-width: 1024px) 100vw, 33vw"
                   className="object-cover"
                 />
+
                 {isUploading && (
                   <div className="bg-background/70 absolute inset-0 flex items-center justify-center">
                     <div className="flex flex-col items-center gap-2">
@@ -168,7 +170,7 @@ export const ArticleBannerUpload = ({
                   onClick={handleDeleteClick}
                   disabled={isRemoving || isUploading}
                 >
-                  {isRemoving ? <Spinner /> : <Trash2 />}
+                  {isRemoving ? <Spinner /> : <TrashBin />}
                   Remove
                 </Button>
                 <Button
@@ -178,9 +180,10 @@ export const ArticleBannerUpload = ({
                   onClick={triggerUpload}
                   disabled={isUploading}
                 >
-                  <Upload />
+                  <FileArrowUp />
                   {uploadLabel}
                 </Button>
+
                 <Button
                   type="button"
                   variant="outline"
@@ -188,7 +191,7 @@ export const ArticleBannerUpload = ({
                   onClick={() => setLibraryOpen(true)}
                   disabled={isUploading}
                 >
-                  <Images />
+                  <Folder />
                   Library
                 </Button>
               </div>

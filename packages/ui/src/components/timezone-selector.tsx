@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@simplist/ui/lib/utils";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsExpandVertical } from "@gravity-ui/icons";
 import { useEffect, useState } from "react";
 import { Button } from "./button";
 import {
@@ -262,7 +262,7 @@ export function TimezoneCombobox({
         {selectedTimezone
           ? `${selectedTimezone.label} (${selectedTimezone.offset})`
           : "Select a timezone..."}
-        <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
+        <ChevronsExpandVertical className="ml-2 size-4 shrink-0 opacity-50" />
       </Button>
     );
   }
@@ -279,7 +279,7 @@ export function TimezoneCombobox({
           {selectedTimezone
             ? `${selectedTimezone.label} (${selectedTimezone.offset})`
             : "Select a timezone..."}
-          <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
+          <ChevronsExpandVertical className="ml-2 size-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[400px] p-0" align="start">

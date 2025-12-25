@@ -14,6 +14,7 @@ import {
   STEP_URLS,
   WILDCARD_PROTOCOLS,
 } from "@/lib/validations/project";
+import { ChevronRight, Plus, Xmark } from "@gravity-ui/icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   PlanIds,
@@ -68,7 +69,6 @@ import {
 } from "@simplist/ui/lib/color";
 import { i } from "@simplist/ui/lib/icons.enum";
 import { cn } from "@simplist/ui/lib/utils";
-import { ChevronRight, Plus, X } from "lucide-react";
 import type { FormEvent } from "react";
 import {
   Fragment,
@@ -264,7 +264,7 @@ export const CreateProjectForm = forwardRef<
                   >
                     {index + 1}. {stepName}
                   </span>
-                  {index < 3 && <ChevronRight size={12} />}
+                  {index < 3 && <ChevronRight className="size-3" />}
                 </Fragment>
               ))}
             </div>
@@ -500,7 +500,7 @@ export const CreateProjectForm = forwardRef<
                             });
                           }}
                         >
-                          <X />
+                          <Xmark />
                         </InputGroupButton>
                       </InputGroupAddon>
                     </InputGroup>

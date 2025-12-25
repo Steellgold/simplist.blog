@@ -6,6 +6,7 @@ import {
   ForgotPasswordInput,
   forgotPasswordSchema,
 } from "@/lib/validations/auth";
+import { CircleExclamation } from "@gravity-ui/icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Alert,
@@ -29,7 +30,6 @@ import {
 } from "@simplist/ui/components/field";
 import { Input } from "@simplist/ui/components/input";
 import { toast } from "@simplist/ui/components/sonner";
-import { AlertCircleIcon } from "lucide-react";
 import Link from "next/link";
 import type { ComponentProps } from "react";
 import { useState } from "react";
@@ -122,7 +122,7 @@ export const ForgotPasswordForm = ({
               <div className="flex flex-col gap-4">
                 {error && (
                   <Alert variant="destructive">
-                    <AlertCircleIcon />
+                    <CircleExclamation />
                     <AlertTitle>Error sending reset link</AlertTitle>
                     <AlertDescription>{error}</AlertDescription>
                   </Alert>

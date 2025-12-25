@@ -10,10 +10,10 @@ import { useForm } from "react-hook-form";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { RegisterInput, registerSchema } from "@/lib/validations/auth";
+import { CircleExclamation } from "@gravity-ui/icons";
 import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
+  Alert, AlertDescription,
+  AlertTitle
 } from "@simplist/ui/components/alert";
 import { Button } from "@simplist/ui/components/button";
 import {
@@ -34,7 +34,6 @@ import {
 import { Input } from "@simplist/ui/components/input";
 import { PasswordInput } from "@simplist/ui/components/password-input";
 import { toast } from "@simplist/ui/components/sonner";
-import { AlertCircleIcon } from "lucide-react";
 import {
   OAuthProviders,
   OAuthProvidersProvider,
@@ -136,7 +135,7 @@ const RegisterFormContent = ({
               <div className="flex flex-col gap-4">
                 {errors.root && (
                   <Alert variant="destructive">
-                    <AlertCircleIcon />
+                    <CircleExclamation />
                     <AlertTitle>Error creating account</AlertTitle>
                     <AlertDescription>{errors.root.message}</AlertDescription>
                   </Alert>

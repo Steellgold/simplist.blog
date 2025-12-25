@@ -2,6 +2,7 @@
 
 import { createCheckoutSession } from "@/lib/stripe/actions";
 import { getPlan } from "@/lib/subscription/plans";
+import { Check, CircleArrowUpFill } from "@gravity-ui/icons";
 import { SubscriptionTier } from "@simplist/db/types";
 import { Badge } from "@simplist/ui/components/badge";
 import { Button } from "@simplist/ui/components/button";
@@ -27,7 +28,6 @@ import {
   RadioGroupItem,
 } from "@simplist/ui/components/radio-group";
 import { Spinner } from "@simplist/ui/components/spinner";
-import { Check, CircleFadingArrowUp } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -71,7 +71,7 @@ export const UpgradeModal = ({ projectId, projectName }: UpgradeModalProps) => {
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button>
-          <CircleFadingArrowUp />
+          <CircleArrowUpFill />
           Upgrade
         </Button>
       </DialogTrigger>
@@ -175,7 +175,7 @@ export const UpgradeModal = ({ projectId, projectName }: UpgradeModalProps) => {
               disabled={isLoading}
               className="flex-1"
             >
-              {isLoading ? <Spinner /> : <CircleFadingArrowUp />}
+              {isLoading ? <Spinner /> : <CircleArrowUpFill />}
               Upgrade Now
             </Button>
           </div>

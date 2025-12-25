@@ -1,5 +1,6 @@
 "use client";
 
+import { Eye } from "@gravity-ui/icons";
 import { Button } from "@simplist/ui/components/button";
 import { ButtonGroup } from "@simplist/ui/components/button-group";
 import {
@@ -11,7 +12,6 @@ import {
   TableRow,
 } from "@simplist/ui/components/table";
 import { formatDistanceToNow } from "date-fns";
-import { Eye } from "lucide-react";
 import { useState } from "react";
 
 interface RecentView {

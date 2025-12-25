@@ -4,6 +4,13 @@ import { DataTableFacetedFilter } from "@/components/data-table/data-table-facet
 import { DataTableViewOptions } from "@/components/data-table/data-table-view-options";
 import type { MediaItem } from "@/lib/actions/media";
 import { formatBytes } from "@/lib/utils";
+import {
+  LayoutCells,
+  ListUl,
+  Magnifier,
+  TrashBin,
+  Xmark,
+} from "@gravity-ui/icons";
 import { MediaType } from "@simplist/db";
 import { Button } from "@simplist/ui/components/button";
 import { ButtonGroup } from "@simplist/ui/components/button-group";
@@ -51,7 +58,6 @@ import {
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
-import { Grid3X3, List, Search, SearchX, Trash2, X } from "lucide-react";
 import type { FormEvent } from "react";
 import { useEffect, useState } from "react";
 import { MediaCard } from "./media-card";
@@ -260,7 +266,7 @@ export const MediaDataTable = ({
           {/* Search */}
           <form onSubmit={handleSearch} className="flex items-center gap-2">
             <div className="relative">
-              <Search className="text-muted-foreground absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2" />
+              <Magnifier className="text-muted-foreground absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2" />
               <Input
                 placeholder="Search files..."
                 value={searchValue}
@@ -283,7 +289,7 @@ export const MediaDataTable = ({
           {isFiltered && (
             <Button variant="ghost" onClick={handleClearFilters}>
               Reset
-              <X />
+              <Xmark />
             </Button>
           )}
         </div>
@@ -346,11 +352,11 @@ export const MediaDataTable = ({
             className="rounded-md border"
           >
             <ToggleGroupItem aria-label="List view" value="list">
-              <List />
+              <ListUl />
             </ToggleGroupItem>
 
             <ToggleGroupItem aria-label="Grid view" value="grid">
-              <Grid3X3 />
+              <LayoutCells />
             </ToggleGroupItem>
           </ToggleGroup>
 
@@ -360,7 +366,7 @@ export const MediaDataTable = ({
               variant="outline-destructive"
               onClick={() => setShowBulkDeleteDialog(true)}
             >
-              <Trash2 />
+              <TrashBin />
               Delete{" "}
               {viewMode === "list" ? selectedCount : gridSelectedIds.size}{" "}
               file(s)
@@ -426,7 +432,7 @@ export const MediaDataTable = ({
                     <Empty className="border-none">
                       <EmptyHeader>
                         <EmptyMedia variant="icon">
-                          <SearchX />
+                          <Magnifier />
                         </EmptyMedia>
                         <EmptyTitle>No files found</EmptyTitle>
                         <EmptyDescription>
@@ -484,7 +490,7 @@ export const MediaDataTable = ({
                 <Empty>
                   <EmptyHeader>
                     <EmptyMedia variant="icon">
-                      <SearchX />
+                      <Magnifier />
                     </EmptyMedia>
                     <EmptyTitle>No files found</EmptyTitle>
                     <EmptyDescription>

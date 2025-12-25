@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { KeyboardEvent } from "react";
 import { FC } from "react";
 
+import { Code } from "@gravity-ui/icons";
 import { Discord, MicrosoftTeams, Slack } from "@ridemountainpig/svgl-react";
 import {
   Card,
@@ -24,7 +25,6 @@ import {
   InputGroupButton,
   InputGroupTextarea,
 } from "@simplist/ui/components/input-group";
-import { Code } from "lucide-react";
 
 type PayloadSectionProps = {
   isPending: boolean;

@@ -11,6 +11,7 @@ import {
   bulkImportArticles,
   type ImportArticleInput,
 } from "@/lib/actions/articles";
+import { FileText, Plus } from "@gravity-ui/icons";
 import { buttonVariants } from "@simplist/ui/components/button";
 import {
   Empty,
@@ -22,7 +23,6 @@ import {
 } from "@simplist/ui/components/empty";
 import { Kbd } from "@simplist/ui/components/kbd";
 import { ProgressLink } from "@simplist/ui/components/progress-button";
-import { FileText, Plus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useHotkeys } from "react-hotkeys-hook";

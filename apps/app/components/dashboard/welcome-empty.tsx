@@ -1,6 +1,7 @@
 "use client";
 
 import { UpgradeOverlay } from "@/components/ui/upgrade-overlay";
+import { ArrowRight, BookOpen, ChartAreaStackedNormalized, FileText, Key } from "@gravity-ui/icons";
 import type { SubscriptionTier } from "@simplist/db/types";
 import { buttonVariants } from "@simplist/ui/components/button";
 import {
@@ -11,7 +12,6 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@simplist/ui/components/empty";
-import { ArrowUpRightIcon, FileText, Key, LineChart } from "lucide-react";
 import Link from "next/link";
 
 interface WelcomeEmptyProps {
@@ -47,7 +47,7 @@ export const WelcomeEmpty = ({
                 className={buttonVariants({ size: "sm", variant: "link" })}
               >
                 See documentation
-                <ArrowUpRightIcon />
+                <BookOpen />
               </Link>
 
               <Link
@@ -88,7 +88,7 @@ export const WelcomeEmpty = ({
             <Empty className="from-muted/20 to-background h-full border bg-gradient-to-r from-30%">
               <EmptyHeader>
                 <EmptyMedia variant="icon">
-                  <LineChart />
+                  <ChartAreaStackedNormalized />
                 </EmptyMedia>
                 <EmptyTitle>Track Analytics</EmptyTitle>
                 <EmptyDescription>
@@ -100,7 +100,7 @@ export const WelcomeEmpty = ({
                   href={`/${projectSlug}/analytics`}
                   className={buttonVariants({ size: "sm", variant: "outline" })}
                 >
-                  <LineChart />
+                  <ArrowRight />
                   View Analytics
                 </Link>
               </EmptyContent>

@@ -1,6 +1,13 @@
 "use client";
 
 import { UpgradeOverlay } from "@/components/ui/upgrade-overlay";
+import {
+  ArrowRight,
+  ChevronsDownWide,
+  ChevronsUpWide,
+  Eye,
+  Persons,
+} from "@gravity-ui/icons";
 import { buttonVariants } from "@simplist/ui/components/button";
 import {
   Card,
@@ -19,15 +26,7 @@ import {
   ItemSeparator,
   ItemTitle,
 } from "@simplist/ui/components/item";
-import {
-  ArrowUpRight,
-  Eye,
-  TrendingDown,
-  TrendingUp,
-  Users,
-} from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 interface AnalyticsPreviewCardProps {
   todayViews?: number;
@@ -44,8 +43,6 @@ export const AnalyticsPreviewCard = ({
   projectSlug,
   isPro,
 }: AnalyticsPreviewCardProps) => {
-  const router = useRouter();
-
   return (
     <div className="group relative">
       <Card>
@@ -74,7 +71,7 @@ export const AnalyticsPreviewCard = ({
 
             <Item variant="muted">
               <ItemMedia variant="icon">
-                <Users />
+                <Persons />
               </ItemMedia>
               <ItemContent>
                 <ItemDescription>Unique Visitors</ItemDescription>
@@ -88,7 +85,7 @@ export const AnalyticsPreviewCard = ({
 
             <Item variant="muted" size="sm">
               <ItemMedia variant="icon">
-                {averageBounceRate > 50 ? <TrendingDown /> : <TrendingUp />}
+                {averageBounceRate > 50 ? <ChevronsDownWide /> : <ChevronsUpWide />}
               </ItemMedia>
               <ItemContent>
                 <ItemDescription>Avg. Bounce Rate</ItemDescription>
@@ -109,7 +106,7 @@ export const AnalyticsPreviewCard = ({
             })}
           >
             View detailed analytics
-            <ArrowUpRight />
+            <ArrowRight />
           </Link>
         </CardFooter>
       </Card>

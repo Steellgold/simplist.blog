@@ -32,7 +32,7 @@ import {
   getColorValue,
 } from "@simplist/ui/lib/color";
 import { cn } from "@simplist/ui/lib/utils";
-import { Check, ChevronDown, Search } from "lucide-react";
+import { Check, ChevronDown, Magnifier } from "@gravity-ui/icons";
 import { FC, useEffect, useState } from "react";
 
 type CustomColorOption = {
@@ -285,7 +285,7 @@ export const ColorSelector: FC<ColorSelectorProps> = ({
       >
         <div className="w-full p-2">
           <div className="relative mb-2">
-            <Search className="text-muted-foreground absolute top-2.5 left-2 h-4 w-4" />
+            <Magnifier className="text-muted-foreground absolute top-2.5 left-2 h-4 w-4" />
             <Input
               placeholder="Search colors..."
               value={searchValue}

@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Check, Search } from "lucide-react";
+import { Check, Magnifier } from "@gravity-ui/icons";
 import { cn } from "@simplist/ui/lib/utils";
 import { Checkbox } from "./checkbox";
 import { Input } from "./input";
@@ -147,7 +147,7 @@ function SelectListSearch({
 }: SelectListSearchProps) {
   return (
     <div className={cn("relative", className)}>
-      <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+      <Magnifier className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
       <Input
         placeholder={placeholder}
         value={value}

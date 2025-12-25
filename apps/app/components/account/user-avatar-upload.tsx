@@ -2,10 +2,10 @@
 
 import { deleteUserAvatar, updateUserAvatar } from "@/lib/actions/user";
 import { User } from "@/lib/auth-client";
+import { FileArrowUp, Xmark } from "@gravity-ui/icons";
 import { Button } from "@simplist/ui/components/button";
 import { toast } from "@simplist/ui/components/sonner";
 import { Spinner } from "@simplist/ui/components/spinner";
-import { Upload, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { ChangeEvent } from "react";
 import { useEffect, useRef, useState } from "react";
@@ -170,7 +170,7 @@ export function UserAvatarUpload({
                 onClick={handleRemoveAvatar}
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90 absolute -top-1 -right-1 rounded-full p-1 transition-colors"
               >
-                <X className="size-3" />
+                <Xmark className="size-3" />
               </button>
             )}
 
@@ -182,11 +182,7 @@ export function UserAvatarUpload({
           </div>
         ) : (
           <div className="border-muted-foreground/25 flex size-20 items-center justify-center rounded-full border-2 border-dashed">
-            {isUploading ? (
-              <Spinner />
-            ) : (
-              <Upload className="text-muted-foreground/50" />
-            )}
+            {isUploading ? <Spinner /> : <FileArrowUp className="text-muted-foreground/50" />}
           </div>
         )}
       </div>
@@ -207,7 +203,7 @@ export function UserAvatarUpload({
           disabled={disabled || isUploading}
           onClick={() => fileInputRef.current?.click()}
         >
-          {isUploading ? <Spinner /> : <Upload />}
+          {isUploading ? <Spinner /> : <FileArrowUp />}
           {previewUrl ? "Change Avatar" : "Upload Avatar"}
         </Button>
 

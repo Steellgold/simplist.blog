@@ -5,6 +5,7 @@ import { useProjectContext } from "@/components/projects/context-provider";
 import { TagApplyDialog } from "@/components/tags/tag-apply-dialog";
 import { TagEditDialog } from "@/components/tags/tag-edit-dialog";
 import { deleteTag, type TagWithMetadata } from "@/lib/actions/tags";
+import { Copy, EllipsisVertical, FileText, PencilToSquare, Tags, TrashBin } from "@gravity-ui/icons";
 import { Badge } from "@simplist/ui/components/badge";
 import { Button } from "@simplist/ui/components/button";
 import { Checkbox } from "@simplist/ui/components/checkbox";
@@ -27,7 +28,6 @@ import type { IconsEnumType } from "@simplist/ui/lib/icons.enum";
 import { cn } from "@simplist/ui/lib/utils";
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
-import { Copy, Edit, FileText, MoreVertical, Tags, Trash } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -87,7 +87,7 @@ const TagActionsCell = ({
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon-sm">
             <span className="sr-only">Open menu</span>
-            <MoreVertical />
+            <EllipsisVertical />
           </Button>
         </DropdownMenuTrigger>
 
@@ -120,7 +120,7 @@ const TagActionsCell = ({
               <DropdownMenuSeparator />
 
               <DropdownMenuItem onClick={() => setShowEditDialog(true)}>
-                <Edit />
+                <PencilToSquare />
                 Edit tag
               </DropdownMenuItem>
 
@@ -128,7 +128,7 @@ const TagActionsCell = ({
                 onClick={() => setShowDeleteDialog(true)}
                 className="text-destructive focus:text-destructive"
               >
-                <Trash className="text-destructive" />
+                <TrashBin className="text-destructive" />
                 Delete tag
               </DropdownMenuItem>
             </>
@@ -190,7 +190,7 @@ export const useTagsColumns = ({
 
   const columns: ColumnDef<TagWithMetadata>[] = [];
 
-  // Only add select column for Pro users
+  // Only add select column for Pro Persons
   if (isPro) {
     columns.push({
       id: "select",

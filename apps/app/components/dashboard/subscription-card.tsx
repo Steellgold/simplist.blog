@@ -1,6 +1,7 @@
 "use client";
 
 import { MiniBadge } from "@/components/ui/mini-badge";
+import { ChartAreaStackedNormalized, CreditCard } from "@gravity-ui/icons";
 import { buttonVariants } from "@simplist/ui/components/button";
 import {
   Card,
@@ -11,7 +12,6 @@ import {
 } from "@simplist/ui/components/card";
 import { Progress } from "@simplist/ui/components/progress";
 import { format } from "date-fns";
-import { CreditCard, TrendingUp } from "lucide-react";
 import Link from "next/link";
 
 interface SubscriptionCardProps {
@@ -99,7 +99,7 @@ export const SubscriptionCard = ({
             })}
             href="/pricing"
           >
-            <TrendingUp />
+            <ChartAreaStackedNormalized />
             Upgrade to Pro
           </Link>
         )}

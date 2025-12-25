@@ -2,7 +2,7 @@
 
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
-import { PanelLeftIcon } from "lucide-react";
+import { LayoutSideContentLeft } from "@gravity-ui/icons";
 import * as React from "react";
 
 import { Button } from "@simplist/ui/components/button";
@@ -273,7 +273,7 @@ function SidebarTrigger({
       }}
       {...props}
     >
-      <PanelLeftIcon />
+      <LayoutSideContentLeft />
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
   );

@@ -5,6 +5,7 @@ import { TagCreateDialog } from "@/components/tags/tag-create-dialog";
 import { useTagsColumns } from "@/components/tags/tags-columns";
 import { TagsDataTable } from "@/components/tags/tags-data-table";
 import type { TagWithMetadata } from "@/lib/actions/tags";
+import { Plus, Tag } from "@gravity-ui/icons";
 import { Button } from "@simplist/ui/components/button";
 import {
   Empty,
@@ -15,7 +16,6 @@ import {
   EmptyTitle,
 } from "@simplist/ui/components/empty";
 import { Kbd } from "@simplist/ui/components/kbd";
-import { Plus, Tag } from "lucide-react";
 import { useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 

@@ -11,6 +11,7 @@ import {
   STEP_NAME,
   STEP_PLAN,
 } from "@/lib/validations/project";
+import { ArrowLeft, ArrowRight, ArrowsRotateLeft } from "@gravity-ui/icons";
 import { PlanIds, SubscriptionInterval } from "@simplist/limits";
 import { Badge } from "@simplist/ui/components/badge";
 import { Button } from "@simplist/ui/components/button";
@@ -26,7 +27,6 @@ import {
 import { ThemeSwitcher } from "@simplist/ui/components/shared/switch-theme";
 import { toast } from "@simplist/ui/components/sonner";
 import { useIsMobile } from "@simplist/ui/hooks/use-mobile";
-import { ArrowLeft, ArrowRight, RefreshCcw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
@@ -232,7 +232,7 @@ export const CreateProjectPageClient = () => {
                   onClick={handleReset}
                   disabled={isSubmitting || !hasFormData}
                 >
-                  <RefreshCcw />
+                  <ArrowsRotateLeft />
                 </Button>
 
                 <ButtonGroup>

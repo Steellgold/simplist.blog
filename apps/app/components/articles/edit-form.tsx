@@ -25,7 +25,7 @@ import { type Tag } from "@simplist/db";
 import { buttonVariants } from "@simplist/ui/components/button";
 import { toast } from "@simplist/ui/components/sonner";
 import { cn } from "@simplist/ui/lib/utils";
-import { X } from "lucide-react";
+import { Xmark } from "@gravity-ui/icons";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FC, useCallback, useEffect, useState } from "react";
@@ -446,7 +446,7 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({
                         size: "sm",
                       })}
                     >
-                      <X />
+                      <Xmark />
                       Cancel
                     </Link>
                   }

@@ -38,7 +38,7 @@ export const HR: ElementTransformer = {
 // Image transformer for markdown images ![alt](src)
 // Using element transformer for proper handling during $convertFromMarkdownString
 export const IMAGE: ElementTransformer = {
-  dependencies: [ImageNode],
+  dependencies: [ImageNode as any],
   export: (node) => {
     if (!$isImageNode(node)) {
       return null;
@@ -54,14 +54,14 @@ export const IMAGE: ElementTransformer = {
       src: src || "",
       altText: altText || "",
     });
-    parentNode.replace(imageNode);
+    parentNode.replace(imageNode as any);
   },
   type: "element",
 };
 
 // Inline image transformer for images within text
 export const INLINE_IMAGE: TextMatchTransformer = {
-  dependencies: [ImageNode],
+  dependencies: [ImageNode as any],
   export: (node) => {
     if (!$isImageNode(node)) {
       return null;
@@ -78,7 +78,7 @@ export const INLINE_IMAGE: TextMatchTransformer = {
       src: src || "",
       altText: altText || "",
     });
-    textNode.replace(imageNode);
+    textNode.replace(imageNode as any);
   },
   trigger: ")",
   type: "text-match",

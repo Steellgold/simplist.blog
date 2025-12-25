@@ -6,11 +6,11 @@ import {
   ResetPasswordInput,
   resetPasswordSchema,
 } from "@/lib/validations/auth";
+import { CircleExclamation } from "@gravity-ui/icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
+  Alert, AlertDescription,
+  AlertTitle
 } from "@simplist/ui/components/alert";
 import { Button } from "@simplist/ui/components/button";
 import {
@@ -29,7 +29,6 @@ import {
 } from "@simplist/ui/components/field";
 import { PasswordInput } from "@simplist/ui/components/password-input";
 import { toast } from "@simplist/ui/components/sonner";
-import { AlertCircleIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQueryState } from "nuqs";
@@ -95,7 +94,7 @@ export const ResetPasswordForm = ({
               <div className="flex flex-col gap-4">
                 {error && (
                   <Alert variant="destructive">
-                    <AlertCircleIcon />
+                    <CircleExclamation />
                     <AlertTitle>Error resetting password</AlertTitle>
                     <AlertDescription>{error}</AlertDescription>
                   </Alert>

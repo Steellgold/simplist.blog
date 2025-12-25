@@ -3,6 +3,14 @@
 import type { MediaItem } from "@/lib/actions/media";
 import { formatBytes } from "@/lib/utils";
 import {
+  ArrowUpRightFromSquare,
+  Check,
+  Copy,
+  EllipsisVertical,
+  Picture,
+  TrashBin,
+} from "@gravity-ui/icons";
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -28,14 +36,6 @@ import {
   TooltipTrigger,
 } from "@simplist/ui/components/tooltip";
 import { cn } from "@simplist/ui/lib/utils";
-import {
-  Check,
-  Copy,
-  ExternalLink,
-  ImageIcon,
-  MoreVertical,
-  Trash2,
-} from "lucide-react";
 import type { MouseEvent } from "react";
 import Image from "next/image";
 import { useState } from "react";
@@ -126,7 +126,7 @@ export const MediaCard = ({
                 window.open(media.url, "_blank");
               }}
             >
-              <ExternalLink />
+              <ArrowUpRightFromSquare />
             </Button>
           </div>
         </div>
@@ -157,7 +157,7 @@ export const MediaCard = ({
                   size="icon-sm"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <MoreVertical />
+                  <EllipsisVertical />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -169,13 +169,13 @@ export const MediaCard = ({
                 <DropdownMenuItem
                   onClick={() => window.open(media.url, "_blank")}
                 >
-                  <ExternalLink />
+                  <ArrowUpRightFromSquare />
                   Open in new tab
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => setShowApplyBannerDialog(true)}
                 >
-                  <ImageIcon />
+                  <Picture />
                   Apply as banner
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
@@ -183,7 +183,7 @@ export const MediaCard = ({
                   className="text-destructive focus:text-destructive"
                   onClick={() => setShowDeleteDialog(true)}
                 >
-                  <Trash2 className="text-destructive" />
+                  <TrashBin className="text-destructive" />
                   Delete
                 </DropdownMenuItem>
               </DropdownMenuContent>

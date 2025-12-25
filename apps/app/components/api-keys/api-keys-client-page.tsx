@@ -3,6 +3,7 @@
 import { CreateApiKeyForm } from "@/components/api-keys/create-form";
 import { ApiKeysList } from "@/components/api-keys/list";
 import { PageLayout } from "@/components/layout/page-layout";
+import { Key } from "@gravity-ui/icons";
 import type { ApiKey } from "@simplist/db/types";
 import {
   Empty,
@@ -12,7 +13,6 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@simplist/ui/components/empty";
-import { KeyRound } from "lucide-react";
 import { useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 
@@ -52,7 +52,7 @@ export const ApiKeysClientPage = ({
         <Empty>
           <EmptyHeader>
             <EmptyMedia variant="icon">
-              <KeyRound />
+              <Key />
             </EmptyMedia>
             <EmptyTitle>No API keys yet</EmptyTitle>
             <EmptyDescription>

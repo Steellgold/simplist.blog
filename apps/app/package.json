@@ -29,6 +29,7 @@
     "@lexical/selection": "^0.39.0",
     "@lexical/table": "^0.39.0",
     "@lexical/utils": "^0.39.0",
+    "lexical": "^0.39.0",
     "@number-flow/react": "^0.5.10",
     "@prisma/adapter-pg": "^7.2.0",
     "@react-email/render": "^2.0.0",
@@ -44,7 +45,6 @@
     "date-fns": "^4.1.0",
     "dotenv": "^17.2.3",
     "input-otp": "^1.4.2",
-    "lexical": "^0.39.0",
     "lucide-react": "^0.562.0",
     "motion": "^12.23.26",
     "next": "16.1.0",
@@ -71,6 +71,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.3",
+    "@gravity-ui/icons": "^2.16.0",
     "@next/bundle-analyzer": "^16.1.0",
     "@simplist/eslint-config": "workspace:*",
     "@simplist/typescript-config": "workspace:*",
