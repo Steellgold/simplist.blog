@@ -1,7 +1,6 @@
 import { ArticleNotFound } from "@/components/articles/article-not-found";
 import { ArticleRestore } from "@/components/articles/article-restore";
 import { EditArticleForm } from "@/components/articles/edit-form";
-import { PageLayout } from "@/components/layout/page-layout";
 import { getArticleBySlugWithVariants } from "@/lib/actions/articles";
 import { getProjectTagsWithMetadata } from "@/lib/actions/tags";
 import { getCurrentUser } from "@/lib/auth-helper";
@@ -14,7 +13,11 @@ type PageParams = Promise<{
   slug: string;
 }>;
 
-const EditArticlePage = async ({ params }: { params: Promise<PageParams> }) => {
+const EditArticlePage = async ({
+  params,
+}: {
+  params: PageParams;
+}) => {
   const resolvedParams = await params;
   const projectSlug = resolvedParams["project-slug"];
   const slug = resolvedParams.slug;
@@ -40,20 +43,16 @@ const EditArticlePage = async ({ params }: { params: Promise<PageParams> }) => {
     }));
 
     return (
-      <PageLayout
+      <EditArticleForm
+        article={article}
+        availableTags={availableTags}
+        subscription={subscription}
         title="Edit Article"
         description="Update your article content and settings."
-      >
-        <EditArticleForm
-          article={article}
-          availableTags={availableTags}
-          subscription={subscription}
-        />
-      </PageLayout>
+      />
     );
   }
 
-  // Article doesn't exist at all
   return <ArticleNotFound slug={projectSlug} />;
 };
 
