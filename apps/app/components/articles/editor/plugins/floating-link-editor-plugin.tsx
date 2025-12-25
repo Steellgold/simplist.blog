@@ -1,6 +1,6 @@
 "use client";
 
-import type { JSX } from "react";
+import type { JSX, KeyboardEvent } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   $isLinkNode,
@@ -175,9 +175,7 @@ const FloatingLinkEditor = ({
     }
   }, [isLinkEditMode, isLink]);
 
-  const monitorInputInteraction = (
-    event: React.KeyboardEvent<HTMLInputElement>,
-  ) => {
+  const monitorInputInteraction = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
       event.preventDefault();
       handleLinkSubmission();

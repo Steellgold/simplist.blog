@@ -33,13 +33,14 @@ import { AlertCircleIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQueryState } from "nuqs";
+import type { ComponentProps } from "react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
 export const ResetPasswordForm = ({
   className,
   ...props
-}: React.ComponentProps<"div">) => {
+}: ComponentProps<"div">) => {
   const [error, setError] = useState("");
   const [token] = useQueryState("token");
   const router = useRouter();

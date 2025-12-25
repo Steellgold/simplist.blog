@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { ShieldAlert } from "lucide-react";
 import {
   Empty,
@@ -11,7 +12,7 @@ import {
 } from "@simplist/ui/components/empty";
 
 type Props = {
-  actions?: React.ReactNode[];
+  actions?: ReactNode[];
 };
 
 export function Unauthorized({ actions }: Props) {

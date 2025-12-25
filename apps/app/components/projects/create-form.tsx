@@ -69,7 +69,9 @@ import {
 import { i } from "@simplist/ui/lib/icons.enum";
 import { cn } from "@simplist/ui/lib/utils";
 import { ChevronRight, Plus, X } from "lucide-react";
-import React, {
+import type { FormEvent } from "react";
+import {
+  Fragment,
   forwardRef,
   useEffect,
   useImperativeHandle,
@@ -205,7 +207,7 @@ export const CreateProjectForm = forwardRef<
       },
     }));
 
-    const handleFormSubmit = (e: React.FormEvent) => e.preventDefault();
+    const handleFormSubmit = (e: FormEvent) => e.preventDefault();
 
     const handleCreateProject = () => {
       handleSubmit((data) => {
@@ -250,7 +252,7 @@ export const CreateProjectForm = forwardRef<
 
             <div className="text-muted-foreground flex items-center justify-center gap-2 text-xs">
               {["Name", "Icon", "URLs", "Plan"].map((stepName, index) => (
-                <React.Fragment key={index}>
+                <Fragment key={index}>
                   <span
                     className={cn(
                       "hover:text-foreground cursor-pointer transition-colors",
@@ -263,7 +265,7 @@ export const CreateProjectForm = forwardRef<
                     {index + 1}. {stepName}
                   </span>
                   {index < 3 && <ChevronRight size={12} />}
-                </React.Fragment>
+                </Fragment>
               ))}
             </div>
 

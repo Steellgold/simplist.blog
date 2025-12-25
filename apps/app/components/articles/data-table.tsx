@@ -21,6 +21,7 @@ import {
 import { SearchX, Trash, TrendingUp, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { parseAsArrayOf, parseAsString, useQueryStates } from "nuqs";
+import type { ReactNode } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
@@ -70,7 +71,7 @@ interface DataTableProps<
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   members: Member[];
-  importDialog?: React.ReactNode;
+  importDialog?: ReactNode;
 }
 
 export const ArticlesDataTable = <

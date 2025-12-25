@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import type { ComponentType, CSSProperties } from "react";
 
 // Payment method icons from react-pay-icons
 import {
@@ -606,7 +606,7 @@ import {
 } from "react-pay-icons/crypto";
 
 // Payment method icon mapping
-const paymentMethodIcons: Record<string, React.ComponentType<any>> = {
+const paymentMethodIcons: Record<string, ComponentType<any>> = {
   // Payment methods
   ach: Ach,
   affirm: Affirm,
@@ -1209,7 +1209,7 @@ const paymentMethodIcons: Record<string, React.ComponentType<any>> = {
 
 export const getPaymentMethodIcon = (
   brand: string | undefined,
-  style?: React.CSSProperties,
+  style?: CSSProperties,
 ) => {
   if (!brand) return null;
 
@@ -1218,7 +1218,7 @@ export const getPaymentMethodIcon = (
 
   if (!IconComponent) return null;
 
-  const defaultStyle: React.CSSProperties = {
+  const defaultStyle: CSSProperties = {
     width: 16,
     borderRadius: "20%",
     ...style,

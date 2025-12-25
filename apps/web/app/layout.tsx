@@ -5,7 +5,7 @@ import { Toaster } from "@simplist/ui/components/sonner";
 import "@simplist/ui/globals.css";
 import type { Metadata } from "next";
 import { Geist_Mono, Nunito, Syne } from "next/font/google";
-import { FC } from "react";
+import { type FC, type ReactNode } from "react";
 
 const nunito = Nunito({
   variable: "--font-nunito",
@@ -106,7 +106,7 @@ export const metadata: Metadata = {
   },
 };
 
-const RootLayout: FC<{ children: React.ReactNode }> = ({ children }) => {
+const RootLayout: FC<{ children: ReactNode }> = ({ children }) => {
   return (
     <html lang="en" suppressHydrationWarning>
       <body

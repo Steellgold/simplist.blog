@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import type { ComponentProps } from "react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -43,7 +44,7 @@ import {
 const RegisterFormContent = ({
   className,
   ...props
-}: React.ComponentProps<"div">) => {
+}: ComponentProps<"div">) => {
   const router = useRouter();
   const { isAuthenticating } = useOAuthProviders();
   const [error, setError] = useState("");
@@ -246,7 +247,7 @@ const RegisterFormContent = ({
   );
 };
 
-export const RegisterForm = (props: React.ComponentProps<"div">) => {
+export const RegisterForm = (props: ComponentProps<"div">) => {
   return (
     <OAuthProvidersProvider>
       <RegisterFormContent {...props} />

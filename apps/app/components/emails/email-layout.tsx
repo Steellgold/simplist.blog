@@ -1,8 +1,8 @@
-import React from "react";
+import type { ReactNode } from "react";
 
 interface EmailLayoutProps {
   previewText?: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export const EmailLayout = ({ previewText, children }: EmailLayoutProps) => {

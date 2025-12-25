@@ -20,7 +20,7 @@ import {
 } from "@simplist/ui/components/empty";
 import { ItemGroup, ItemSeparator } from "@simplist/ui/components/item";
 import { PiggyBank } from "lucide-react";
-import React, { useState } from "react";
+import { Fragment, useState } from "react";
 
 type InvoicesCardProps = {
   billingEntries: BillingEntry[];
@@ -73,10 +73,10 @@ export const InvoicesCard = ({ billingEntries }: InvoicesCardProps) => {
       <CardContent>
         <ItemGroup>
           {[...currentEntries].map((entry, index) => (
-            <React.Fragment key={entry.id}>
+            <Fragment key={entry.id}>
               <BillingItem entry={entry} />
               {index !== currentEntries.length - 1 && <ItemSeparator />}
-            </React.Fragment>
+            </Fragment>
           ))}
         </ItemGroup>
 

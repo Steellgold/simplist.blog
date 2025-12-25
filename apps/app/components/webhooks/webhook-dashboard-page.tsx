@@ -44,6 +44,7 @@ import {
   XCircle,
 } from "lucide-react";
 import Link from "next/link";
+import type { ComponentType } from "react";
 import { FC, useState, useTransition } from "react";
 import type { WebhookFormData } from "./types";
 import { formatDate } from "./utils";
@@ -83,7 +84,7 @@ const StatCard = ({
   title: string;
   value: number | string;
   description: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: ComponentType<{ className?: string }>;
   suffix?: string;
   variant?: "default" | "destructive";
 }) => (

@@ -14,7 +14,7 @@ import {
 } from "@simplist/ui/components/command";
 import * as LucideIcons from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ComponentType } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 
 export const SearchCommand = () => {
@@ -95,7 +95,7 @@ export const SearchCommand = () => {
   const renderIcon = (iconName?: string) => {
     if (!iconName) return null;
     const IconComponent = (LucideIcons as any)[iconName] as
-      | React.ComponentType<{ className?: string }>
+      | ComponentType<{ className?: string }>
       | undefined;
     if (!IconComponent) return null;
     return <IconComponent className="h-4 w-4" />;

@@ -1,5 +1,6 @@
 "use client";
 
+import type { ChangeEvent } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
@@ -147,7 +148,7 @@ export const RichTextEditor = ({
 
   // Handle markdown textarea change
   const handleMarkdownChange = useCallback(
-    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    (e: ChangeEvent<HTMLTextAreaElement>) => {
       const newContent = e.target.value;
       setMarkdownContent(newContent);
       onContentChange(newContent);
@@ -290,7 +291,6 @@ export const RichTextEditor = ({
               isMarkdownMode={isMarkdownMode}
               onToggleMarkdownMode={handleToggleMarkdownMode}
             />
-
           </ImagePlugin>
         </LexicalComposer>
       </CardContent>

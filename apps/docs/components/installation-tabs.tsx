@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, useState } from "react";
+import { FC, useState, type ReactNode } from "react";
 import { Card } from "@simplist/ui/components/card";
 import {
   Tabs,
@@ -31,7 +31,7 @@ type InstallationTabsProps = {
 type Manager = {
   key: PackageManagerKey;
   label: string;
-  icon: React.ReactNode;
+  icon: ReactNode;
 };
 
 const managers: Manager[] = [

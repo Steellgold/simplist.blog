@@ -15,6 +15,7 @@ import { Input } from "@simplist/ui/components/input";
 import { Label } from "@simplist/ui/components/label";
 import { toast } from "@simplist/ui/components/sonner";
 import { Spinner } from "@simplist/ui/components/spinner";
+import type { FormEvent } from "react";
 import { useState } from "react";
 
 type Role = {
@@ -73,7 +74,7 @@ export const EditRoleDialog = ({
     setPermissions((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
     if (!name) {

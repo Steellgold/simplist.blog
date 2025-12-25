@@ -1,5 +1,6 @@
 "use client";
 
+import type { HTMLAttributes } from "react";
 import { type Column } from "@tanstack/react-table";
 import { ArrowDown, ArrowUp, ChevronsUpDown, EyeOff } from "lucide-react";
 
@@ -16,7 +17,7 @@ import { cn } from "@simplist/ui/lib/utils";
 interface DataTableColumnHeaderProps<
   TData,
   TValue,
-> extends React.HTMLAttributes<HTMLDivElement> {
+> extends HTMLAttributes<HTMLDivElement> {
   column: Column<TData, TValue>;
   title: string;
 }

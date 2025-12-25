@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { ArrowLeftIcon, SearchX } from "lucide-react";
 import {
   Empty,
@@ -14,7 +15,7 @@ import { buttonVariants } from "@simplist/ui/components/button";
 import { useProject } from "@/hooks/use-project-context";
 
 type Props = {
-  actions?: React.ReactNode[];
+  actions?: ReactNode[];
 };
 
 export function NotFound({ actions }: Props) {

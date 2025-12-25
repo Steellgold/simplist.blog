@@ -52,6 +52,7 @@ import {
   VisibilityState,
 } from "@tanstack/react-table";
 import { Grid3X3, List, Search, SearchX, Trash2, X } from "lucide-react";
+import type { FormEvent } from "react";
 import { useEffect, useState } from "react";
 import { MediaCard } from "./media-card";
 
@@ -195,7 +196,7 @@ export const MediaDataTable = ({
     .getFilteredRowModel()
     .rows.map((row) => row.original);
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = (e: FormEvent) => {
     e.preventDefault();
     onSearch?.(searchValue);
   };

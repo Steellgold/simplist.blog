@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { Button, buttonVariants } from "@simplist/ui/components/button";
 import {
   Empty,
@@ -14,7 +15,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 type Props = {
-  actions?: React.ReactNode[];
+  actions?: ReactNode[];
 };
 
 export function Error({ actions }: Props) {

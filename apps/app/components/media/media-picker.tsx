@@ -25,7 +25,16 @@ import { Check, ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@simplist/ui/lib/utils";
 import { Separator } from "@simplist/ui/components/separator";
-import { Children, createContext, isValidElement, useCallback, useContext, useEffect, useState } from "react";
+import type { ChangeEvent, ReactNode } from "react";
+import {
+  Children,
+  createContext,
+  isValidElement,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
 // Context for sharing state between MediaPicker components
 interface MediaPickerContextValue {
@@ -39,9 +48,7 @@ interface MediaPickerContextValue {
   setSearchQuery: (query: string) => void;
 }
 
-const MediaPickerContext = createContext<MediaPickerContextValue | null>(
-  null,
-);
+const MediaPickerContext = createContext<MediaPickerContextValue | null>(null);
 
 const useMediaPickerContext = () => {
   const context = useContext(MediaPickerContext);
@@ -65,7 +72,7 @@ interface MediaPickerProps {
   description?: string;
   /** Confirm button text */
   confirmText?: string;
-  children?: React.ReactNode;
+  children?: ReactNode;
 }
 
 const MediaPicker = ({
@@ -179,15 +186,16 @@ const MediaPicker = ({
             {hasCustomHeader &&
               childArray.filter(
                 (child) =>
-                  isValidElement(child) &&
-                  child.type === MediaPickerHeader,
+                  isValidElement(child) && child.type === MediaPickerHeader,
               )}
 
             {/* OR separator between header and content */}
             {hasCustomHeader && (
               <div className="flex items-center gap-3">
                 <Separator className="flex-1" />
-                <span className="text-muted-foreground text-xs uppercase">or</span>
+                <span className="text-muted-foreground text-xs uppercase">
+                  or
+                </span>
                 <Separator className="flex-1" />
               </div>
             )}
@@ -196,8 +204,7 @@ const MediaPicker = ({
             {hasCustomContent ? (
               childArray.filter(
                 (child) =>
-                  isValidElement(child) &&
-                  child.type === MediaPickerContent,
+                  isValidElement(child) && child.type === MediaPickerContent,
               )
             ) : (
               <MediaPickerContent />
@@ -224,11 +231,11 @@ const MediaPicker = ({
       </DialogContent>
     </Dialog>
   );
-}
+};
 
 // Header slot for custom content (like URL input)
 interface MediaPickerHeaderProps {
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
 }
 
@@ -239,7 +246,7 @@ const MediaPickerHeader = ({ children, className }: MediaPickerHeaderProps) => {
 // Content slot - the media list
 interface MediaPickerContentProps {
   className?: string;
-  children?: React.ReactNode;
+  children?: ReactNode;
 }
 
 const MediaPickerContent = ({
@@ -319,11 +326,11 @@ const MediaPickerContent = ({
       </SelectListContent>
     </div>
   );
-}
+};
 
 // Footer slot for custom buttons
 interface MediaPickerFooterProps {
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
 }
 
@@ -345,7 +352,7 @@ const MediaPickerUrlInput = ({
 }: MediaPickerUrlInputProps) => {
   const { customUrl, setCustomUrl, setSelectedUrl } = useMediaPickerContext();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setCustomUrl(e.target.value);
     // Clear library selection when typing custom URL
     if (e.target.value.trim()) {
@@ -364,7 +371,7 @@ const MediaPickerUrlInput = ({
       />
     </div>
   );
-}
+};
 
 // Hook to access context from custom components
 const useMediaPicker = () => {

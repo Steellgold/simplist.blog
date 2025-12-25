@@ -1,5 +1,6 @@
 "use client";
 
+import type { FormEvent } from "react";
 import { useArticleImage } from "@/hooks/use-article-image";
 import {
   EditorFullscreenProvider,
@@ -197,7 +198,7 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({
   }, [activeVariant]);
 
   // Handle form submission
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 

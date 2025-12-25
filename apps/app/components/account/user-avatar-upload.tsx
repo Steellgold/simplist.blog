@@ -7,6 +7,7 @@ import { toast } from "@simplist/ui/components/sonner";
 import { Spinner } from "@simplist/ui/components/spinner";
 import { Upload, X } from "lucide-react";
 import { useRouter } from "next/navigation";
+import type { ChangeEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 
 interface UserAvatarUploadProps {
@@ -35,7 +36,7 @@ export function UserAvatarUpload({
     };
   }, [previewUrl]);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 

@@ -45,6 +45,7 @@ import {
   TrendingUp,
   Users,
 } from "lucide-react";
+import type { ComponentType } from "react";
 import Image from "next/image";
 import { parseAsInteger, useQueryState } from "nuqs";
 import {
@@ -78,7 +79,7 @@ const StatCard = ({
   title: string;
   value: number | string;
   description: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: ComponentType<{ className?: string }>;
   suffix?: string;
   trend?: number;
 }) => (

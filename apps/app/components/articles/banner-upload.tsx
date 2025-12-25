@@ -19,6 +19,7 @@ import { ConfirmDialog } from "@simplist/ui/components/confirm-dialog";
 import { Progress } from "@simplist/ui/components/progress";
 import { Spinner } from "@simplist/ui/components/spinner";
 import { Images, Trash2, Upload } from "lucide-react";
+import type { ChangeEvent } from "react";
 import Image from "next/image";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -51,7 +52,7 @@ export const ArticleBannerUpload = ({
   const [deleteAlertOpen, setDeleteAlertOpen] = useState(false);
   const [libraryOpen, setLibraryOpen] = useState(false);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] ?? null;
 
     if (!file) {

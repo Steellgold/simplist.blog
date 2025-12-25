@@ -28,6 +28,7 @@ import { toast } from "@simplist/ui/components/sonner";
 import { Spinner } from "@simplist/ui/components/spinner";
 import { Plus, X } from "lucide-react";
 import { useRouter } from "next/navigation";
+import type { FormEvent } from "react";
 import { useState } from "react";
 
 type Role = {
@@ -84,7 +85,7 @@ export const InviteMemberDialog = ({
     setInvitations(newInvitations);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
     // Filter out empty emails

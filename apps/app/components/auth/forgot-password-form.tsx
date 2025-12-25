@@ -31,13 +31,14 @@ import { Input } from "@simplist/ui/components/input";
 import { toast } from "@simplist/ui/components/sonner";
 import { AlertCircleIcon } from "lucide-react";
 import Link from "next/link";
+import type { ComponentProps } from "react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
 export const ForgotPasswordForm = ({
   className,
   ...props
-}: React.ComponentProps<"div">) => {
+}: ComponentProps<"div">) => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 

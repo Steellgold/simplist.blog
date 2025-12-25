@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useCallback, useMemo, useState } from "react";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import {
@@ -47,14 +48,14 @@ import {
 
 class ComponentPickerOption extends MenuOption {
   title: string;
-  icon: React.ReactNode;
+  icon: ReactNode;
   keywords: string[];
   onSelect: (queryString: string) => void;
 
   constructor(
     title: string,
     options: {
-      icon: React.ReactNode;
+      icon: ReactNode;
       keywords?: string[];
       onSelect: (queryString: string) => void;
     },
@@ -297,4 +298,4 @@ export const ComponentPickerMenuPlugin = ({
       }
     />
   );
-}
+};

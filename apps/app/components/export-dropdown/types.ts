@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 export type ExportFormat = "csv" | "json" | "xml";
 
 export type ExportData = Record<string, unknown>[];
@@ -15,5 +17,5 @@ export interface ExportDropdownProps {
   columns: ExportColumn[];
   filename: string;
   selectedCount?: number;
-  children?: React.ReactNode;
+  children?: ReactNode;
 }
