@@ -141,6 +141,9 @@ importers:
       '@lexical/code':
         specifier: ^0.39.0
         version: 0.39.0
+      '@lexical/extension':
+        specifier: ^0.39.0
+        version: 0.39.0
       '@lexical/html':
         specifier: ^0.39.0
         version: 0.39.0
