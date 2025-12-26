@@ -2,7 +2,6 @@ import { AppSidebarWrapper } from "@/components/layout/sidebar-wrapper";
 import { ProjectContextProvider } from "@/components/projects/context-provider";
 import { getProjectStats, getUserProjects } from "@/lib/actions/projects";
 import { getCurrentUser } from "@/lib/auth-helper";
-import { redirectIfPendingDeletion } from "@/lib/auth/deletion-guard";
 import { getUserProjectMembership } from "@/lib/auth/permissions";
 import { type LanguageCode } from "@/lib/types/languages";
 import { ThemeSwitcher } from "@simplist/ui/components/shared/switch-theme";
@@ -40,8 +39,6 @@ const ProjectLayout: FC<Props> = async ({ params, children }) => {
   if (!user) {
     redirect("/auth/login");
   }
-
-  redirectIfPendingDeletion(user, `/${projectSlug}`);
 
   const projects = await getUserProjects();
 

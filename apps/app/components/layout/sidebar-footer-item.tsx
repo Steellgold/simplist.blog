@@ -9,6 +9,7 @@ import {
   Gear,
   Tray,
 } from "@gravity-ui/icons";
+import { ShieldCheck } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -168,6 +169,16 @@ export const SidebarFooterItem = ({
                 <Gear />
                 Settings
               </DropdownMenuItemLink>
+
+              {user.role === "ADMIN" && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItemLink as={Link} href="/admin">
+                    <ShieldCheck className="size-4" />
+                    Admin Panel
+                  </DropdownMenuItemLink>
+                </>
+              )}
 
               <DropdownMenuItem
                 onClick={handleArrowRightFromSquare}

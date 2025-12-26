@@ -2,7 +2,6 @@ import { AppSidebarWrapper } from "@/components/layout/sidebar-wrapper";
 import { CreateProjectPageClient } from "@/components/projects/create-project-client";
 import { getUserProjects } from "@/lib/actions/projects";
 import { getCurrentUser } from "@/lib/auth-helper";
-import { redirectIfPendingDeletion } from "@/lib/auth/deletion-guard";
 import { SidebarProvider } from "@simplist/ui/components/sidebar";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
@@ -18,8 +17,6 @@ const CreateProjectPage = async () => {
   if (!user) {
     redirect("/auth/login");
   }
-
-  redirectIfPendingDeletion(user, "/create-project");
 
   const projects = await getUserProjects();
 

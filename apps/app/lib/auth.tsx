@@ -60,6 +60,34 @@ export const auth = betterAuth({
         type: "boolean",
         required: false,
       },
+      // Account moderation
+      status: {
+        type: "string",
+        required: false,
+        defaultValue: "ACTIVE",
+      },
+      statusReasonCode: {
+        type: "string",
+        required: false,
+      },
+      statusReason: {
+        type: "string",
+        required: false,
+      },
+      statusUpdatedAt: {
+        type: "date",
+        required: false,
+      },
+      suspensionEndsAt: {
+        type: "date",
+        required: false,
+      },
+      // Role system
+      role: {
+        type: "string",
+        required: false,
+        defaultValue: "USER",
+      },
     },
   },
   appName: "Simplist",
@@ -111,5 +139,5 @@ export const auth = betterAuth({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     },
-  },
+  }
 });

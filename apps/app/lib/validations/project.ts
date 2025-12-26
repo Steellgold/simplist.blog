@@ -56,6 +56,11 @@ export const RESERVED_SLUGS = [
   "billing",
   "account",
   "profile",
+  "reactivate",
+  "account-restricted",
+  "suspended",
+  "banned",
+  "disabled",
 
   // Application routes
   "home",
