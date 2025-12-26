@@ -28,7 +28,7 @@ const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : "http://localhost:3000";
 
-const slogan = "Where simplicity meets powerful content management";
+const slogan = "Blog-focused headless CMS";
 const description =
   "Simplist is a fast content management API that lets you publish articles in seconds and retrieve them from any app with clean, typed endpoints.";
 
@@ -63,7 +63,7 @@ export const metadata: Metadata = {
     description,
     images: [
       {
-        url: "https://cdn.simplist.blog/assets/og-image.png",
+        url: "https://cdn.simplist.blog/assets/og-image.png?v=2",
         width: 1200,
         height: 630,
         alt: `Simplist - ${slogan}`,
@@ -78,7 +78,7 @@ export const metadata: Metadata = {
     description,
     images: [
       {
-        url: "https://cdn.simplist.blog/assets/og-image.png",
+        url: "https://cdn.simplist.blog/assets/og-image.png?v=2",
         width: 1200,
         height: 630,
         alt: `Simplist - ${slogan}`,

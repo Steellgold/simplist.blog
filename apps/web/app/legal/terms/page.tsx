@@ -403,12 +403,12 @@ const TermsOfServicePage = () => {
 
       <h3>9.5 Refunds</h3>
       <p>
-        Except where required by law, subscription fees are non-refundable. In
-        exceptional cases (for example, extended outages caused by us or clear
-        billing errors), we may grant partial or full refunds at our discretion.
-        Refund requests must be submitted to{" "}
-        <a href="mailto:privacy@simplist.blog">privacy@simplist.blog</a> within
-        30 days of the charge.
+        If you are not satisfied with the Service, you may request a full refund
+        within 14 days of your initial purchase. Refund requests must be
+        submitted to{" "}
+        <a href="mailto:support@simplist.blog">support@simplist.blog</a>. After
+        this period, subscription fees are non-refundable except where required
+        by law.
       </p>
 
       <h3>9.6 Taxes</h3>
