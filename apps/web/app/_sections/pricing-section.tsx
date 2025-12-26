@@ -3,16 +3,19 @@
 import {
   ArrowRight,
   Calendar,
-  ChartColumn,
+  ChartAreaStackedNormalized,
+  Files,
   Globe,
   PersonsLock,
   Picture,
-  Rocket,
+  Terminal,
 } from "@gravity-ui/icons";
 import NumberFlow from "@number-flow/react";
 import {
   getAllPlans,
+  getPlanLimits,
   getPlanPrice,
+  type PlanLimits,
   type SubscriptionInterval,
 } from "@simplist/limits";
 import { Badge } from "@simplist/ui/components/badge";
@@ -28,24 +31,79 @@ import {
 } from "@simplist/ui/components/card";
 import { Webhook } from "@simplist/ui/components/icons";
 import Link from "next/link";
-import { useState } from "react";
+import { type ComponentType, type SVGProps, useState } from "react";
 
-const freeFeatures = [
-  { icon: Rocket, label: "5 articles" },
-  { icon: ChartColumn, label: "1K API calls/month" },
-  { icon: ChartColumn, label: "Basic analytics (7 days)" },
-  { icon: Globe, label: "1 variant per article" },
-  { icon: Picture, label: "Media library" },
-  { icon: Webhook, label: "Webhooks" },
-];
+interface FeatureDisplay {
+  icon: ComponentType<SVGProps<SVGSVGElement>>;
+  label: string;
+  getValue: (limits: PlanLimits) => string | null;
+  getBadge?: (limits: PlanLimits) => string | null;
+  skipInFree?: boolean;
+  skipInPro?: boolean;
+}
 
-const proFeatures = [
-  { icon: Rocket, label: "Unlimited articles" },
-  { icon: ChartColumn, label: "Unlimited API calls" },
-  { icon: ChartColumn, label: "Advanced analytics" },
-  { icon: Calendar, label: "Scheduled publishing" },
-  { icon: Globe, label: "Unlimited variants" },
-  { icon: PersonsLock, label: "Up to 10 team members" },
+const featureDisplays: FeatureDisplay[] = [
+  {
+    icon: Files,
+    label: "Articles",
+    getValue: (limits) =>
+      limits.maxArticles === -1 ? "Unlimited" : `${limits.maxArticles}`,
+  },
+  {
+    icon: Terminal,
+    label: "API calls",
+    getValue: (limits) =>
+      limits.maxApiCallsPerMonth === -1
+        ? "Unlimited"
+        : `${(limits.maxApiCallsPerMonth / 1000).toFixed(0)}K/month`,
+  },
+  {
+    icon: ChartAreaStackedNormalized,
+    label: "Analytics",
+    getValue: (limits) =>
+      limits.features.analytics ? "Advanced" : "Basic (7 days)",
+  },
+  {
+    icon: Calendar,
+    label: "Scheduled Publishing",
+    getValue: (limits) =>
+      limits.features.scheduledPublishing ? "Included" : null,
+  },
+  {
+    icon: Globe,
+    label: "Variants",
+    getValue: (limits) =>
+      limits.maxVariantsPerArticle === -1
+        ? "Unlimited"
+        : `${limits.maxVariantsPerArticle} per article`,
+  },
+  {
+    icon: Picture,
+    label: "Media Library",
+    getValue: () => "Included",
+    skipInPro: true
+    // getBadge: (limits) => {
+    //   const sizeInMB = limits.maxStorageBytes / (1024 * 1024);
+    //   if (sizeInMB >= 1024) {
+    //     const sizeInGB = sizeInMB / 1024;
+    //     return `${sizeInGB % 1 === 0 ? Math.round(sizeInGB) : sizeInGB.toFixed(1)} GB`;
+    //   }
+    //   return `${Math.round(sizeInMB)} MB`;
+    // },
+  },
+  {
+    icon: Webhook,
+    label: "Webhooks",
+    getValue: () => "Included",
+    skipInPro: true,
+  },
+  {
+    icon: PersonsLock,
+    label: "Team members",
+    getValue: (limits) =>
+      limits.maxMembers === -1 ? "Unlimited" : `Up to ${limits.maxMembers}`,
+    skipInFree: true,
+  },
 ];
 
 export const PricingSection = () => {
@@ -53,6 +111,9 @@ export const PricingSection = () => {
 
   const plans = getAllPlans();
   const [starterPlan, proPlan] = plans;
+
+  const starterLimits = getPlanLimits("STARTER");
+  const proLimits = getPlanLimits("PRO");
 
   const proPrice = getPlanPrice(proPlan.id, frequency) || proPlan.prices[0];
 
@@ -104,14 +165,37 @@ export const PricingSection = () => {
             </CardHeader>
 
             <CardContent className="relative space-y-3">
-              {freeFeatures.map((feature) => {
+              {featureDisplays.map((feature) => {
                 const Icon = feature.icon;
+                const value = feature.getValue(starterLimits);
+                const badge = feature.getBadge?.(starterLimits);
+
+                // Skip features not included or marked to skip in free
+                if (value === null || feature.skipInFree) return null;
+
                 return (
-                  <div key={feature.label} className="flex items-center gap-3">
-                    <div className="bg-muted/50 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
-                      <Icon className="text-muted-foreground h-4 w-4" />
+                  <div
+                    key={feature.label}
+                    className="flex items-center justify-between gap-3"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="bg-muted/50 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
+                        <Icon className="text-muted-foreground h-4 w-4" />
+                      </div>
+                      <span className="text-sm">
+                        {value !== "Included" ? `${value} ` : ""}
+                        {feature.label}
+                      </span>
                     </div>
-                    <span className="text-sm">{feature.label}</span>
+
+                    {badge && (
+                      <Badge
+                        variant="secondary"
+                        className="text-xs font-normal"
+                      >
+                        {badge}
+                      </Badge>
+                    )}
                   </div>
                 );
               })}
@@ -174,14 +258,37 @@ export const PricingSection = () => {
             </CardHeader>
 
             <CardContent className="relative space-y-3">
-              {proFeatures.map((feature) => {
+              {featureDisplays.map((feature) => {
                 const Icon = feature.icon;
+                const value = feature.getValue(proLimits);
+                const badge = feature.getBadge?.(proLimits);
+
+                // Skip null values or features marked to skip in pro
+                if (value === null || feature.skipInPro) return null;
+
                 return (
-                  <div key={feature.label} className="flex items-center gap-3">
-                    <div className="bg-primary/10 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
-                      <Icon className="text-primary h-4 w-4" />
+                  <div
+                    key={feature.label}
+                    className="flex items-center justify-between gap-3"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="bg-primary/10 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
+                        <Icon className="text-primary h-4 w-4" />
+                      </div>
+                      <span className="text-sm">
+                        {value !== "Included" ? `${value} ` : ""}
+                        {feature.label}
+                      </span>
                     </div>
-                    <span className="text-sm">{feature.label}</span>
+
+                    {badge && (
+                      <Badge
+                        variant="secondary"
+                        className="text-xs font-normal"
+                      >
+                        {badge}
+                      </Badge>
+                    )}
                   </div>
                 );
               })}
