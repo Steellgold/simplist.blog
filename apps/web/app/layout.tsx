@@ -110,7 +110,7 @@ const RootLayout: FC<{ children: ReactNode }> = ({ children }) => {
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${nunito.variable} ${syne.variable} ${geistMono.variable} antialiased`}
+        className={`${nunito.variable} ${syne.variable} ${geistMono.variable} overflow-x-hidden antialiased`}
       >
         <ThemeProvider
           attribute="class"

@@ -27,7 +27,7 @@ export const ExportDropdown = ({
         {children || (
           <Button variant="outline">
             <FileArrowDown />
-            Export{countLabel}
+            <span className="hidden sm:inline">Export{countLabel}</span>
           </Button>
         )}
       </DropdownMenuTrigger>

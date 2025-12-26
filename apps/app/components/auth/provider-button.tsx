@@ -73,7 +73,10 @@ export const ProviderButton = ({
     >
       <div className="flex items-center gap-2">
         {loading ? <Spinner /> : config.icon}
-        {variant === "register" ? "Sign up with" : "Login with"} {config.name}
+        <span className="hidden sm:inline">
+          {variant === "register" ? "Sign up with" : "Login with"}{" "}
+        </span>
+        {config.name}
       </div>
 
       {variant === "login" && isLastUsed && <LastUsedBadge />}

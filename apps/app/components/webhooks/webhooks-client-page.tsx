@@ -64,7 +64,7 @@ export const WebhooksClientPage: FC<Props> = ({
             >
               <Plus />
               New webhook
-              <Kbd>N</Kbd>
+              <Kbd className="hidden sm:inline-flex">N</Kbd>
             </Link>
           </EmptyContent>
         </Empty>
@@ -87,7 +87,7 @@ export const WebhooksClientPage: FC<Props> = ({
         >
           <Plus />
           New webhook
-          <Kbd>N</Kbd>
+          <Kbd className="hidden sm:inline-flex">N</Kbd>
         </ProgressLink>
       }
     >

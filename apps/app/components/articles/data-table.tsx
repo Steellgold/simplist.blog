@@ -367,7 +367,8 @@ export const ArticlesDataTable = <
   return (
     <div className="flex flex-col gap-4">
       {/* Toolbar */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        {/* Row 1: Search + Filters */}
         <div className="flex flex-1 flex-wrap items-center gap-2">
           <Input
             placeholder="Filter articles..."
@@ -375,7 +376,7 @@ export const ArticlesDataTable = <
             onChange={(event) =>
               table.getColumn("title")?.setFilterValue(event.target.value)
             }
-            className="h-8 w-[150px] lg:w-[250px]"
+            className="h-8 w-full sm:w-[150px] lg:w-[250px]"
           />
 
           {table.getColumn("status") && (
@@ -410,7 +411,8 @@ export const ArticlesDataTable = <
           )}
         </div>
 
-        <div className="flex items-center gap-2">
+        {/* Row 2 (mobile) / Same row (desktop): Actions */}
+        <div className="flex items-center justify-end gap-2">
           {isPro && selectedCount > 0 && (
             <ButtonGroup>
               <Link
@@ -421,7 +423,7 @@ export const ArticlesDataTable = <
                 })}
               >
                 <ChartAreaStackedNormalized />
-                Analytics
+                <span className="hidden sm:inline">Analytics</span>
               </Link>
 
               <Button
@@ -429,7 +431,7 @@ export const ArticlesDataTable = <
                 onClick={() => setShowBulkDeleteDialog(true)}
               >
                 <TrashBin />
-                Delete
+                <span className="hidden sm:inline">Delete</span>
               </Button>
             </ButtonGroup>
           )}

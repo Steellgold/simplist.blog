@@ -53,7 +53,7 @@ export const PasskeyButton = ({
       disabled={disabled || loading}
     >
       {loading ? <Spinner /> : <Key />}
-      Login with Passkey
+      <span className="hidden sm:inline">Login with </span>Passkey
     </Button>
   );
 };

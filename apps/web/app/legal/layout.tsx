@@ -7,7 +7,7 @@ const LegalLayout = ({ children }: { children: ReactNode }) => {
     <div className="bg-background flex min-h-screen flex-col">
       <Navbar sticky={false} />
 
-      <main className="container mx-auto max-w-4xl flex-1 px-4 py-8">
+      <main className="mx-auto max-w-4xl flex-1 px-4 py-8">
         <div className="legal-content mx-auto max-w-3xl">{children}</div>
       </main>
 

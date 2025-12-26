@@ -176,7 +176,7 @@ export const CreateApiKeyForm = ({
           <Button>
             <Plus className="size-4" />
             Create API key
-            <Kbd>N</Kbd>
+            <Kbd className="hidden sm:inline-flex">N</Kbd>
           </Button>
         </DialogTrigger>
       )}

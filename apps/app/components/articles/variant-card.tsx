@@ -202,7 +202,7 @@ export const VariantCard = ({
                     disabled={disabled || !canAdd}
                   >
                     <Plus />
-                    New Variant
+                    Variant
                   </Button>
                 </DialogTrigger>
               )}

@@ -22,18 +22,23 @@ const HomePage = async () => {
 
       <div className="relative z-10">
         <Navbar />
+
         <SectionWrapper>
           <HeroSection />
         </SectionWrapper>
+
         <SectionWrapper variant="accent">
           <FeaturesSection />
         </SectionWrapper>
+
         <SectionWrapper>
           <PricingSection />
         </SectionWrapper>
+
         <SectionWrapper variant="accent">
           <ApiDemoSection />
         </SectionWrapper>
+
         <Footer />
       </div>
     </div>

@@ -21,7 +21,6 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@simplist/ui/components/empty";
-import { Kbd } from "@simplist/ui/components/kbd";
 import { ProgressLink } from "@simplist/ui/components/progress-button";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -124,8 +123,7 @@ export const ArticlesClientPage = ({
                 aria-disabled={isAtLimit}
               >
                 <Plus />
-                New article
-                <Kbd>N</Kbd>
+                Article
               </Link>
             </div>
           </EmptyContent>
@@ -145,8 +143,7 @@ export const ArticlesClientPage = ({
             className={buttonVariants({ variant: "default" })}
           >
             <Plus />
-            New article
-            <Kbd>N</Kbd>
+            Article
           </Link>
         ) : (
           <ProgressLink
@@ -158,7 +155,7 @@ export const ArticlesClientPage = ({
             as={Link}
           >
             <Plus />
-            New article ({articleCount}/{maxCount})<Kbd>N</Kbd>
+            Article ({articleCount}/{maxCount})
           </ProgressLink>
         )
       }

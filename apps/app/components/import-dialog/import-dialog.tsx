@@ -111,7 +111,7 @@ export const ImportDialog = <T extends Record<string, unknown>>({
         {children || (
           <Button variant="outline" disabled={disabled}>
             <FileArrowUp />
-            Import
+            <span className="hidden sm:inline">Import</span>
           </Button>
         )}
       </DialogTrigger>

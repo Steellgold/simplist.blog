@@ -1,7 +1,7 @@
 export const ApiDemoSection = () => {
   return (
     <section id="demo" className="mb-16 px-4 py-24 md:py-28">
-      <div className="container mx-auto max-w-5xl">
+      <div className="mx-auto max-w-5xl">
         <div className="intersect-once mb-14 text-center">
           <p className="text-primary mb-2 text-sm font-medium tracking-[0.18em] uppercase">
             Built for Developers
@@ -19,13 +19,13 @@ export const ApiDemoSection = () => {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 md:gap-8">
-          <div className="intersect-once">
+          <div className="intersect-once min-w-0">
             <h3 className="text-muted-foreground mb-2 text-sm font-medium tracking-[0.18em] uppercase">
               1 ・ Initialize the client
             </h3>
-            <div className="bg-card rounded-2xl border p-0.5">
-              <div className="bg-card overflow-x-auto rounded-xl border p-5 font-mono text-xs md:text-sm">
-                <pre className="text-muted-foreground">
+            <div className="bg-card overflow-hidden rounded-2xl border p-0.5">
+              <div className="bg-card rounded-xl border p-5 font-mono text-xs md:text-sm">
+                <pre className="text-muted-foreground overflow-x-auto">
                   {`import `}
                   <span className="text-blue-400">{`{ SimplistClient }`}</span>
                   {` from `}
@@ -48,9 +48,9 @@ export const ApiDemoSection = () => {
             <h3 className="text-muted-foreground mt-6 mb-2 text-sm font-medium tracking-[0.18em] uppercase">
               2 ・ Fetch your published articles
             </h3>
-            <div className="bg-card rounded-2xl border p-0.5">
-              <div className="bg-card overflow-x-auto rounded-xl border p-5 font-mono text-xs md:text-sm">
-                <pre className="text-muted-foreground">
+            <div className="bg-card overflow-hidden rounded-2xl border p-0.5">
+              <div className="bg-card rounded-xl border p-5 font-mono text-xs md:text-sm">
+                <pre className="text-muted-foreground overflow-x-auto">
                   {`const articles = `}
                   <span className="text-blue-400">await</span>
                   {` client.`}
@@ -69,13 +69,13 @@ export const ApiDemoSection = () => {
             </div>
           </div>
 
-          <div className="intersect-once">
+          <div className="intersect-once min-w-0">
             <h3 className="text-muted-foreground mb-2 text-sm font-medium tracking-[0.18em] uppercase">
               3 ・ Render on your blog
             </h3>
-            <div className="bg-card mb-5 rounded-2xl border p-0.5">
-              <div className="bg-card overflow-x-auto rounded-xl border p-5 font-mono text-xs md:text-sm">
-                <pre className="text-muted-foreground">
+            <div className="bg-card mb-5 overflow-hidden rounded-2xl border p-0.5">
+              <div className="bg-card rounded-xl border p-5 font-mono text-xs md:text-sm">
+                <pre className="text-muted-foreground overflow-x-auto">
                   {`export async function `}
                   <span className="text-yellow-400">BlogPage</span>
                   {`() {
@@ -104,9 +104,9 @@ export const ApiDemoSection = () => {
             <h3 className="text-muted-foreground mb-2 text-sm font-medium tracking-[0.18em] uppercase">
               Sample JSON response
             </h3>
-            <div className="bg-card rounded-2xl border p-0.5">
-              <div className="bg-card overflow-x-auto rounded-xl border p-5 font-mono text-[11px] md:text-xs">
-                <pre className="text-muted-foreground">
+            <div className="bg-card overflow-hidden rounded-2xl border p-0.5">
+              <div className="bg-card rounded-xl border p-5 font-mono text-[11px] md:text-xs">
+                <pre className="text-muted-foreground overflow-x-auto">
                   {`{
   "data": [
     {

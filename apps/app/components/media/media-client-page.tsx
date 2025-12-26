@@ -275,7 +275,7 @@ export const MediaClientPage = ({
             <Button onClick={() => setUploadDialogOpen(true)}>
               <FileArrowUp className="mr-2 h-4 w-4" />
               Upload images
-              <Kbd>N</Kbd>
+              <Kbd className="hidden sm:inline-flex">N</Kbd>
             </Button>
           </EmptyContent>
         </Empty>
@@ -308,7 +308,7 @@ export const MediaClientPage = ({
           <Button onClick={() => setUploadDialogOpen(true)}>
             <FileArrowUp />
             Upload
-            <Kbd>N</Kbd>
+            <Kbd className="hidden sm:inline-flex">N</Kbd>
           </Button>
         </div>
       }

@@ -1,4 +1,4 @@
-import { ArrowRight, Play } from "@gravity-ui/icons";
+import { AbbrApi, ArrowRight, Play } from "@gravity-ui/icons";
 import {
   AstroDark,
   AstroLight,
@@ -19,8 +19,8 @@ import Link from "next/link";
 
 export const HeroSection = () => {
   return (
-    <section className="relative px-4 py-12 md:py-32 lg:py-24">
-      <div className="container mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
+    <section className="relative overflow-hidden px-4 py-12 md:py-32 lg:py-24">
+      <div className="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
         <div className="space-y-8 text-center lg:text-left">
           <div className="h-0 lg:h-13" />
 
@@ -34,14 +34,12 @@ export const HeroSection = () => {
             </h1>
 
             <p className="text-muted-foreground mx-auto max-w-xl text-lg md:text-xl lg:mx-0">
-              Simplist is a headless CMS designed for developers who live in Git
-              and ship with APIs. Create, version and deliver articles with a
-              single, blazing fast content API.
+              The developer-first headless CMS. Create articles, fetch them via API, done.
             </p>
           </div>
 
           <div className="space-y-2">
-            <div className="flex flex-col items-center justify-center gap-3 sm:flex-row lg:justify-start">
+            <div className="flex flex-row items-center justify-center gap-3 sm:flex-row lg:justify-start">
               <Link
                 href="https://app.simplist.blog/auth/register"
                 className={buttonVariants({ variant: "default" })}
@@ -54,13 +52,13 @@ export const HeroSection = () => {
                 href="#demo"
                 className={buttonVariants({ variant: "outline" })}
               >
-                <Play />
-                Watch the API in action
+                <AbbrApi />
+                Example
               </Link>
             </div>
 
-            <p className="text-muted-foreground text-center text-xs lg:mt-2 lg:text-left">
-              No credit card. Ship your first article in minutes.
+            <p className="text-muted-foreground mt-4 text-center text-xs lg:mt-2 lg:text-left">
+              No credit card required.
             </p>
           </div>
 
@@ -120,10 +118,10 @@ export const HeroSection = () => {
           </div>
         </div>
 
-        <div className="relative">
+        <div className="relative min-w-0">
           <div className="from-primary/15 via-primary/0 pointer-events-none absolute -inset-8 rounded-3xl bg-linear-to-tr to-emerald-400/20 blur-3xl" />
 
-          <div className="bg-card/80 shadow-primary/10 relative rounded-2xl border p-5 shadow-xl backdrop-blur-sm">
+          <div className="bg-card/80 shadow-primary/10 relative overflow-hidden rounded-2xl border p-5 shadow-xl backdrop-blur-sm">
             <div className="text-muted-foreground mb-4 flex items-center justify-between text-xs">
               <span className="inline-flex items-center gap-2">
                 <span className="flex h-2 w-2 items-center justify-center">
@@ -136,8 +134,8 @@ export const HeroSection = () => {
               </span>
             </div>
 
-            <div className="bg-background/45 overflow-x-auto rounded-lg border p-4 font-mono text-[11px] leading-relaxed">
-              <pre className="text-muted-foreground">
+            <div className="bg-background/45 rounded-lg border p-4 font-mono text-[11px] leading-relaxed">
+              <pre className="text-muted-foreground overflow-x-auto">
                 {`import `}
                 <span className="text-blue-400">{`{ SimplistClient }`}</span>
                 {` from `}

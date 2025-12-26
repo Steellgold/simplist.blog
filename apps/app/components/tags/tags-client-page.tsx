@@ -67,7 +67,7 @@ export const TagsClientPage = ({
                 >
                   <Plus />
                   New tag
-                  <Kbd>N</Kbd>
+                  <Kbd className="hidden sm:inline-flex">N</Kbd>
                 </Button>
               </EmptyContent>
             )}
@@ -93,7 +93,7 @@ export const TagsClientPage = ({
             <Button variant="default" onClick={() => setShowCreateDialog(true)}>
               <Plus />
               New tag
-              <Kbd>N</Kbd>
+              <Kbd className="hidden sm:inline-flex">N</Kbd>
             </Button>
           )
         }

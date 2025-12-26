@@ -7,8 +7,8 @@ import {
   formatFileSizeLimit,
   isAllowedImageType,
 } from "@/lib/uploads/constants";
-import { FileArrowUp, Folder, TrashBin } from "@gravity-ui/icons";
 import type { ChangeEvent } from "react";
+import { ArrowDown, EllipsisVertical, FileArrowUp, Folder, Picture, Plus, TrashBin } from "@gravity-ui/icons";
 import { Button } from "@simplist/ui/components/button";
 import {
   Card,
@@ -23,6 +23,8 @@ import { Spinner } from "@simplist/ui/components/spinner";
 import Image from "next/image";
 import { useState } from "react";
 import { toast } from "sonner";
+import { ButtonGroup } from "@simplist/ui/components/button-group";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@simplist/ui/components/dropdown-menu";
 
 type ArticleBannerUploadProps = {
   projectId: string;
@@ -163,7 +165,7 @@ export const ArticleBannerUpload = ({
                 )}
               </div>
               <div className="flex gap-2">
-                <Button
+                {/* <Button
                   type="button"
                   variant="destructive"
                   className="flex-1"
@@ -193,7 +195,41 @@ export const ArticleBannerUpload = ({
                 >
                   <Folder />
                   Library
-                </Button>
+                </Button> */}
+                <ButtonGroup className="w-full">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="flex-1"
+                    disabled={isUploading}
+                    onClick={triggerUpload}
+                  >
+                    <Picture />
+                    Update
+                  </Button>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="flex-1"
+                    size="icon-sm"
+                    disabled={isUploading}
+                    onClick={() => setLibraryOpen(true)}
+                  >
+                    <Folder />
+                    Library
+                  </Button>
+                </ButtonGroup>
+
+                <Button
+                  type="button"
+                  variant="outline-destructive"
+                  disabled={isUploading}
+                  onClick={handleDeleteClick}
+                >
+                  <TrashBin />
+                  <span className="hidden sm:inline">Remove</span>
+                </Button> 
               </div>
 
               <input
