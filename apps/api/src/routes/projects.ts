@@ -1,6 +1,5 @@
 import * as db from "@simplist/db";
-import { FastifyPluginAsync } from "fastify";
-import { formatProject } from "../utils/format";
+import type { FastifyPluginAsync } from "fastify";
 
 const { prisma } = db;
 
