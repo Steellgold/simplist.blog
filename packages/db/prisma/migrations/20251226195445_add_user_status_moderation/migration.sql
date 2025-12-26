@@ -1,0 +1,15 @@
+-- CreateEnum
+CREATE TYPE "UserStatus" AS ENUM ('ACTIVE', 'SUSPENDED', 'BANNED', 'DISABLED');
+
+-- CreateEnum
+CREATE TYPE "UserStatusReason" AS ENUM ('TERMS_VIOLATION', 'ILLEGAL_CONTENT', 'HATEFUL_CONTENT', 'OBSCENE_CONTENT', 'IP_INFRINGEMENT', 'PRIVACY_VIOLATION', 'MALWARE', 'UNAUTHORIZED_ACCESS', 'RATE_LIMIT_ABUSE', 'SECURITY_BYPASS', 'SCRAPING_ABUSE', 'PAYMENT_FAILURE', 'LEGAL_REQUEST', 'SECURITY_RISK', 'FRAUD', 'SPAM', 'OTHER');
+
+-- AlterTable
+ALTER TABLE "user" ADD COLUMN     "status" "UserStatus" NOT NULL DEFAULT 'ACTIVE',
+ADD COLUMN     "statusReason" TEXT,
+ADD COLUMN     "statusReasonCode" "UserStatusReason",
+ADD COLUMN     "statusUpdatedAt" TIMESTAMP(3),
+ADD COLUMN     "suspensionEndsAt" TIMESTAMP(3);
+
+-- CreateIndex
+CREATE INDEX "user_status_idx" ON "user"("status");
