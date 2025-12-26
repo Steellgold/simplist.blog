@@ -28,7 +28,7 @@ const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : "http://localhost:3000";
 
-const slogan = "Where simplicity meets powerful content management";
+const slogan = "Blog-focused headless CMS";
 
 export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),

@@ -15,7 +15,7 @@ import { FC, PropsWithChildren } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
 
-const slogan = "Where simplicity meets powerful content management";
+const slogan = "Blog-focused headless CMS";
 const defaultUrl =
   process.env.NEXT_PUBLIC_BASE_URL || "https://docs.simplist.blog";
 
