@@ -20,9 +20,7 @@ interface UseImportDialogReturn {
   error: string | null;
   importing: boolean;
   variantSelections: Record<number, number>;
-  setVariantSelections: Dispatch<
-    SetStateAction<Record<number, number>>
-  >;
+  setVariantSelections: Dispatch<SetStateAction<Record<number, number>>>;
   loadFile: (file: File) => Promise<void>;
   importData: () => Promise<ImportResult>;
   reset: () => void;

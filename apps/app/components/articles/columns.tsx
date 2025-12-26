@@ -1,7 +1,14 @@
 "use client";
 
 import { useProjectContext } from "@/components/projects/context-provider";
-import { ChartAreaStackedNormalized, Copy, EllipsisVertical, PencilToSquare, Picture, TrashBin } from "@gravity-ui/icons";
+import {
+  ChartAreaStackedNormalized,
+  Copy,
+  EllipsisVertical,
+  PencilToSquare,
+  Picture,
+  TrashBin,
+} from "@gravity-ui/icons";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import Image from "next/image";

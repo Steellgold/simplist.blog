@@ -1,6 +1,10 @@
 import { InvitationActions } from "@/components/members/invitation-actions";
 import { getInvitationDetails } from "@/lib/actions/members";
-import { ArrowsExpandHorizontal, CircleXmarkFill, HouseFill } from "@gravity-ui/icons";
+import {
+  ArrowsExpandHorizontal,
+  CircleXmarkFill,
+  HouseFill,
+} from "@gravity-ui/icons";
 import {
   Avatar,
   AvatarFallback,

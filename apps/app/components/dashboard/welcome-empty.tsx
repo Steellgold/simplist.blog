@@ -1,7 +1,13 @@
 "use client";
 
 import { UpgradeOverlay } from "@/components/ui/upgrade-overlay";
-import { ArrowRight, BookOpen, ChartAreaStackedNormalized, FileText, Key } from "@gravity-ui/icons";
+import {
+  ArrowRight,
+  BookOpen,
+  ChartAreaStackedNormalized,
+  FileText,
+  Key,
+} from "@gravity-ui/icons";
 import type { SubscriptionTier } from "@simplist/db/types";
 import { buttonVariants } from "@simplist/ui/components/button";
 import {

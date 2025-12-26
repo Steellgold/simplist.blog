@@ -6,9 +6,7 @@ interface ImagePluginContextValue {
   projectId: string | undefined;
 }
 
-const ImagePluginContext = createContext<ImagePluginContextValue | null>(
-  null,
-);
+const ImagePluginContext = createContext<ImagePluginContextValue | null>(null);
 
 export const useImagePluginContext = (): ImagePluginContextValue => {
   const context = useContext(ImagePluginContext);

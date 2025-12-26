@@ -80,4 +80,4 @@ export const useEditorFullscreenState = () => {
       toggleFullscreen,
     },
   };
-}
+};

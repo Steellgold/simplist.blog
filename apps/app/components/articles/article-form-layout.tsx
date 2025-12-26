@@ -22,13 +22,15 @@ export const ArticleFormLayout: FC<ArticleFormLayoutProps> = ({
     <div
       className={cn("container mx-auto flex flex-col gap-6", {
         "max-w-7xl": !isFullscreen,
-        "max-w-4xl": isFullscreen
+        "max-w-4xl": isFullscreen,
       })}
     >
       {!isFullscreen && (
         <div>
           <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
-          {description && <p className="text-muted-foreground">{description}</p>}
+          {description && (
+            <p className="text-muted-foreground">{description}</p>
+          )}
         </div>
       )}
 

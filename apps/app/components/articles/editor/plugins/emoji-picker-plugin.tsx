@@ -409,4 +409,4 @@ export const EmojiPickerPlugin = () => {
       }
     />
   );
-}
+};

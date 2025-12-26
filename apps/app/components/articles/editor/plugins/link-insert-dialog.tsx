@@ -3,11 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ChangeEvent, FormEvent, KeyboardEvent } from "react";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
-import {
-  $createTextNode,
-  $getSelection,
-  $isRangeSelection,
-} from "lexical";
+import { $createTextNode, $getSelection, $isRangeSelection } from "lexical";
 import { $createLinkNode } from "@lexical/link";
 import { z } from "zod";
 import { Button } from "@simplist/ui/components/button";
@@ -168,9 +164,7 @@ export const LinkInsertDialog = ({
               />
             </InputGroup>
 
-            {urlError && (
-              <p className="text-destructive text-sm">{urlError}</p>
-            )}
+            {urlError && <p className="text-destructive text-sm">{urlError}</p>}
           </div>
 
           <DialogFooter>

@@ -9,8 +9,9 @@ import {
 import { CircleExclamation } from "@gravity-ui/icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  Alert, AlertDescription,
-  AlertTitle
+  Alert,
+  AlertDescription,
+  AlertTitle,
 } from "@simplist/ui/components/alert";
 import { Button } from "@simplist/ui/components/button";
 import {

@@ -3,7 +3,12 @@
 import { UserIconAvatar } from "@/components/icon-avatar";
 import { authClient, type User } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
-import { ArrowRightFromSquare, CircleExclamationFill, Gear, Tray } from "@gravity-ui/icons";
+import {
+  ArrowRightFromSquare,
+  CircleExclamationFill,
+  Gear,
+  Tray,
+} from "@gravity-ui/icons";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -164,7 +169,10 @@ export const SidebarFooterItem = ({
                 Settings
               </DropdownMenuItemLink>
 
-              <DropdownMenuItem onClick={handleArrowRightFromSquare} disabled={isLoading}>
+              <DropdownMenuItem
+                onClick={handleArrowRightFromSquare}
+                disabled={isLoading}
+              >
                 {isLoading ? <Spinner /> : <ArrowRightFromSquare />}
                 Log out
               </DropdownMenuItem>

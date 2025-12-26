@@ -15,11 +15,12 @@ import {
   CreditCard,
   Gear,
   HouseFill,
-  Key, Layers3Diagonal,
+  Key,
+  Layers3Diagonal,
   ListCheckLock,
   Persons,
   Picture,
-  Tags
+  Tags,
 } from "@gravity-ui/icons";
 import type { ProjectRole } from "@simplist/db";
 import type { Project } from "@simplist/db/types";

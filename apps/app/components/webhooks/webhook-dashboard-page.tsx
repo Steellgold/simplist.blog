@@ -11,12 +11,16 @@ import {
 } from "@/lib/actions/webhooks";
 import {
   ArrowUpRightFromSquare,
-  ChevronLeft, CircleCheck, CircleCheckFill, CircleXmarkFill, Copy,
+  ChevronLeft,
+  CircleCheck,
+  CircleCheckFill,
+  CircleXmarkFill,
+  Copy,
   EllipsisVertical,
   Pencil,
   Play,
   TrashBin,
-  TriangleExclamationFill
+  TriangleExclamationFill,
 } from "@gravity-ui/icons";
 import { Badge } from "@simplist/ui/components/badge";
 import { Button, buttonVariants } from "@simplist/ui/components/button";
@@ -267,7 +271,9 @@ export const WebhookDashboardPage: FC<Props> = ({
             title="Status"
             value={webhook.status === "active" ? "Active" : "Disabled"}
             description={`Webhook is ${webhook.status === "active" ? "receiving" : "not receiving"} events`}
-            icon={webhook.status === "active" ? CircleCheckFill : CircleXmarkFill}
+            icon={
+              webhook.status === "active" ? CircleCheckFill : CircleXmarkFill
+            }
             variant={webhook.status === "active" ? "default" : "destructive"}
           />
 

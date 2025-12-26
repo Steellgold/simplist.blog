@@ -1,7 +1,12 @@
 "use client";
 
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
-import { ArrowUpRightFromSquare, ChevronDown, CircleCheck, CircleXmark } from "@gravity-ui/icons";
+import {
+  ArrowUpRightFromSquare,
+  ChevronDown,
+  CircleCheck,
+  CircleXmark,
+} from "@gravity-ui/icons";
 import { Badge } from "@simplist/ui/components/badge";
 import { Button } from "@simplist/ui/components/button";
 import {

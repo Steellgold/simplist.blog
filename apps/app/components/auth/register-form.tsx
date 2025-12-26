@@ -12,8 +12,9 @@ import { cn } from "@/lib/utils";
 import { RegisterInput, registerSchema } from "@/lib/validations/auth";
 import { CircleExclamation } from "@gravity-ui/icons";
 import {
-  Alert, AlertDescription,
-  AlertTitle
+  Alert,
+  AlertDescription,
+  AlertTitle,
 } from "@simplist/ui/components/alert";
 import { Button } from "@simplist/ui/components/button";
 import {

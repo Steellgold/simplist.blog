@@ -1,7 +1,12 @@
 "use client";
 
 import type { SubscriptionInfo } from "@/lib/stripe/types";
-import { Calendar, CircleCheck, CircleExclamation, CircleXmark } from "@gravity-ui/icons";
+import {
+  Calendar,
+  CircleCheck,
+  CircleExclamation,
+  CircleXmark,
+} from "@gravity-ui/icons";
 import { Badge } from "@simplist/ui/components/badge";
 import { Card, CardContent, CardHeader } from "@simplist/ui/components/card";
 import type Stripe from "stripe";

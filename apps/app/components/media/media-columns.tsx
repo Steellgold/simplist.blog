@@ -5,9 +5,10 @@ import { formatBytes } from "@/lib/utils";
 import {
   ArrowUpRightFromSquare,
   Check,
-  Copy, EllipsisVertical,
+  Copy,
+  EllipsisVertical,
   Picture,
-  TrashBin
+  TrashBin,
 } from "@gravity-ui/icons";
 import { MediaType } from "@simplist/db";
 import {
@@ -123,11 +124,7 @@ const ActionsCell = ({
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuItem onClick={handleCopyLink}>
-            {copied ? (
-              <Check />
-            ) : (
-              <Copy />
-            )}
+            {copied ? <Check /> : <Copy />}
             Copy link
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => window.open(media.url, "_blank")}>

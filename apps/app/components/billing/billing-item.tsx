@@ -6,7 +6,9 @@ import {
   ArrowDownToSquare,
   CircleCheck,
   CircleDashed,
-  CircleXmark, LifeRing, Receipt
+  CircleXmark,
+  LifeRing,
+  Receipt,
 } from "@gravity-ui/icons";
 import { Badge } from "@simplist/ui/components/badge";
 import { buttonVariants } from "@simplist/ui/components/button";

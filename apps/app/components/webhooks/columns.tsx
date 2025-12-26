@@ -7,13 +7,16 @@ import {
   updateWebhook,
 } from "@/lib/actions/webhooks";
 import {
-  ArrowUpRightFromSquare, CircleCheckFill, CircleXmarkFill, ClockArrowRotateLeft,
+  ArrowUpRightFromSquare,
+  CircleCheckFill,
+  CircleXmarkFill,
+  ClockArrowRotateLeft,
   Copy,
   EllipsisVertical,
   Pencil,
   Play,
   TrashBin,
-  TriangleExclamationFill
+  TriangleExclamationFill,
 } from "@gravity-ui/icons";
 import { Badge } from "@simplist/ui/components/badge";
 import { Button } from "@simplist/ui/components/button";

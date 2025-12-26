@@ -182,7 +182,11 @@ export function UserAvatarUpload({
           </div>
         ) : (
           <div className="border-muted-foreground/25 flex size-20 items-center justify-center rounded-full border-2 border-dashed">
-            {isUploading ? <Spinner /> : <FileArrowUp className="text-muted-foreground/50" />}
+            {isUploading ? (
+              <Spinner />
+            ) : (
+              <FileArrowUp className="text-muted-foreground/50" />
+            )}
           </div>
         )}
       </div>

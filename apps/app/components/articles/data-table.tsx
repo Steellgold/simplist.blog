@@ -3,7 +3,11 @@
 import { DataTableFacetedFilter } from "@/components/data-table/data-table-faceted-filter";
 import { DataTableViewOptions } from "@/components/data-table/data-table-view-options";
 import { useProjectContext } from "@/components/projects/context-provider";
-import { ChartAreaStackedNormalized, Magnifier, TrashBin } from "@gravity-ui/icons";
+import {
+  ChartAreaStackedNormalized,
+  Magnifier,
+  TrashBin,
+} from "@gravity-ui/icons";
 import {
   flexRender,
   getCoreRowModel,
