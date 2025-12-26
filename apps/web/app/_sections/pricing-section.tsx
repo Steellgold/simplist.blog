@@ -4,7 +4,6 @@ import {
   ArrowRight,
   Calendar,
   ChartColumn,
-  CirclesIntersection,
   Globe,
   PersonsLock,
   Picture,
@@ -32,6 +31,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@simplist/ui/components/collapsible";
+import { Webhook } from "@simplist/ui/components/icons";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -41,15 +41,15 @@ const freeFeatures = [
   { icon: ChartColumn, label: "Basic analytics (7 days)" },
   { icon: Globe, label: "1 variant per article" },
   { icon: Picture, label: "Media library" },
-  { icon: CirclesIntersection, label: "Webhooks" },
+  { icon: Webhook, label: "Webhooks" },
 ];
 
 const proFeatures = [
-  { icon: Rocket, label: "Infinite articles" },
-  { icon: ChartColumn, label: "Infinite API calls" },
+  { icon: Rocket, label: "Unlimited articles" },
+  { icon: ChartColumn, label: "Unlimited API calls" },
   { icon: ChartColumn, label: "Advanced analytics" },
   { icon: Calendar, label: "Scheduled publishing" },
-  { icon: Globe, label: "Infinite variants" },
+  { icon: Globe, label: "Unlimited variants" },
   { icon: PersonsLock, label: "Up to 10 team members" },
 ];
 
