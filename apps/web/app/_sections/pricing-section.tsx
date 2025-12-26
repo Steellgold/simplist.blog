@@ -19,9 +19,9 @@ import { BillingToggle } from "@simplist/ui/components/billing-toggle";
 import { Button, buttonVariants } from "@simplist/ui/components/button";
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@simplist/ui/components/card";
@@ -121,21 +121,6 @@ export const PricingSection = () => {
                 <span className="text-4xl font-bold">$0</span>
                 <span className="text-muted-foreground">/month</span>
               </div>
-
-              <CardAction>
-                <Link
-                  className={buttonVariants({
-                    variant: "outline",
-                    size: "sm",
-                    className: "w-full",
-                  })}
-                  href="https://app.simplist.blog"
-                  target="_blank"
-                >
-                  Get Started Free
-                  <ArrowRight />
-                </Link>
-              </CardAction>
             </CardHeader>
 
             <CardContent className="relative space-y-3">
@@ -150,13 +135,22 @@ export const PricingSection = () => {
                   </div>
                 );
               })}
-
-              <div className="pt-3">
-                <p className="text-muted-foreground text-xs">
-                  No credit card required
-                </p>
-              </div>
             </CardContent>
+
+            <CardFooter className="relative">
+              <Link
+                className={buttonVariants({
+                  variant: "outline",
+                  size: "sm",
+                  className: "w-full",
+                })}
+                href="https://app.simplist.blog"
+                target="_blank"
+              >
+                Get Started Free
+                <ArrowRight />
+              </Link>
+            </CardFooter>
           </Card>
 
           {/* Pro Plan */}
@@ -192,21 +186,6 @@ export const PricingSection = () => {
                   Save $24/year
                 </Badge>
               )}
-
-              <CardAction>
-                <Link
-                  className={buttonVariants({
-                    variant: "default",
-                    size: "sm",
-                    className: "w-full shadow-md",
-                  })}
-                  href="https://app.simplist.blog/billing"
-                  target="_blank"
-                >
-                  Upgrade to Pro
-                  <ArrowRight />
-                </Link>
-              </CardAction>
             </CardHeader>
 
             <CardContent className="relative space-y-3">
@@ -221,20 +200,22 @@ export const PricingSection = () => {
                   </div>
                 );
               })}
-
-              <div className="border-t pt-4">
-                <p className="text-muted-foreground flex items-center gap-1.5 text-xs">
-                  <svg
-                    className="h-3.5 w-3.5"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                  >
-                    <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" />
-                  </svg>
-                  Secured by Stripe • Cancel anytime
-                </p>
-              </div>
             </CardContent>
+
+            <CardFooter className="relative">
+              <Link
+                className={buttonVariants({
+                  variant: "default",
+                  size: "sm",
+                  className: "w-full shadow-md",
+                })}
+                href="https://app.simplist.blog/billing"
+                target="_blank"
+              >
+                Upgrade to Pro
+                <ArrowRight />
+              </Link>
+            </CardFooter>
           </Card>
         </div>
 
