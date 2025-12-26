@@ -61,7 +61,7 @@ export const FaqSection = () => {
 
         <div className="space-y-4">
           {faqs.map((faq, index) => (
-            <Card className="bg-card/50 p-0 backdrop-blur-sm">
+            <Card className="bg-card/50 p-0 backdrop-blur-sm" key={index}>
               <Accordion type="single" collapsible>
                 <AccordionItem value={`item-${index}`} className="border-none">
                   <AccordionTrigger className="px-6 py-4 text-left text-base font-semibold hover:no-underline">
