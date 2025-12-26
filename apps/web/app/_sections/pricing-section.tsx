@@ -108,7 +108,7 @@ export const PricingSection = () => {
         </div>
 
         {/* Pricing Cards */}
-        <div className="mx-auto grid max-w-4xl gap-6 md:grid-cols-2">
+        <div className="mx-auto grid max-w-4xl gap-6 md:grid-cols-2 md:items-start">
           {/* Free Plan */}
           <Card className="bg-card/50 relative overflow-hidden backdrop-blur-sm">
             <div className="from-muted/20 to-background pointer-events-none absolute inset-0 bg-gradient-to-br" />
