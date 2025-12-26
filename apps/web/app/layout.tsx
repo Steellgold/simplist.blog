@@ -80,7 +80,7 @@ export const metadata: Metadata = {
       "Simplist is a simple, fast content management API. Post your content in the simplest way possible, and just get your content back with an API.",
     images: [
       {
-        url: "https://cdn.simplist.blog/assets/og-image.png",
+        url: "https://cdn.simplist.blog/assets/og-image.png?",
         width: 1200,
         height: 630,
         alt: `Simplist - ${slogan}`,
@@ -96,7 +96,7 @@ export const metadata: Metadata = {
       "Simplist is a simple, fast content management API. Post your content in the simplest way possible, and just get your content back with an API.",
     images: [
       {
-        url: "https://cdn.simplist.blog/assets/og-image.png",
+        url: "https://cdn.simplist.blog/assets/og-image.png?",
         width: 1200,
         height: 630,
         alt: `Simplist - ${slogan}`,

@@ -63,7 +63,7 @@ export const metadata: Metadata = {
     description,
     images: [
       {
-        url: "https://cdn.simplist.blog/assets/og-image.png",
+        url: "https://cdn.simplist.blog/assets/og-image.png?",
         width: 1200,
         height: 630,
         alt: `Simplist - ${slogan}`,
@@ -78,7 +78,7 @@ export const metadata: Metadata = {
     description,
     images: [
       {
-        url: "https://cdn.simplist.blog/assets/og-image.png",
+        url: "https://cdn.simplist.blog/assets/og-image.png?",
         width: 1200,
         height: 630,
         alt: `Simplist - ${slogan}`,
