@@ -4,8 +4,10 @@ import {
   ArrowRight,
   Calendar,
   ChartColumn,
+  CirclesIntersection,
   Globe,
   PersonsLock,
+  Picture,
   Rocket,
 } from "@gravity-ui/icons";
 import NumberFlow from "@number-flow/react";
@@ -38,14 +40,16 @@ const freeFeatures = [
   { icon: ChartColumn, label: "1K API calls/month" },
   { icon: ChartColumn, label: "Basic analytics (7 days)" },
   { icon: Globe, label: "1 variant per article" },
+  { icon: Picture, label: "Media library" },
+  { icon: CirclesIntersection, label: "Webhooks" },
 ];
 
 const proFeatures = [
-  { icon: Rocket, label: "Unlimited articles" },
-  { icon: ChartColumn, label: "Unlimited API calls" },
+  { icon: Rocket, label: "Infinite articles" },
+  { icon: ChartColumn, label: "Infinite API calls" },
   { icon: ChartColumn, label: "Advanced analytics" },
   { icon: Calendar, label: "Scheduled publishing" },
-  { icon: Globe, label: "Unlimited variants" },
+  { icon: Globe, label: "Infinite variants" },
   { icon: PersonsLock, label: "Up to 10 team members" },
 ];
 
