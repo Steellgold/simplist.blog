@@ -1,5 +1,11 @@
 "use client";
 
+import type { FormEvent } from "react";
+import { useArticleImage } from "@/hooks/use-article-image";
+import {
+  EditorFullscreenProvider,
+  useEditorFullscreenState,
+} from "@/hooks/use-editor-fullscreen";
 import { useProject } from "@/hooks/use-project-context";
 import { type ArticleVariant } from "@/hooks/use-variant-operations";
 import { createArticle, updateArticleCoverImage } from "@/lib/actions/articles";
@@ -7,13 +13,16 @@ import { createTag, updateTagAppearance } from "@/lib/actions/tags";
 import { type ProjectSubscription } from "@/lib/subscription/quota-check";
 import { type ArticleFormStatus } from "@/lib/types/articles";
 import { type LanguageCode, getLanguageName } from "@/lib/types/languages";
+import { uploadBannerWithProgress } from "@/lib/uploads/banner";
 import { Xmark } from "@gravity-ui/icons";
 import { type Tag } from "@simplist/db";
 import { buttonVariants } from "@simplist/ui/components/button";
 import { toast } from "@simplist/ui/components/sonner";
+import { cn } from "@simplist/ui/lib/utils";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FC, useEffect, useState } from "react";
+import { FC, useCallback, useEffect, useState } from "react";
+import { ArticleFormLayout } from "./article-form-layout";
 import { ArticleBannerUpload } from "./banner-upload";
 import { ArticleContentEditor } from "./content-editor";
 import { ArticleInfoFields } from "./info-fields";
@@ -25,18 +34,21 @@ type CreateArticleFormProps = {
   projectId: string;
   availableTags: Tag[];
   subscription?: ProjectSubscription;
+  title: string;
+  description?: string;
 };
 
 export const CreateArticleForm: FC<CreateArticleFormProps> = ({
   projectId,
   availableTags: initialAvailableTags,
   subscription,
+  title: pageTitle,
+  description: pageDescription,
 }) => {
   const router = useRouter();
   const { currentProject } = useProject();
+  const { isFullscreen, providerValue } = useEditorFullscreenState();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isBannerUploading, setIsBannerUploading] = useState(false);
-  const [bannerUploadProgress, setBannerUploadProgress] = useState(0);
 
   // Default language from project or fallback to English
   const defaultLanguage: LanguageCode =
@@ -50,10 +62,6 @@ export const CreateArticleForm: FC<CreateArticleFormProps> = ({
   const [scheduledPublishAt, setScheduledPublishAt] = useState<Date | null>(
     null,
   );
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [imageFiles, setImageFiles] = useState<Map<LanguageCode, File>>(
-    new Map(),
-  );
   const [tags, setTags] = useState<Tag[]>([]);
   const [availableTags] = useState<Tag[]>(initialAvailableTags);
 
@@ -64,7 +72,38 @@ export const CreateArticleForm: FC<CreateArticleFormProps> = ({
   const [activeVariant, setActiveVariant] =
     useState<LanguageCode>(defaultLanguage);
 
-  // Sync form fields with active variant (default or selected)
+  // Update variant when form fields change
+  const updateActiveVariant = useCallback(
+    (updates: Partial<ArticleVariant>) => {
+      setVariants((prev) =>
+        prev.map((variant) =>
+          variant.lang === activeVariant ? { ...variant, ...updates } : variant,
+        ),
+      );
+    },
+    [activeVariant],
+  );
+
+  // Image management hook
+  const {
+    imagePreview,
+    setImagePreview,
+    imageFiles,
+    isBannerUploading,
+    setIsBannerUploading,
+    bannerUploadProgress,
+    setBannerUploadProgress,
+    handlePickedImage,
+    handleImageSelect,
+    handleRemoveImage,
+    resetUploadState,
+  } = useArticleImage({
+    activeVariant,
+    updateActiveVariant,
+  });
+
+  // Sync form fields with active variant when switching variants
+  // Only trigger on activeVariant change, not on variants change
   useEffect(() => {
     const currentVariant = variants.find((v) => v.lang === activeVariant);
     if (currentVariant) {
@@ -73,71 +112,11 @@ export const CreateArticleForm: FC<CreateArticleFormProps> = ({
       setContent(currentVariant.content);
       setImagePreview(currentVariant.coverImage || null);
     }
-  }, [activeVariant, variants]);
-
-  // Update variant when form fields change
-  const updateActiveVariant = (updates: Partial<ArticleVariant>) => {
-    setVariants((prev) =>
-      prev.map((variant) =>
-        variant.lang === activeVariant ? { ...variant, ...updates } : variant,
-      ),
-    );
-  };
-
-  // Handle image upload
-  const handlePickedImage = (file: File | null) => {
-    if (!file) {
-      setImageFiles((prev) => {
-        const next = new Map(prev);
-        next.delete(activeVariant);
-        return next;
-      });
-      setImagePreview(null);
-      updateActiveVariant({ coverImage: undefined });
-      return;
-    }
-    setImageFiles((prev) => {
-      const next = new Map(prev);
-      next.set(activeVariant, file);
-      return next;
-    });
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const imageUrl = reader.result as string;
-      setImagePreview(imageUrl);
-      updateActiveVariant({ coverImage: imageUrl });
-    };
-    reader.readAsDataURL(file);
-  };
-
-  // Handle image selection from media library
-  const handleImageSelect = (url: string) => {
-    // Clear any pending file upload for this variant
-    setImageFiles((prev) => {
-      const next = new Map(prev);
-      next.delete(activeVariant);
-      return next;
-    });
-    setImagePreview(url);
-    updateActiveVariant({ coverImage: url });
-  };
-
-  // Remove image
-  const handleRemoveImage = () => {
-    setImagePreview(null);
-    setImageFiles((prev) => {
-      const next = new Map(prev);
-      next.delete(activeVariant);
-      return next;
-    });
-    updateActiveVariant({ coverImage: undefined });
-    // Reset file input
-    const input = document.getElementById("image-upload") as HTMLInputElement;
-    if (input) input.value = "";
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeVariant]);
 
   // Handle form submission
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
@@ -261,43 +240,11 @@ export const CreateArticleForm: FC<CreateArticleFormProps> = ({
           setIsBannerUploading(true);
           setBannerUploadProgress(0);
 
-          const form = new FormData();
-          form.append("file", file);
-          form.append("projectId", article.projectId);
-          form.append("postId", article.id);
-
-          // Use XMLHttpRequest for progress tracking
-          const data = await new Promise<{ key: string }>((resolve, reject) => {
-            const xhr = new XMLHttpRequest();
-
-            xhr.upload.addEventListener("progress", (event) => {
-              if (event.lengthComputable) {
-                const percentComplete = Math.round(
-                  (event.loaded / event.total) * 100,
-                );
-                setBannerUploadProgress(percentComplete);
-              }
-            });
-
-            xhr.addEventListener("load", () => {
-              if (xhr.status >= 200 && xhr.status < 300) {
-                try {
-                  const response = JSON.parse(xhr.responseText);
-                  resolve(response);
-                } catch {
-                  reject(new Error("Failed to parse response"));
-                }
-              } else {
-                reject(new Error(`Upload failed with status ${xhr.status}`));
-              }
-            });
-
-            xhr.addEventListener("error", () => {
-              reject(new Error("Upload failed"));
-            });
-
-            xhr.open("POST", "/api/uploads/banner");
-            xhr.send(form);
+          const data = await uploadBannerWithProgress({
+            file,
+            projectId: article.projectId,
+            postId: article.id,
+            onProgress: setBannerUploadProgress,
           });
 
           setIsBannerUploading(false);
@@ -322,117 +269,134 @@ export const CreateArticleForm: FC<CreateArticleFormProps> = ({
         id: toastId,
       });
       setIsSubmitting(false);
-      setIsBannerUploading(false);
-      setBannerUploadProgress(0);
+      resetUploadState();
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <div className="space-y-4 lg:col-span-2">
-          <ArticleInfoFields
-            title={title}
-            excerpt={excerpt}
-            onTitleChange={(newTitle) => {
-              setTitle(newTitle);
-              updateActiveVariant({ title: newTitle });
-            }}
-            onExcerptChange={(newExcerpt) => {
-              setExcerpt(newExcerpt);
-              updateActiveVariant({ excerpt: newExcerpt });
-            }}
-          />
+    <EditorFullscreenProvider value={providerValue}>
+      <ArticleFormLayout title={pageTitle} description={pageDescription}>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div
+            className={cn(
+              "grid grid-cols-1 gap-4 lg:grid-cols-3",
+              isFullscreen && "lg:grid-cols-1",
+            )}
+          >
+            <div
+              className={cn(
+                "space-y-4 lg:col-span-2",
+                isFullscreen && "lg:col-span-1",
+              )}
+            >
+              {!isFullscreen && (
+                <ArticleInfoFields
+                  title={title}
+                  excerpt={excerpt}
+                  onTitleChange={(newTitle) => {
+                    setTitle(newTitle);
+                    updateActiveVariant({ title: newTitle });
+                  }}
+                  onExcerptChange={(newExcerpt) => {
+                    setExcerpt(newExcerpt);
+                    updateActiveVariant({ excerpt: newExcerpt });
+                  }}
+                />
+              )}
 
-          <ArticleContentEditor
-            content={content}
-            onContentChange={(newContent) => {
-              setContent(newContent);
-              updateActiveVariant({ content: newContent });
-            }}
-            textareaId="content"
-            placeholder="Write your article content..."
-            projectId={projectId}
-          />
-        </div>
+              <ArticleContentEditor
+                content={content}
+                onContentChange={(newContent) => {
+                  setContent(newContent);
+                  updateActiveVariant({ content: newContent });
+                }}
+                textareaId="content"
+                placeholder="Write your article content..."
+                projectId={projectId}
+              />
+            </div>
 
-        <div className="space-y-4 lg:col-span-1">
-          <ArticleVisibilityCard
-            status={status}
-            onStatusChange={(v) => setStatus(v)}
-            isSubmitting={isSubmitting}
-            submitLabel="Publish"
-            scheduledPublishAt={scheduledPublishAt}
-            onScheduleChange={setScheduledPublishAt}
-            projectTimezone="UTC"
-            projectDefaultLanguage={defaultLanguage}
-            projectId={currentProject?.id}
-            leftAction={
-              <Link
-                href={`/${currentProject?.slug}/articles`}
-                className={buttonVariants({
-                  variant: "outline-destructive",
-                  size: "sm",
-                })}
-              >
-                <Xmark />
-                Cancel
-              </Link>
-            }
-          />
+            {!isFullscreen && (
+              <div className="space-y-4 lg:col-span-1">
+                <ArticleVisibilityCard
+                  status={status}
+                  onStatusChange={(v) => setStatus(v)}
+                  isSubmitting={isSubmitting}
+                  submitLabel="Publish"
+                  scheduledPublishAt={scheduledPublishAt}
+                  onScheduleChange={setScheduledPublishAt}
+                  projectTimezone="UTC"
+                  projectDefaultLanguage={defaultLanguage}
+                  projectId={currentProject?.id}
+                  leftAction={
+                    <Link
+                      href={`/${currentProject?.slug}/articles`}
+                      className={buttonVariants({
+                        variant: "outline-destructive",
+                        size: "sm",
+                      })}
+                    >
+                      <Xmark />
+                      Cancel
+                    </Link>
+                  }
+                />
 
-          <ArticleBannerUpload
-            projectId={projectId}
-            imagePreview={imagePreview}
-            onImageChange={handlePickedImage}
-            onImageSelect={handleImageSelect}
-            onRemoveImage={handleRemoveImage}
-            isUploading={isBannerUploading}
-            uploadProgress={bannerUploadProgress}
-            uploadLabel={
-              activeVariant === defaultLanguage
-                ? "Upload Image"
-                : `Upload Image for ${getLanguageName(activeVariant)}`
-            }
-            emptyDescription={
-              activeVariant === defaultLanguage
-                ? "On the response API it will return the URL of the image."
-                : `Upload a specific image for ${getLanguageName(activeVariant)} variant. Each variant can have its own image.`
-            }
-          />
+                <ArticleBannerUpload
+                  projectId={projectId}
+                  imagePreview={imagePreview}
+                  onImageChange={handlePickedImage}
+                  onImageSelect={handleImageSelect}
+                  onRemoveImage={handleRemoveImage}
+                  isUploading={isBannerUploading}
+                  uploadProgress={bannerUploadProgress}
+                  uploadLabel={
+                    activeVariant === defaultLanguage
+                      ? "Upload Image"
+                      : `Upload Image for ${getLanguageName(activeVariant)}`
+                  }
+                  emptyDescription={
+                    activeVariant === defaultLanguage
+                      ? "On the response API it will return the URL of the image."
+                      : `Upload a specific image for ${getLanguageName(activeVariant)} variant. Each variant can have its own image.`
+                  }
+                />
 
-          <ArticleTagsCard
-            tags={tags}
-            availableTags={availableTags}
-            onTagsChange={setTags}
-            onCreateTag={async (name) => {
-              // Create temporary local tag (will be saved on article submit)
-              const tempTag: Tag = {
-                id: `temp-${Date.now()}`, // Temporary ID
-                name,
-                slug: null,
-                description: null,
-                icon: "tag",
-                color: null,
-                projectId,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-              };
-              return tempTag;
-            }}
-          />
+                <ArticleTagsCard
+                  tags={tags}
+                  availableTags={availableTags}
+                  onTagsChange={setTags}
+                  onCreateTag={async (name) => {
+                    // Create temporary local tag (will be saved on article submit)
+                    const tempTag: Tag = {
+                      id: `temp-${Date.now()}`, // Temporary ID
+                      name,
+                      slug: null,
+                      description: null,
+                      icon: "tag",
+                      color: null,
+                      projectId,
+                      createdAt: new Date(),
+                      updatedAt: new Date(),
+                    };
+                    return tempTag;
+                  }}
+                />
 
-          <VariantCard
-            defaultLanguage={defaultLanguage}
-            variants={variants}
-            onVariantsUpdate={setVariants}
-            onVariantSelect={setActiveVariant}
-            activeVariant={activeVariant}
-            disabled={isSubmitting}
-            subscription={subscription}
-          />
-        </div>
-      </div>
-    </form>
+                <VariantCard
+                  defaultLanguage={defaultLanguage}
+                  variants={variants}
+                  onVariantsUpdate={setVariants}
+                  onVariantSelect={setActiveVariant}
+                  activeVariant={activeVariant}
+                  disabled={isSubmitting}
+                  subscription={subscription}
+                />
+              </div>
+            )}
+          </div>
+        </form>
+      </ArticleFormLayout>
+    </EditorFullscreenProvider>
   );
 };

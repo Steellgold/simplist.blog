@@ -1,8 +1,8 @@
 "use client";
 
+import type { ComponentType, ReactNode } from "react";
 import { Check, CirclePlus } from "@gravity-ui/icons";
 import { type Column } from "@tanstack/react-table";
-import * as React from "react";
 
 import { Badge } from "@simplist/ui/components/badge";
 import { Button } from "@simplist/ui/components/button";
@@ -29,8 +29,8 @@ interface DataTableFacetedFilterProps<TData, TValue> {
   options: {
     label: string;
     value: string;
-    icon?: React.ComponentType<{ className?: string }>;
-    iconNode?: React.ReactNode;
+    icon?: ComponentType<{ className?: string }>;
+    iconNode?: ReactNode;
     count?: number;
   }[];
 }

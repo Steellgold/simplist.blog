@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import type { KeyboardEvent } from "react";
 import { FC } from "react";
 
 import { Code } from "@gravity-ui/icons";
@@ -38,7 +39,7 @@ export const PayloadSection: FC<PayloadSectionProps> = ({
   isPending,
   customPayloadText,
 }) => {
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter") {
       const textarea = e.currentTarget;
       const start = textarea.selectionStart;

@@ -11,12 +11,16 @@ import {
 } from "@/lib/actions/webhooks";
 import {
   ArrowUpRightFromSquare,
-  ChevronLeft, CircleCheck, CircleCheckFill, CircleXmarkFill, Copy,
+  ChevronLeft,
+  CircleCheck,
+  CircleCheckFill,
+  CircleXmarkFill,
+  Copy,
   EllipsisVertical,
   Pencil,
   Play,
   TrashBin,
-  TriangleExclamationFill
+  TriangleExclamationFill,
 } from "@gravity-ui/icons";
 import { Badge } from "@simplist/ui/components/badge";
 import { Button, buttonVariants } from "@simplist/ui/components/button";
@@ -40,6 +44,7 @@ import {
 import { Webhook, WebhookOff } from "@simplist/ui/components/icons";
 import { toast } from "@simplist/ui/components/sonner";
 import Link from "next/link";
+import type { ComponentType } from "react";
 import { FC, useState, useTransition } from "react";
 import type { WebhookFormData } from "./types";
 import { formatDate } from "./utils";
@@ -79,7 +84,7 @@ const StatCard = ({
   title: string;
   value: number | string;
   description: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: ComponentType<{ className?: string }>;
   suffix?: string;
   variant?: "default" | "destructive";
 }) => (
@@ -266,7 +271,9 @@ export const WebhookDashboardPage: FC<Props> = ({
             title="Status"
             value={webhook.status === "active" ? "Active" : "Disabled"}
             description={`Webhook is ${webhook.status === "active" ? "receiving" : "not receiving"} events`}
-            icon={webhook.status === "active" ? CircleCheckFill : CircleXmarkFill}
+            icon={
+              webhook.status === "active" ? CircleCheckFill : CircleXmarkFill
+            }
             variant={webhook.status === "active" ? "default" : "destructive"}
           />
 

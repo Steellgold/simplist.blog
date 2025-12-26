@@ -1,5 +1,6 @@
 "use client";
 
+import type { ComponentType } from "react";
 import * as LucideIcons from "lucide-react";
 import { ChevronsUpDown } from "lucide-react";
 import Link from "next/link";
@@ -181,9 +182,9 @@ export const AppSidebar = ({ items }: Props) => {
                     {categoryItems.map((item) => {
                       const Icon =
                         item.icon && (LucideIcons as any)[item.icon]
-                          ? ((LucideIcons as any)[
-                              item.icon
-                            ] as React.ComponentType<{ className?: string }>)
+                          ? ((LucideIcons as any)[item.icon] as ComponentType<{
+                              className?: string;
+                            }>)
                           : null;
 
                       const isActive = pathname === item.href;

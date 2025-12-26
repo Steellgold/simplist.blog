@@ -1,6 +1,12 @@
 "use client";
 
-import { ArrowDown, ArrowUp, ChevronsExpandVertical, EyeSlash } from "@gravity-ui/icons";
+import type { HTMLAttributes } from "react";
+import {
+  ArrowDown,
+  ArrowUp,
+  ChevronsExpandVertical,
+  EyeSlash,
+} from "@gravity-ui/icons";
 import { type Column } from "@tanstack/react-table";
 
 import { Button } from "@simplist/ui/components/button";
@@ -16,7 +22,7 @@ import { cn } from "@simplist/ui/lib/utils";
 interface DataTableColumnHeaderProps<
   TData,
   TValue,
-> extends React.HTMLAttributes<HTMLDivElement> {
+> extends HTMLAttributes<HTMLDivElement> {
   column: Column<TData, TValue>;
   title: string;
 }

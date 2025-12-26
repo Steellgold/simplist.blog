@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import type { ComponentProps } from "react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -35,10 +36,7 @@ import {
   useOAuthProviders,
 } from "./oauth-providers";
 
-const LoginFormContent = ({
-  className,
-  ...props
-}: React.ComponentProps<"div">) => {
+const LoginFormContent = ({ className, ...props }: ComponentProps<"div">) => {
   const router = useRouter();
   const { isAuthenticating } = useOAuthProviders();
   const [isLoading, setIsLoading] = useState(false);
@@ -210,7 +208,7 @@ const LoginFormContent = ({
   );
 };
 
-export const LoginForm = (props: React.ComponentProps<"div">) => {
+export const LoginForm = (props: ComponentProps<"div">) => {
   return (
     <OAuthProvidersProvider>
       <LoginFormContent {...props} />

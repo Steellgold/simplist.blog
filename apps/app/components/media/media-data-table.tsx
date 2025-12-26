@@ -4,7 +4,13 @@ import { DataTableFacetedFilter } from "@/components/data-table/data-table-facet
 import { DataTableViewOptions } from "@/components/data-table/data-table-view-options";
 import type { MediaItem } from "@/lib/actions/media";
 import { formatBytes } from "@/lib/utils";
-import { LayoutCells, ListUl, Magnifier, TrashBin, Xmark } from "@gravity-ui/icons";
+import {
+  LayoutCells,
+  ListUl,
+  Magnifier,
+  TrashBin,
+  Xmark,
+} from "@gravity-ui/icons";
 import { MediaType } from "@simplist/db";
 import { Button } from "@simplist/ui/components/button";
 import { ButtonGroup } from "@simplist/ui/components/button-group";
@@ -52,6 +58,7 @@ import {
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
+import type { FormEvent } from "react";
 import { useEffect, useState } from "react";
 import { MediaCard } from "./media-card";
 
@@ -195,7 +202,7 @@ export const MediaDataTable = ({
     .getFilteredRowModel()
     .rows.map((row) => row.original);
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = (e: FormEvent) => {
     e.preventDefault();
     onSearch?.(searchValue);
   };

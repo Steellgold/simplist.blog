@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useProject } from "@/hooks/use-project-context";
 import { ArrowLeft, EnvelopeOpenXmark } from "@gravity-ui/icons";
 import { buttonVariants } from "@simplist/ui/components/button";
@@ -14,7 +15,7 @@ import {
 import Link from "next/link";
 
 type Props = {
-  actions?: React.ReactNode[];
+  actions?: ReactNode[];
 };
 
 export function NotFound({ actions }: Props) {

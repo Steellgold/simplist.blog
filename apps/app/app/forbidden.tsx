@@ -1,9 +1,9 @@
 "use client";
 
-import type { FC } from "react";
+import type { FC, ReactNode } from "react";
 
 type Props = {
-  actions?: React.ReactNode[];
+  actions?: ReactNode[];
 };
 
 const Forbidden: FC<Props> = ({ actions }) => {

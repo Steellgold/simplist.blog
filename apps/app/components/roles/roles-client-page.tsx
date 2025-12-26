@@ -8,13 +8,16 @@ import { deleteProjectRole } from "@/lib/actions/roles";
 import {
   CreditCard,
   EllipsisVertical,
-  FileText, Gear, Key,
+  FileText,
+  Gear,
+  Key,
   Lock,
-  Magnifier, Pencil,
+  Magnifier,
+  Pencil,
   Persons,
   Plus,
   Shield,
-  TrashBin
+  TrashBin,
 } from "@gravity-ui/icons";
 import type { ProjectRole } from "@simplist/db";
 import { Badge } from "@simplist/ui/components/badge";

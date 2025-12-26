@@ -85,7 +85,11 @@ export const AnalyticsPreviewCard = ({
 
             <Item variant="muted" size="sm">
               <ItemMedia variant="icon">
-                {averageBounceRate > 50 ? <ChevronsDownWide /> : <ChevronsUpWide />}
+                {averageBounceRate > 50 ? (
+                  <ChevronsDownWide />
+                ) : (
+                  <ChevronsUpWide />
+                )}
               </ItemMedia>
               <ItemContent>
                 <ItemDescription>Avg. Bounce Rate</ItemDescription>

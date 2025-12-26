@@ -9,8 +9,9 @@ import {
 import { CircleExclamation } from "@gravity-ui/icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  Alert, AlertDescription,
-  AlertTitle
+  Alert,
+  AlertDescription,
+  AlertTitle,
 } from "@simplist/ui/components/alert";
 import { Button } from "@simplist/ui/components/button";
 import {
@@ -32,13 +33,14 @@ import { toast } from "@simplist/ui/components/sonner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQueryState } from "nuqs";
+import type { ComponentProps } from "react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
 export const ResetPasswordForm = ({
   className,
   ...props
-}: React.ComponentProps<"div">) => {
+}: ComponentProps<"div">) => {
   const [error, setError] = useState("");
   const [token] = useQueryState("token");
   const router = useRouter();

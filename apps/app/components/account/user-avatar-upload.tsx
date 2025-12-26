@@ -7,6 +7,7 @@ import { Button } from "@simplist/ui/components/button";
 import { toast } from "@simplist/ui/components/sonner";
 import { Spinner } from "@simplist/ui/components/spinner";
 import { useRouter } from "next/navigation";
+import type { ChangeEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 
 interface UserAvatarUploadProps {
@@ -35,7 +36,7 @@ export function UserAvatarUpload({
     };
   }, [previewUrl]);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -181,7 +182,11 @@ export function UserAvatarUpload({
           </div>
         ) : (
           <div className="border-muted-foreground/25 flex size-20 items-center justify-center rounded-full border-2 border-dashed">
-            {isUploading ? <Spinner /> : <FileArrowUp className="text-muted-foreground/50" />}
+            {isUploading ? (
+              <Spinner />
+            ) : (
+              <FileArrowUp className="text-muted-foreground/50" />
+            )}
           </div>
         )}
       </div>

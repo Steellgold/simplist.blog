@@ -7,7 +7,8 @@ import {
   Check,
   Copy,
   EllipsisVertical,
-  Picture, TrashBin
+  Picture,
+  TrashBin,
 } from "@gravity-ui/icons";
 import {
   AlertDialog,
@@ -35,6 +36,7 @@ import {
   TooltipTrigger,
 } from "@simplist/ui/components/tooltip";
 import { cn } from "@simplist/ui/lib/utils";
+import type { MouseEvent } from "react";
 import Image from "next/image";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -60,7 +62,7 @@ export const MediaCard = ({
   const [copied, setCopied] = useState(false);
   const [showApplyBannerDialog, setShowApplyBannerDialog] = useState(false);
 
-  const handleCopyLink = async (e?: React.MouseEvent) => {
+  const handleCopyLink = async (e?: MouseEvent) => {
     e?.stopPropagation();
     toast.promise(navigator.clipboard.writeText(media.url), {
       loading: "Copying link...",

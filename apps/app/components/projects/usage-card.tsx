@@ -1,7 +1,10 @@
 "use client";
 
 import { formatBytes } from "@/lib/utils";
-import { ChartAreaStackedNormalized, TriangleExclamationFill } from "@gravity-ui/icons";
+import {
+  ChartAreaStackedNormalized,
+  TriangleExclamationFill,
+} from "@gravity-ui/icons";
 import {
   Card,
   CardContent,

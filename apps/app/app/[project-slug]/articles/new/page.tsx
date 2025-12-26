@@ -1,5 +1,4 @@
 import { CreateArticleForm } from "@/components/articles/create-form";
-import { PageLayout } from "@/components/layout/page-layout";
 import { getProjectTagsWithMetadata } from "@/lib/actions/tags";
 import { getCurrentUser } from "@/lib/auth-helper";
 import { getProjectSubscription } from "@/lib/subscription/quota-check";
@@ -14,8 +13,7 @@ type PageParams = {
 };
 
 const NewArticlePage: FC<PageParams> = async ({ params }) => {
-  const resolvedParams = await params;
-  const projectSlug = resolvedParams["project-slug"];
+  const { "project-slug": projectSlug } = await params;
 
   const user = await getCurrentUser();
   if (!user) redirect("/auth/login");
@@ -41,18 +39,13 @@ const NewArticlePage: FC<PageParams> = async ({ params }) => {
   }));
 
   return (
-    <div className="container mx-auto max-w-7xl">
-      <PageLayout
-        title="Create a new article"
-        description={`Write and publish a new article for your ${project.name} blog`}
-      >
-        <CreateArticleForm
-          projectId={project.id}
-          availableTags={availableTags}
-          subscription={subscription}
-        />
-      </PageLayout>
-    </div>
+    <CreateArticleForm
+      projectId={project.id}
+      availableTags={availableTags}
+      subscription={subscription}
+      title="Create a new article"
+      description={`Write and publish a new article for your ${project.name} blog`}
+    />
   );
 };
 

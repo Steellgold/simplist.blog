@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { createContext, useContext, useEffect, useState } from "react";
 import { ButtonGroup } from "@simplist/ui/components/button-group";
 import { Field } from "@simplist/ui/components/field";
@@ -29,7 +30,7 @@ export const useOAuthProviders = () => {
 export const OAuthProvidersProvider = ({
   children,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) => {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, FC } from "react";
+import { useState, useEffect, type FC, type MouseEvent } from "react";
 import { cn } from "@simplist/ui/lib/utils";
 import {
   Copy,
@@ -138,7 +138,7 @@ type ActionButtonsProps = {
   testable: boolean;
   isRunning: boolean;
   onRun: () => void;
-  onCopy: (e: React.MouseEvent) => void;
+  onCopy: (e: MouseEvent) => void;
   copied: boolean;
 };
 
@@ -465,7 +465,7 @@ export const ApiPath: FC<ApiPathProps> = ({
     setParameterValues((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleCopy = async (e: React.MouseEvent) => {
+  const handleCopy = async (e: MouseEvent) => {
     e.stopPropagation();
     await navigator.clipboard.writeText(fullUrl);
     setCopied(true);

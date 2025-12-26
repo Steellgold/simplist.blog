@@ -3,7 +3,7 @@ import { highlightCode } from "@/lib/shiki";
 import { cn } from "@/lib/utils";
 import { Card } from "@simplist/ui/components/card";
 import { CopyButton } from "@simplist/ui/components/copy-button";
-import { FC } from "react";
+import { type ComponentProps, type FC } from "react";
 import { BundledLanguage } from "shiki";
 import { CodeBlockTabsClient } from "./code-block-tabs-client";
 
@@ -21,7 +21,7 @@ type CodeBlockProps = {
   filename?: string;
   className?: string;
   cusLang?: string;
-} & React.ComponentProps<"pre">;
+} & ComponentProps<"pre">;
 
 export const CodeBlock: FC<CodeBlockProps> = async ({
   tabs,

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { parseFile } from "./parsers/parse-file";
 import { validateRequired } from "./validators/validate-required";
 import type {
@@ -20,9 +20,7 @@ interface UseImportDialogReturn {
   error: string | null;
   importing: boolean;
   variantSelections: Record<number, number>;
-  setVariantSelections: React.Dispatch<
-    React.SetStateAction<Record<number, number>>
-  >;
+  setVariantSelections: Dispatch<SetStateAction<Record<number, number>>>;
   loadFile: (file: File) => Promise<void>;
   importData: () => Promise<ImportResult>;
   reset: () => void;

@@ -5,7 +5,14 @@ import { useProjectContext } from "@/components/projects/context-provider";
 import { TagApplyDialog } from "@/components/tags/tag-apply-dialog";
 import { TagEditDialog } from "@/components/tags/tag-edit-dialog";
 import { deleteTag, type TagWithMetadata } from "@/lib/actions/tags";
-import { Copy, EllipsisVertical, FileText, PencilToSquare, Tags, TrashBin } from "@gravity-ui/icons";
+import {
+  Copy,
+  EllipsisVertical,
+  FileText,
+  PencilToSquare,
+  Tags,
+  TrashBin,
+} from "@gravity-ui/icons";
 import { Badge } from "@simplist/ui/components/badge";
 import { Button } from "@simplist/ui/components/button";
 import { Checkbox } from "@simplist/ui/components/checkbox";

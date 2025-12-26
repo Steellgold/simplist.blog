@@ -23,7 +23,7 @@ import {
 import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React from "react";
+import { Fragment } from "react";
 
 interface Article {
   id: string;
@@ -84,7 +84,7 @@ export const RecentArticlesCard = ({
         ) : (
           <ItemGroup>
             {articles.map((article, index) => (
-              <React.Fragment key={article.id}>
+              <Fragment key={article.id}>
                 <Item variant="muted" size="sm" asChild>
                   <Link href={`/${projectSlug}/articles/${article.slug}/edit`}>
                     <ItemContent>
@@ -107,7 +107,7 @@ export const RecentArticlesCard = ({
                   </Link>
                 </Item>
                 {index < articles.length - 1 && <ItemSeparator />}
-              </React.Fragment>
+              </Fragment>
             ))}
           </ItemGroup>
         )}

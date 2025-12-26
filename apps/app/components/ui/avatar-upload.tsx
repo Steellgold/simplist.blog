@@ -4,6 +4,7 @@ import { FileArrowUp, Xmark } from "@gravity-ui/icons";
 import { Button } from "@simplist/ui/components/button";
 import { toast } from "@simplist/ui/components/sonner";
 import { cn } from "@simplist/ui/lib/utils";
+import type { ChangeEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 
 interface AvatarUploadProps {
@@ -38,7 +39,7 @@ export function AvatarUpload({
     };
   }, [previewUrl]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 

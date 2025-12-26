@@ -1,6 +1,11 @@
 "use client";
 
-import { ArrowsRotateLeft, HouseFill, TriangleExclamationFill } from "@gravity-ui/icons";
+import type { ReactNode } from "react";
+import {
+  ArrowsRotateLeft,
+  HouseFill,
+  TriangleExclamationFill,
+} from "@gravity-ui/icons";
 import { Button, buttonVariants } from "@simplist/ui/components/button";
 import {
   Empty,
@@ -14,7 +19,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 type Props = {
-  actions?: React.ReactNode[];
+  actions?: ReactNode[];
 };
 
 export function Error({ actions }: Props) {

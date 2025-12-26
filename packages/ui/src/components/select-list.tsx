@@ -5,7 +5,6 @@ import { Check, Magnifier } from "@gravity-ui/icons";
 import { cn } from "@simplist/ui/lib/utils";
 import { Checkbox } from "./checkbox";
 import { Input } from "./input";
-import { ScrollArea } from "./scroll-area";
 import { Separator } from "./separator";
 import { Spinner } from "./spinner";
 
@@ -179,7 +178,9 @@ function SelectListContent({
   className,
 }: SelectListContentProps) {
   return (
-    <ScrollArea className={cn("h-[300px] rounded-md border", className)}>
+    <div
+      className={cn("h-[300px] overflow-y-auto rounded-md border", className)}
+    >
       {isLoading ? (
         <div className="flex items-center justify-center py-8">
           <Spinner />
@@ -191,7 +192,7 @@ function SelectListContent({
       ) : (
         <div className="p-2">{children}</div>
       )}
-    </ScrollArea>
+    </div>
   );
 }
 

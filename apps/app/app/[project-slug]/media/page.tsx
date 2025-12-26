@@ -12,7 +12,7 @@ type Props = {
 };
 
 const MediaPage = async ({ params }: Props) => {
-  const resolvedParams = await params;
+  const { "project-slug": projectSlug } = await params;
   const user = await getCurrentUser();
 
   if (!user) redirect("/auth/login");
@@ -20,7 +20,7 @@ const MediaPage = async ({ params }: Props) => {
   // Get project by slug
   const project = await prisma.project.findUnique({
     where: {
-      slug: resolvedParams["project-slug"],
+      slug: projectSlug,
     },
     include: {
       members: true,

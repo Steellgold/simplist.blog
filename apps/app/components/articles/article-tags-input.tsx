@@ -10,6 +10,7 @@ import type { ColorsEnumType } from "@simplist/ui/lib/color";
 import { getTagColorClasses } from "@simplist/ui/lib/color";
 import type { IconsEnumType } from "@simplist/ui/lib/icons.enum";
 import { cn } from "@simplist/ui/lib/utils";
+import type { ChangeEvent, KeyboardEvent } from "react";
 import { FC, useEffect, useMemo, useRef, useState } from "react";
 
 type ArticleTagsInputProps = {
@@ -125,7 +126,7 @@ export const ArticleTagsInput: FC<ArticleTagsInputProps> = ({
     onChange(updatedTags);
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
 
     // Check if user typed comma or semicolon
@@ -148,7 +149,7 @@ export const ArticleTagsInput: FC<ArticleTagsInputProps> = ({
     setInputValue(newValue);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: KeyboardEvent) => {
     // Handle backspace on empty input to remove last tag
     if (e.key === "Backspace" && inputValue === "" && value.length > 0) {
       e.preventDefault();

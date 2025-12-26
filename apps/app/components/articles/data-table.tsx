@@ -3,7 +3,11 @@
 import { DataTableFacetedFilter } from "@/components/data-table/data-table-faceted-filter";
 import { DataTableViewOptions } from "@/components/data-table/data-table-view-options";
 import { useProjectContext } from "@/components/projects/context-provider";
-import { ChartAreaStackedNormalized, Magnifier, TrashBin } from "@gravity-ui/icons";
+import {
+  ChartAreaStackedNormalized,
+  Magnifier,
+  TrashBin,
+} from "@gravity-ui/icons";
 import {
   flexRender,
   getCoreRowModel,
@@ -21,6 +25,7 @@ import {
 } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
 import { parseAsArrayOf, parseAsString, useQueryStates } from "nuqs";
+import type { ReactNode } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
@@ -71,7 +76,7 @@ interface DataTableProps<
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   members: Member[];
-  importDialog?: React.ReactNode;
+  importDialog?: ReactNode;
 }
 
 export const ArticlesDataTable = <

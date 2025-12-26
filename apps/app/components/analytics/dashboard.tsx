@@ -46,6 +46,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@simplist/ui/components/select";
+import type { ComponentType } from "react";
 import Image from "next/image";
 import { parseAsInteger, useQueryState } from "nuqs";
 import {
@@ -79,7 +80,7 @@ const StatCard = ({
   title: string;
   value: number | string;
   description: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: ComponentType<{ className?: string }>;
   suffix?: string;
   trend?: number;
 }) => (
@@ -102,9 +103,7 @@ const StatCard = ({
           <div
             className={`flex items-center text-xs ${trend >= 0 ? "text-green-600" : "text-red-600"}`}
           >
-            <CaretUp
-              className={`h-3 w-3 ${trend < 0 ? "rotate-180" : ""}`}
-            />
+            <CaretUp className={`h-3 w-3 ${trend < 0 ? "rotate-180" : ""}`} />
             <span className="ml-1">{Math.abs(trend)}%</span>
           </div>
         )}
