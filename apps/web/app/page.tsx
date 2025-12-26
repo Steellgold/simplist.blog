@@ -3,6 +3,7 @@ import { Navbar } from "@/components/layout/navbar";
 import { SectionWrapper } from "@/components/layout/section-wrapper";
 import { LightRays } from "@simplist/ui/components/shared/light-rays";
 import { ApiDemoSection } from "./_sections/api-demo-section";
+import { FaqSection } from "./_sections/faq-section";
 import { FeaturesSection } from "./_sections/features-section";
 import { HeroSection } from "./_sections/hero-section";
 import { PricingSection } from "./_sections/pricing-section";
@@ -36,6 +37,10 @@ const HomePage = async () => {
         </SectionWrapper>
 
         <SectionWrapper variant="accent">
+          <FaqSection />
+        </SectionWrapper>
+
+        <SectionWrapper>
           <ApiDemoSection />
         </SectionWrapper>
 

@@ -17,7 +17,7 @@ import {
 } from "@simplist/limits";
 import { Badge } from "@simplist/ui/components/badge";
 import { BillingToggle } from "@simplist/ui/components/billing-toggle";
-import { Button, buttonVariants } from "@simplist/ui/components/button";
+import { buttonVariants } from "@simplist/ui/components/button";
 import {
   Card,
   CardContent,
@@ -26,11 +26,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@simplist/ui/components/card";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@simplist/ui/components/collapsible";
 import { Webhook } from "@simplist/ui/components/icons";
 import Link from "next/link";
 import { useState } from "react";
@@ -53,32 +48,8 @@ const proFeatures = [
   { icon: PersonsLock, label: "Up to 10 team members" },
 ];
 
-const faqs = [
-  {
-    question: "Can I upgrade or downgrade at any time?",
-    answer:
-      "Yes! You can upgrade or downgrade your plan at any time. When upgrading, you'll be charged a prorated amount. When downgrading, your account will be credited for the remaining time.",
-  },
-  {
-    question: "What happens if I exceed my limits?",
-    answer:
-      "On the Free plan, you'll be prompted to upgrade when you reach your limits. On the Pro plan, most limits are unlimited, so you won't have to worry about hitting caps.",
-  },
-  {
-    question: "Do you offer refunds?",
-    answer:
-      "Yes! If you're not satisfied within the first 14 days, we'll give you a full refund, no questions asked.",
-  },
-  {
-    question: "Can I cancel my subscription anytime?",
-    answer:
-      "Absolutely! You can cancel your subscription at any time from your billing settings. Your data will remain accessible until the end of your billing period.",
-  },
-];
-
 export const PricingSection = () => {
   const [frequency, setFrequency] = useState<SubscriptionInterval>("monthly");
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   const plans = getAllPlans();
   const [starterPlan, proPlan] = plans;
@@ -118,7 +89,12 @@ export const PricingSection = () => {
             <div className="from-muted/20 to-background pointer-events-none absolute inset-0 bg-gradient-to-br" />
 
             <CardHeader className="relative">
-              <CardTitle className="text-2xl">{starterPlan.name}</CardTitle>
+              <CardTitle
+                className="text-2xl font-extrabold"
+                style={{ fontFamily: "var(--font-syne)" }}
+              >
+                {starterPlan.name}
+              </CardTitle>
               <CardDescription>{starterPlan.description}</CardDescription>
 
               <div className="flex items-baseline gap-1 pt-4">
@@ -167,7 +143,12 @@ export const PricingSection = () => {
             </div>
 
             <CardHeader className="relative">
-              <CardTitle className="text-2xl">{proPlan.name}</CardTitle>
+              <CardTitle
+                className="text-2xl font-extrabold"
+                style={{ fontFamily: "var(--font-syne)" }}
+              >
+                {proPlan.name}
+              </CardTitle>
               <CardDescription>{proPlan.description}</CardDescription>
 
               <div className="flex items-baseline gap-1 pt-4">
@@ -258,64 +239,6 @@ export const PricingSection = () => {
             <span className="text-muted-foreground text-sm">
               Cancel anytime
             </span>
-          </div>
-        </div>
-
-        {/* FAQ Section */}
-        <div className="mx-auto mt-20 max-w-3xl">
-          <div className="mb-8 text-center">
-            <h3
-              className="mb-2 text-2xl font-semibold md:text-3xl"
-              style={{ fontFamily: "var(--font-syne)" }}
-            >
-              Frequently asked questions
-            </h3>
-            <p className="text-muted-foreground">
-              Everything you need to know about our pricing
-            </p>
-          </div>
-
-          <div className="space-y-4">
-            {faqs.map((faq, index) => (
-              <Collapsible
-                key={index}
-                open={openFaq === index}
-                onOpenChange={(isOpen) => setOpenFaq(isOpen ? index : null)}
-              >
-                <Card className="bg-card/50 backdrop-blur-sm">
-                  <CollapsibleTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-between p-6 text-left hover:bg-transparent"
-                    >
-                      <span className="font-medium">{faq.question}</span>
-                      <ArrowRight
-                        className={`text-muted-foreground h-5 w-5 shrink-0 transition-transform ${
-                          openFaq === index ? "rotate-90" : ""
-                        }`}
-                      />
-                    </Button>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent>
-                    <div className="text-muted-foreground border-t px-6 pt-4 pb-6 text-sm">
-                      {faq.answer}
-                    </div>
-                  </CollapsibleContent>
-                </Card>
-              </Collapsible>
-            ))}
-          </div>
-
-          <div className="bg-muted/30 mt-8 rounded-lg border p-6 text-center">
-            <p className="text-muted-foreground mb-3">
-              Still have questions? We&apos;re here to help.
-            </p>
-            <Link
-              href="mailto:support@simplist.blog"
-              className={buttonVariants({ variant: "outline", size: "sm" })}
-            >
-              Contact Support
-            </Link>
           </div>
         </div>
       </div>
