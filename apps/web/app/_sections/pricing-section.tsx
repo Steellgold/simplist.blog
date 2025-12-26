@@ -151,6 +151,20 @@ export const PricingSection = () => {
                   )}
                 </div>
 
+                <div className="text-muted-foreground py-1">
+                  Language variants
+                </div>
+                <div className="py-1 text-center">
+                  {starterLimits.maxVariantsPerArticle === -1
+                    ? "Unlimited"
+                    : `${starterLimits.maxVariantsPerArticle} per article`}
+                </div>
+                <div className="py-1 text-center">
+                  {proLimits.maxVariantsPerArticle === -1
+                    ? "Unlimited"
+                    : `${proLimits.maxVariantsPerArticle} per article`}
+                </div>
+
                 <div className="text-muted-foreground py-1">Team members</div>
                 <div className="py-1 text-center">
                   {starterLimits.maxMembers === -1

@@ -22,7 +22,6 @@ export const HeroSection = () => {
     <section className="relative overflow-hidden px-4 py-12 md:py-32 lg:py-24">
       <div className="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
         <div className="space-y-8 text-center lg:text-left">
-          <div className="h-0 lg:h-13" />
 
           <div className="space-y-4">
             <h1
