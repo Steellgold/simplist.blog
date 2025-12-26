@@ -16,14 +16,20 @@ import { differenceInDays, format, subDays } from "date-fns";
 import { parseAsInteger, useQueryState } from "nuqs";
 import { useState } from "react";
 import type { DateRange } from "react-day-picker";
+import { BasicAnalyticsDashboard } from "./basic-analytics-dashboard";
 import { AnalyticsDashboardContent } from "./dashboard";
+import { UpgradeBanner } from "./upgrade-banner";
 
 interface AnalyticsPageClientProps {
   analyticsData: AnalyticsDataMultiPeriod;
+  isPro: boolean;
+  projectSlug: string;
 }
 
 export const AnalyticsPageClient = ({
   analyticsData,
+  isPro,
+  projectSlug,
 }: AnalyticsPageClientProps) => {
   const isMobile = useIsMobile();
   const [selectedPeriod, setSelectedPeriod] = useQueryState(
@@ -79,6 +85,22 @@ export const AnalyticsPageClient = ({
     return !isCustom && selectedPeriod === days;
   };
 
+  // STARTER users see limited dashboard with no period selector
+  if (!isPro) {
+    return (
+      <PageLayout
+        title="Analytics"
+        description="Track visitor behavior and engagement for your articles"
+      >
+        <div className="space-y-4">
+          <UpgradeBanner projectSlug={projectSlug} />
+          <BasicAnalyticsDashboard analyticsData={analyticsData} />
+        </div>
+      </PageLayout>
+    );
+  }
+
+  // PRO users see full dashboard with all features
   return (
     <PageLayout
       title="Analytics"

@@ -59,6 +59,7 @@ export const ApiKeysClientPage = ({
               Create an API key to start authenticating requests.
             </EmptyDescription>
           </EmptyHeader>
+
           <EmptyContent>
             <CreateApiKeyForm
               projectId={project.id}

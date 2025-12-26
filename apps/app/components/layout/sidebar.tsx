@@ -107,8 +107,6 @@ const getNavigationItems = (
     title: "Analytics",
     icon: ChartLine,
     href: `/${projectSlug}/analytics`,
-    disabled: !isPro,
-    showProBadge: !isPro,
     requiredPermissions: ["canViewAnalytics"],
     category: "Content",
   },

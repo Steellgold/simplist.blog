@@ -15,7 +15,7 @@ const TermsOfServicePage = () => {
       <p className="text-muted-foreground">
         <strong>Effective Date:</strong> December 17, 2025
         <br />
-        <strong>Last Updated:</strong> December 17, 2025
+        <strong>Last Updated:</strong> December 26, 2025
       </p>
 
       <h2>1. Introduction</h2>
@@ -242,7 +242,9 @@ const TermsOfServicePage = () => {
         <li>Up to 50 MB of image storage;</li>
         <li>Up to 1,000 API calls per month;</li>
         <li>One member (Owner only);</li>
-        <li>Limited analytics features;</li>
+        <li>
+          Basic analytics (7 days, top 3 articles/countries, device breakdown);
+        </li>
         <li>No article language variants or bulk operations.</li>
       </ul>
 
@@ -256,7 +258,10 @@ const TermsOfServicePage = () => {
         <li>Up to 1 GB of image storage;</li>
         <li>Up to 500,000 API calls per month;</li>
         <li>Up to 10 members;</li>
-        <li>Full analytics dashboards and statistics;</li>
+        <li>
+          Advanced analytics (30/90 days + custom periods, UTM tracking,
+          engagement funnels, recent activity);
+        </li>
         <li>Article language variants and per-variant cover images;</li>
         <li>Scheduled publishing with automatic cron-based publishing;</li>
         <li>Bulk operations and extended webhook capacity.</li>

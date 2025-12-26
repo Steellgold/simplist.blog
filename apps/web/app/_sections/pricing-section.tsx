@@ -109,34 +109,12 @@ export const PricingSection = () => {
                   Analytics dashboard
                 </div>
                 <div className="flex items-center justify-center gap-1 py-1 text-center">
-                  {starterLimits.features.analytics ? (
-                    <>
-                      <SealCheck className="text-primary h-3.5 w-3.5" />
-                      <span>Included</span>
-                    </>
-                  ) : (
-                    <>
-                      <Xmark className="text-muted-foreground/50 h-3.5 w-3.5" />
-                      <span className="text-muted-foreground/60">
-                        Not included
-                      </span>
-                    </>
-                  )}
+                  <SealCheck className="text-primary h-3.5 w-3.5" />
+                  <span>Basic (7 days)</span>
                 </div>
                 <div className="flex items-center justify-center gap-1 py-1 text-center">
-                  {proLimits.features.analytics ? (
-                    <>
-                      <SealCheck className="text-primary h-3.5 w-3.5" />
-                      <span>Included</span>
-                    </>
-                  ) : (
-                    <>
-                      <Xmark className="text-muted-foreground/50 h-3.5 w-3.5" />
-                      <span className="text-muted-foreground/60">
-                        Not included
-                      </span>
-                    </>
-                  )}
+                  <SealCheck className="text-primary h-3.5 w-3.5" />
+                  <span>Advanced</span>
                 </div>
 
                 <div className="text-muted-foreground py-1">
@@ -225,7 +203,8 @@ export const PricingSection = () => {
                 </div>
 
                 <p className="text-muted-foreground text-xs">
-                  Everything in Free, plus unlimited content, full analytics,
+                  Everything in Free, plus unlimited content, advanced analytics
+                  (extended periods, UTM tracking, engagement funnels),
                   scheduling and room for your team.
                 </p>
               </CardContent>

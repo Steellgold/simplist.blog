@@ -28,7 +28,7 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, Plan> = {
       maxMembers: 1, // STARTER: Solo mode only (owner)
       maxWebhooks: 1,
       features: {
-        analytics: false, // Advanced analytics are PRO only
+        analytics: false, // Advanced analytics are PRO only (STARTER gets basic: 7 days, top 3, limited metrics)
         postVariants: true, // 1 variant on STARTER
         scheduledPublishing: false,
         prioritySupport: true,
