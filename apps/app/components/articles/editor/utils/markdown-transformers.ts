@@ -11,7 +11,7 @@ import {
   $createHorizontalRuleNode,
   $isHorizontalRuleNode,
   HorizontalRuleNode,
-} from "@lexical/react/LexicalHorizontalRuleNode";
+} from "@lexical/extension";
 import { $createImageNode, $isImageNode, ImageNode } from "../nodes/image-node";
 
 // Horizontal rule transformer
