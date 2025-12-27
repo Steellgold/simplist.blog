@@ -29,6 +29,7 @@ export interface PlanLimits {
   maxVariantsPerArticle: number;
   maxMembers: number;
   maxWebhooks: number;
+  maxAiRequestsPerMonth: number; // -1 = unlimited (BYOK), 100 = PRO included
   features: {
     analytics: boolean;
     postVariants: boolean;
@@ -36,6 +37,8 @@ export interface PlanLimits {
     prioritySupport: boolean;
     bulkOperations: boolean;
     webhooks: boolean;
+    aiFeatures: boolean; // Access to AI features
+    aiIncludedCredits: boolean; // true = API key provided by Simplist (PRO), false = BYOK (STARTER)
   };
 }
 

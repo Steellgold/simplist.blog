@@ -19,6 +19,7 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, Plan> = {
       { name: "50MB storage", included: true },
       { name: "1,000 API calls/month", included: true },
       { name: "Language variants", included: 1 },
+      { name: "AI features (bring your own key)", included: true },
     ],
     limits: {
       maxArticles: 5,
@@ -27,6 +28,7 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, Plan> = {
       maxVariantsPerArticle: 1, // STARTER: 1 variant allowed
       maxMembers: 1, // STARTER: Solo mode only (owner)
       maxWebhooks: 1,
+      maxAiRequestsPerMonth: -1, // Unlimited with BYOK
       features: {
         analytics: false, // Advanced analytics are PRO only (STARTER gets basic: 7 days, top 3, limited metrics)
         postVariants: true, // 1 variant on STARTER
@@ -34,6 +36,8 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, Plan> = {
         prioritySupport: true,
         bulkOperations: false,
         webhooks: true,
+        aiFeatures: true, // AI features available with BYOK
+        aiIncludedCredits: false, // Must provide own API key
       },
     },
   },
@@ -68,6 +72,7 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, Plan> = {
       { name: "Priority support", included: true },
       { name: "Language variants", included: true },
       { name: "Scheduled publishing", included: true },
+      { name: "AI features (100 requests/month included)", included: true },
     ],
     limits: {
       maxArticles: -1,
@@ -76,6 +81,7 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, Plan> = {
       maxVariantsPerArticle: -1, // PRO: unlimited variants per article
       maxMembers: 10, // PRO: Up to 10 team members
       maxWebhooks: 20,
+      maxAiRequestsPerMonth: 100, // PRO: 100 AI requests/month included
       features: {
         analytics: true, // PRO has full access to advanced analytics
         postVariants: true,
@@ -83,6 +89,8 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, Plan> = {
         prioritySupport: true,
         bulkOperations: true,
         webhooks: true,
+        aiFeatures: true, // AI features included
+        aiIncludedCredits: true, // API key provided by Simplist
       },
     },
   },
