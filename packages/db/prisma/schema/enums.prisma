@@ -1,0 +1,84 @@
+// ============================================
+// ENUMS
+// ============================================
+
+enum UserStatus {
+  ACTIVE    // Compte actif (défaut)
+  SUSPENDED // Suspendu temporairement
+  BANNED    // Banni définitivement
+  DISABLED  // Désactivé manuellement
+}
+
+enum UserStatusReason {
+  TERMS_VIOLATION        // Violation des CGU
+  ILLEGAL_CONTENT        // Contenu illégal
+  HATEFUL_CONTENT        // Contenu haineux, harcelant ou discriminatoire
+  OBSCENE_CONTENT        // Contenu obscène ou inapproprié
+  IP_INFRINGEMENT        // Violation de propriété intellectuelle
+  PRIVACY_VIOLATION      // Violation de la vie privée de tiers
+  MALWARE                // Upload de malware ou code malveillant
+  UNAUTHORIZED_ACCESS    // Tentative d'accès non autorisé
+  RATE_LIMIT_ABUSE       // Abus des limites de taux / quotas
+  SECURITY_BYPASS        // Contournement des contrôles de sécurité
+  SCRAPING_ABUSE         // Scraping abusif de l'infrastructure
+  PAYMENT_FAILURE        // Échec de paiement prolongé
+  LEGAL_REQUEST          // Demande légale ou ordonnance judiciaire
+  SECURITY_RISK          // Risque sécuritaire pour la plateforme
+  FRAUD                  // Activité frauduleuse
+  SPAM                   // Spam ou comportement automatisé abusif
+  OTHER                  // Autre raison (détail dans statusReason)
+}
+
+enum UserRole {
+  USER  // Utilisateur standard
+  ADMIN // Administrateur système
+}
+
+enum Color {
+  RED
+  ORANGE
+  AMBER
+  YELLOW
+  LIME
+  GREEN
+  EMERALD
+  TEAL
+  CYAN
+  SKY
+  BLUE
+  INDIGO
+  VIOLET
+  PURPLE
+  FUCHSIA
+  PINK
+  ROSE
+  BLACK
+  WHITE
+  GRAY
+}
+
+enum SubscriptionTier {
+  STARTER
+  PRO
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  EXPIRED
+}
+
+enum MediaType {
+  BANNER
+  CONTENT
+  AVATAR
+  OTHER
+}
+
+enum ArticleStatus {
+  draft
+  published
+  deleted
+  scheduled
+}

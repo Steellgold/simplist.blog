@@ -1,0 +1,94 @@
+// ============================================
+// ARTICLE MODELS
+// Article, ArticleVariant, Tag
+// ============================================
+
+model Tag {
+  id          String  @id @default(cuid())
+  name        String
+  slug        String?
+  description String?
+  color       Color?
+  icon        String? @default("tag")
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  articles Article[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([projectId, name])
+  @@unique([projectId, slug])
+  @@index([projectId])
+  @@map("tag")
+}
+
+model Article {
+  id                 String           @id @default(cuid())
+  //
+  title              String
+  slug               String
+  content            String
+  excerpt            String?
+  coverImage         String?
+  published          Boolean          @default(false)
+  status             ArticleStatus    @default(draft)
+  viewCount          Int              @default(0)
+  // Content statistics
+  wordCount          Int              @default(0)
+  characterCount     Int              @default(0)
+  lineCount          Int              @default(0)
+  readTimeMinutes    Int              @default(0)
+  //
+  tags               Tag[]
+  // Scheduled publishing
+  scheduledPublishAt DateTime?
+  // Audit trail
+  createdBy          String
+  author             User             @relation("ArticleAuthor", fields: [createdBy], references: [id], onDelete: Cascade)
+  updatedBy          String?
+  lastUpdatedBy      User?            @relation("ArticleLastUpdatedBy", fields: [updatedBy], references: [id], onDelete: SetNull)
+  // Relations
+  projectId          String
+  project            Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  variants           ArticleVariant[]
+  pageViews          PageView[]
+  pageEvents         PageEvent[]
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  publishedAt        DateTime?
+  deletedAt          DateTime?
+
+  @@unique([slug, projectId])
+  @@index([projectId, status])
+  @@index([projectId, createdAt])
+  @@index([projectId, published])
+  @@map("article")
+}
+
+model ArticleVariant {
+  id              String   @id @default(cuid())
+  // Language
+  lang            String // ISO 639-1 language code (e.g., "fr", "de", "es")
+  // Content
+  title           String
+  excerpt         String?
+  content         String
+  coverImage      String? // PRO only: custom cover image per variant
+  // Content statistics
+  wordCount       Int      @default(0)
+  characterCount  Int      @default(0)
+  lineCount       Int      @default(0)
+  readTimeMinutes Int      @default(0)
+  // Relations
+  articleId       String
+  article         Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([articleId, lang])
+  @@index([articleId])
+  @@map("article_variant")
+}
