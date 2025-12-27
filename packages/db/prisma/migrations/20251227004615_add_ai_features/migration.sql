@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "project" ADD COLUMN     "aiRequestsResetAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN     "monthlyAiRequests" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "openaiApiKey" TEXT;

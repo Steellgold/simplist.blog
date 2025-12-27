@@ -22,6 +22,10 @@ model Project {
   monthlyApiCalls       Int                 @default(0) // Reset each month
   apiCallsResetAt       DateTime            @default(now()) // Date of last reset
   totalStorageUsed      Int                 @default(0) // In bytes
+  // AI Features
+  monthlyAiRequests     Int                 @default(0) // AI requests counter for PRO (reset monthly)
+  aiRequestsResetAt     DateTime            @default(now()) // Date of last AI requests reset
+  openaiApiKey          String?             // Encrypted OpenAI API key for BYOK (STARTER plan)
   userId                String
   user                  User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   tags                  Tag[]
