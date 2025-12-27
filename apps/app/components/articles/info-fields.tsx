@@ -5,8 +5,8 @@ import {
   generateExcerpt,
   generateTitleSuggestions,
   rewriteContent,
-  type RewriteStyle,
 } from "@/lib/actions/ai";
+import { REWRITE_STYLES, type RewriteStyle } from "@/lib/ai/constants";
 import {
   canExecuteAiAction,
   hasMinimumContentLength,
@@ -67,22 +67,6 @@ type ArticleInfoFieldsProps = {
   activeVariant?: LanguageCode;
   defaultLanguage?: LanguageCode;
 };
-
-const REWRITE_STYLES: Array<{
-  id: RewriteStyle;
-  name: string;
-  description: string;
-}> = [
-  {
-    id: "formal",
-    name: "Formal",
-    description: "Professional and authoritative",
-  },
-  { id: "casual", name: "Casual", description: "Friendly and conversational" },
-  { id: "technical", name: "Technical", description: "Precise and detailed" },
-  { id: "simplified", name: "Simplified", description: "Easy to understand" },
-  { id: "engaging", name: "Engaging", description: "Dynamic and compelling" },
-];
 
 export const ArticleInfoFields = ({
   title,
