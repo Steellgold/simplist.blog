@@ -3,6 +3,33 @@ import type { RewriteStyle } from "./prompts";
 export type { RewriteStyle } from "./prompts";
 
 /**
+ * Improve (correction) options for AI text improvements
+ * Used in editor floating toolbar
+ */
+export const IMPROVE_OPTIONS = [
+  {
+    id: "correct-global" as const,
+    name: "All",
+    description: "Fix spelling, grammar, and tone",
+  },
+  {
+    id: "correct-ortho" as const,
+    name: "Spelling",
+    description: "Correct spelling errors only",
+  },
+  {
+    id: "correct-gram" as const,
+    name: "Grammar",
+    description: "Fix grammatical mistakes",
+  },
+  {
+    id: "correct-tone" as const,
+    name: "Tone",
+    description: "Improve clarity and tone",
+  },
+] as const;
+
+/**
  * Rewrite styles available for AI text transformation
  * Used in editor floating toolbar, info fields (title/excerpt), etc.
  */

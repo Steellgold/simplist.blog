@@ -12,6 +12,7 @@ import {
   TRANSLATION_PROMPT,
   getCorrectionPrompt,
   getRewritePrompt,
+  getCustomPrompt,
   TAG_SUGGESTION_PROMPT,
   EXCERPT_PROMPT,
   TITLE_SUGGESTION_PROMPT,
@@ -63,6 +64,7 @@ const executeAiAction = async <T>(
   try {
     // Check quota before executing
     const quotaCheck = await checkAiRequestQuota(projectId);
+
     if (!quotaCheck.allowed) {
       return { success: false, error: quotaCheck.reason || "Quota exceeded" };
     }
@@ -75,7 +77,6 @@ const executeAiAction = async <T>(
 
     return { success: true, data: result };
   } catch (error) {
-    console.error("AI action error:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "An error occurred",
@@ -138,15 +139,18 @@ export const correctContent = async (
   return executeAiAction(projectId, async () => {
     const model = await getAiModelForProject(projectId);
 
-    const { output } = await generateText({
-      model,
-      output: Output.object({ schema: getCorrectionSchema(fieldType) }),
-      system: getCorrectionPrompt(fieldType),
-      prompt: `Correct the following ${constraints.description} written in ${language}. 
+    const systemPrompt = getCorrectionPrompt(fieldType);
+    const userPrompt = `Correct the following ${constraints.description} written in ${language}. 
 The original is ${content.length} characters - keep similar length.
 
 ${constraints.description.charAt(0).toUpperCase() + constraints.description.slice(1)} to correct:
-${content}`,
+${content}`;
+
+    const { output } = await generateText({
+      model,
+      output: Output.object({ schema: getCorrectionSchema(fieldType) }),
+      system: systemPrompt,
+      prompt: userPrompt,
     });
 
     if (!output) {
@@ -174,22 +178,78 @@ export const rewriteContent = async (
   return executeAiAction(projectId, async () => {
     const model = await getAiModelForProject(projectId);
 
-    const { output } = await generateText({
-      model,
-      output: Output.object({ schema: getRewriteSchema(fieldType) }),
-      system: `${getRewritePrompt(fieldType)}
+    const systemPrompt = `${getRewritePrompt(fieldType)}
 
-${styleInstructions}`,
-      prompt: `Rewrite the following ${constraints.description} in a ${style} style.
+${styleInstructions}`;
+    const userPrompt = `Rewrite the following ${constraints.description} in a ${style} style.
 The original is ${content.length} characters - output must be similar length (not longer).
 ${constraints.maxLength > 0 ? `Maximum allowed: ${constraints.maxLength} characters.` : ""}
 
 Original ${fieldType}:
-${content}`,
+${content}`;
+
+    const { output } = await generateText({
+      model,
+      output: Output.object({ schema: getRewriteSchema(fieldType) }),
+      system: systemPrompt,
+      prompt: userPrompt,
     });
 
     if (!output) {
       throw new Error("Failed to rewrite content");
+    }
+
+    return output;
+  });
+};
+
+/**
+ * Edit content with custom instructions from the user
+ */
+export const customEditContent = async (
+  projectId: string,
+  content: string,
+  customInstruction: string,
+  fieldType: FieldType = "content",
+): Promise<AiActionResult<RewriteOutput>> => {
+  await requirePermission(projectId, "canManageArticles");
+
+  if (!customInstruction.trim()) {
+    return { success: false, error: "Custom instruction is required" };
+  }
+
+  const constraints = FIELD_CONSTRAINTS[fieldType];
+
+  return executeAiAction(projectId, async () => {
+    const model = await getAiModelForProject(projectId);
+
+    const systemPrompt = getCustomPrompt(fieldType, customInstruction);
+    const userPrompt = `Apply the following instruction to this ${constraints.description}:
+
+Instruction: "${customInstruction}"
+
+Original ${fieldType}:
+${content}`;
+
+    const result = await Promise.race([
+      generateText({
+        model,
+        output: Output.object({ schema: getRewriteSchema(fieldType) }),
+        system: systemPrompt,
+        prompt: userPrompt,
+      }),
+      new Promise<never>((_, reject) =>
+        setTimeout(
+          () => reject(new Error("AI request timed out after 30 seconds")),
+          30000,
+        ),
+      ),
+    ]);
+
+    const { output } = result;
+
+    if (!output) {
+      throw new Error("Failed to edit content with custom instruction");
     }
 
     return output;

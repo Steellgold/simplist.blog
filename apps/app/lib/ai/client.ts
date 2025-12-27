@@ -48,5 +48,8 @@ export const getAiModelForProject = async (projectId: string) => {
 
   const openai = createOpenAI({ apiKey });
 
-  return openai(AI_MODEL_NAME);
+  // Use the chat completion model explicitly
+  const model = openai.chat(AI_MODEL_NAME);
+
+  return model;
 };

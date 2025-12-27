@@ -229,3 +229,46 @@ export const REWRITE_STYLES = {
 } as const;
 
 export type RewriteStyle = keyof typeof REWRITE_STYLES;
+
+/**
+ * Generate a custom instruction prompt for the field type
+ */
+export const getCustomPrompt = (
+  fieldType: FieldType,
+  customInstruction: string,
+): string => {
+  const constraints = FIELD_CONSTRAINTS[fieldType];
+
+  return `You are a professional content editor following specific user instructions.
+
+You are editing a blog ${constraints.description}.
+
+User's custom instruction:
+"${customInstruction}"
+
+Your task is to:
+- Follow the user's instruction precisely
+- Preserve the original meaning unless instructed otherwise
+- Keep approximately the same length unless instructed to expand/shorten
+- Do NOT add emojis or special characters unless instructed
+- Apply the instruction while maintaining quality and coherence
+
+CRITICAL - Markdown Formatting Preservation:
+- You MUST preserve ALL markdown formatting exactly as it appears in the original
+- If text is **bold**, keep it **bold** (unless instructed to change formatting)
+- If text is *italic*, keep it *italic*
+- If text has ~~strikethrough~~, keep it
+- If text has [links](url), preserve them exactly
+- If text has \`inline code\`, keep it unchanged
+- NEVER strip or remove markdown syntax unless specifically instructed to do so
+
+Field-specific rules:
+${constraints.rules.map((rule) => `- ${rule}`).join("\n")}
+
+IMPORTANT OUTPUT FORMAT:
+You MUST provide:
+1. First, the FULL edited content as a complete string (rewrittenContent)
+2. Then, a brief explanation of what you changed (explanation)
+
+Do NOT return only the changed parts - return the ENTIRE edited text including parts that were not changed.`;
+};
