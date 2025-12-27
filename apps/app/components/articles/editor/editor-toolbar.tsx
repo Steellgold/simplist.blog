@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type ComponentType } from "react";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import {
   $createParagraphNode,
@@ -83,7 +83,7 @@ const blockTypeToBlockName: Record<string, string> = {
   code: "Code Block",
 };
 
-const blockTypeToIcon: Record<string, React.ComponentType> = {
+const blockTypeToIcon: Record<string, ComponentType> = {
   paragraph: Pilcrow,
   h1: Heading1,
   h2: Heading2,
