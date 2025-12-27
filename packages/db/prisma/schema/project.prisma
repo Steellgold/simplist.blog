@@ -1,0 +1,131 @@
+// ============================================
+// PROJECT MODELS
+// Project, ProjectRole, ProjectMember, ProjectInvitation
+// ============================================
+
+model Project {
+  id                    String              @id @default(cuid())
+  name                  String
+  slug                  String
+  icon                  String              @default("building-2") // Icon name from Lucide icons
+  color                 Color               @default(CYAN)
+  avatarUrl             String? // Custom avatar/logo URL (stored in R2)
+  allowedOrigins        String[]            @default([]) // Array of allowed origins for CORS
+  timezone              String              @default("UTC") // Project timezone for scheduled publishing
+  defaultLanguage       String              @default("en") // Default language for articles (ISO 639-1 code)
+  baseUrl               String? // Base URL for the blog (e.g. "https://monblog.com")
+  articleUrlPattern     String              @default("/blog/{slug}") // URL pattern for articles (e.g. "/blog/{slug}" or "/articles/{slug}")
+  subscriptionTier      SubscriptionTier    @default(STARTER) // "STARTER" | "PRO" - Project-specific subscription tier
+  subscriptionExpiresAt DateTime? // When the subscription expires (for pro projects)
+  stripeCustomerId      String? // Stripe customer ID for this project
+  stripeSubscriptionId  String? // Stripe subscription ID for this project
+  monthlyApiCalls       Int                 @default(0) // Reset each month
+  apiCallsResetAt       DateTime            @default(now()) // Date of last reset
+  totalStorageUsed      Int                 @default(0) // In bytes
+  userId                String
+  user                  User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tags                  Tag[]
+  apiKeys               ApiKey[]
+  articles              Article[]
+  members               ProjectMember[]
+  roles                 ProjectRole[]
+  invitations           ProjectInvitation[]
+  webhooks              Webhook[]
+  media                 Media[]
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+
+  @@unique([slug])
+  @@index([userId, createdAt])
+  @@index([userId, subscriptionTier])
+  @@map("project")
+}
+
+// Rôles personnalisables par projet
+model ProjectRole {
+  id        String  @id @default(cuid())
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  name String // "Administrator", "Editor", "Viewer", etc. (customizable)
+  slug String // "admin", "editor", "viewer" (to identify the role)
+
+  // Permissions granulaires
+  canManageProject  Boolean @default(false) // Edit project settings
+  canManageMembers  Boolean @default(false) // Invite/remove members
+  canManageRoles    Boolean @default(false) // Edit roles/permissions
+  canManageArticles Boolean @default(false) // Create/edit articles
+  canManageTags     Boolean @default(false) // Create/edit/delete tags
+  canManageApiKeys  Boolean @default(false) // Create/delete API keys
+  canManageWebhooks Boolean @default(false) // Manage outgoing webhooks
+  canViewAnalytics  Boolean @default(true) // View analytics
+  canManageBilling  Boolean @default(false) // Manage billing (reserved for OWNER)
+  canDeleteProject  Boolean @default(false) // Delete project (reserved for OWNER)
+
+  isOwner   Boolean @default(false) // Ghost role reserved for creator
+  isDefault Boolean @default(false) // Default role created at project initialization
+
+  members ProjectMember[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([projectId, slug])
+  @@index([projectId, isDefault])
+  @@map("project_role")
+}
+
+// User ↔ Project join table
+model ProjectMember {
+  id String @id @default(cuid())
+
+  // Relations
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // Assigned role (customizable)
+  roleId String
+  role   ProjectRole @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  // Tracking
+  invitedBy String?
+  invitedAt DateTime  @default(now())
+  joinedAt  DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, projectId])
+  @@index([projectId, roleId])
+  @@index([userId])
+  @@map("project_member")
+}
+
+// Secure invitation system with token
+model ProjectInvitation {
+  id String @id @default(cuid())
+
+  email     String
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  roleId String // Role to assign when accepting
+  status InvitationStatus @default(PENDING)
+
+  token     String   @unique
+  expiresAt DateTime // 7 days by default
+
+  invitedBy  String
+  invitedAt  DateTime  @default(now())
+  acceptedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([email, projectId, status])
+  @@index([token])
+  @@index([projectId, status])
+  @@map("project_invitation")
+}

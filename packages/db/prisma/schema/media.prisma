@@ -1,0 +1,32 @@
+// ============================================
+// MEDIA MODELS
+// Media
+// ============================================
+
+model Media {
+  id        String    @id @default(cuid())
+  projectId String
+  project   Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  filename String    // Original filename (e.g., "photo-vacances.jpg")
+  key      String    @unique // R2 path (e.g., "public/proj123/media/abc123.jpg")
+  url      String    // Full public URL
+  mimeType String    // "image/jpeg", "image/png", etc.
+  size     Int       // Size in bytes
+  width    Int?      // Width in pixels (optional)
+  height   Int?      // Height in pixels (optional)
+
+  type MediaType @default(CONTENT)
+
+  uploadedById String
+  uploadedBy   User   @relation(fields: [uploadedById], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([projectId])
+  @@index([projectId, type])
+  @@index([projectId, createdAt(sort: Desc)])
+  @@index([uploadedById])
+  @@map("media")
+}
