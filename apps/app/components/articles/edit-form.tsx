@@ -411,6 +411,11 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({
                     setExcerpt(newExcerpt);
                     updateActiveVariant({ excerpt: newExcerpt });
                   }}
+                  projectId={article.projectId}
+                  articleContent={content}
+                  subscription={subscription}
+                  activeVariant={activeVariant}
+                  defaultLanguage={defaultLanguage}
                 />
               )}
 

@@ -301,6 +301,11 @@ export const CreateArticleForm: FC<CreateArticleFormProps> = ({
                     setExcerpt(newExcerpt);
                     updateActiveVariant({ excerpt: newExcerpt });
                   }}
+                  projectId={projectId}
+                  articleContent={content}
+                  subscription={subscription}
+                  activeVariant={activeVariant}
+                  defaultLanguage={defaultLanguage}
                 />
               )}
 

@@ -15,7 +15,11 @@ export type ProjectSubscription = {
     apiCalls: number;
     storage: number;
     apiCallsResetAt: Date | null;
+    aiRequests: number;
+    aiRequestsResetAt: Date | null;
   };
+  /** Whether the project has a configured OpenAI API key (for BYOK) */
+  hasApiKey: boolean;
 };
 
 /** Get project's subscription tier and limits */
@@ -30,6 +34,9 @@ export const getProjectSubscription = async (
       monthlyApiCalls: true,
       apiCallsResetAt: true,
       totalStorageUsed: true,
+      monthlyAiRequests: true,
+      aiRequestsResetAt: true,
+      openaiApiKey: true,
     },
   });
 
@@ -52,7 +59,10 @@ export const getProjectSubscription = async (
       apiCalls: project.monthlyApiCalls,
       storage: project.totalStorageUsed,
       apiCallsResetAt: project.apiCallsResetAt,
+      aiRequests: project.monthlyAiRequests,
+      aiRequestsResetAt: project.aiRequestsResetAt,
     },
+    hasApiKey: !!project.openaiApiKey,
   };
 };
 
@@ -377,5 +387,122 @@ export const checkVariantQuota = async (
     allowed: true,
     current: currentVariants,
     limit: subscription.limits.maxVariantsPerArticle,
+  };
+};
+
+/**
+ * Check if project can make an AI request
+ * - STARTER with BYOK: Always allowed (no limit)
+ * - PRO with included credits: Check monthly limit
+ */
+export const checkAiRequestQuota = async (
+  projectId: string,
+): Promise<QuotaCheckResult> => {
+  const subscription = await getProjectSubscription(projectId);
+
+  // Check if AI features are enabled
+  if (!subscription.limits.features.aiFeatures) {
+    return {
+      allowed: false,
+      reason: "AI features are not available on your plan.",
+    };
+  }
+
+  // BYOK (STARTER): No limit on AI requests when using own API key
+  if (!subscription.limits.features.aiIncludedCredits) {
+    return { allowed: true };
+  }
+
+  // PRO with included credits: Check monthly limit
+  const now = new Date();
+  const resetDate = subscription.usage.aiRequestsResetAt;
+  let currentRequests = subscription.usage.aiRequests;
+
+  // Check if we need to reset the counter (30-day rolling window)
+  if (resetDate) {
+    const daysSinceReset = Math.floor(
+      (now.getTime() - resetDate.getTime()) / (1000 * 60 * 60 * 24),
+    );
+
+    if (daysSinceReset >= 30) {
+      // Reset the counter
+      await prisma.project.update({
+        where: { id: projectId },
+        data: {
+          monthlyAiRequests: 0,
+          aiRequestsResetAt: now,
+        },
+      });
+
+      currentRequests = 0;
+    }
+  }
+
+  const limit = subscription.limits.maxAiRequestsPerMonth;
+
+  // -1 means unlimited
+  if (limit !== -1 && currentRequests >= limit) {
+    return {
+      allowed: false,
+      reason: `Monthly AI request limit reached. Your ${subscription.tier} plan includes ${limit} AI requests per month.`,
+      current: currentRequests,
+      limit,
+    };
+  }
+
+  return {
+    allowed: true,
+    current: currentRequests,
+    limit,
+  };
+};
+
+/**
+ * Increment AI request counter for PRO plans
+ * Does nothing for STARTER (BYOK) plans
+ */
+export const incrementAiRequestCounter = async (
+  projectId: string,
+): Promise<void> => {
+  const subscription = await getProjectSubscription(projectId);
+
+  // Only increment for plans with included credits (PRO)
+  if (!subscription.limits.features.aiIncludedCredits) {
+    return;
+  }
+
+  await prisma.project.update({
+    where: { id: projectId },
+    data: {
+      monthlyAiRequests: {
+        increment: 1,
+      },
+    },
+  });
+};
+
+/**
+ * Get AI usage stats for a project
+ */
+export const getAiUsageStats = async (
+  projectId: string,
+): Promise<{
+  current: number;
+  limit: number;
+  hasIncludedCredits: boolean;
+  hasApiKey: boolean;
+}> => {
+  const subscription = await getProjectSubscription(projectId);
+
+  const project = await prisma.project.findUnique({
+    where: { id: projectId },
+    select: { openaiApiKey: true },
+  });
+
+  return {
+    current: subscription.usage.aiRequests,
+    limit: subscription.limits.maxAiRequestsPerMonth,
+    hasIncludedCredits: subscription.limits.features.aiIncludedCredits,
+    hasApiKey: !!project?.openaiApiKey,
   };
 };
