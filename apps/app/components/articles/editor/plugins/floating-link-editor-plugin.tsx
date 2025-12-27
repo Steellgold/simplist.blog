@@ -5,9 +5,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   $isLinkNode,
   $isAutoLinkNode,
+  $createLinkNode,
   TOGGLE_LINK_COMMAND,
   type LinkNode,
 } from "@lexical/link";
+import { $createTextNode } from "lexical";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { $findMatchingParent, mergeRegister } from "@lexical/utils";
 import {
@@ -192,20 +194,37 @@ const FloatingLinkEditor = ({
   };
 
   const handleLinkSubmission = () => {
-    if (lastSelection !== null) {
-      if (linkUrl !== "") {
-        editor.dispatchCommand(TOGGLE_LINK_COMMAND, editedLinkUrl);
-        editor.update(() => {
-          const selection = $getSelection();
-          if ($isRangeSelection(selection)) {
-            const parent = getSelectedNode(selection).getParent();
-            if ($isLinkNode(parent)) {
-              const linkNode = parent as LinkNode;
-              linkNode.setURL(editedLinkUrl);
+    if (lastSelection !== null && editedLinkUrl) {
+      editor.update(() => {
+        const selection = $getSelection();
+        if ($isRangeSelection(selection)) {
+          const parent = getSelectedNode(selection).getParent();
+
+          // If link exists, update its URL
+          if ($isLinkNode(parent)) {
+            const linkNode = parent as LinkNode;
+            linkNode.setURL(editedLinkUrl);
+          }
+          // If no link exists, create new one (when clicking link button in floating toolbar)
+          else if (linkUrl === "") {
+            // Check if we have selected text
+            const selectedText = selection.getTextContent();
+            if (selectedText) {
+              // Create link node with the selected text
+              const newLinkNode = $createLinkNode(editedLinkUrl);
+              const textNode = $createTextNode(selectedText);
+              newLinkNode.append(textNode);
+              selection.insertNodes([newLinkNode]);
+            } else {
+              // No text selected, just create link with URL as text
+              const newLinkNode = $createLinkNode(editedLinkUrl);
+              const textNode = $createTextNode(editedLinkUrl);
+              newLinkNode.append(textNode);
+              selection.insertNodes([newLinkNode]);
             }
           }
-        });
-      }
+        }
+      });
       setIsLinkEditMode(false);
     }
   };
