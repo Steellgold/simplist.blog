@@ -11,7 +11,9 @@ export const encrypt = (text: string): string => {
   const key = process.env.AI_ENCRYPTION_KEY;
 
   if (!key || key.length !== 32) {
-    throw new Error("AI_ENCRYPTION_KEY must be exactly 32 characters for AES-256");
+    throw new Error(
+      "AI_ENCRYPTION_KEY must be exactly 32 characters for AES-256",
+    );
   }
 
   const iv = crypto.randomBytes(IV_LENGTH);
@@ -34,7 +36,9 @@ export const decrypt = (encryptedText: string): string => {
   const key = process.env.AI_ENCRYPTION_KEY;
 
   if (!key || key.length !== 32) {
-    throw new Error("AI_ENCRYPTION_KEY must be exactly 32 characters for AES-256");
+    throw new Error(
+      "AI_ENCRYPTION_KEY must be exactly 32 characters for AES-256",
+    );
   }
 
   const parts = encryptedText.split(":");

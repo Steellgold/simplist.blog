@@ -82,7 +82,7 @@ const featureDisplays: FeatureDisplay[] = [
     icon: Picture,
     label: "Media Library",
     getValue: () => "Included",
-    skipInPro: true
+    skipInPro: true,
     // getBadge: (limits) => {
     //   const sizeInMB = limits.maxStorageBytes / (1024 * 1024);
     //   if (sizeInMB >= 1024) {
@@ -109,9 +109,8 @@ const featureDisplays: FeatureDisplay[] = [
     icon: SparklesFill,
     label: "AI",
     getValue: () => "Included",
-    getBadge: (limits) =>
-      limits.maxAiRequestsPerMonth === -1 ? "BYOK" : "",
-  }
+    getBadge: (limits) => (limits.maxAiRequestsPerMonth === -1 ? "BYOK" : ""),
+  },
 ];
 
 export const PricingSection = () => {

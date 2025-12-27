@@ -14,10 +14,11 @@ import {
 import { type ProjectSubscription } from "@/lib/subscription/quota-check";
 import { getLanguageName, type LanguageCode } from "@/lib/types/languages";
 import {
-  ArrowUturnCcwLeft, SparklesFill,
+  ArrowUturnCcwLeft,
+  SparklesFill,
   SquareDashedText,
   SquareHashtag,
-  TextAlignCenter
+  TextAlignCenter,
 } from "@gravity-ui/icons";
 import { Button } from "@simplist/ui/components/button";
 import {
@@ -34,7 +35,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuSub,
   DropdownMenuSubContent,
-  DropdownMenuSubTrigger, DropdownMenuTrigger
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
 } from "@simplist/ui/components/dropdown-menu";
 import {
   InputGroup,
@@ -365,12 +367,7 @@ export const ArticleInfoFields = ({
 
     if (isLoadingTitle) {
       return (
-        <Button
-          type="button"
-          variant="outline"
-          size="icon-xs"
-          disabled
-        >
+        <Button type="button" variant="outline" size="icon-xs" disabled>
           <Spinner className="size-3" />
         </Button>
       );
@@ -437,9 +434,9 @@ export const ArticleInfoFields = ({
               ))}
             </DropdownMenuSubContent>
           </DropdownMenuSub>
-  
+
           <DropdownMenuSeparator />
-  
+
           <DropdownMenuItem onClick={handleSeoTitle}>
             <SquareHashtag />
             SEO Optimizer
@@ -455,12 +452,7 @@ export const ArticleInfoFields = ({
 
     if (isLoadingExcerpt) {
       return (
-        <Button
-          type="button"
-          variant="outline"
-          size="icon-xs"
-          disabled
-        >
+        <Button type="button" variant="outline" size="icon-xs" disabled>
           <Spinner className="size-3" />
         </Button>
       );

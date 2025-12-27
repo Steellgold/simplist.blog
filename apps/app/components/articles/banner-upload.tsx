@@ -8,7 +8,15 @@ import {
   isAllowedImageType,
 } from "@/lib/uploads/constants";
 import type { ChangeEvent } from "react";
-import { ArrowDown, EllipsisVertical, FileArrowUp, Folder, Picture, Plus, TrashBin } from "@gravity-ui/icons";
+import {
+  ArrowDown,
+  EllipsisVertical,
+  FileArrowUp,
+  Folder,
+  Picture,
+  Plus,
+  TrashBin,
+} from "@gravity-ui/icons";
 import { Button } from "@simplist/ui/components/button";
 import {
   Card,
@@ -24,7 +32,12 @@ import Image from "next/image";
 import { useState } from "react";
 import { toast } from "sonner";
 import { ButtonGroup } from "@simplist/ui/components/button-group";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@simplist/ui/components/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@simplist/ui/components/dropdown-menu";
 
 type ArticleBannerUploadProps = {
   projectId: string;
@@ -229,7 +242,7 @@ export const ArticleBannerUpload = ({
                 >
                   <TrashBin />
                   <span className="hidden sm:inline">Remove</span>
-                </Button> 
+                </Button>
               </div>
 
               <input

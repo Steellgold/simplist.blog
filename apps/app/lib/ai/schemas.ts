@@ -63,7 +63,7 @@ export const getCorrectionSchema = (fieldType: FieldType) => {
         }),
       )
       .describe("List of corrections made"),
-    correctionCount: z.number().describe("Total number of corrections made")
+    correctionCount: z.number().describe("Total number of corrections made"),
   });
 };
 
@@ -73,7 +73,7 @@ export const getCorrectionSchema = (fieldType: FieldType) => {
 export const rewriteSchema = z.object({
   rewrittenContent: z
     .string()
-    .describe("The rewritten content in the requested style")
+    .describe("The rewritten content in the requested style"),
 });
 
 export type RewriteOutput = z.infer<typeof rewriteSchema>;
@@ -94,7 +94,7 @@ export const getRewriteSchema = (fieldType: FieldType) => {
 
   return z.object({
     rewrittenContent: contentSchema.describe(
-      `The rewritten ${constraints.description} in the requested style (${constraints.minLength}-${constraints.maxLength} chars)`
+      `The rewritten ${constraints.description} in the requested style (${constraints.minLength}-${constraints.maxLength} chars)`,
     ),
   });
 };

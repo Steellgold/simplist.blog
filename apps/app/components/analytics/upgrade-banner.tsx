@@ -55,11 +55,13 @@ const features = [
 
 export const UpgradeBanner = ({ projectSlug }: UpgradeBannerProps) => {
   return (
-    <Card className="from-primary/5 via-primary/10 to-background bg-linear-to-br border-none">
+    <Card className="from-primary/5 via-primary/10 to-background border-none bg-linear-to-br">
       <CardHeader>
         <CardTitle className="text-xl">Unlock Advanced Analytics</CardTitle>
-        <CardDescription>Get deeper insights with professional analytics features</CardDescription>
-        
+        <CardDescription>
+          Get deeper insights with professional analytics features
+        </CardDescription>
+
         <CardAction>
           <Link
             className={buttonVariants({
@@ -83,12 +85,12 @@ export const UpgradeBanner = ({ projectSlug }: UpgradeBannerProps) => {
                 <div className="bg-background/35 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
                   <Icon className="text-primary h-4 w-4" />
                 </div>
-                
+
                 <div className="space-y-1">
                   <p className="text-sm leading-none font-medium">
                     {feature.title}
                   </p>
-                  
+
                   <p className="text-muted-foreground text-xs">
                     {feature.description}
                   </p>
