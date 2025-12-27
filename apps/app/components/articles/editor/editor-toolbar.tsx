@@ -7,9 +7,14 @@ import {
   $getSelection,
   $isRangeSelection,
   $isRootOrShadowRoot,
+  CAN_REDO_COMMAND,
+  CAN_UNDO_COMMAND,
   COMMAND_PRIORITY_CRITICAL,
+  COMMAND_PRIORITY_LOW,
   FORMAT_TEXT_COMMAND,
+  REDO_COMMAND,
   SELECTION_CHANGE_COMMAND,
+  UNDO_COMMAND,
 } from "lexical";
 import { $setBlocksType } from "@lexical/selection";
 import {
@@ -29,6 +34,8 @@ import { $createCodeNode } from "@lexical/code";
 import { $isLinkNode, TOGGLE_LINK_COMMAND } from "@lexical/link";
 import { $findMatchingParent, mergeRegister } from "@lexical/utils";
 import {
+  ArrowUturnCcwLeft,
+  ArrowUturnCwRight,
   Bold,
   ChevronDown,
   Code,
@@ -156,6 +163,8 @@ const EditorToolbarWithLexical = ({
   const [isStrikethrough, setIsStrikethrough] = useState(false);
   const [isCode, setIsCode] = useState(false);
   const [isLink, setIsLink] = useState(false);
+  const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
 
   const $updateToolbar = useCallback(() => {
     const selection = $getSelection();
@@ -225,6 +234,22 @@ const EditorToolbarWithLexical = ({
           return false;
         },
         COMMAND_PRIORITY_CRITICAL,
+      ),
+      editor.registerCommand(
+        CAN_UNDO_COMMAND,
+        (payload) => {
+          setCanUndo(payload);
+          return false;
+        },
+        COMMAND_PRIORITY_LOW,
+      ),
+      editor.registerCommand(
+        CAN_REDO_COMMAND,
+        (payload) => {
+          setCanRedo(payload);
+          return false;
+        },
+        COMMAND_PRIORITY_LOW,
       ),
       editor.registerUpdateListener(({ editorState }) => {
         editorState.read(() => {
@@ -338,6 +363,30 @@ const EditorToolbarWithLexical = ({
     <div className="bg-muted/30 flex items-center justify-between border-b px-2 py-1.5">
       {/* LEFT TOOLBAR */}
       <div className="flex flex-wrap items-center gap-2">
+        {/* UNDO/REDO */}
+        <ButtonGroup>
+          <Button
+            type="button"
+            variant="outline"
+            size="icon-sm"
+            disabled={!canUndo}
+            onClick={() => editor.dispatchCommand(UNDO_COMMAND, undefined)}
+            title="Undo (Ctrl+Z)"
+          >
+            <ArrowUturnCcwLeft />
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="icon-sm"
+            disabled={!canRedo}
+            onClick={() => editor.dispatchCommand(REDO_COMMAND, undefined)}
+            title="Redo (Ctrl+Y)"
+          >
+            <ArrowUturnCwRight />
+          </Button>
+        </ButtonGroup>
+
         {/* BLOCK TYPE */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
