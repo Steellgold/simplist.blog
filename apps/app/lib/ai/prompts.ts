@@ -41,10 +41,12 @@ export const FIELD_CONSTRAINTS = {
     maxLength: -1, // No limit
     description: "article body content",
     rules: [
-      "Preserve all markdown formatting",
-      "Keep code blocks unchanged",
-      "Maintain original structure (headings, lists, etc.)",
-      "Preserve URLs and links exactly",
+      "CRITICAL: Preserve ALL markdown formatting exactly (**bold**, *italic*, ~~strikethrough~~, etc.)",
+      "Keep inline formatting intact - if text was **bold** or *italic*, it must stay that way",
+      "Keep code blocks and inline code unchanged",
+      "Maintain original structure (headings, lists, blockquotes, etc.)",
+      "Preserve URLs, links, and images exactly as-is",
+      "Do NOT strip or remove any markdown syntax",
     ],
   },
 } as const;
@@ -79,13 +81,24 @@ Your task is to:
 - Do NOT change the writing style or rewrite sentences unless there's an error
 - Do NOT add emojis or special characters that weren't in the original
 
+CRITICAL - Markdown Formatting:
+- You MUST preserve ALL markdown formatting exactly as it appears in the original
+- If text is **bold**, keep it **bold**
+- If text is *italic*, keep it *italic*
+- If text has ~~strikethrough~~, keep it
+- If text has [links](url), preserve them exactly
+- If text has \`inline code\`, keep it unchanged
+- NEVER strip or remove markdown syntax
+
 Constraints for ${fieldType}:
 ${constraints.rules.map((rule) => `- ${rule}`).join("\n")}
 
-For each correction, provide:
-- The original text that was wrong
-- The corrected version
-- A brief explanation of why it was wrong`;
+IMPORTANT OUTPUT FORMAT:
+You MUST provide:
+1. First, the FULL corrected content as a complete string (correctedContent)
+2. Then, a list of individual corrections with explanations (corrections array)
+
+Do NOT return only the corrected parts - return the ENTIRE corrected text including parts that were not changed.`;
 };
 
 /**
@@ -111,10 +124,19 @@ Your task is to rewrite the content in a different style while:
 - Do NOT expand short content into long paragraphs
 ${lengthInstruction}
 
-CRITICAL RULES:
+CRITICAL - Markdown Formatting Preservation:
+- You MUST preserve ALL markdown formatting exactly as it appears in the original
+- If text is **bold**, the rewritten version must keep that text **bold**
+- If text is *italic*, the rewritten version must keep it *italic*
+- If text has ~~strikethrough~~, keep it
+- If text has [links](url), preserve them exactly (you may adjust link text if needed, but keep the URL)
+- If text has \`inline code\`, keep it unchanged
+- NEVER strip or remove markdown syntax - the output must have the same formatting as the input
+
+Field-specific rules:
 ${constraints.rules.map((rule) => `- ${rule}`).join("\n")}
 
-Do NOT add new information or remove existing content. Only change the writing style.`;
+Do NOT add new information or remove existing content. Only change the writing style while preserving all formatting.`;
 };
 
 // Legacy prompt for backward compatibility (deprecated)
@@ -161,6 +183,7 @@ Provide exactly 5 title suggestions with a brief reason for each.`;
 
 /**
  * Style-specific instructions for content rewriting
+ * All styles must preserve markdown formatting
  */
 export const REWRITE_STYLES = {
   formal: `Rewrite in a formal, professional tone:
@@ -168,28 +191,32 @@ export const REWRITE_STYLES = {
 - Avoid contractions and colloquialisms
 - Use industry-standard terminology
 - Maintain a respectful, authoritative voice
-- NO emojis, keep punctuation minimal`,
+- NO emojis, keep punctuation minimal
+- PRESERVE all markdown formatting (**bold**, *italic*, links, etc.)`,
 
   casual: `Rewrite in a casual, conversational tone:
 - Use contractions naturally (you're, it's, don't)
 - Include conversational phrases
 - Write as if speaking to a friend
 - Keep it friendly and approachable
-- Still NO emojis, just natural language`,
+- Still NO emojis, just natural language
+- PRESERVE all markdown formatting (**bold**, *italic*, links, etc.)`,
 
   technical: `Rewrite in a technical, precise style:
 - Use exact terminology and definitions
 - Be specific with numbers and specifications
 - Structure information clearly
 - Prioritize accuracy over readability
-- NO emojis, professional formatting only`,
+- NO emojis, professional formatting only
+- PRESERVE all markdown formatting (**bold**, *italic*, links, code, etc.)`,
 
   simplified: `Rewrite in a simple, easy-to-understand style:
 - Use short sentences and common words
 - Explain technical terms when used
 - Break complex ideas into simple steps
 - Target a general audience with no prior knowledge
-- NO emojis, just clear plain language`,
+- NO emojis, just clear plain language
+- PRESERVE all markdown formatting (**bold**, *italic*, links, etc.)`,
 
   engaging: `Rewrite in an engaging, dynamic style:
 - Use active voice and strong verbs
@@ -197,7 +224,8 @@ export const REWRITE_STYLES = {
 - Create a sense of energy and momentum
 - Use impactful word choices
 - NO emojis, rely on strong vocabulary instead
-- Keep the same length as original, do not over-expand`,
+- Keep the same length as original, do not over-expand
+- PRESERVE all markdown formatting (**bold**, *italic*, links, etc.)`,
 } as const;
 
 export type RewriteStyle = keyof typeof REWRITE_STYLES;
