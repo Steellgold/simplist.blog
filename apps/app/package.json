@@ -12,6 +12,7 @@
     "clean:r2": "node scripts/clean-r2-public.js"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^3.0.1",
     "@aws-sdk/client-s3": "^3.955.0",
     "@aws-sdk/client-ses": "^3.955.0",
     "@aws-sdk/s3-request-presigner": "^3.955.0",
@@ -29,7 +30,6 @@
     "@lexical/selection": "^0.39.0",
     "@lexical/table": "^0.39.0",
     "@lexical/utils": "^0.39.0",
-    "lexical": "^0.39.0",
     "@number-flow/react": "^0.5.10",
     "@prisma/adapter-pg": "^7.2.0",
     "@react-email/render": "^2.0.0",
@@ -38,6 +38,7 @@
     "@simplist/limits": "workspace:*",
     "@simplist/ui": "workspace:*",
     "@tanstack/react-table": "^8.21.3",
+    "ai": "^6.0.3",
     "better-auth": "^1.4.7",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -45,6 +46,7 @@
     "date-fns": "^4.1.0",
     "dotenv": "^17.2.3",
     "input-otp": "^1.4.2",
+    "lexical": "^0.39.0",
     "lucide-react": "^0.562.0",
     "motion": "^12.23.26",
     "next": "16.1.0",
