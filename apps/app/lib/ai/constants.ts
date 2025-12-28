@@ -30,10 +30,10 @@ export const IMPROVE_OPTIONS = [
 ] as const;
 
 /**
- * Rewrite styles available for AI text transformation
- * Used in editor floating toolbar, info fields (title/excerpt), etc.
+ * Style options for AI text transformation
+ * Used in editor floating toolbar
  */
-export const REWRITE_STYLES: Array<{
+export const STYLE_OPTIONS: Array<{
   id: RewriteStyle;
   name: string;
   description: string;
@@ -64,6 +64,41 @@ export const REWRITE_STYLES: Array<{
     description: "Dynamic and compelling",
   },
 ];
+
+/**
+ * Length options for AI text transformation
+ * Used in editor floating toolbar
+ */
+export const LENGTH_OPTIONS: Array<{
+  id: RewriteStyle;
+  name: string;
+  description: string;
+}> = [
+  {
+    id: "shorter",
+    name: "Shorter",
+    description: "More concise",
+  },
+  {
+    id: "longer",
+    name: "Longer",
+    description: "More detailed",
+  },
+  {
+    id: "concise",
+    name: "Concise",
+    description: "Straight to the point",
+  },
+];
+
+/**
+ * All rewrite styles combined (for backward compatibility)
+ */
+export const REWRITE_STYLES: Array<{
+  id: RewriteStyle;
+  name: string;
+  description: string;
+}> = [...STYLE_OPTIONS, ...LENGTH_OPTIONS];
 
 /**
  * Minimum content length required for AI actions

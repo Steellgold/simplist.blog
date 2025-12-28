@@ -226,6 +226,30 @@ export const REWRITE_STYLES = {
 - NO emojis, rely on strong vocabulary instead
 - Keep the same length as original, do not over-expand
 - PRESERVE all markdown formatting (**bold**, *italic*, links, etc.)`,
+
+  concise: `Make the text concise and straight to the point:
+- Remove unnecessary words and filler
+- Get to the main point immediately
+- Use short, clear sentences
+- Eliminate fluff and redundancy
+- Be brief and impactful
+- PRESERVE all markdown formatting (**bold**, *italic*, links, etc.)`,
+
+  shorter: `Make the text shorter and more concise:
+- Remove redundant words and phrases
+- Combine sentences where possible
+- Keep only essential information
+- Reduce by approximately 30-50% of original length
+- Maintain clarity and meaning
+- PRESERVE all markdown formatting (**bold**, *italic*, links, etc.)`,
+
+  longer: `Expand and elaborate the text:
+- Add relevant details and explanations
+- Develop ideas more fully
+- Include examples or context where appropriate
+- Increase by approximately 30-50% of original length
+- Maintain focus and avoid filler content
+- PRESERVE all markdown formatting (**bold**, *italic*, links, etc.)`,
 } as const;
 
 export type RewriteStyle = keyof typeof REWRITE_STYLES;
