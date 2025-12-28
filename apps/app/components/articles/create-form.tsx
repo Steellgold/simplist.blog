@@ -318,6 +318,8 @@ export const CreateArticleForm: FC<CreateArticleFormProps> = ({
                 textareaId="content"
                 placeholder="Write your article content..."
                 projectId={projectId}
+                subscription={subscription}
+                language={getLanguageName(activeVariant || defaultLanguage)}
               />
             </div>
 

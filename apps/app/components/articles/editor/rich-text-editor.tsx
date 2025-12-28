@@ -42,6 +42,7 @@ import { TRANSFORMERS } from "./utils/markdown-transformers";
 import { Card, CardContent } from "@simplist/ui/components/card";
 import { Textarea } from "@simplist/ui/components/textarea";
 import { cn } from "@simplist/ui/lib/utils";
+import type { ProjectSubscription } from "@/lib/subscription/quota-check";
 
 // Plugin to sync content from props to editor
 // Tracks the last known content to detect external changes (e.g., variant switch)
@@ -111,6 +112,9 @@ export type RichTextEditorProps = {
   className?: string;
   /** Callback triggered when user clicks insert image button */
   onInsertImage?: () => void;
+  /** AI-related props */
+  subscription?: ProjectSubscription;
+  language?: string;
 };
 
 export const RichTextEditor = ({
@@ -120,6 +124,8 @@ export const RichTextEditor = ({
   projectId,
   className,
   onInsertImage,
+  subscription,
+  language,
 }: RichTextEditorProps) => {
   const [isMarkdownMode, setIsMarkdownMode] = useState(false);
   const [markdownContent, setMarkdownContent] = useState(content);
@@ -271,6 +277,9 @@ export const RichTextEditor = ({
               <FloatingTextFormatToolbarPlugin
                 anchorElem={floatingAnchorElem}
                 setIsLinkEditMode={setIsLinkEditMode}
+                projectId={projectId}
+                subscription={subscription}
+                language={language}
               />
 
               <FloatingLinkEditorPlugin

@@ -428,6 +428,8 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({
                 textareaId="content"
                 placeholder="Write your article content..."
                 projectId={article.projectId}
+                subscription={subscription}
+                language={getLanguageName(activeVariant || defaultLanguage)}
               />
             </div>
 
