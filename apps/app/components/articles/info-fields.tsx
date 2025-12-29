@@ -15,6 +15,7 @@ import { type ProjectSubscription } from "@/lib/subscription/quota-check";
 import { getLanguageName, type LanguageCode } from "@/lib/types/languages";
 import {
   ArrowUturnCcwLeft,
+  FontCursor,
   SparklesFill,
   SquareDashedText,
   SquareHashtag,
@@ -41,6 +42,7 @@ import {
 import {
   InputGroup,
   InputGroupAddon,
+  InputGroupButton,
   InputGroupInput,
   InputGroupTextarea,
 } from "@simplist/ui/components/input-group";
@@ -376,14 +378,14 @@ export const ArticleInfoFields = ({
         <Tooltip>
           <TooltipTrigger asChild>
             <DropdownMenuTrigger asChild>
-              <Button
+              <InputGroupButton
                 type="button"
                 variant="outline"
                 size="icon-xs"
                 disabled={!aiEnabled}
               >
                 <SparklesFill className="size-3" />
-              </Button>
+              </InputGroupButton>
             </DropdownMenuTrigger>
           </TooltipTrigger>
 
@@ -393,7 +395,7 @@ export const ArticleInfoFields = ({
         </Tooltip>
         <DropdownMenuContent align="end">
           <DropdownMenuItem onClick={handleCorrectTitle}>
-            <SquareDashedText />
+            <FontCursor />
             Correct
           </DropdownMenuItem>
           <DropdownMenuSub>
