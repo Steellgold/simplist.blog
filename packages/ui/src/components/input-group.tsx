@@ -5,6 +5,7 @@ import * as React from "react";
 
 import { Button } from "@simplist/ui/components/button";
 import { Input } from "@simplist/ui/components/input";
+import { Separator } from "@simplist/ui/components/separator";
 import { Textarea } from "@simplist/ui/components/textarea";
 import { cn } from "@simplist/ui/lib/utils";
 import { SelectTrigger } from "./select";
@@ -177,12 +178,31 @@ function InputGroupSelect({
   );
 }
 
+function InputGroupSeparator({
+  className,
+  orientation = "vertical",
+  ...props
+}: React.ComponentProps<typeof Separator>) {
+  return (
+    <Separator
+      data-slot="input-group-separator"
+      orientation={orientation}
+      className={cn(
+        "bg-input relative !m-0 self-stretch data-[orientation=vertical]:h-auto",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
 export {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
   InputGroupInput,
+  InputGroupSelect,
+  InputGroupSeparator,
   InputGroupText,
   InputGroupTextarea,
-  InputGroupSelect,
 };
