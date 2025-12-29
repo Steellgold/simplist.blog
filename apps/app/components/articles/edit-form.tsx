@@ -497,6 +497,9 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({
                     };
                     return tempTag;
                   }}
+                  projectId={article.projectId}
+                  articleContent={content}
+                  subscription={subscription}
                 />
 
                 <VariantCard
