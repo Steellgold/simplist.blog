@@ -40,6 +40,7 @@
     "@simplist/limits": "workspace:*",
     "@simplist/ui": "workspace:*",
     "@tanstack/react-table": "^8.21.3",
+    "@types/stopword": "^2.0.3",
     "ai": "^6.0.3",
     "better-auth": "^1.4.7",
     "class-variance-authority": "^0.7.1",
@@ -69,6 +70,7 @@
     "react-qr-code": "^2.0.18",
     "recharts": "2.15.3",
     "sonner": "^2.0.7",
+    "stopword": "^3.1.5",
     "stripe": "^20.1.0",
     "tailwind-merge": "^3.4.0",
     "zod": "4.2.1"
