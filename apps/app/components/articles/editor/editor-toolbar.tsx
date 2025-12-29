@@ -349,7 +349,7 @@ const EditorToolbarWithLexical = ({
       if ($isRangeSelection(selection) && !selection.isCollapsed()) {
         // Text is selected - use the floating link editor
         setIsLinkEditMode(true);
-        editor.dispatchCommand(TOGGLE_LINK_COMMAND, "https://");
+        editor.dispatchCommand(TOGGLE_LINK_COMMAND, "https://example.com");
       } else if (onInsertLink) {
         // No text selected - open the dialog to input text + URL
         onInsertLink();
