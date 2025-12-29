@@ -1,17 +1,18 @@
 import {
-  CHECK_LIST,
-  ELEMENT_TRANSFORMERS,
-  TEXT_FORMAT_TRANSFORMERS,
-  TEXT_MATCH_TRANSFORMERS,
-  type Transformer,
-  type TextMatchTransformer,
-  type ElementTransformer,
-} from "@lexical/markdown";
-import {
   $createHorizontalRuleNode,
   $isHorizontalRuleNode,
   HorizontalRuleNode,
 } from "@lexical/extension";
+import {
+  CHECK_LIST,
+  ELEMENT_TRANSFORMERS,
+  TEXT_FORMAT_TRANSFORMERS,
+  TEXT_MATCH_TRANSFORMERS,
+  type ElementTransformer,
+  type TextMatchTransformer,
+  type Transformer,
+} from "@lexical/markdown";
+import { $createTextNode } from "lexical";
 import { $createImageNode, $isImageNode, ImageNode } from "../nodes/image-node";
 
 // Horizontal rule transformer
@@ -36,7 +37,6 @@ export const HR: ElementTransformer = {
 };
 
 // Image transformer for markdown images ![alt](src)
-// Using element transformer for proper handling during $convertFromMarkdownString
 export const IMAGE: ElementTransformer = {
   dependencies: [ImageNode as any],
   export: (node) => {
@@ -84,7 +84,7 @@ export const INLINE_IMAGE: TextMatchTransformer = {
   type: "text-match",
 };
 
-// All transformers for the editor
+// All transformers for editor
 export const TRANSFORMERS: Array<Transformer> = [
   HR,
   IMAGE,
