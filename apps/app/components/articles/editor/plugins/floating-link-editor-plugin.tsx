@@ -9,13 +9,12 @@ import {
   TOGGLE_LINK_COMMAND,
   type LinkNode,
 } from "@lexical/link";
-import { $createTextNode } from "lexical";
-import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
-import { $findMatchingParent, mergeRegister } from "@lexical/utils";
 import {
   $getSelection,
-  $isLineBreakNode,
   $isRangeSelection,
+  $findMatchingParent,
+  $isLineBreakNode,
+  $createTextNode,
   CLICK_COMMAND,
   COMMAND_PRIORITY_CRITICAL,
   COMMAND_PRIORITY_HIGH,
@@ -25,19 +24,26 @@ import {
   type BaseSelection,
   type LexicalEditor,
 } from "lexical";
+import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
+import { mergeRegister } from "@lexical/utils";
+import { createPortal } from "react-dom";
 import {
-  Check,
   ArrowUpRightFromSquare,
+  Check,
   Pencil,
   TrashBin,
   Xmark,
 } from "@gravity-ui/icons";
-import { createPortal } from "react-dom";
-
+import { Button, buttonVariants } from "@simplist/ui/components/button";
+import { ButtonGroup } from "@simplist/ui/components/button-group";
+import {
+  InputGroup,
+  InputGroupInput,
+  InputGroupText,
+} from "@simplist/ui/components/input-group";
+import Link from "next/link";
 import { getSelectedNode } from "../utils/get-selected-node";
 import { setFloatingElemPositionForLinkEditor } from "../utils/set-floating-elem-position";
-import { Button } from "@simplist/ui/components/button";
-import { Input } from "@simplist/ui/components/input";
 
 const FloatingLinkEditor = ({
   editor,
@@ -56,8 +62,10 @@ const FloatingLinkEditor = ({
 }): JSX.Element => {
   const editorRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const textInputRef = useRef<HTMLInputElement>(null);
   const [linkUrl, setLinkUrl] = useState("");
   const [editedLinkUrl, setEditedLinkUrl] = useState("https://");
+  const [editedLinkText, setEditedLinkText] = useState("");
   const [lastSelection, setLastSelection] = useState<BaseSelection | null>(
     null,
   );
@@ -70,10 +78,16 @@ const FloatingLinkEditor = ({
 
       if (linkParent) {
         setLinkUrl(linkParent.getURL());
+        // Get text content of link
+        const linkText = linkParent.getTextContent();
+        setEditedLinkText(linkText);
       } else if ($isLinkNode(node)) {
         setLinkUrl(node.getURL());
+        const linkText = node.getTextContent();
+        setEditedLinkText(linkText);
       } else {
         setLinkUrl("");
+        setEditedLinkText("");
       }
 
       if (isLinkEditMode) {
@@ -110,7 +124,12 @@ const FloatingLinkEditor = ({
         setFloatingElemPositionForLinkEditor(null, editorElem, anchorElem);
       }
       setLastSelection(null);
-      setIsLinkEditMode(false);
+      // Only reset edit mode if we're not in edit mode or if we've moved away from link
+      if (isLinkEditMode) {
+        setIsLinkEditMode(false);
+        setEditedLinkText("");
+        setEditedLinkUrl("https://");
+      }
       setLinkUrl("");
     }
 
@@ -178,8 +197,8 @@ const FloatingLinkEditor = ({
   }, [editor, $updateLinkEditor]);
 
   useEffect(() => {
-    if (isLinkEditMode && inputRef.current) {
-      inputRef.current.focus();
+    if (isLinkEditMode && textInputRef.current) {
+      textInputRef.current.focus();
     }
   }, [isLinkEditMode, isLink]);
 
@@ -200,28 +219,28 @@ const FloatingLinkEditor = ({
         if ($isRangeSelection(selection)) {
           const parent = getSelectedNode(selection).getParent();
 
-          // If link exists, update its URL
+          // If link exists, update its URL and text
           if ($isLinkNode(parent)) {
             const linkNode = parent as LinkNode;
             linkNode.setURL(editedLinkUrl);
-          }
-          // If no link exists, create new one (when clicking link button in floating toolbar)
-          else if (linkUrl === "") {
-            // Check if we have selected text
-            const selectedText = selection.getTextContent();
-            if (selectedText) {
-              // Create link node with the selected text
-              const newLinkNode = $createLinkNode(editedLinkUrl);
-              const textNode = $createTextNode(selectedText);
-              newLinkNode.append(textNode);
-              selection.insertNodes([newLinkNode]);
-            } else {
-              // No text selected, just create link with URL as text
-              const newLinkNode = $createLinkNode(editedLinkUrl);
-              const textNode = $createTextNode(editedLinkUrl);
-              newLinkNode.append(textNode);
-              selection.insertNodes([newLinkNode]);
+
+            // Update link text if it was changed
+            if (
+              editedLinkText &&
+              editedLinkText !== linkNode.getTextContent()
+            ) {
+              // Remove all children and add new text
+              linkNode.getChildren().forEach((child) => child.remove());
+              const textNode = $createTextNode(editedLinkText);
+              linkNode.append(textNode);
             }
+          }
+          // If no link exists, create new one
+          else if (linkUrl === "") {
+            const newLinkNode = $createLinkNode(editedLinkUrl);
+            const textNode = $createTextNode(editedLinkText || editedLinkUrl);
+            newLinkNode.append(textNode);
+            selection.insertNodes([newLinkNode]);
           }
         }
       });
@@ -232,6 +251,13 @@ const FloatingLinkEditor = ({
   const deleteLink = () => {
     editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
   };
+
+  // Close edit mode if we're in edit mode but not on a link anymore
+  useEffect(() => {
+    if (isLinkEditMode && !isLink && !linkUrl) {
+      setIsLinkEditMode(false);
+    }
+  }, [isLinkEditMode, isLink, linkUrl, setIsLinkEditMode]);
 
   // Don't render if not showing link or edit mode
   if (!isLink && !isLinkEditMode) {
@@ -245,59 +271,91 @@ const FloatingLinkEditor = ({
     >
       {!isLinkEditMode && isLink ? (
         <>
-          <a
+          <Link
             href={linkUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="text-primary hover:text-primary/80 flex-1 truncate px-2 text-sm underline"
           >
             {linkUrl}
-          </a>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="size-7"
-            onClick={() => {
-              setEditedLinkUrl(linkUrl);
-              setIsLinkEditMode(true);
-            }}
-          >
-            <Pencil className="size-3.5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="size-7"
-            asChild
-          >
-            <a href={linkUrl} target="_blank" rel="noopener noreferrer">
-              <ArrowUpRightFromSquare className="size-3.5" />
-            </a>
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="text-destructive hover:text-destructive size-7"
-            onClick={deleteLink}
-          >
-            <TrashBin className="size-3.5" />
-          </Button>
+          </Link>
+
+          <ButtonGroup>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-xs"
+              onClick={() => {
+                editor.read(() => {
+                  const selection = $getSelection();
+                  if ($isRangeSelection(selection)) {
+                    const node = getSelectedNode(selection);
+                    const linkParent = $findMatchingParent(node, $isLinkNode);
+                    const linkNode =
+                      linkParent || ($isLinkNode(node) ? node : null);
+
+                    if (linkNode) {
+                      setEditedLinkUrl(linkUrl);
+                      setEditedLinkText(linkNode.getTextContent());
+                      setIsLinkEditMode(true);
+                    }
+                  }
+                });
+              }}
+            >
+              <Pencil />
+            </Button>
+
+            <Link
+              href={linkUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={buttonVariants({ variant: "ghost", size: "icon-xs" })}
+            >
+              <ArrowUpRightFromSquare />
+            </Link>
+
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-xs"
+              className="text-destructive hover:text-destructive"
+              onClick={deleteLink}
+            >
+              <TrashBin />
+            </Button>
+          </ButtonGroup>
         </>
       ) : isLinkEditMode ? (
         <>
-          <Input
-            ref={inputRef}
-            className="link-input h-7 flex-1 text-sm"
-            value={editedLinkUrl}
-            onChange={(event) => {
-              setEditedLinkUrl(event.target.value);
-            }}
-            onKeyDown={monitorInputInteraction}
-            placeholder="https://example.com"
-          />
+          <InputGroup className="h-7">
+            <InputGroupInput
+              ref={textInputRef}
+              className="link-input text-sm"
+              style={{ flex: "0 0 40%", minWidth: 0 }}
+              value={editedLinkText}
+              onChange={(event) => {
+                setEditedLinkText(event.target.value);
+              }}
+              onKeyDown={monitorInputInteraction}
+              placeholder="Link text"
+            />
+
+            <InputGroupText>|</InputGroupText>
+
+            <InputGroupInput
+              ref={inputRef}
+              className="link-input text-sm"
+              style={{ flex: "1 1 60%", minWidth: 0 }}
+              value={editedLinkUrl}
+              onChange={(event) => {
+                setEditedLinkUrl(event.target.value);
+              }}
+              onKeyDown={monitorInputInteraction}
+              placeholder="https://example.com"
+            />
+          </InputGroup>
+
           <Button
             type="button"
             variant="ghost"

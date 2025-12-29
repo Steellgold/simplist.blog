@@ -1,48 +1,48 @@
 "use client";
 
-import type { ChangeEvent } from "react";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { LexicalComposer } from "@lexical/react/LexicalComposer";
-import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
-import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
-import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
-import { ListPlugin } from "@lexical/react/LexicalListPlugin";
-import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin";
-import { CheckListPlugin } from "@lexical/react/LexicalCheckListPlugin";
-import { MarkdownShortcutPlugin } from "@lexical/react/LexicalMarkdownShortcutPlugin";
-import { HorizontalRulePlugin } from "@lexical/react/LexicalHorizontalRulePlugin";
-import { TabIndentationPlugin } from "@lexical/react/LexicalTabIndentationPlugin";
-import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import {
   $convertFromMarkdownString,
   $convertToMarkdownString,
 } from "@lexical/markdown";
+import { CheckListPlugin } from "@lexical/react/LexicalCheckListPlugin";
+import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
+import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
+import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
+import { HorizontalRulePlugin } from "@lexical/react/LexicalHorizontalRulePlugin";
+import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin";
+import { ListPlugin } from "@lexical/react/LexicalListPlugin";
+import { MarkdownShortcutPlugin } from "@lexical/react/LexicalMarkdownShortcutPlugin";
+import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
+import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
+import { TabIndentationPlugin } from "@lexical/react/LexicalTabIndentationPlugin";
 import type { EditorState, LexicalEditor } from "lexical";
+import type { ChangeEvent } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-import { HeadingNode, QuoteNode } from "@lexical/rich-text";
-import { ListNode, ListItemNode } from "@lexical/list";
-import { LinkNode, AutoLinkNode } from "@lexical/link";
-import { CodeNode, CodeHighlightNode } from "@lexical/code";
+import { CodeHighlightNode, CodeNode } from "@lexical/code";
 import { HorizontalRuleNode } from "@lexical/extension";
+import { AutoLinkNode, LinkNode } from "@lexical/link";
+import { ListItemNode, ListNode } from "@lexical/list";
+import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 
-import { editorTheme } from "./theme/editor-theme";
-import { ImageNode } from "./nodes/image-node";
-import { ContentEditable } from "./ui/content-editable";
-import { EditorToolbar } from "./editor-toolbar";
 import { EditorFooter } from "./editor-footer";
-import { FloatingTextFormatToolbarPlugin } from "./plugins/floating-text-format-plugin";
-import { FloatingLinkEditorPlugin } from "./plugins/floating-link-editor-plugin";
+import { EditorToolbar } from "./editor-toolbar";
+import { ImageNode } from "./nodes/image-node";
 import { ComponentPickerMenuPlugin } from "./plugins/component-picker-plugin";
 import { EmojiPickerPlugin } from "./plugins/emoji-picker-plugin";
+import { FloatingLinkEditorPlugin } from "./plugins/floating-link-editor-plugin";
+import { FloatingTextFormatToolbarPlugin } from "./plugins/floating-text-format-plugin";
 import { ImagePlugin } from "./plugins/image-plugin";
 import { LinkInsertDialog } from "./plugins/link-insert-dialog";
+import { editorTheme } from "./theme/editor-theme";
+import { ContentEditable } from "./ui/content-editable";
 import { TRANSFORMERS } from "./utils/markdown-transformers";
 
+import type { ProjectSubscription } from "@/lib/subscription/quota-check";
 import { Card, CardContent } from "@simplist/ui/components/card";
 import { Textarea } from "@simplist/ui/components/textarea";
 import { cn } from "@simplist/ui/lib/utils";
-import type { ProjectSubscription } from "@/lib/subscription/quota-check";
 
 // Plugin to sync content from props to editor
 // Tracks the last known content to detect external changes (e.g., variant switch)
