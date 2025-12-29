@@ -145,15 +145,43 @@ export const REWRITE_PROMPT = getRewritePrompt("content");
 
 export const TAG_SUGGESTION_PROMPT = `You are a content categorization expert.
 
-Your task is to analyze the article content and suggest relevant tags.
+You will receive a structured analysis of an article, not raw content.
+
+Your goal is to suggest the most accurate tags that represent:
+- the main subject
+- the technologies involved
+- the type of content
 
 Guidelines:
-- Suggest tags that accurately represent the main topics
 - Prioritize existing tags from the provided list when they match
+- Avoid generic tags (like "Development", "Programming") unless unavoidable
+- New tags must be concrete, searchable, and widely understood
 - For new tag suggestions, keep names short (1-3 words)
 - Focus on topics that readers would search for
-- Consider both broad categories and specific subjects
-- Limit suggestions to the most relevant tags (max 5-7)`;
+- Limit suggestions to the most relevant tags (max 5-7)
+
+For new tag suggestions:
+- name: MUST use proper capitalization (Title Case or PascalCase). Examples: "GitHub" (not "github"), "Interface Navigation" (not "interface navigation"), "TypeScript" (not "typescript")
+- icon: Use any Lucide icon name in lowercase with dashes (e.g., "tag", "book-open", "github", "react")
+- color: Choose from these available colors: RED, ORANGE, AMBER, YELLOW, LIME, GREEN, EMERALD, TEAL, CYAN, SKY, BLUE, INDIGO, VIOLET, PURPLE, FUCHSIA, PINK, ROSE, BLACK, WHITE, GRAY
+- confidence: A number between 0 and 1 indicating how confident you are this tag is relevant (0.7+ = high confidence)`;
+
+/**
+ * Generate the tag suggestion prompt with context
+ */
+export const getTagSuggestionPrompt = (
+  articleContext: string,
+  existingTagsList: string,
+): string => {
+  return `Article analysis:
+
+${articleContext}
+
+Existing tags in this project:
+${existingTagsList || "(No existing tags)"}
+
+Return suggested tag IDs from the existing list, and/or suggest new tags that could be created.`;
+};
 
 export const EXCERPT_PROMPT = `You are an SEO expert and copywriter.
 

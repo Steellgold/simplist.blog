@@ -14,6 +14,7 @@ import {
   getRewritePrompt,
   getCustomPrompt,
   TAG_SUGGESTION_PROMPT,
+  getTagSuggestionPrompt,
   EXCERPT_PROMPT,
   TITLE_SUGGESTION_PROMPT,
   REWRITE_STYLES,
@@ -282,15 +283,7 @@ export const suggestTags = async (
       model,
       output: Output.object({ schema: tagSuggestionSchema }),
       system: TAG_SUGGESTION_PROMPT,
-      prompt: `Analyze the following article and suggest relevant tags.
-
-Existing tags in this project:
-${existingTagsList || "(No existing tags)"}
-
-Article content:
-${articleContent}
-
-Return suggested tag IDs from the existing list, and/or suggest new tags that could be created.`,
+      prompt: getTagSuggestionPrompt(articleContent, existingTagsList),
     });
 
     if (!output) {

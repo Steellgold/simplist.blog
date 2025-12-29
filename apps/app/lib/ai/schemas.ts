@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { ColorsEnum } from "@simplist/ui/lib/color";
+import { IconsEnum } from "@simplist/ui/lib/icons.enum";
 import { FIELD_CONSTRAINTS, type FieldType } from "./prompts";
 
 /**
@@ -110,7 +112,18 @@ export const tagSuggestionSchema = z.object({
     .array(
       z.object({
         name: z.string().describe("Suggested tag name (1-3 words)"),
+        icon: z
+          .string()
+          .describe(
+            "Suggested Lucide icon name for the tag (lowercase with dashes)",
+          ),
+        color: ColorsEnum.describe("Suggested color for the tag"),
         reason: z.string().describe("Why this tag is relevant"),
+        confidence: z
+          .number()
+          .min(0)
+          .max(1)
+          .describe("Confidence score (0-1) for this suggestion"),
       }),
     )
     .describe("New tags that could be created"),
