@@ -12,7 +12,9 @@
     "clean:r2": "node scripts/clean-r2-public.js"
   },
   "dependencies": {
+    "@ai-sdk/devtools": "^0.0.3",
     "@ai-sdk/openai": "^3.0.1",
+    "@ai-sdk/rsc": "^2.0.5",
     "@aws-sdk/client-s3": "^3.955.0",
     "@aws-sdk/client-ses": "^3.955.0",
     "@aws-sdk/s3-request-presigner": "^3.955.0",

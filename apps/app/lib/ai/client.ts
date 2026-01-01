@@ -1,6 +1,8 @@
 import { getProjectSubscription } from "@/lib/subscription/quota-check";
+import { devToolsMiddleware } from "@ai-sdk/devtools";
 import { createOpenAI } from "@ai-sdk/openai";
 import { prisma } from "@simplist/db";
+import { wrapLanguageModel } from "ai";
 import { decrypt } from "./encryption";
 
 export const AI_MODEL_NAME = "gpt-4o-mini";
@@ -51,5 +53,8 @@ export const getAiModelForProject = async (projectId: string) => {
   // Use the chat completion model explicitly
   const model = openai.chat(AI_MODEL_NAME);
 
-  return model;
+  return wrapLanguageModel({
+    model,
+    middleware: devToolsMiddleware(),
+  });
 };
