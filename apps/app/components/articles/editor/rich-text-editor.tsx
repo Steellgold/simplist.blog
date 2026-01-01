@@ -33,6 +33,7 @@ import { ComponentPickerMenuPlugin } from "./plugins/component-picker-plugin";
 import { EmojiPickerPlugin } from "./plugins/emoji-picker-plugin";
 import { FloatingLinkEditorPlugin } from "./plugins/floating-link-editor-plugin";
 import { FloatingTextFormatToolbarPlugin } from "./plugins/floating-text-format-plugin";
+import { HorizontalRuleShortcutPlugin } from "./plugins/horizontal-rule-shortcut-plugin";
 import { ImagePlugin } from "./plugins/image-plugin";
 import { LinkInsertDialog } from "./plugins/link-insert-dialog";
 import { editorTheme } from "./theme/editor-theme";
@@ -259,6 +260,7 @@ export const RichTextEditor = ({
               <LinkPlugin />
               <CheckListPlugin />
               <HorizontalRulePlugin />
+              <HorizontalRuleShortcutPlugin />
               <TabIndentationPlugin />
               <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
 

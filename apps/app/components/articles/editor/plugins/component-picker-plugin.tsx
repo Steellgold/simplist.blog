@@ -15,7 +15,7 @@ import {
   QuoteOpen,
 } from "@gravity-ui/icons";
 import { $createCodeNode } from "@lexical/code";
-import { INSERT_HORIZONTAL_RULE_COMMAND } from "@lexical/extension";
+import { $createHorizontalRuleNode } from "@lexical/extension";
 import {
   INSERT_CHECK_LIST_COMMAND,
   INSERT_ORDERED_LIST_COMMAND,
@@ -44,7 +44,7 @@ import {
   TextNode,
 } from "lexical";
 import type { ReactNode } from "react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 type CategoryType = "basic" | "list" | "media" | "advanced";
@@ -266,7 +266,25 @@ export const ComponentPickerMenuPlugin = ({
         category: "advanced",
         keywords: ["divider", "hr", "horizontal", "rule", "line"],
         onSelect: () => {
-          editor.dispatchCommand(INSERT_HORIZONTAL_RULE_COMMAND, undefined);
+          editor.update(() => {
+            const selection = $getSelection();
+            if ($isRangeSelection(selection)) {
+              const nodes = selection.getNodes();
+              const hrNode = $createHorizontalRuleNode();
+
+              if (nodes.length === 0) {
+                selection.insertNodes([hrNode]);
+              } else {
+                const firstNode = nodes[0];
+                const topLevelElement = firstNode.getTopLevelElement();
+                if (topLevelElement) {
+                  topLevelElement.insertAfter(hrNode);
+                } else {
+                  selection.insertNodes([hrNode]);
+                }
+              }
+            }
+          });
         },
       }),
     ];
@@ -327,8 +345,23 @@ export const ComponentPickerMenuPlugin = ({
       menuRenderFn={(
         anchorElementRef,
         { selectedIndex, selectOptionAndCleanUp, setHighlightedIndex },
-      ) =>
-        anchorElementRef.current && options.length > 0
+      ) => {
+        const itemRefs = useRef<Map<number, HTMLDivElement>>(new Map());
+
+        // Scroll to selected item when selectedIndex changes
+        useEffect(() => {
+          if (selectedIndex !== null) {
+            const selectedElement = itemRefs.current.get(selectedIndex);
+            if (selectedElement) {
+              selectedElement.scrollIntoView({
+                behavior: "smooth",
+                block: "nearest",
+              });
+            }
+          }
+        }, [selectedIndex]);
+
+        return anchorElementRef.current && options.length > 0
           ? createPortal(
               <div className="bg-popover absolute z-50 mt-1 max-h-[400px] w-[280px] rounded-md border p-0 shadow-md">
                 <Command>
@@ -346,6 +379,13 @@ export const ComponentPickerMenuPlugin = ({
                                 <CommandItem
                                   key={option.key}
                                   value={option.title}
+                                  ref={(el) => {
+                                    if (el) {
+                                      itemRefs.current.set(globalIndex, el);
+                                    } else {
+                                      itemRefs.current.delete(globalIndex);
+                                    }
+                                  }}
                                   onSelect={() => {
                                     selectOptionAndCleanUp(option);
                                   }}
@@ -381,8 +421,8 @@ export const ComponentPickerMenuPlugin = ({
               </div>,
               anchorElementRef.current,
             )
-          : null
-      }
+          : null;
+      }}
     />
   );
 };
