@@ -89,7 +89,7 @@ export const VariantCard = ({
     null,
   );
 
-  const { addVariant, removeVariant, variantCount } = useVariantOperations(
+  const { addVariant, removeVariant, nonDefaultCount } = useVariantOperations(
     variants,
     onVariantsUpdate,
     defaultLanguage,
@@ -105,7 +105,7 @@ export const VariantCard = ({
     max: fetchedMax,
   } = useVariantLimits(
     initialSubscription ? undefined : currentProject?.id,
-    variantCount,
+    nonDefaultCount,
   );
 
   // Use values from initialSubscription if provided, otherwise use fetched values
@@ -113,15 +113,16 @@ export const VariantCard = ({
   const max = initialSubscription?.limits.maxVariantsPerArticle ?? fetchedMax;
   const isFree = tier === "STARTER";
   const canAdd = initialSubscription
-    ? !isFree && (max === -1 || variantCount < max)
+    ? max === -1 || nonDefaultCount < max
     : fetchedCanAdd;
   const isFreeTier = initialSubscription ? isFree : fetchedIsFreeTier;
-  const isAtLimit = isFree || (max !== -1 && variantCount >= max);
+  const isAtLimit = max !== -1 && nonDefaultCount >= max;
+  const shouldShowOverlay = max === 0; // Only show overlay if plan allows 0 variants
   const quotaError = initialSubscription
-    ? isAtLimit && !isFree
+    ? isAtLimit
       ? `You have reached the limit. Your ${tier} plan allows ${max} variant${max === 1 ? "" : "s"} per article.`
-      : isFree
-        ? "Language variants require the Pro plan."
+      : isFreeTier && nonDefaultCount > 0
+        ? "Upgrade to Pro to add more variants and reach a global audience."
         : undefined
     : fetchedQuotaError;
 
@@ -194,18 +195,16 @@ export const VariantCard = ({
 
           <CardAction>
             <Dialog open={addVariantOpen} onOpenChange={handleDialogOpenChange}>
-              {canAdd && (
-                <DialogTrigger asChild>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    disabled={disabled || !canAdd}
-                  >
-                    <Plus />
-                    Variant
-                  </Button>
-                </DialogTrigger>
-              )}
+              <DialogTrigger asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={disabled || !canAdd}
+                >
+                  <Plus />
+                  Variant
+                </Button>
+              </DialogTrigger>
 
               <DialogContent>
                 <DialogHeader>
@@ -379,7 +378,7 @@ export const VariantCard = ({
                         onPressedChange={() =>
                           handleSelectVariant(variant.lang)
                         }
-                        disabled={disabled || isFreeTier}
+                        disabled={disabled}
                         variant="outline"
                         className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
                       >
@@ -396,7 +395,7 @@ export const VariantCard = ({
                             e.stopPropagation();
                             handleDeleteClick(variant.lang);
                           }}
-                          disabled={disabled || isFreeTier}
+                          disabled={disabled}
                           className="hover:text-destructive hover:bg-destructive/10"
                           title={`Delete ${getLanguageName(variant.lang)} variant`}
                         >
@@ -430,7 +429,7 @@ export const VariantCard = ({
       />
 
       {/* Pro Backdrop */}
-      {!isLoadingLimits && isFreeTier && (
+      {!isLoadingLimits && shouldShowOverlay && (
         <UpgradeOverlay
           title="Unlock this feature"
           description="Create article variants in different languages to reach a global audience."
