@@ -5,6 +5,9 @@ export const metadata: Metadata = {
   title: "Cookie Policy",
   description:
     "Cookie Policy for the Simplist headless CMS and analytics platform.",
+  alternates: {
+    canonical: "/legal/cookies",
+  },
 };
 
 const CookiePolicyPage = () => {

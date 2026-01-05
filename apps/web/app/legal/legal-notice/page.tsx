@@ -4,6 +4,9 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Legal Notice",
   description: "Legal notice and publisher information for Simplist.",
+  alternates: {
+    canonical: "/legal/legal-notice",
+  },
 };
 
 const LegalNoticePage = () => {
