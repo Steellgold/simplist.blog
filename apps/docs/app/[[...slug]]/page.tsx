@@ -283,6 +283,10 @@ export const generateMetadata = async ({
   const description =
     descriptionFromFrontmatter ?? "Documentation for Simplist";
 
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://docs.simplist.blog";
+  const cleanHref = entry.href.replace(/\/index$/, "") || "/";
+  const canonicalUrl = `${baseUrl}${cleanHref}`;
+
   return {
     title: `${title} | Simplist Documentation`,
     description,
@@ -296,10 +300,14 @@ export const generateMetadata = async ({
       "management",
       "blog",
     ],
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
       title: `${title} | Simplist Documentation`,
       description,
       images: getPageImage(contentPath).url,
+      url: canonicalUrl,
     },
     twitter: {
       card: "summary_large_image",

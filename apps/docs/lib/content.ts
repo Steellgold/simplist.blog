@@ -8,6 +8,7 @@ export type DocNavItem = {
   icon?: string;
   category?: string;
   order?: number;
+  lastModified?: string;
 };
 
 type Frontmatter = {
@@ -16,6 +17,7 @@ type Frontmatter = {
   category?: string;
   icon?: string;
   order?: number;
+  lastModified?: string;
 };
 
 export type DocEntry = {
@@ -70,6 +72,9 @@ const parseFrontmatterBlock = (block: string): Frontmatter => {
         break;
       case "icon":
         frontmatter.icon = value;
+        break;
+      case "lastmodified":
+        frontmatter.lastModified = value;
         break;
       case "order": {
         const parsed = Number(value);
@@ -172,6 +177,7 @@ export const getDocsNavItems = async (): Promise<DocNavItem[]> => {
     icon: entry.frontmatter.icon,
     category: entry.frontmatter.category,
     order: entry.frontmatter.order,
+    lastModified: entry.frontmatter.lastModified,
   }));
 
   return items.sort(
