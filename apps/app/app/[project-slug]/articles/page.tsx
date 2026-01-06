@@ -47,7 +47,7 @@ const ArticlesPage: FC<PageParams> = async ({ params }) => {
   const articles = await getProjectArticles(project.id, user.id);
 
   // Get article count and limits
-  const articleCount = articles.length;
+  const articleCount = articles.filter((a) => a.status !== "deleted").length;
   const limits = getPlanLimits(project.subscriptionTier);
   const maxCount = limits.maxArticles;
   const maxVariantsPerArticle = limits.maxVariantsPerArticle;
