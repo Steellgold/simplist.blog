@@ -1,8 +1,11 @@
 "use client";
 
+import { AutoSaveStatus } from "@/hooks/use-auto-save";
+import { useProject } from "@/hooks/use-project-context";
 import { useSubscriptionLimits } from "@/hooks/use-subscription-limits";
 import { LanguageCode } from "@/lib/types/languages";
-import { Button } from "@simplist/ui/components/button";
+import { CircleCheck, Xmark } from "@gravity-ui/icons";
+import { Button, buttonVariants } from "@simplist/ui/components/button";
 import {
   Card,
   CardContent,
@@ -20,6 +23,7 @@ import {
 } from "@simplist/ui/components/select";
 import { Spinner } from "@simplist/ui/components/spinner";
 import Image from "next/image";
+import Link from "next/link";
 import { ReactNode } from "react";
 import { ArticleSchedulePicker } from "./schedule-picker";
 
@@ -36,6 +40,8 @@ type ArticleVisibilityCardProps = {
   projectTimezone?: string;
   projectDefaultLanguage?: LanguageCode;
   projectId?: string;
+  autoSaveStatus?: AutoSaveStatus;
+  lastAutoSave?: Date | null;
 };
 
 export const ArticleVisibilityCard = ({
@@ -49,7 +55,10 @@ export const ArticleVisibilityCard = ({
   projectTimezone = "UTC",
   projectDefaultLanguage = "en",
   projectId,
+  autoSaveStatus,
 }: ArticleVisibilityCardProps) => {
+  const { currentProject } = useProject();
+
   const { subscription } = useSubscriptionLimits(projectId);
   const isPro = subscription?.tier === "PRO";
 
@@ -74,21 +83,23 @@ export const ArticleVisibilityCard = ({
             >
               <SelectValue />
             </SelectTrigger>
+
             <SelectContent side="bottom" align="start" suppressHydrationWarning>
               <SelectItem value="draft">Draft</SelectItem>
               <SelectItem value="published">Published</SelectItem>
+
               <SelectItem value="scheduled" disabled={!isPro}>
-                <div className="flex items-center gap-2">
-                  <span>Scheduled</span>
-                  {!isPro && (
+                Scheduled
+                {!isPro && (
+                  <span className="absolute right-2 flex size-3.5 items-center justify-center">
                     <Image
                       src="https://cdn.simplist.blog/assets/billing/mini-pro-badge.png"
                       alt="PRO"
                       width={16}
                       height={16}
                     />
-                  )}
-                </div>
+                  </span>
+                )}
               </SelectItem>
             </SelectContent>
           </Select>
@@ -105,9 +116,45 @@ export const ArticleVisibilityCard = ({
         )}
 
         <div className="flex items-center justify-between pt-2">
-          <div>{leftAction}</div>
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? <Spinner /> : submitLabel}
+          {leftAction || (
+            <Link
+              href={`/${currentProject?.slug}/articles`}
+              className={buttonVariants({
+                variant: "outline",
+                size: "sm",
+              })}
+            >
+              <Xmark />
+              Cancel
+            </Link>
+          )}
+
+          <Button
+            type="submit"
+            disabled={isSubmitting || autoSaveStatus !== "idle"}
+          >
+            {autoSaveStatus === "saving" && (
+              <>
+                <Spinner />
+                Auto-saving...
+              </>
+            )}
+
+            {autoSaveStatus === "saved" && (
+              <>
+                <CircleCheck />
+                Auto-saved
+              </>
+            )}
+
+            {autoSaveStatus === "error" && (
+              <>
+                <Xmark />
+                Error auto-saving
+              </>
+            )}
+
+            {!autoSaveStatus || (autoSaveStatus === "idle" && submitLabel)}
           </Button>
         </div>
       </CardContent>

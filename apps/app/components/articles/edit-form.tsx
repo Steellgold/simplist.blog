@@ -1,7 +1,7 @@
 "use client";
 
-import type { FormEvent } from "react";
 import { useArticleImage } from "@/hooks/use-article-image";
+import { useAutoSave } from "@/hooks/use-auto-save";
 import {
   EditorFullscreenProvider,
   useEditorFullscreenState,
@@ -22,16 +22,15 @@ import {
 import { type LanguageCode, getLanguageName } from "@/lib/types/languages";
 import { uploadBannerWithProgress } from "@/lib/uploads/banner";
 import { type Tag } from "@simplist/db";
-import { buttonVariants } from "@simplist/ui/components/button";
 import { toast } from "@simplist/ui/components/sonner";
 import { cn } from "@simplist/ui/lib/utils";
-import { Xmark } from "@gravity-ui/icons";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FC, useCallback, useEffect, useState } from "react";
+import type { FormEvent } from "react";
+import { FC, useCallback, useEffect, useMemo, useState } from "react";
 import { ArticleFormLayout } from "./article-form-layout";
 import { ArticleBannerUpload } from "./banner-upload";
 import { ArticleContentEditor } from "./content-editor";
+import { DeleteArticleButton } from "./delete-article-button";
 import { ArticleInfoFields } from "./info-fields";
 import { ArticleTagsCard } from "./tags-card";
 import { VariantCard } from "./variant-card";
@@ -60,6 +59,12 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({
     new Set(),
   );
   const [availableTags] = useState<Tag[]>(initialAvailableTags);
+
+  // Determine if slug should be regenerated on submit
+  // True if the slug is "untitled-draft" or "untitled-draft-X"
+  const [shouldRegenerateSlug, setShouldRegenerateSlug] = useState(() => {
+    return /^untitled-draft(-\d+)?$/.test(article.slug);
+  });
 
   // Default language from project or fallback to English
   const defaultLanguage: LanguageCode =
@@ -197,6 +202,73 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeVariant]);
 
+  // Auto-save functionality (only for drafts)
+  const autoSaveData = useMemo(
+    () => ({
+      title,
+      excerpt,
+      content,
+      variants: variants.map((v) => ({
+        lang: v.lang,
+        title: v.title,
+        excerpt: v.excerpt,
+        content: v.content,
+      })),
+    }),
+    [title, excerpt, content, variants],
+  );
+
+  const { status: autoSaveStatus, lastSaved } = useAutoSave(
+    autoSaveData,
+    async (data) => {
+      if (!currentProject?.id) return;
+
+      // Get default language variant for main article
+      const defaultVariant = data.variants.find(
+        (v) => v.lang === defaultLanguage,
+      );
+      if (!defaultVariant) return;
+
+      // Prepare variants (exclude default language)
+      const articleVariants = data.variants
+        .filter((v) => v.lang !== defaultLanguage)
+        .map((v) => ({
+          lang: v.lang,
+          title: v.title,
+          excerpt: v.excerpt,
+          content: v.content,
+        }));
+
+      // Auto-save with draft status
+      await updateArticle(
+        article.id,
+        {
+          title: defaultVariant.title,
+          excerpt: defaultVariant.excerpt,
+          content: defaultVariant.content,
+          status: "draft", // Always save as draft for auto-save
+          shouldRegenerateSlug: false,
+          variants: articleVariants.length > 0 ? articleVariants : undefined,
+        },
+        currentProject.id,
+      );
+    },
+    {
+      delay: 2000,
+      // Only auto-save drafts if title and excerpt are not empty and status is draft
+      enabled: status === "draft" && title.length > 0 && excerpt.length > 0
+    },
+  );
+
+  // Show error toast if auto-save fails
+  useEffect(() => {
+    if (autoSaveStatus === "error") {
+      toast.error(
+        "Error auto-saving. Your changes are temporary. Please check your connection.",
+      );
+    }
+  }, [autoSaveStatus]);
+
   // Handle form submission
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -209,6 +281,7 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({
         setIsSubmitting(false);
         return;
       }
+
       if (scheduledPublishAt <= new Date()) {
         toast.error("Scheduled publish date must be in the future");
         setIsSubmitting(false);
@@ -303,6 +376,7 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({
           excerpt: defaultVariant.excerpt,
           content: defaultVariant.content,
           status,
+          shouldRegenerateSlug,
           coverImage: shouldUpdateCoverImage
             ? defaultVariant.coverImage
             : undefined,
@@ -411,6 +485,12 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({
                     setExcerpt(newExcerpt);
                     updateActiveVariant({ excerpt: newExcerpt });
                   }}
+                  showSlugControl={
+                    !/^untitled-draft(-\d+)?$/.test(article.slug)
+                  }
+                  shouldRegenerateSlug={shouldRegenerateSlug}
+                  onSlugRegenerateChange={setShouldRegenerateSlug}
+                  currentSlug={article.slug}
                 />
               )}
 
@@ -433,23 +513,22 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({
                   onStatusChange={(v) => setStatus(v)}
                   isSubmitting={isSubmitting}
                   submitLabel="Update"
+                  leftAction={
+                    currentProject && (
+                      <DeleteArticleButton
+                        articleId={article.id}
+                        articleTitle={article.title}
+                        projectSlug={currentProject.slug}
+                      />
+                    )
+                  }
                   scheduledPublishAt={scheduledPublishAt}
                   onScheduleChange={setScheduledPublishAt}
                   projectTimezone="UTC"
                   projectDefaultLanguage={defaultLanguage}
                   projectId={currentProject?.id}
-                  leftAction={
-                    <Link
-                      href={`/${currentProject?.slug}/articles`}
-                      className={buttonVariants({
-                        variant: "outline-destructive",
-                        size: "sm",
-                      })}
-                    >
-                      <Xmark />
-                      Cancel
-                    </Link>
-                  }
+                  autoSaveStatus={autoSaveStatus}
+                  lastAutoSave={lastSaved}
                 />
 
                 <ArticleBannerUpload
