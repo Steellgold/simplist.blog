@@ -25,9 +25,7 @@ export const SetupAnalyticsDialog = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="default">
-          Setup Analytics
-        </Button>
+        <Button variant="default">Setup Analytics</Button>
       </DialogTrigger>
 
       <DialogContent>
@@ -50,9 +48,7 @@ export const SetupAnalyticsDialog = () => {
               </ItemMedia>
 
               <ItemContent>
-                <ItemTitle>
-                  SDK Implementation
-                </ItemTitle>
+                <ItemTitle>SDK Implementation</ItemTitle>
                 <ItemDescription>
                   Server-side tracking with TypeScript SDK. Best for Next.js,
                   React, and Node.js applications.
@@ -74,9 +70,7 @@ export const SetupAnalyticsDialog = () => {
                 <FileCode />
               </ItemMedia>
               <ItemContent>
-                <ItemTitle>
-                  Analytics Script
-                </ItemTitle>
+                <ItemTitle>Analytics Script</ItemTitle>
                 <ItemDescription>
                   Drop-in script tag with zero configuration. Just add one line
                   of HTML to your site.
