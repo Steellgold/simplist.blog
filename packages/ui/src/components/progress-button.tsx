@@ -71,6 +71,7 @@ const ProgressPrimitive = forwardRef<HTMLElement, ProgressPrimitiveProps>(
             progressVariants({ variant }),
             className,
           )}
+          disabled={disabled}
           {...props}
         >
           <div>
@@ -96,6 +97,7 @@ const ProgressPrimitive = forwardRef<HTMLElement, ProgressPrimitiveProps>(
           progressVariants({ variant }),
           className,
         )}
+        disabled={disabled}
         {...props}
       >
         <span className="flex items-center gap-2">{children}</span>
