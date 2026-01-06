@@ -177,12 +177,55 @@ function InputGroupSelect({
   );
 }
 
+import * as TogglePrimitive from "@radix-ui/react-toggle";
+
+const inputGroupToggleVariants = cva(
+  "text-sm shadow-none flex gap-2 items-center inline-flex justify-center rounded-md font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:shrink-0 outline-none whitespace-nowrap",
+  {
+    variants: {
+      variant: {
+        default:
+          "bg-transparent hover:bg-accent/50 hover:text-accent-foreground data-[state=on]:bg-accent data-[state=on]:text-accent-foreground",
+        outline:
+          "border border-input bg-transparent shadow-xs hover:bg-accent hover:text-accent-foreground data-[state=on]:bg-accent data-[state=on]:text-accent-foreground",
+        ghost:
+          "hover:bg-accent hover:text-accent-foreground data-[state=on]:bg-accent data-[state=on]:text-accent-foreground",
+      },
+      size: {
+        xs: "h-6 gap-1 px-2 rounded-[calc(var(--radius)-5px)] [&>svg:not([class*='size-'])]:size-3.5 has-[>svg]:px-2",
+        sm: "h-8 px-2.5 gap-1.5 rounded-md has-[>svg]:px-2.5",
+        "icon-xs": "size-6 rounded-[calc(var(--radius)-5px)] p-0 has-[>svg]:p-0",
+        "icon-sm": "size-8 p-0 has-[>svg]:p-0",
+      },
+    },
+    defaultVariants: {
+      variant: "ghost",
+      size: "xs",
+    },
+  },
+);
+
+function InputGroupToggle({
+  className,
+  size = "xs",
+  variant = "default",
+  ...props
+}: React.ComponentProps<typeof TogglePrimitive.Root> &
+  VariantProps<typeof inputGroupToggleVariants>) {
+  return (
+    <TogglePrimitive.Root
+      data-size={size}
+      className={cn(inputGroupToggleVariants({ size, variant }), className)}
+      {...props}
+    />
+  );
+}
+
 export {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
-  InputGroupInput,
-  InputGroupText,
-  InputGroupTextarea,
-  InputGroupSelect,
+  InputGroupInput, InputGroupSelect, InputGroupText,
+  InputGroupTextarea, InputGroupToggle
 };
+
