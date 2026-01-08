@@ -66,6 +66,12 @@ export class Scheduler {
     this.logger.info(
       "Scheduler service started. Tasks: scheduled articles (30min), view counts (1h), invitations (1h), account deletions (30min).",
     );
+
+    // Run view count sync immediately on startup to fix existing data
+    this.logger.info("[Scheduler] Running initial view count sync on startup");
+    this.syncViewCounts().catch((error) => {
+      this.logger.error(error, "[Scheduler] Error in initial view count sync");
+    });
   }
 
   /**
