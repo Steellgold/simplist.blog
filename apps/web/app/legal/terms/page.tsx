@@ -5,6 +5,9 @@ export const metadata: Metadata = {
   title: "Terms of Service",
   description:
     "Terms of Service for the Simplist headless CMS and analytics platform.",
+  alternates: {
+    canonical: "/legal/terms",
+  },
 };
 
 const TermsOfServicePage = () => {

@@ -25,7 +25,13 @@ import {
   TypeTable,
 } from "@/components/type-table";
 import { WebhookBuilder } from "@/components/webhook-builder";
-import { getPageImage } from "@/lib/content";
+import {
+  getDocBody,
+  getDocEntry,
+  getDocTitleFromBody,
+  getMdxFrontmatter,
+  getPageImage,
+} from "@/lib/content";
 import { GITHUB_DOCS_URL } from "@/lib/info";
 import { generateUniqueId, textToId } from "@/lib/utils";
 import {
@@ -57,12 +63,10 @@ import {
   TableHeader,
   TableRow,
 } from "@simplist/ui/components/table";
-import { existsSync } from "fs";
-import { readFile } from "fs/promises";
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import Link from "next/link";
-import { join } from "path";
 import { ComponentType, FC } from "react";
 
 const createHeadingComponents = (
@@ -238,128 +242,6 @@ type PageProps = {
   }>;
 };
 
-const CONTENT_ROOTS = [
-  join(process.cwd(), "apps", "docs", "content"),
-  join(process.cwd(), "content"),
-];
-
-const buildPossiblePaths = (slug: string[]): string[] => {
-  const slugPath = join(...slug);
-  return CONTENT_ROOTS.flatMap((root) => [
-    join(root, `${slugPath}.mdx`),
-    join(root, slugPath, "index.mdx"),
-  ]);
-};
-
-const readMdxFile = async (slug: string[]): Promise<string> => {
-  const possiblePaths = buildPossiblePaths(slug);
-
-  for (const contentPath of possiblePaths) {
-    if (!existsSync(contentPath)) continue;
-
-    try {
-      const content = await readFile(contentPath, "utf-8");
-      return content;
-    } catch {
-      continue;
-    }
-  }
-
-  return "";
-};
-
-const getMdxContent = async (slug: string[]) => {
-  const rawContent = await readMdxFile(slug);
-
-  const frontmatterRegex = /^---\s*\n([\s\S]*?)\n---\s*\n([\s\S]*)$/;
-  const match = rawContent.match(frontmatterRegex);
-
-  if (match) {
-    return match[2];
-  }
-
-  return rawContent;
-};
-
-const getMdxFrontmatter = async (
-  slug: string[],
-): Promise<{ category?: string; title?: string }> => {
-  const rawContent = await readMdxFile(slug);
-
-  const frontmatterRegex = /^---\s*\n([\s\S]*?)\n---\s*\n/;
-  const frontmatterMatch = rawContent.match(frontmatterRegex);
-
-  if (frontmatterMatch) {
-    const frontmatter = frontmatterMatch[1];
-    const categoryMatch = frontmatter.match(/category:\s*(.+)/i);
-    const titleMatch = frontmatter.match(/title:\s*(.+)/i);
-
-    return {
-      category: categoryMatch
-        ? categoryMatch[1].replace(/^[""]|[""]$/g, "").trim()
-        : undefined,
-      title: titleMatch
-        ? titleMatch[1].replace(/^[""]|[""]$/g, "").trim()
-        : undefined,
-    };
-  }
-
-  return {};
-};
-
-const getMdxMetadata = async (slug: string[]): Promise<Metadata> => {
-  const rawContent = await readMdxFile(slug);
-
-  const frontmatterRegex = /^---\s*\n([\s\S]*?)\n---\s*\n/;
-  const frontmatterMatch = rawContent.match(frontmatterRegex);
-
-  let title = slug[slug.length - 1] || "Documentation";
-  let description = "Documentation for Simplist";
-
-  if (frontmatterMatch) {
-    const frontmatter = frontmatterMatch[1];
-    const titleMatch = frontmatter.match(/title:\s*(.+)/i);
-    const descMatch = frontmatter.match(/description:\s*(.+)/i);
-
-    if (titleMatch) title = titleMatch[1].replace(/^[""]|[""]$/g, "").trim();
-    if (descMatch)
-      description = descMatch[1].replace(/^[""]|[""]$/g, "").trim();
-
-    if (title.includes("/") && title.includes(":")) {
-      title = description;
-    }
-  } else {
-    const h1Match = rawContent.match(/^#\s+(.+)$/m);
-    if (h1Match) title = h1Match[1];
-  }
-
-  return {
-    title: `${title} | Simplist Documentation`,
-    description,
-    keywords: [
-      "simplist",
-      "documentation",
-      "api",
-      "sdk",
-      "rest",
-      "content",
-      "management",
-      "blog",
-    ],
-    openGraph: {
-      title: `${title} | Simplist Documentation`,
-      description,
-      images: getPageImage(slug).url,
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: `${title} | Simplist Documentation`,
-      description,
-      images: getPageImage(slug).url,
-    },
-  };
-};
-
 const extractHeadings = (content: string): TocHeading[] => {
   const headingRegex = /^(#{1,2})\s+(.+)$/gm;
   const headings: TocHeading[] = [];
@@ -382,7 +264,58 @@ export const generateMetadata = async ({
 }: PageProps): Promise<Metadata> => {
   const { slug = [] } = await params;
   const contentPath = slug.length === 0 ? ["index"] : slug;
-  return getMdxMetadata(contentPath);
+
+  const entry = getDocEntry(contentPath);
+
+  if (!entry) {
+    return {
+      title: "Page not found | Simplist Documentation",
+      description: "Documentation for Simplist",
+    };
+  }
+
+  const titleFromFrontmatter = entry.frontmatter.title;
+  const descriptionFromFrontmatter = entry.frontmatter.description;
+  const fallbackTitle =
+    getDocTitleFromBody(entry.body) ?? entry.slug.at(-1) ?? "Documentation";
+
+  const title = titleFromFrontmatter ?? fallbackTitle;
+  const description =
+    descriptionFromFrontmatter ?? "Documentation for Simplist";
+
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://docs.simplist.blog";
+  const cleanHref = entry.href.replace(/\/index$/, "") || "/";
+  const canonicalUrl = `${baseUrl}${cleanHref}`;
+
+  return {
+    title: `${title} | Simplist Documentation`,
+    description,
+    keywords: [
+      "simplist",
+      "documentation",
+      "api",
+      "sdk",
+      "rest",
+      "content",
+      "management",
+      "blog",
+    ],
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title: `${title} | Simplist Documentation`,
+      description,
+      images: getPageImage(contentPath).url,
+      url: canonicalUrl,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${title} | Simplist Documentation`,
+      description,
+      images: getPageImage(contentPath).url,
+    },
+  };
 };
 
 const ContentPage: FC<PageProps> = async ({ params }) => {
@@ -390,8 +323,13 @@ const ContentPage: FC<PageProps> = async ({ params }) => {
 
   const contentPath = slug.length === 0 ? ["index"] : slug;
 
-  const rawContent = await readMdxFile(contentPath);
-  const content = await getMdxContent(contentPath);
+  const entry = getDocEntry(contentPath);
+  if (!entry) {
+    notFound();
+  }
+
+  const rawContent = entry.source;
+  const content = entry.body;
 
   const headings = extractHeadings(content);
 
@@ -402,7 +340,7 @@ const ContentPage: FC<PageProps> = async ({ params }) => {
     ...headingComponents,
   };
 
-  const frontmatter = (await getMdxFrontmatter(contentPath)) ?? {};
+  const frontmatter = entry.frontmatter ?? {};
 
   const currentHref =
     contentPath.length === 0 ||

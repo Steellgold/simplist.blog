@@ -18,6 +18,7 @@ import {
   TrashBin,
 } from "@gravity-ui/icons";
 import { Button } from "@simplist/ui/components/button";
+import { ButtonGroup } from "@simplist/ui/components/button-group";
 import {
   Card,
   CardContent,
@@ -31,14 +32,7 @@ import { Spinner } from "@simplist/ui/components/spinner";
 import Image from "next/image";
 import { useState } from "react";
 import { toast } from "sonner";
-import { ButtonGroup } from "@simplist/ui/components/button-group";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@simplist/ui/components/dropdown-menu";
-
+  
 type ArticleBannerUploadProps = {
   projectId: string;
   imagePreview: string | null;

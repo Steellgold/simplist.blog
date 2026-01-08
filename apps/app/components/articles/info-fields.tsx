@@ -1,5 +1,6 @@
 "use client";
 
+import { Lock, LockOpen } from "@gravity-ui/icons";
 import {
   correctContent,
   generateExcerpt,

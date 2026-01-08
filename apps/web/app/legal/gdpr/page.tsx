@@ -4,6 +4,9 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "GDPR & Data Protection",
   description: "GDPR and data protection information for Simplist.",
+  alternates: {
+    canonical: "/legal/gdpr",
+  },
 };
 
 const GdprPage = () => {

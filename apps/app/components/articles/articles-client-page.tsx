@@ -4,6 +4,7 @@ import {
   useArticlesColumns,
   type Article,
 } from "@/components/articles/columns";
+import { CreateArticleButton } from "@/components/articles/create-article-button";
 import { ArticlesDataTable } from "@/components/articles/data-table";
 import { ImportDialog, type ImportColumn } from "@/components/import-dialog";
 import { PageLayout } from "@/components/layout/page-layout";
@@ -11,8 +12,7 @@ import {
   bulkImportArticles,
   type ImportArticleInput,
 } from "@/lib/actions/articles";
-import { FileText, Plus } from "@gravity-ui/icons";
-import { buttonVariants } from "@simplist/ui/components/button";
+import { FileText } from "@gravity-ui/icons";
 import {
   Empty,
   EmptyContent,
@@ -21,10 +21,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@simplist/ui/components/empty";
-import { ProgressLink } from "@simplist/ui/components/progress-button";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useHotkeys } from "react-hotkeys-hook";
 
 type ArticlesClientPageProps = {
   articles: Omit<Article, "content">[];
@@ -50,12 +47,6 @@ export const ArticlesClientPage = ({
   const router = useRouter();
   const columns = useArticlesColumns({ articles: articles as Article[] });
   const isAtLimit = maxCount !== -1 && articleCount >= maxCount;
-
-  // Keyboard shortcut: N to create new article
-  useHotkeys("n", () => router.push(`/${project.slug}/articles/new`), {
-    enabled: !isAtLimit,
-    enableOnFormTags: false,
-  });
 
   const importColumns: ImportColumn[] = [
     { key: "title", header: "Title", required: true },
@@ -107,8 +98,9 @@ export const ArticlesClientPage = ({
               performance.
             </EmptyDescription>
           </EmptyHeader>
+
           <EmptyContent>
-            <div className="flex items-center gap-2">
+            <div className="flex gap-2">
               <ImportDialog<ImportArticleInput>
                 columns={importColumns}
                 onImport={handleImport}
@@ -117,14 +109,8 @@ export const ArticlesClientPage = ({
                 entityName="articles"
                 maxVariantsPerItem={maxVariantsPerArticle}
               />
-              <Link
-                href={`/${project.slug}/articles/new`}
-                className={`${buttonVariants({ variant: "default", size: "sm" })} ${isAtLimit ? "pointer-events-none opacity-50" : ""}`}
-                aria-disabled={isAtLimit}
-              >
-                <Plus />
-                Article
-              </Link>
+
+              <CreateArticleButton projectId={project.id} projectSlug={project.slug} disabled={isAtLimit} />
             </div>
           </EmptyContent>
         </Empty>
@@ -137,27 +123,14 @@ export const ArticlesClientPage = ({
       title="Articles"
       description="Manage your blog articles and track their performance."
       actions={
-        maxCount === -1 ? (
-          <Link
-            href={`/${project.slug}/articles/new`}
-            className={buttonVariants({ variant: "default" })}
-          >
-            <Plus />
-            Article
-          </Link>
-        ) : (
-          <ProgressLink
-            href={`/${project.slug}/articles/new`}
-            value={articleCount}
-            min={0}
-            max={maxCount}
-            variant="default"
-            as={Link}
-          >
-            <Plus />
-            Article ({articleCount}/{maxCount})
-          </ProgressLink>
-        )
+        <CreateArticleButton
+          projectId={project.id}
+          projectSlug={project.slug}
+          disabled={isAtLimit}
+          showProgress={true}
+          currentCount={articleCount}
+          maxCount={maxCount}
+        />
       }
     >
       <ArticlesDataTable

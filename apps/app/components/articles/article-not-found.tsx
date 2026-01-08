@@ -32,9 +32,9 @@ export const ArticleNotFound = ({ slug }: Props) => {
         <EmptyContent>
           <Link
             className={buttonVariants({ variant: "default" })}
-            href={`/${slug}/articles/new`}
+            href={`/${slug}/articles`}
           >
-            Create New Article
+            Back to Articles
             <Plus />
           </Link>
         </EmptyContent>
