@@ -188,54 +188,61 @@ const analyticsRoutes: FastifyPluginAsync = async (fastify) => {
         request.headers["x-simplist-source"] === "sdk";
       const requestSource = isSdkRequest ? "sdk" : "direct";
 
-      // Create page view record
-      const pageView = await prisma.pageView.create({
-        data: {
-          articleId: article.id,
-          projectId,
-          visitorId,
-          sessionId,
+      // Create page view record and increment article view count in a transaction
+      const [pageView] = await prisma.$transaction([
+        prisma.pageView.create({
+          data: {
+            articleId: article.id,
+            projectId,
+            visitorId,
+            sessionId,
 
-          // Geo data only (no IP stored)
-          ipAddress: null,
-          country: geoData.country,
-          countryCode: geoData.countryCode,
-          region: geoData.region,
-          city: geoData.city,
-          timezone: geoData.timezone,
+            // Geo data only (no IP stored)
+            ipAddress: null,
+            country: geoData.country,
+            countryCode: geoData.countryCode,
+            region: geoData.region,
+            city: geoData.city,
+            timezone: geoData.timezone,
 
-          // Device/browser info
-          userAgent,
-          device: userAgentInfo.device,
-          browser: userAgentInfo.browser,
-          os: userAgentInfo.os,
-          screenWidth: body.screenWidth,
-          screenHeight: body.screenHeight,
+            // Device/browser info
+            userAgent,
+            device: userAgentInfo.device,
+            browser: userAgentInfo.browser,
+            os: userAgentInfo.os,
+            screenWidth: body.screenWidth,
+            screenHeight: body.screenHeight,
 
-          // Traffic source
-          referrer: body.referrer,
-          referrerDomain,
-          utmSource: body.utmSource,
-          utmMedium: body.utmMedium,
-          utmCampaign: body.utmCampaign,
-          utmTerm: body.utmTerm,
-          utmContent: body.utmContent,
+            // Traffic source
+            referrer: body.referrer,
+            referrerDomain,
+            utmSource: body.utmSource,
+            utmMedium: body.utmMedium,
+            utmCampaign: body.utmCampaign,
+            utmTerm: body.utmTerm,
+            utmContent: body.utmContent,
 
-          // Engagement metrics (will be updated later)
-          timeOnPage: body.timeOnPage,
-          scrollDepth: body.scrollDepth,
-          exitPosition: body.exitPosition,
-          bounced: body.bounced || false,
+            // Engagement metrics (will be updated later)
+            timeOnPage: body.timeOnPage,
+            scrollDepth: body.scrollDepth,
+            exitPosition: body.exitPosition,
+            bounced: body.bounced || false,
 
-          // Request source tracking
-          requestSource,
+            // Request source tracking
+            requestSource,
 
-          // Metadata
-          pageUrl: body.pageUrl,
-          pageTitle: body.pageTitle || article.title,
-          timestamp: body.timestamp ? new Date(body.timestamp) : new Date(),
-        },
-      });
+            // Metadata
+            pageUrl: body.pageUrl,
+            pageTitle: body.pageTitle || article.title,
+            timestamp: body.timestamp ? new Date(body.timestamp) : new Date(),
+          },
+        }),
+        // Increment article view count
+        prisma.article.update({
+          where: { id: article.id },
+          data: { viewCount: { increment: 1 } },
+        }),
+      ]);
 
       // Process events if provided
       if (body.events && Array.isArray(body.events)) {
