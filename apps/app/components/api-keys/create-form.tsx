@@ -130,10 +130,9 @@ export const CreateApiKeyForm = ({
     toast.promise(createApiKey(projectId, data), {
       loading: "Creating API key...",
       success: (result) => {
-        setNewApiKey(result.key);
         reset();
+        setNewApiKey(result.key);
         setIsSubmitting(false);
-        router.refresh();
         onSuccess?.();
         return "API key created successfully";
       },
@@ -164,6 +163,10 @@ export const CreateApiKeyForm = ({
     <Dialog
       open={open}
       onOpenChange={(isOpen) => {
+        // Prevent closing if we're showing the API key
+        if (!isOpen && newApiKey) {
+          return;
+        }
         if (!isOpen) {
           handleClose();
         } else {
@@ -180,7 +183,20 @@ export const CreateApiKeyForm = ({
           </Button>
         </DialogTrigger>
       )}
-      <DialogContent>
+      <DialogContent
+        onInteractOutside={(e) => {
+          // Prevent closing when clicking outside if we're showing the API key
+          if (newApiKey) {
+            e.preventDefault();
+          }
+        }}
+        onEscapeKeyDown={(e) => {
+          // Prevent closing with Escape key if we're showing the API key
+          if (newApiKey) {
+            e.preventDefault();
+          }
+        }}
+      >
         <DialogHeader>
           <DialogTitle>Create API Key</DialogTitle>
           <DialogDescription>
