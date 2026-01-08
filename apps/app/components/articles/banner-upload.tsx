@@ -30,17 +30,9 @@ import { ConfirmDialog } from "@simplist/ui/components/confirm-dialog";
 import { Progress } from "@simplist/ui/components/progress";
 import { Spinner } from "@simplist/ui/components/spinner";
 import Image from "next/image";
-import type { ChangeEvent } from "react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { ButtonGroup } from "@simplist/ui/components/button-group";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@simplist/ui/components/dropdown-menu";
-
+  
 type ArticleBannerUploadProps = {
   projectId: string;
   imagePreview: string | null;
