@@ -1,6 +1,5 @@
 import { getCurrentUser } from "@/lib/auth-helper";
-import { Construction } from "lucide-react";
-import { redirect } from "next/navigation";
+import { Trolley } from "@gravity-ui/icons";
 import {
   Empty,
   EmptyDescription,
@@ -8,6 +7,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@simplist/ui/components/empty";
+import { redirect } from "next/navigation";
 
 const AdminPage = async () => {
   const user = await getCurrentUser();
@@ -27,7 +27,7 @@ const AdminPage = async () => {
       <Empty>
         <EmptyHeader>
           <EmptyMedia variant="icon">
-            <Construction className="size-12" />
+            <Trolley className="size-12" />
           </EmptyMedia>
           <EmptyTitle>Admin Panel</EmptyTitle>
           <EmptyDescription>

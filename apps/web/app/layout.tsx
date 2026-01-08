@@ -24,14 +24,15 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const defaultUrl = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
-  : "http://localhost:3000";
+const defaultUrl = "https://www.simplist.blog";
 
 const slogan = "Blog-focused headless CMS";
 
 export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
+  alternates: {
+    canonical: "/",
+  },
   title: {
     default: `Simplist - ${slogan}`,
     template: "%s - Simplist",

@@ -311,6 +311,254 @@ export const createArticle = async (formData: {
   return article;
 };
 
+/**
+ * Create a draft article and return its ID (used for auto-save on create form)
+ * This is a lightweight version of createArticle that doesn't trigger webhooks or revalidation
+ */
+export const createDraftArticle = async (formData: {
+  title: string;
+  excerpt: string;
+  content: string;
+  projectId: string;
+  variants?: ArticleVariantInput[];
+  tags?: string[];
+}): Promise<{ success: true; articleId: string } | { error: string }> => {
+  try {
+    const { user, membership } = await requirePermission(
+      formData.projectId,
+      "canManageArticles",
+    );
+
+    const project = membership.project;
+
+    // Check article quota
+    const quotaCheck = await checkArticleQuota(user.id, project.id);
+    if (!quotaCheck.allowed) {
+      return { error: quotaCheck.reason || "Article quota exceeded" };
+    }
+
+    // Validate and check quota for variants
+    if (formData.variants && formData.variants.length > 0) {
+      // Validate language codes
+      for (const variant of formData.variants) {
+        if (!isValidLanguageCode(variant.lang)) {
+          return { error: `Invalid language code: ${variant.lang}` };
+        }
+      }
+
+      // Check variant quota
+      const variantQuotaCheck = await checkVariantQuota(user.id, project.id);
+      if (!variantQuotaCheck.allowed) {
+        return { error: variantQuotaCheck.reason || "Variant quota exceeded" };
+      }
+
+      // Ensure we don't exceed the per-article variant limit
+      if (
+        variantQuotaCheck.limit &&
+        variantQuotaCheck.limit !== -1 &&
+        formData.variants.length > variantQuotaCheck.limit
+      ) {
+        return {
+          error: `Cannot create ${formData.variants.length} variants. Your plan allows up to ${variantQuotaCheck.limit} variants per article.`,
+        };
+      }
+
+      // Check for duplicate languages
+      const langs = formData.variants.map((v) => v.lang);
+      const duplicates = langs.filter(
+        (lang, index) => langs.indexOf(lang) !== index,
+      );
+
+      if (duplicates.length > 0) {
+        return {
+          error: `Duplicate language variants found: ${duplicates.join(", ")}`,
+        };
+      }
+    }
+
+    // Use transaction to ensure atomicity
+    const article = await prisma.$transaction(async (tx) => {
+      // Generate slug from title
+      const baseSlug = generateSlug(formData.title);
+
+      // Generate unique slug within transaction
+      const existingSlugs = await tx.article.findMany({
+        where: {
+          slug: {
+            startsWith: baseSlug,
+          },
+          projectId: project.id,
+        },
+        select: {
+          slug: true,
+        },
+      });
+
+      let slug = baseSlug;
+
+      if (existingSlugs.length > 0) {
+        const slugSet = new Set(existingSlugs.map((a) => a.slug));
+
+        if (slugSet.has(baseSlug)) {
+          let counter = 1;
+
+          while (slugSet.has(`${baseSlug}-${counter}`)) {
+            counter++;
+          }
+
+          slug = `${baseSlug}-${counter}`;
+        }
+      }
+
+      // Calculate content statistics
+      const stats = calculateStats(formData.content);
+
+      // Handle tags: connect existing tags by ID
+      let tagConnections: { id: string }[] = [];
+      if (formData.tags && formData.tags.length > 0) {
+        tagConnections = formData.tags.map((tagId) => ({ id: tagId }));
+      }
+
+      // Create draft article within transaction
+      const newArticle = await tx.article.create({
+        data: {
+          title: formData.title,
+          slug,
+          excerpt: formData.excerpt,
+          content: formData.content,
+          status: "draft", // Always create as draft
+          published: false,
+          publishedAt: null,
+          scheduledPublishAt: null,
+          projectId: project.id,
+          createdBy: user.id,
+          tags: {
+            connect: tagConnections,
+          },
+          ...stats,
+        },
+      });
+
+      // Create article variants if provided
+      if (formData.variants && formData.variants.length > 0) {
+        const variantData = formData.variants.map((variant) => {
+          const variantStats = calculateStats(variant.content);
+          return {
+            articleId: newArticle.id,
+            lang: variant.lang,
+            title: variant.title,
+            excerpt: variant.excerpt,
+            content: variant.content,
+            coverImage: variant.coverImage,
+            ...variantStats,
+          };
+        });
+
+        await tx.articleVariant.createMany({
+          data: variantData,
+        });
+      }
+
+      return newArticle;
+    });
+
+    // No revalidation or webhooks for draft creation (lightweight operation)
+    return { success: true, articleId: article.id };
+  } catch (error) {
+    console.error("Failed to create draft article:", error);
+    return {
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to create draft article",
+    };
+  }
+};
+
+type CreateDraftResult = {
+  slug: string;
+} | {
+  error: string;
+};
+
+/**
+ * Create a draft article and return its slug for redirect
+ * Used by the "+ Article" button to immediately create a draft and redirect to edit page
+ */
+export const createDraft = async (projectId: string): Promise<CreateDraftResult> => {
+  try {
+    const { user, membership } = await requirePermission(
+      projectId,
+      "canManageArticles",
+    );
+    const project = membership.project;
+
+    // Check article quota
+    const quotaCheck = await checkArticleQuota(user.id, project.id);
+    if (!quotaCheck.allowed) {
+      return { error: quotaCheck.reason || "Article quota exceeded" };
+    }
+
+    // Use transaction to create the draft
+    const article = await prisma.$transaction(async (tx) => {
+      // Generate unique slug for "Untitled Draft"
+      const baseSlug = generateSlug("Untitled Draft");
+
+      const existingSlugs = await tx.article.findMany({
+        where: {
+          slug: { startsWith: baseSlug },
+          projectId: project.id,
+        },
+        select: { slug: true },
+      });
+
+      let slug = baseSlug;
+      if (existingSlugs.length > 0) {
+        const slugSet = new Set(existingSlugs.map((a) => a.slug));
+        if (slugSet.has(baseSlug)) {
+          let counter = 1;
+          while (slugSet.has(`${baseSlug}-${counter}`)) {
+            counter++;
+          }
+          slug = `${baseSlug}-${counter}`;
+        }
+      }
+
+      // Create draft article
+      const newArticle = await tx.article.create({
+        data: {
+          title: "Untitled Draft",
+          slug,
+          excerpt: "",
+          content: "",
+          status: "draft",
+          published: false,
+          publishedAt: null,
+          scheduledPublishAt: null,
+          projectId: project.id,
+          createdBy: user.id,
+          wordCount: 0,
+          characterCount: 0,
+          lineCount: 0,
+          readTimeMinutes: 0,
+        },
+      });
+
+      return newArticle;
+    });
+
+    return { slug: article.slug };
+  } catch (error) {
+    console.error("Failed to create draft and redirect:", error);
+    return {
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to create draft article",
+    };
+  }
+};
+
 export const updateArticleCoverImage = async (params: {
   articleId: string;
   objectKey: string;
@@ -743,6 +991,7 @@ export const updateArticle = async (
     excerpt: string;
     content: string;
     status: "draft" | "published" | "scheduled";
+    shouldRegenerateSlug?: boolean;
     coverImage?: string | null;
     scheduledPublishAt?: Date | null;
     variants?: ArticleVariantInput[];
@@ -835,6 +1084,34 @@ export const updateArticle = async (
       tagConnections = formData.tags.map((tagId) => ({ id: tagId }));
     }
 
+    // Regenerate slug if requested
+    let newSlug: string | undefined;
+    if (formData.shouldRegenerateSlug) {
+      const baseSlug = generateSlug(formData.title);
+
+      // Check for slug uniqueness in the project
+      const existingSlugs = await tx.article.findMany({
+        where: {
+          slug: { startsWith: baseSlug },
+          projectId: article.project.id,
+          id: { not: articleId }, // Exclude current article
+        },
+        select: { slug: true },
+      });
+
+      newSlug = baseSlug;
+      if (existingSlugs.length > 0) {
+        const slugSet = new Set(existingSlugs.map((a) => a.slug));
+        if (slugSet.has(baseSlug)) {
+          let counter = 1;
+          while (slugSet.has(`${baseSlug}-${counter}`)) {
+            counter++;
+          }
+          newSlug = `${baseSlug}-${counter}`;
+        }
+      }
+    }
+
     // Update article
     const updatedArticle = await tx.article.update({
       where: {
@@ -845,6 +1122,7 @@ export const updateArticle = async (
       },
       data: {
         title: formData.title,
+        ...(newSlug && { slug: newSlug }),
         excerpt: formData.excerpt,
         content: formData.content,
         status: formData.status,
