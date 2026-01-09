@@ -28,6 +28,7 @@ import {
   validateApiKey,
   type AiSettings,
 } from "@/lib/actions/ai-settings";
+import Link from "next/link";
 
 type AiSettingsCardProps = {
   projectId: string;
@@ -226,14 +227,14 @@ export const AiSettingsCard = ({
           ) : (
             <>
               Get your key from{" "}
-              <a
+              <Link
                 href="https://platform.openai.com/api-keys"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary underline"
               >
                 OpenAI Dashboard
-              </a>
+              </Link>
               . Stored with AES-256 encryption.
             </>
           )}
@@ -245,7 +246,7 @@ export const AiSettingsCard = ({
             onClick={handleRemoveKey}
             disabled={isDisabled}
           >
-            {isRemoving ? <Spinner className="size-4" /> : <TrashBin />}
+            {isRemoving ? <Spinner /> : <TrashBin />}
             Remove
           </Button>
         ) : (
@@ -256,7 +257,7 @@ export const AiSettingsCard = ({
           >
             {isValidating || isSaving ? (
               <>
-                <Spinner className="size-4" />
+                <Spinner />
                 {isValidating ? "Validating..." : "Saving..."}
               </>
             ) : (
