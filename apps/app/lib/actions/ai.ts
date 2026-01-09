@@ -6,6 +6,7 @@ import { getAiModelForProject } from "@/lib/ai/client";
 import {
   checkAiRequestQuota,
   incrementAiRequestCounter,
+  getProjectSubscription,
 } from "@/lib/subscription/quota-check";
 import { requirePermission } from "@/lib/auth/permissions";
 import {
@@ -70,11 +71,18 @@ const executeAiAction = async <T>(
       return { success: false, error: quotaCheck.reason || "Quota exceeded" };
     }
 
+    // Get subscription to determine if we'll use BYOK
+    const subscription = await getProjectSubscription(projectId);
+    const currentRequests = subscription.usage.aiRequests;
+    const limit = subscription.limits.maxAiRequestsPerMonth;
+    const withinIncludedLimit = limit === -1 || currentRequests < limit;
+    const usingByok = !withinIncludedLimit && subscription.hasApiKey;
+
     // Execute the AI action
     const result = await action();
 
-    // Increment counter after successful execution
-    await incrementAiRequestCounter(projectId);
+    // Increment counter after successful execution (only if not using BYOK)
+    await incrementAiRequestCounter(projectId, usingByok);
 
     return { success: true, data: result };
   } catch (error) {
@@ -101,7 +109,7 @@ export const translateVariant = async (
   await requirePermission(projectId, "canManageArticles");
 
   return executeAiAction(projectId, async () => {
-    const model = await getAiModelForProject(projectId);
+    const { model } = await getAiModelForProject(projectId);
 
     const { output } = await generateText({
       model,
@@ -138,7 +146,7 @@ export const correctContent = async (
   const constraints = FIELD_CONSTRAINTS[fieldType];
 
   return executeAiAction(projectId, async () => {
-    const model = await getAiModelForProject(projectId);
+    const { model } = await getAiModelForProject(projectId);
 
     const systemPrompt = getCorrectionPrompt(fieldType);
     const userPrompt = `Correct the following ${constraints.description} written in ${language}. 
@@ -177,7 +185,7 @@ export const rewriteContent = async (
   const constraints = FIELD_CONSTRAINTS[fieldType];
 
   return executeAiAction(projectId, async () => {
-    const model = await getAiModelForProject(projectId);
+    const { model } = await getAiModelForProject(projectId);
 
     const systemPrompt = `${getRewritePrompt(fieldType)}
 
@@ -222,7 +230,7 @@ export const customEditContent = async (
   const constraints = FIELD_CONSTRAINTS[fieldType];
 
   return executeAiAction(projectId, async () => {
-    const model = await getAiModelForProject(projectId);
+    const { model } = await getAiModelForProject(projectId);
 
     const systemPrompt = getCustomPrompt(fieldType, customInstruction);
     const userPrompt = `Apply the following instruction to this ${constraints.description}:
@@ -277,7 +285,7 @@ export const suggestTags = async (
     .join("\n");
 
   return executeAiAction(projectId, async () => {
-    const model = await getAiModelForProject(projectId);
+    const { model } = await getAiModelForProject(projectId);
 
     const { output } = await generateText({
       model,
@@ -305,7 +313,7 @@ export const generateExcerpt = async (
   await requirePermission(projectId, "canManageArticles");
 
   return executeAiAction(projectId, async () => {
-    const model = await getAiModelForProject(projectId);
+    const { model } = await getAiModelForProject(projectId);
 
     const { output } = await generateText({
       model,
@@ -335,7 +343,7 @@ export const generateTitleSuggestions = async (
   await requirePermission(projectId, "canManageArticles");
 
   return executeAiAction(projectId, async () => {
-    const model = await getAiModelForProject(projectId);
+    const { model } = await getAiModelForProject(projectId);
 
     const { output } = await generateText({
       model,

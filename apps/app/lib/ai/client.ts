@@ -1,33 +1,58 @@
 import { getProjectSubscription } from "@/lib/subscription/quota-check";
-import { devToolsMiddleware } from "@ai-sdk/devtools";
 import { createOpenAI } from "@ai-sdk/openai";
 import { prisma } from "@simplist/db";
-import { wrapLanguageModel } from "ai";
 import { decrypt } from "./encryption";
 
 export const AI_MODEL_NAME = "gpt-4o-mini";
 
 /**
  * Gets the OpenAI model configured for a project.
- * - PRO plans: Uses Simplist's API key from environment
- * - STARTER plans: Uses project's BYOK (Bring Your Own Key)
+ * Hybrid approach:
+ * - Try to use included credits first (both STARTER and PRO)
+ * - If limit reached: Fall back to BYOK if configured
+ * - Returns { model, usingByok } to track which method is being used
  */
 export const getAiModelForProject = async (projectId: string) => {
   const subscription = await getProjectSubscription(projectId);
 
   let apiKey: string;
+  let usingByok = false;
 
-  if (subscription.limits.features.aiIncludedCredits) {
-    // PRO: Use Simplist's API key
+  // Check if we're within the included limit
+  const currentRequests = subscription.usage.aiRequests;
+  const limit = subscription.limits.maxAiRequestsPerMonth;
+  const withinIncludedLimit = limit === -1 || currentRequests < limit;
+
+  if (withinIncludedLimit) {
+    // Use Simplist's API key (included credits)
     const envKey = process.env.OPENAI_API_KEY;
 
     if (!envKey) {
-      throw new Error("OpenAI API key not configured on the server.");
-    }
+      // No server key: Try BYOK as fallback
+      const project = await prisma.project.findUnique({
+        where: { id: projectId },
+        select: { openaiApiKey: true },
+      });
 
-    apiKey = envKey;
+      if (!project?.openaiApiKey) {
+        throw new Error(
+          "OpenAI API key not configured on the server. Please add your own API key in project settings to use AI features.",
+        );
+      }
+
+      try {
+        apiKey = decrypt(project.openaiApiKey);
+        usingByok = true;
+      } catch {
+        throw new Error(
+          "Failed to decrypt API key. Please re-enter your API key in project settings.",
+        );
+      }
+    } else {
+      apiKey = envKey;
+    }
   } else {
-    // STARTER: Use project's BYOK
+    // Limit reached: Use BYOK as fallback
     const project = await prisma.project.findUnique({
       where: { id: projectId },
       select: { openaiApiKey: true },
@@ -35,12 +60,13 @@ export const getAiModelForProject = async (projectId: string) => {
 
     if (!project?.openaiApiKey) {
       throw new Error(
-        "No OpenAI API key configured. Please add your API key in project settings to use AI features.",
+        `You've used all ${limit} included AI requests this month. Add your own OpenAI API key in project settings for unlimited requests.`,
       );
     }
 
     try {
       apiKey = decrypt(project.openaiApiKey);
+      usingByok = true;
     } catch {
       throw new Error(
         "Failed to decrypt API key. Please re-enter your API key in project settings.",
@@ -53,8 +79,5 @@ export const getAiModelForProject = async (projectId: string) => {
   // Use the chat completion model explicitly
   const model = openai.chat(AI_MODEL_NAME);
 
-  return wrapLanguageModel({
-    model,
-    middleware: devToolsMiddleware(),
-  });
+  return { model, usingByok };
 };

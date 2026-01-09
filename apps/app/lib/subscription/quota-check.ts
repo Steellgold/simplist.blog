@@ -392,8 +392,10 @@ export const checkVariantQuota = async (
 
 /**
  * Check if project can make an AI request
- * - STARTER with BYOK: Always allowed (no limit)
- * - PRO with included credits: Check monthly limit
+ * - Both STARTER and PRO: Check monthly limit first
+ * - If limit reached: Fall back to BYOK (if configured)
+ * - STARTER: 15 requests/month included + unlimited BYOK
+ * - PRO: 500 requests/month included + unlimited BYOK
  */
 export const checkAiRequestQuota = async (
   projectId: string,
@@ -408,12 +410,7 @@ export const checkAiRequestQuota = async (
     };
   }
 
-  // BYOK (STARTER): No limit on AI requests when using own API key
-  if (!subscription.limits.features.aiIncludedCredits) {
-    return { allowed: true };
-  }
-
-  // PRO with included credits: Check monthly limit
+  // Check monthly limit first (both STARTER and PRO have included credits)
   const now = new Date();
   const resetDate = subscription.usage.aiRequestsResetAt;
   let currentRequests = subscription.usage.aiRequests;
@@ -440,45 +437,62 @@ export const checkAiRequestQuota = async (
 
   const limit = subscription.limits.maxAiRequestsPerMonth;
 
-  // -1 means unlimited
-  if (limit !== -1 && currentRequests >= limit) {
+  // If under the included limit, allow the request
+  if (limit === -1 || currentRequests < limit) {
     return {
-      allowed: false,
-      reason: `Monthly AI request limit reached. Your ${subscription.tier} plan includes ${limit} AI requests per month.`,
+      allowed: true,
       current: currentRequests,
       limit,
     };
   }
 
+  // Limit reached: Check if BYOK is configured as fallback
+  if (subscription.hasApiKey) {
+    return {
+      allowed: true,
+      current: currentRequests,
+      limit,
+    };
+  }
+
+  // No more included credits and no BYOK configured
   return {
-    allowed: true,
+    allowed: false,
+    reason: `Monthly AI request limit reached. Your ${subscription.tier} plan includes ${limit} AI requests per month. Add your own OpenAI API key in project settings for unlimited requests.`,
     current: currentRequests,
     limit,
   };
 };
 
 /**
- * Increment AI request counter for PRO plans
- * Does nothing for STARTER (BYOK) plans
+ * Increment AI request counter
+ * - Increments for both STARTER and PRO when using included credits
+ * - Does NOT increment when using BYOK (beyond included limit)
  */
 export const incrementAiRequestCounter = async (
   projectId: string,
+  usingByok = false,
 ): Promise<void> => {
-  const subscription = await getProjectSubscription(projectId);
-
-  // Only increment for plans with included credits (PRO)
-  if (!subscription.limits.features.aiIncludedCredits) {
+  // Don't increment counter if using BYOK
+  if (usingByok) {
     return;
   }
 
-  await prisma.project.update({
-    where: { id: projectId },
-    data: {
-      monthlyAiRequests: {
-        increment: 1,
+  const subscription = await getProjectSubscription(projectId);
+
+  // Only increment if within the included limit
+  if (
+    subscription.usage.aiRequests < subscription.limits.maxAiRequestsPerMonth
+  ) {
+    await prisma.project.update({
+      where: { id: projectId },
+      data: {
+        monthlyAiRequests: {
+          increment: 1,
+        },
       },
-    },
-  });
+    });
+  }
 };
 
 /**
@@ -491,6 +505,7 @@ export const getAiUsageStats = async (
   limit: number;
   hasIncludedCredits: boolean;
   hasApiKey: boolean;
+  usingByok: boolean;
 }> => {
   const subscription = await getProjectSubscription(projectId);
 
@@ -499,10 +514,16 @@ export const getAiUsageStats = async (
     select: { openaiApiKey: true },
   });
 
+  const hasApiKey = !!project?.openaiApiKey;
+  const current = subscription.usage.aiRequests;
+  const limit = subscription.limits.maxAiRequestsPerMonth;
+  const usingByok = hasApiKey && current >= limit;
+
   return {
-    current: subscription.usage.aiRequests,
-    limit: subscription.limits.maxAiRequestsPerMonth,
+    current,
+    limit,
     hasIncludedCredits: subscription.limits.features.aiIncludedCredits,
-    hasApiKey: !!project?.openaiApiKey,
+    hasApiKey,
+    usingByok,
   };
 };

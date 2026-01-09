@@ -105,13 +105,15 @@ export const VariantCard = ({
     max: fetchedMax,
   } = useVariantLimits(
     initialSubscription ? undefined : currentProject?.id,
-    nonDefaultCount,
+    nonDefaultCount, // Use non-default count for quota check
   );
 
   // Use values from initialSubscription if provided, otherwise use fetched values
   const tier = initialSubscription?.tier ?? fetchedTier;
   const max = initialSubscription?.limits.maxVariantsPerArticle ?? fetchedMax;
   const isFree = tier === "STARTER";
+
+  // STARTER can add 1 variant (max = 1), PRO has unlimited (max = -1)
   const canAdd = initialSubscription
     ? max === -1 || nonDefaultCount < max
     : fetchedCanAdd;

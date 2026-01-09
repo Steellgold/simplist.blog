@@ -108,8 +108,10 @@ const featureDisplays: FeatureDisplay[] = [
   {
     icon: SparklesFill,
     label: "AI",
-    getValue: () => "Included",
-    getBadge: (limits) => (limits.maxAiRequestsPerMonth === -1 ? "BYOK" : ""),
+    getValue: (limits) =>
+      limits.maxAiRequestsPerMonth === -1
+        ? "Unlimited (BYOK only)"
+        : `${limits.maxAiRequestsPerMonth} requests/month + BYOK`,
   },
 ];
 
