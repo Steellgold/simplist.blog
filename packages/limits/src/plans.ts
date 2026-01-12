@@ -19,7 +19,7 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, Plan> = {
       { name: "50MB storage", included: true },
       { name: "1,000 API calls/month", included: true },
       { name: "Language variants", included: true },
-      { name: "AI features", included: true }, // (15 requests/month + BYOK)
+      { name: "AI Features", included: true }, // (15 requests/month + BYOK)
     ],
     limits: {
       maxArticles: 5,
@@ -72,7 +72,7 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, Plan> = {
       { name: "Priority support", included: true },
       { name: "Language variants", included: true }, // Unlimited
       { name: "Scheduled publishing", included: true },
-      { name: "AI features", included: true }, // (500 requests/month + BYOK)
+      { name: "AI Features", included: true }, // (500 requests/month + BYOK)
     ],
     limits: {
       maxArticles: -1,
