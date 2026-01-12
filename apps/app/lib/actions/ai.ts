@@ -71,15 +71,12 @@ const executeAiAction = async <T>(
       return { success: false, error: quotaCheck.reason || "Quota exceeded" };
     }
 
-    // Get subscription to determine if we'll use BYOK
-    const subscription = await getProjectSubscription(projectId);
-    const currentRequests = subscription.usage.aiRequests;
-    const limit = subscription.limits.maxAiRequestsPerMonth;
-    const withinIncludedLimit = limit === -1 || currentRequests < limit;
-    const usingByok = !withinIncludedLimit && subscription.hasApiKey;
-
-    // Execute the AI action
+    // Execute the AI action (getAiModelForProject will determine if using BYOK)
     const result = await action();
+
+    // Check if BYOK is configured (BYOK-first approach)
+    const subscription = await getProjectSubscription(projectId);
+    const usingByok = subscription.hasApiKey;
 
     // Increment counter after successful execution (only if not using BYOK)
     await incrementAiRequestCounter(projectId, usingByok);

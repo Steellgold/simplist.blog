@@ -67,23 +67,23 @@ export const canExecuteAiAction = (
     };
   }
 
-  // For STARTER (BYOK), check if API key is configured
-  if (
-    subscription &&
-    !subscription.limits.features.aiIncludedCredits &&
-    !subscription.hasApiKey
-  ) {
+  if (!subscription) {
     return {
       allowed: false,
-      reason: "Please configure your OpenAI API key in project settings.",
+      reason: "Subscription information not available.",
     };
   }
 
-  // Check quota for PRO plans
+  // If BYOK is configured, always allow (unlimited usage with user's own key)
+  if (subscription.hasApiKey) {
+    return { allowed: true };
+  }
+
+  // If no BYOK, check if they have remaining quota with included credits
   if (!hasRemainingQuota(subscription)) {
     return {
       allowed: false,
-      reason: "Monthly AI request limit reached. Upgrade or wait for reset.",
+      reason: "Monthly AI request limit reached. Add your API key for unlimited usage.",
     };
   }
 
