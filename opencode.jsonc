@@ -1,5 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "instructions": ["ui-rules.md", "packages/*/AGENTS.md", "AGENTS.md", "CLAUDE.md"],
   "mcp": {
     "better-auth": {
       "type": "remote",
