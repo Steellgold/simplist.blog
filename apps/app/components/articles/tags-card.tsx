@@ -22,6 +22,7 @@ import { Plus } from "lucide-react";
 import { type FC } from "react";
 import { ArticleTagsInput } from "./article-tags-input";
 import { useAISmartTagSuggestions } from "./hooks/use-ai-smart-tag-suggestions";
+import { canExecuteAiAction } from "@/lib/ai/validators";
 
 type ArticleTagsCardProps = {
   tags: Tag[];
@@ -43,15 +44,24 @@ export const ArticleTagsCard: FC<ArticleTagsCardProps> = ({
   onTagsChange,
   onCreateTag,
 }) => {
-  const { isSuggesting, applySuggestion, suggestions, clearSuggestions } =
-    useAISmartTagSuggestions({
-      projectId,
-      content: articleContent,
-      tags,
-      onTagsChange,
-      availableTags,
-      subscription,
-    });
+  const {
+    isSuggesting,
+    triggerSuggestions,
+    applySuggestion,
+    suggestions,
+    clearSuggestions,
+  } = useAISmartTagSuggestions({
+    projectId,
+    content: articleContent,
+    tags,
+    onTagsChange,
+    availableTags,
+    subscription,
+  });
+
+  // Check if AI is available
+  const aiCheck = canExecuteAiAction(subscription);
+  const aiEnabled = !!projectId && aiCheck.allowed;
 
   const handleApplySuggestion = async (suggestion: (typeof suggestions)[0]) => {
     await applySuggestion(suggestion);
@@ -66,13 +76,6 @@ export const ArticleTagsCard: FC<ArticleTagsCardProps> = ({
         </CardDescription>
 
         <CardAction>
-          {isSuggesting && (
-            <Button variant="outline" size="xs" disabled>
-              <Spinner />
-              Suggesting tags...
-            </Button>
-          )}
-
           {suggestions.length > 0 && (
             <Button
               variant="outline"
@@ -124,13 +127,42 @@ export const ArticleTagsCard: FC<ArticleTagsCardProps> = ({
           </div>
         )}
 
-        <ArticleTagsInput
-          value={tags}
-          onChange={onTagsChange}
-          availableTags={availableTags}
-          placeholder="Add tag..."
-          onCreateTag={onCreateTag}
-        />
+        <div className="relative">
+          <ArticleTagsInput
+            value={tags}
+            onChange={onTagsChange}
+            availableTags={availableTags}
+            placeholder="Add tag..."
+            onCreateTag={onCreateTag}
+          />
+
+          {projectId && (
+            <div className="absolute top-1.5 right-1.5">
+              {isSuggesting ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon-xs"
+                  disabled
+                  className="size-6"
+                >
+                  <Spinner className="size-3" />
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon-xs"
+                  onClick={triggerSuggestions}
+                  disabled={!aiEnabled}
+                  className="size-6"
+                >
+                  <SparklesFill className="size-3" />
+                </Button>
+              )}
+            </div>
+          )}
+        </div>
       </CardContent>
     </Card>
   );

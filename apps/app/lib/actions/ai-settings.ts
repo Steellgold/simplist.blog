@@ -18,6 +18,7 @@ export type AiSettings = {
   hasIncludedCredits: boolean;
   aiRequestsUsed: number;
   aiRequestsLimit: number;
+  aiRequestsResetAt: Date;
   canUseAi: boolean;
 };
 
@@ -41,6 +42,7 @@ export const getProjectAiSettings = async (
     hasIncludedCredits: usage.hasIncludedCredits,
     aiRequestsUsed: usage.current,
     aiRequestsLimit: usage.limit,
+    aiRequestsResetAt: subscription.usage.aiRequestsResetAt ?? new Date(),
     canUseAi,
   };
 };

@@ -9,6 +9,7 @@ import {
   CardFooter,
   CardHeader,
 } from "@simplist/ui/components/card";
+import { Progress } from "@simplist/ui/components/progress";
 import {
   FieldDescription,
   FieldError,
@@ -29,12 +30,19 @@ import {
   type AiSettings,
 } from "@/lib/actions/ai-settings";
 import Link from "next/link";
+import { addDays, format } from "date-fns";
 
 type AiSettingsCardProps = {
   projectId: string;
   initialSettings: AiSettings;
   subscriptionTier: "STARTER" | "PRO";
   disabled?: boolean;
+};
+
+const getProgressColor = (percentage: number): string => {
+  if (percentage >= 90) return "bg-red-500";
+  if (percentage >= 75) return "bg-yellow-500";
+  return "bg-primary";
 };
 
 export const AiSettingsCard = ({
@@ -121,13 +129,14 @@ export const AiSettingsCard = ({
   const isDisabled = disabled || isSaving || isRemoving || isValidating;
   const hasChanges = apiKey.trim().length > 0;
 
+  // Calculate AI usage percentage
+  const aiUsagePercentage =
+    initialSettings.aiRequestsLimit === -1
+      ? 0
+      : (initialSettings.aiRequestsUsed / initialSettings.aiRequestsLimit) * 100;
+
   // PRO users see their usage stats
   if (isPro) {
-    const remaining =
-      initialSettings.aiRequestsLimit === -1
-        ? "Unlimited"
-        : `${initialSettings.aiRequestsLimit - initialSettings.aiRequestsUsed} remaining`;
-
     return (
       <Card variant="form">
         <CardHeader>
@@ -143,89 +152,151 @@ export const AiSettingsCard = ({
         </CardHeader>
 
         <CardContent>
-          <div className="text-sm">
-            <span className="text-muted-foreground">Monthly usage: </span>
-            <span className="font-medium">
-              {initialSettings.aiRequestsUsed}
-            </span>
-            <span className="text-muted-foreground">
-              {" "}
-              /{" "}
-              {initialSettings.aiRequestsLimit === -1
-                ? "Unlimited"
-                : initialSettings.aiRequestsLimit}
-            </span>
-            <span className="text-muted-foreground ml-2">({remaining})</span>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span className="font-medium">Monthly AI requests</span>
+              <span className="text-muted-foreground">
+                {initialSettings.aiRequestsUsed} /{" "}
+                {initialSettings.aiRequestsLimit === -1
+                  ? "Unlimited"
+                  : initialSettings.aiRequestsLimit}
+              </span>
+            </div>
+
+            {initialSettings.aiRequestsLimit !== -1 && (
+              <Progress
+                value={aiUsagePercentage}
+                className="h-2"
+                indicatorClassName={getProgressColor(aiUsagePercentage)}
+              />
+            )}
           </div>
         </CardContent>
 
         <CardFooter>
           <p className="text-muted-foreground text-sm">
-            Usage resets monthly. Upgrade for higher limits.
+            Resets on{" "}
+            {format(
+              addDays(initialSettings.aiRequestsResetAt, 30),
+              "MMMM d, yyyy",
+            )}
           </p>
         </CardFooter>
       </Card>
     );
   }
 
-  // STARTER users need to configure their API key (BYOK)
+  // STARTER users see usage stats + BYOK option
   return (
     <Card variant="form">
       <CardHeader>
-        <FieldLabel htmlFor="openai-api-key" className="text-base font-medium">
-          OpenAI API Key
-        </FieldLabel>
+        <FieldLabel className="text-base font-medium">AI Features</FieldLabel>
         <FieldDescription className="mt-1">
-          {hasApiKey
-            ? "Your API key is configured and encrypted. AI features are enabled."
-            : "Add your OpenAI API key to use AI features like correction, rewriting, and SEO optimization."}
+          {initialSettings.aiRequestsLimit} AI requests/month included
         </FieldDescription>
       </CardHeader>
 
       <CardContent>
-        {hasApiKey ? (
-          <div className="text-sm">
-            <span className="text-muted-foreground">Status: </span>
-            <span className="font-medium text-green-600">Configured</span>
-            <span className="text-muted-foreground"> (encrypted)</span>
-          </div>
-        ) : (
+        <div className="space-y-4">
+          {/* Usage stats */}
           <div className="space-y-2">
-            <InputGroup className="max-w-md">
-              <InputGroupInput
-                id="openai-api-key"
-                type={showKey ? "text" : "password"}
-                placeholder="sk-..."
-                value={apiKey}
-                onChange={(e) => {
-                  setApiKey(e.target.value);
-                  setValidationError(null);
-                }}
-                disabled={isDisabled}
-              />
-              <InputGroupAddon align="inline-end">
-                <InputGroupButton
-                  type="button"
-                  variant="ghost"
-                  onClick={() => setShowKey(!showKey)}
-                  disabled={isDisabled}
-                >
-                  {showKey ? <EyeSlash /> : <Eye />}
-                </InputGroupButton>
-              </InputGroupAddon>
-            </InputGroup>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Monthly requests</span>
+              <span className="font-medium">
+                {initialSettings.aiRequestsUsed} / {initialSettings.aiRequestsLimit}
+              </span>
+            </div>
 
-            {validationError && <FieldError>{validationError}</FieldError>}
+            <Progress
+              value={aiUsagePercentage}
+              className="h-2"
+              indicatorClassName={getProgressColor(aiUsagePercentage)}
+            />
+
+            <p className="text-muted-foreground text-xs">
+              Resets{" "}
+              {format(addDays(initialSettings.aiRequestsResetAt, 30), "MMM d")}
+            </p>
           </div>
-        )}
+
+          {/* Divider */}
+          <div className="border-t" />
+
+          {/* BYOK section */}
+          <div className="space-y-3">
+            {hasApiKey ? (
+              <>
+                <div className="flex items-center gap-2 text-sm">
+                  <div className="bg-green-500/10 flex h-5 w-5 items-center justify-center rounded-full">
+                    <div className="bg-green-500 h-2 w-2 rounded-full" />
+                  </div>
+
+                  <span className="font-medium">API key configured</span>
+                  <span className="text-muted-foreground">
+                    (unlimited requests)
+                  </span>
+                </div>
+
+                <p className="text-muted-foreground text-sm">
+                  Want to update your key? Remove the current one first.
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="text-muted-foreground text-sm">
+                  Need more? Add your API key
+                </p>
+
+                <InputGroup className="max-w-md">
+                  <InputGroupInput
+                    id="openai-api-key"
+                    type={showKey ? "text" : "password"}
+                    placeholder="sk-proj-..."
+                    value={apiKey}
+                    onChange={(e) => {
+                      setApiKey(e.target.value);
+                      setValidationError(null);
+                    }}
+                    disabled={isDisabled}
+                  />
+                  <InputGroupAddon align="inline-end">
+                    <InputGroupButton
+                      type="button"
+                      variant="ghost"
+                      onClick={() => setShowKey(!showKey)}
+                      disabled={isDisabled}
+                    >
+                      {showKey ? <EyeSlash /> : <Eye />}
+                    </InputGroupButton>
+                  </InputGroupAddon>
+                </InputGroup>
+                {validationError && <FieldError>{validationError}</FieldError>}
+              </>
+            )}
+          </div>
+        </div>
       </CardContent>
 
       <CardFooter>
-        <p className="text-muted-foreground text-sm">
-          {hasApiKey ? (
-            "To update your key, remove it first then add a new one."
-          ) : (
-            <>
+        {hasApiKey ? (
+          <>
+            <p className="text-muted-foreground text-sm">
+              Using your own OpenAI API key
+            </p>
+            <Button
+              type="button"
+              variant="outline-destructive"
+              size="sm"
+              onClick={handleRemoveKey}
+              disabled={isDisabled}
+            >
+              {isRemoving ? <Spinner /> : <TrashBin />}
+              Remove
+            </Button>
+          </>
+        ) : (
+          <>
+            <p className="text-muted-foreground text-sm">
               Get your key from{" "}
               <Link
                 href="https://platform.openai.com/api-keys"
@@ -235,35 +306,22 @@ export const AiSettingsCard = ({
               >
                 OpenAI Dashboard
               </Link>
-              . Stored with AES-256 encryption.
-            </>
-          )}
-        </p>
-        {hasApiKey ? (
-          <Button
-            type="button"
-            variant="outline-destructive"
-            onClick={handleRemoveKey}
-            disabled={isDisabled}
-          >
-            {isRemoving ? <Spinner /> : <TrashBin />}
-            Remove
-          </Button>
-        ) : (
-          <Button
-            type="button"
-            onClick={handleSaveKey}
-            disabled={isDisabled || !hasChanges}
-          >
-            {isValidating || isSaving ? (
-              <>
-                <Spinner />
-                {isValidating ? "Validating..." : "Saving..."}
-              </>
-            ) : (
-              "Save"
-            )}
-          </Button>
+            </p>
+            <Button
+              type="button"
+              onClick={handleSaveKey}
+              disabled={isDisabled || !hasChanges}
+            >
+              {isValidating || isSaving ? (
+                <>
+                  <Spinner />
+                  {isValidating ? "Validating..." : "Saving..."}
+                </>
+              ) : (
+                "Save"
+              )}
+            </Button>
+          </>
         )}
       </CardFooter>
     </Card>
