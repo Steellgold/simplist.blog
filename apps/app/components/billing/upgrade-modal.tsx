@@ -2,7 +2,7 @@
 
 import { createCheckoutSession } from "@/lib/stripe/actions";
 import { getPlan } from "@/lib/subscription/plans";
-import { Check, CircleArrowUpFill } from "@gravity-ui/icons";
+import { Check, CheckDouble, Circle, CircleArrowUpFill } from "@gravity-ui/icons";
 import { SubscriptionTier } from "@simplist/db/types";
 import { Badge } from "@simplist/ui/components/badge";
 import { Button } from "@simplist/ui/components/button";
@@ -148,7 +148,7 @@ export const UpgradeModal = ({ projectId, projectName }: UpgradeModalProps) => {
             <h4 className="text-sm font-medium">Unlock these features</h4>
 
             <div className="grid grid-cols-2 gap-1">
-              {proPlan.features.slice(0, 6).map((feature) => (
+              {proPlan.features.slice(0, 5).map((feature) => (
                 <div key={feature.name} className="flex items-center gap-1.5">
                   <Check className="text-primary size-3" />
                   <span className="text-muted-foreground text-xs">
@@ -156,6 +156,13 @@ export const UpgradeModal = ({ projectId, projectName }: UpgradeModalProps) => {
                   </span>
                 </div>
               ))}
+
+              <div className="flex items-center gap-1.5">
+                <Check className="text-primary size-3" />
+                <span className="text-muted-foreground text-xs">
+                  and many more...
+                </span>
+              </div>
             </div>
           </div>
 

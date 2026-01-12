@@ -68,6 +68,7 @@ type NavigationItem = {
   matchStrategy?: "exact" | "prefix";
   requiredPermissions?: RolePermission[];
   category: string;
+  hideForStarter?: boolean;
 };
 
 const getNavigationItems = (
@@ -145,6 +146,7 @@ const getNavigationItems = (
     href: `/${projectSlug}/settings/members`,
     requiredPermissions: ["canManageMembers"],
     category: "Settings",
+    hideForStarter: true,
   },
   {
     title: "Roles",
@@ -154,6 +156,7 @@ const getNavigationItems = (
     showProBadge: !isPro,
     requiredPermissions: ["canManageRoles"],
     category: "Settings",
+    hideForStarter: true,
   },
 ];
 
@@ -261,6 +264,10 @@ export const AppSidebar = ({
                     );
                     const userHasAccess = hasAccess(item);
                     const isDisabled = item.disabled || !userHasAccess;
+
+                    if (item.hideForStarter && !isPro) {
+                      return null;
+                    }
 
                     if (NOT_ALLOWED_HIDDEN && !userHasAccess) {
                       return null;
