@@ -67,7 +67,10 @@ export const CreateArticleButton = ({
         max={maxCount === currentCount ? -1 : maxCount}
       >
         {isCreating ? <Spinner /> : <Plus />}
-        Article <Kbd>{currentCount}/{maxCount}</Kbd>
+        Article{" "}
+        <Kbd>
+          {currentCount}/{maxCount}
+        </Kbd>
       </ProgressButton>
     );
   }

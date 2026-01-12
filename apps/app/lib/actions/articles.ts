@@ -475,17 +475,21 @@ export const createDraftArticle = async (formData: {
   }
 };
 
-type CreateDraftResult = {
-  slug: string;
-} | {
-  error: string;
-};
+type CreateDraftResult =
+  | {
+      slug: string;
+    }
+  | {
+      error: string;
+    };
 
 /**
  * Create a draft article and return its slug for redirect
  * Used by the "+ Article" button to immediately create a draft and redirect to edit page
  */
-export const createDraft = async (projectId: string): Promise<CreateDraftResult> => {
+export const createDraft = async (
+  projectId: string,
+): Promise<CreateDraftResult> => {
   try {
     const { user, membership } = await requirePermission(
       projectId,

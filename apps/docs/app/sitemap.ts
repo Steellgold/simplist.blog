@@ -11,7 +11,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const cleanHref = item.href.replace(/\/index$/, "") || "/";
 
     // Use lastModified from frontmatter or fallback to current date
-    const lastModified = item.lastModified 
+    const lastModified = item.lastModified
       ? new Date(item.lastModified)
       : new Date();
 

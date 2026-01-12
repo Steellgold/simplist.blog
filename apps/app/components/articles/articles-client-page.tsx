@@ -110,7 +110,11 @@ export const ArticlesClientPage = ({
                 maxVariantsPerItem={maxVariantsPerArticle}
               />
 
-              <CreateArticleButton projectId={project.id} projectSlug={project.slug} disabled={isAtLimit} />
+              <CreateArticleButton
+                projectId={project.id}
+                projectSlug={project.slug}
+                disabled={isAtLimit}
+              />
             </div>
           </EmptyContent>
         </Empty>

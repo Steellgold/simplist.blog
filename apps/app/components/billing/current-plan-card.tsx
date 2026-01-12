@@ -70,7 +70,10 @@ export const CurrentPlanCard = ({
             <Field orientation="responsive">
               <FieldContent>
                 <div className="flex items-center gap-2">
-                  <FieldTitle className="text-lg font-bold" style={{ fontFamily: "var(--font-syne)" }}>
+                  <FieldTitle
+                    className="text-lg font-bold"
+                    style={{ fontFamily: "var(--font-syne)" }}
+                  >
                     {currentPlan.name}
                   </FieldTitle>
                   <Badge variant="secondary">Active Plan</Badge>
@@ -99,13 +102,14 @@ export const CurrentPlanCard = ({
               <div className="grid grid-cols-3 gap-2">
                 {currentPlan.features.map((feature) => {
                   if (feature.name === "AI Features") {
-                    const aiRequestsLimit = currentPlan.limits.maxAiRequestsPerMonth;
+                    const aiRequestsLimit =
+                      currentPlan.limits.maxAiRequestsPerMonth;
 
                     return (
                       <div key={feature.name} className="flex items-center">
                         <Tooltip>
-                          <TooltipTrigger asChild >
-                            <div className="flex items-center gap-1.5 cursor-help">
+                          <TooltipTrigger asChild>
+                            <div className="flex cursor-help items-center gap-1.5">
                               <Check className="text-primary size-3" />
                               <span className="text-muted-foreground text-sm">
                                 {feature.name}
@@ -114,7 +118,8 @@ export const CurrentPlanCard = ({
                           </TooltipTrigger>
 
                           <TooltipContent>
-                            {aiRequestsLimit} requests/month + BYOK for unlimited
+                            {aiRequestsLimit} requests/month + BYOK for
+                            unlimited
                           </TooltipContent>
                         </Tooltip>
                       </div>
@@ -122,7 +127,10 @@ export const CurrentPlanCard = ({
                   }
 
                   return (
-                    <div key={feature.name} className="flex items-center gap-1.5">
+                    <div
+                      key={feature.name}
+                      className="flex items-center gap-1.5"
+                    >
                       <Check className="text-primary size-3" />
                       <span className="text-muted-foreground text-sm">
                         {feature.name}

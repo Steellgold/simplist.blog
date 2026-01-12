@@ -283,7 +283,8 @@ export const generateMetadata = async ({
   const description =
     descriptionFromFrontmatter ?? "Documentation for Simplist";
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://docs.simplist.blog";
+  const baseUrl =
+    process.env.NEXT_PUBLIC_BASE_URL || "https://docs.simplist.blog";
   const cleanHref = entry.href.replace(/\/index$/, "") || "/";
   const canonicalUrl = `${baseUrl}${cleanHref}`;
 

@@ -43,8 +43,7 @@ function InputGroup({
   className,
   orientation = "horizontal",
   ...props
-}: React.ComponentProps<"div"> &
-  VariantProps<typeof inputGroupVariants>) {
+}: React.ComponentProps<"div"> & VariantProps<typeof inputGroupVariants>) {
   return (
     <div
       data-slot="input-group"
@@ -212,7 +211,7 @@ function InputGroupSelect({
     <SelectTrigger
       data-slot="input-group-control"
       className={cn(
-        "rounded-none h-auto border-0 bg-transparent shadow-none focus-visible:ring-0 dark:bg-transparent",
+        "h-auto rounded-none border-0 bg-transparent shadow-none focus-visible:ring-0 dark:bg-transparent",
         className,
       )}
       {...props}
@@ -228,10 +227,11 @@ function InputGroupSeparator({
   // Auto-detect orientation from parent if not explicitly provided
   const parentOrientation =
     (props as any)["data-parent-orientation"] || "horizontal";
-  
+
   // If in vertical InputGroup, separator should be horizontal by default, and vice versa
   const effectiveOrientation =
-    orientation ?? (parentOrientation === "vertical" ? "horizontal" : "vertical");
+    orientation ??
+    (parentOrientation === "vertical" ? "horizontal" : "vertical");
 
   return (
     <Separator
@@ -265,7 +265,8 @@ const inputGroupToggleVariants = cva(
       size: {
         xs: "h-6 gap-1 px-2 rounded-[calc(var(--radius)-5px)] [&>svg:not([class*='size-'])]:size-3.5 has-[>svg]:px-2",
         sm: "h-8 px-2.5 gap-1.5 rounded-md has-[>svg]:px-2.5",
-        "icon-xs": "size-6 rounded-[calc(var(--radius)-5px)] p-0 has-[>svg]:p-0",
+        "icon-xs":
+          "size-6 rounded-[calc(var(--radius)-5px)] p-0 has-[>svg]:p-0",
         "icon-sm": "size-8 p-0 has-[>svg]:p-0",
       },
     },
@@ -301,6 +302,5 @@ export {
   InputGroupSeparator,
   InputGroupText,
   InputGroupTextarea,
-  inputGroupVariants
+  inputGroupVariants,
 };
-

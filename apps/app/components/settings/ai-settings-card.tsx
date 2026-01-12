@@ -133,7 +133,8 @@ export const AiSettingsCard = ({
   const aiUsagePercentage =
     initialSettings.aiRequestsLimit === -1
       ? 0
-      : (initialSettings.aiRequestsUsed / initialSettings.aiRequestsLimit) * 100;
+      : (initialSettings.aiRequestsUsed / initialSettings.aiRequestsLimit) *
+        100;
 
   // PRO users see their usage stats
   if (isPro) {
@@ -203,7 +204,8 @@ export const AiSettingsCard = ({
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">Monthly requests</span>
               <span className="font-medium">
-                {initialSettings.aiRequestsUsed} / {initialSettings.aiRequestsLimit}
+                {initialSettings.aiRequestsUsed} /{" "}
+                {initialSettings.aiRequestsLimit}
               </span>
             </div>
 
@@ -227,8 +229,8 @@ export const AiSettingsCard = ({
             {hasApiKey ? (
               <>
                 <div className="flex items-center gap-2 text-sm">
-                  <div className="bg-green-500/10 flex h-5 w-5 items-center justify-center rounded-full">
-                    <div className="bg-green-500 h-2 w-2 rounded-full" />
+                  <div className="flex h-5 w-5 items-center justify-center rounded-full bg-green-500/10">
+                    <div className="h-2 w-2 rounded-full bg-green-500" />
                   </div>
 
                   <span className="font-medium">API key configured</span>

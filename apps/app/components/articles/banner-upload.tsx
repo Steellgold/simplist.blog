@@ -32,7 +32,7 @@ import { Spinner } from "@simplist/ui/components/spinner";
 import Image from "next/image";
 import { useState } from "react";
 import { toast } from "sonner";
-  
+
 type ArticleBannerUploadProps = {
   projectId: string;
   imagePreview: string | null;

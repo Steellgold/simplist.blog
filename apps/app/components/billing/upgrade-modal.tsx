@@ -2,7 +2,12 @@
 
 import { createCheckoutSession } from "@/lib/stripe/actions";
 import { getPlan } from "@/lib/subscription/plans";
-import { Check, CheckDouble, Circle, CircleArrowUpFill } from "@gravity-ui/icons";
+import {
+  Check,
+  CheckDouble,
+  Circle,
+  CircleArrowUpFill,
+} from "@gravity-ui/icons";
 import { SubscriptionTier } from "@simplist/db/types";
 import { Badge } from "@simplist/ui/components/badge";
 import { Button } from "@simplist/ui/components/button";

@@ -83,7 +83,8 @@ export const canExecuteAiAction = (
   if (!hasRemainingQuota(subscription)) {
     return {
       allowed: false,
-      reason: "Monthly AI request limit reached. Add your API key for unlimited usage.",
+      reason:
+        "Monthly AI request limit reached. Add your API key for unlimited usage.",
     };
   }
 
