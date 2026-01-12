@@ -34,48 +34,24 @@ export const useAISmartTagSuggestions = ({
 }: AISmartTagSuggestionsProps) => {
   const [isSuggesting, setIsSuggesting] = useState(false);
   const [suggestions, setSuggestions] = useState<SuggestionData[]>([]);
-  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const isReadyRef = useRef(false);
-  const previousContentRef = useRef<string>("");
   const requestIdRef = useRef(0);
-  const lastSuggestionTimeRef = useRef<number>(0);
 
   // Track all suggestions ever made by AI (to restore them if user removes tag)
   const allAISuggestionsRef = useRef<SuggestionData[]>([]);
 
-  // Enable hook after 3 seconds (time to load the page completely)
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      isReadyRef.current = true;
-    }, 3000);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Analyze content with debounce
+  // Analyze content
   const analyzeContent = useCallback(
     async (text: string, requestId: number) => {
       if (!projectId || !text) return;
 
-      // Rate limit: 1 suggestion per minute
-      const now = Date.now();
-      const timeSinceLastSuggestion = now - lastSuggestionTimeRef.current;
-      if (timeSinceLastSuggestion < 60000) {
-        // Less than 60 seconds since last suggestion
-        const remainingSeconds = Math.ceil(
-          (60000 - timeSinceLastSuggestion) / 1000,
-        );
-        return;
-      }
-
       // Check if we can use AI
       const validation = canExecuteAiAction(subscription);
       if (!validation.allowed) {
+        toast.error(validation.reason || "AI unavailable");
         return;
       }
 
       setIsSuggesting(true);
-      lastSuggestionTimeRef.current = now;
 
       try {
         // Analyze content to see if it justifies an AI call
@@ -194,57 +170,17 @@ export const useAISmartTagSuggestions = ({
     setSuggestions(suggestionsToRestore);
   }, [tags]);
 
-  // Analyze when content changes (with debounce)
-  useEffect(() => {
-    // Skip if the hook is not ready (3s after mount)
-    if (!isReadyRef.current) {
-      previousContentRef.current = content || "";
+  // Manual trigger function for the button
+  const triggerSuggestions = useCallback(() => {
+    if (!content) {
+      toast.error("Add some content first to get tag suggestions");
       return;
     }
 
-    // Skip if the user already has tags - NEVER RE-trigger the AI
-    if (tags.length > 0) {
-      // Cancel all timers to prevent new suggestions
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
-        debounceTimerRef.current = null;
-      }
-      // DO NOT clear the existing suggestions (keep them)
-      return;
-    }
-
-    // Skip if the content has not changed
-    if (content === previousContentRef.current) {
-      return;
-    }
-
-    // Clear previous timer
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current);
-    }
-
-    if (content) {
-      // Increment the request ID to invalidate the old ones
-      requestIdRef.current += 1;
-      const currentRequestId = requestIdRef.current;
-
-      // Set new timer
-      debounceTimerRef.current = setTimeout(() => {
-        analyzeContent(content, currentRequestId);
-        previousContentRef.current = content;
-      }, 2000); // 2s debounce
-    } else {
-      setSuggestions([]);
-    }
-
-    // Cleanup on unmount
-    return () => {
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
-      }
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [content, tags.length]); // Depend on tags.length to stop the RE-suggestions
+    requestIdRef.current += 1;
+    const currentRequestId = requestIdRef.current;
+    analyzeContent(content, currentRequestId);
+  }, [content, analyzeContent]);
 
   const applySuggestion = useCallback(
     async (suggestion: SuggestionData) => {
@@ -294,6 +230,7 @@ export const useAISmartTagSuggestions = ({
 
   return {
     isSuggesting,
+    triggerSuggestions,
     applySuggestion,
     clearSuggestions,
     hasSuggestions: suggestions.length > 0,
