@@ -300,7 +300,7 @@ export const MediaDataTable = ({
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="flex items-center gap-2 px-2">
-                  <div className="bg-mute flex h-2 w-24 overflow-hidden rounded-full">
+                  <div className="bg-muted flex h-2 w-24 overflow-hidden rounded-full">
                     {storageByType.map((item) => {
                       const percentage = (item.size / storageLimit) * 100;
                       return (
@@ -334,7 +334,7 @@ export const MediaDataTable = ({
                       {item.type.toLowerCase()}
                     </span>
 
-                    <span className="text-muted-foreground">
+                    <span className="text-muted/80">
                       {formatBytes(item.size)}
                     </span>
                   </div>
