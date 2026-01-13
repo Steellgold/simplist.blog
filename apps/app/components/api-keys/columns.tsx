@@ -1,10 +1,12 @@
 "use client";
 
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
-import { TrashBin } from "@gravity-ui/icons";
+import { Check, Copy, TrashBin } from "@gravity-ui/icons";
 import { Badge } from "@simplist/ui/components/badge";
 import { Button } from "@simplist/ui/components/button";
+import { toast } from "@simplist/ui/components/sonner";
 import { ColumnDef } from "@tanstack/react-table";
+import { useState } from "react";
 
 export type ApiKey = {
   id: string;
@@ -33,6 +35,28 @@ const formatDate = (date: Date | null) => {
   });
 };
 
+const CopyKeyButton = ({ apiKey }: { apiKey: string }) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(apiKey);
+    setCopied(true);
+    toast.success("API key copied to clipboard");
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <Button
+      variant="ghost"
+      size="icon-sm"
+      onClick={handleCopy}
+      className="text-muted-foreground hover:text-foreground"
+    >
+      {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
+    </Button>
+  );
+};
+
 export const columns: ColumnDef<ApiKey>[] = [
   {
     accessorKey: "name",
@@ -44,9 +68,12 @@ export const columns: ColumnDef<ApiKey>[] = [
       return (
         <div className="space-y-1">
           <div className="font-medium">{row.getValue("name")}</div>
-          <code className="text-muted-foreground font-mono text-xs">
-            {maskKey(apiKey.key)}
-          </code>
+          <div className="flex items-center gap-1">
+            <code className="text-muted-foreground font-mono text-xs">
+              {maskKey(apiKey.key)}
+            </code>
+            <CopyKeyButton apiKey={apiKey.key} />
+          </div>
         </div>
       );
     },

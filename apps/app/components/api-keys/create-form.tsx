@@ -133,6 +133,7 @@ export const CreateApiKeyForm = ({
         reset();
         setNewApiKey(result.key);
         setIsSubmitting(false);
+        router.refresh();
         onSuccess?.();
         return "API key created successfully";
       },
