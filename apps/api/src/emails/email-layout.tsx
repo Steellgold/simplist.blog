@@ -340,23 +340,23 @@ export const EmailLayout = ({ previewText, children }: EmailLayoutProps) => {
                     © {new Date().getFullYear()} Simplist. All rights reserved.
                   </p>
                   <p style={{ margin: "0" }}>
-                    <a href="https://simplist.blog" className="footer-link">
+                    <a href="https://www.simplist.blog" className="footer-link">
                       Website
                     </a>
                     <a
-                      href="https://simplist.blog/pricing"
+                      href="https://www.simplist.blog/pricing"
                       className="footer-link"
                     >
                       Pricing
                     </a>
                     <a
-                      href="https://simplist.blog/legal/privacy"
+                      href="https://www.simplist.blog/legal/privacy"
                       className="footer-link"
                     >
                       Privacy
                     </a>
                     <a
-                      href="https://simplist.blog/legal/terms"
+                      href="https://www.simplist.blog/legal/terms"
                       className="footer-link"
                     >
                       Terms
