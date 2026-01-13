@@ -31,7 +31,7 @@ const slogan = "Blog-focused headless CMS";
 export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
   alternates: {
-    canonical: "/",
+    canonical: `${defaultUrl}/`,
   },
   title: {
     default: `Simplist - ${slogan}`,
