@@ -13,15 +13,22 @@
   "dependencies": {
     "@number-flow/react": "^0.5.10",
     "@ridemountainpig/svgl-react": "^1.0.14",
+    "@simplist.blog/sdk": "^0.0.11",
     "@simplist/limits": "workspace:*",
     "@simplist/ui": "workspace:*",
+    "@tailwindcss/typography": "^0.5.19",
     "@vercel/analytics": "^1.6.1",
     "clsx": "^2.1.1",
+    "lucide-react": "^0.562.0",
     "motion": "^12.23.26",
     "next": "16.0.10",
+    "next-mdx-remote": "^5.0.0",
     "next-themes": "^0.4.6",
+    "nuqs": "^2.8.5",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "react-shiki": "^0.9.1",
+    "shiki": "^3.20.0",
     "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {
