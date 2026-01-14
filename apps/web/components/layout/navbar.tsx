@@ -23,11 +23,11 @@ const navLinks = [
     label: "Documentation",
     external: true,
   },
-  {
-    href: "/posts",
-    label: "Posts",
-    external: false
-  }
+  // {
+  //   href: "/posts",
+  //   label: "Posts",
+  //   external: false
+  // }
 ];
 
 export const Navbar: FC<NavbarProps> = ({ sticky = true }) => {
