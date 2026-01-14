@@ -1,3 +1,4 @@
+import { IconThemed } from "@simplist/ui/components/icon-themed";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -13,5 +14,14 @@ export const SimplistIcon = () => {
         priority
       />
     </Link>
+  );
+};
+
+export const SimplistIconThemed = () => {
+  return (
+    <IconThemed
+      light={<SimplistIcon />}
+      dark={<SimplistIcon />}
+    />
   );
 };

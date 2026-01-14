@@ -5,6 +5,7 @@ import { Toaster } from "@simplist/ui/components/sonner";
 import "@simplist/ui/globals.css";
 import type { Metadata } from "next";
 import { Geist_Mono, Nunito, Syne } from "next/font/google";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { type FC, type ReactNode } from "react";
 
 const nunito = Nunito({
@@ -113,13 +114,15 @@ const RootLayout: FC<{ children: ReactNode }> = ({ children }) => {
       <body
         className={`${nunito.variable} ${syne.variable} ${geistMono.variable} overflow-x-hidden antialiased`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          disableTransitionOnChange
-        >
-          <ObserverProvider>{children}</ObserverProvider>
-        </ThemeProvider>
+        <NuqsAdapter>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            disableTransitionOnChange
+          >
+            <ObserverProvider>{children}</ObserverProvider>
+          </ThemeProvider>
+        </NuqsAdapter>
 
         <Toaster />
         <Analytics />
