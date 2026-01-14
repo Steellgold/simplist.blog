@@ -22,6 +22,13 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  images: {
+    remotePatterns: [
+      { protocol: "https", hostname: "cdn.simplist.blog" },
+      { protocol: "https", hostname: "*.r2.cloudflarestorage.com" },
+      { protocol: "https", hostname: "avatars.githubusercontent.com" },
+    ]
+  }
 };
 
 export default withBundleAnalyzer(nextConfig);
