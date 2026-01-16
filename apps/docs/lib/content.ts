@@ -146,12 +146,25 @@ const buildManifest = (): DocEntry[] => {
   return manifest;
 };
 
-const DOCS_MANIFEST = buildManifest();
-const DOCS_MANIFEST_BY_SLUG = new Map(
+const IS_DEV = process.env.NODE_ENV === "development";
+
+let DOCS_MANIFEST = buildManifest();
+let DOCS_MANIFEST_BY_SLUG = new Map(
   DOCS_MANIFEST.map((entry) => [entry.slug.join("/"), entry]),
 );
 
+const rebuildManifestInDev = () => {
+  if (IS_DEV) {
+    DOCS_MANIFEST = buildManifest();
+    DOCS_MANIFEST_BY_SLUG = new Map(
+      DOCS_MANIFEST.map((entry) => [entry.slug.join("/"), entry]),
+    );
+  }
+};
+
 export const getDocEntry = (slug: string[]): DocEntry | null => {
+  rebuildManifestInDev();
+
   const key = normalizeSlug(slug).join("/");
   return DOCS_MANIFEST_BY_SLUG.get(key) ?? null;
 };
@@ -167,6 +180,8 @@ export const getMdxFrontmatter = async (
 };
 
 export const getDocsNavItems = async (): Promise<DocNavItem[]> => {
+  rebuildManifestInDev();
+
   const items = DOCS_MANIFEST.map((entry) => ({
     title:
       entry.frontmatter.title ??
