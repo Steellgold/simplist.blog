@@ -59,9 +59,102 @@ export const formatVariants = (
   return formattedVariants;
 };
 
+// Field selection configuration
+export interface ArticleFieldSelection {
+  // Content fields
+  content?: boolean;
+  excerpt?: boolean;
+  coverImage?: boolean;
+
+  // Metadata fields
+  title?: boolean;
+  slug?: boolean;
+  published?: boolean;
+  status?: boolean;
+  viewCount?: boolean;
+
+  // Statistics fields
+  wordCount?: boolean;
+  characterCount?: boolean;
+  lineCount?: boolean;
+  readTimeMinutes?: boolean;
+
+  // Relations
+  author?: boolean;
+  lastUpdatedBy?: boolean;
+  tags?: boolean;
+  variants?: boolean;
+  project?: boolean;
+
+  // Tag-specific fields
+  tagColor?: boolean;
+  tagIcon?: boolean;
+
+  // Timestamps
+  createdAt?: boolean;
+  updatedAt?: boolean;
+  publishedAt?: boolean;
+}
+
+// Helper to filter article fields based on selection
+const filterArticleFields = (
+  article: FormattedArticle,
+  selection?: ArticleFieldSelection,
+): FormattedArticle => {
+  // If no selection provided, return all fields (default behavior)
+  if (!selection) {
+    return article;
+  }
+
+  const filtered: Partial<FormattedArticle> = {
+    // ID is always included
+    id: article.id,
+  };
+
+  // Content fields
+  if (selection.content !== false) filtered.content = article.content;
+  if (selection.excerpt !== false) filtered.excerpt = article.excerpt;
+  if (selection.coverImage !== false) filtered.coverImage = article.coverImage;
+
+  // Metadata fields
+  if (selection.title !== false) filtered.title = article.title;
+  if (selection.slug !== false) filtered.slug = article.slug;
+  if (selection.published !== false) filtered.published = article.published;
+  if (selection.status !== false) filtered.status = article.status;
+  if (selection.viewCount !== false) filtered.viewCount = article.viewCount;
+
+  // Statistics fields
+  if (selection.wordCount !== false) filtered.wordCount = article.wordCount;
+  if (selection.characterCount !== false)
+    filtered.characterCount = article.characterCount;
+  if (selection.lineCount !== false) filtered.lineCount = article.lineCount;
+  if (selection.readTimeMinutes !== false)
+    filtered.readTimeMinutes = article.readTimeMinutes;
+
+  // Relations
+  if (selection.author !== false) filtered.author = article.author;
+  if (selection.lastUpdatedBy !== false)
+    filtered.lastUpdatedBy = article.lastUpdatedBy;
+  if (selection.tags !== false) filtered.tags = article.tags;
+  if (selection.variants !== false) filtered.variants = article.variants;
+  if (selection.project !== false) filtered.project = article.project;
+
+  // Timestamps
+  if (selection.createdAt !== false) filtered.createdAt = article.createdAt;
+  if (selection.updatedAt !== false) filtered.updatedAt = article.updatedAt;
+  if (selection.publishedAt !== false)
+    filtered.publishedAt = article.publishedAt;
+
+  // Language field
+  if (article.lang !== undefined) filtered.lang = article.lang;
+
+  return filtered as FormattedArticle;
+};
+
 // Format article for API response
 export const formatArticle = (
   article: ArticleWithRelationsAndAuthor | CachedArticleType,
+  selection?: ArticleFieldSelection,
 ): FormattedArticle => {
   // Format variants as key-value map if present
   const formattedVariants =
@@ -70,15 +163,23 @@ export const formatArticle = (
       : undefined;
 
   // Format tags if present - convert color enum to hex
+  // Handle tag field filtering based on selection
+  const includeTagColor = selection?.tagColor !== false;
+  const includeTagIcon = selection?.tagIcon !== false;
+
   const formattedTags =
     article.tags && Array.isArray(article.tags)
       ? article.tags.map((tag: TagFlexible) => ({
           name: tag.name,
-          color:
-            tag.color !== undefined && tag.color !== null
-              ? getColorHex(tag.color)
-              : null,
-          icon: tag.icon !== undefined ? tag.icon : null,
+          ...(includeTagColor && {
+            color:
+              tag.color !== undefined && tag.color !== null
+                ? getColorHex(tag.color)
+                : null,
+          }),
+          ...(includeTagIcon && {
+            icon: tag.icon !== undefined ? tag.icon : null,
+          }),
         }))
       : undefined;
 
@@ -91,7 +192,8 @@ export const formatArticle = (
     tags: formattedTags,
   };
 
-  return formatted;
+  // Apply field filtering
+  return filterArticleFields(formatted, selection);
 };
 
 // Format project for API response

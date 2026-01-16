@@ -24,7 +24,7 @@ export class ArticlesResource {
    */
   async get(
     slug: string,
-    options?: { optionalFields?: ArticleOptionalFields },
+    options?: { select?: ArticleOptionalFields },
   ): Promise<ApiResponse<Article>> {
     return this.http.get<ApiResponse<Article>>(
       `/articles/${encodeURIComponent(slug)}`,

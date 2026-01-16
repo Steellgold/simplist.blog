@@ -5,6 +5,43 @@ All notable changes to the @simplist.blog/sdk package will be documented in this
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.12] - 2026-01-16
+
+### Added
+
+- **Field Selection API**: New `select` parameter for customizing article response fields
+  - Allows excluding heavy fields like `content` and `variants` to reduce payload size
+  - Enables including optional tag metadata (`tagColor`, `tagIcon`)
+  - Available in both `client.articles.list()` and `client.articles.get()`
+  - Fully customizable: include/exclude any article field individually
+- **ArticleSelectFields** type with comprehensive field options:
+  - Content fields: `content`, `excerpt`, `coverImage`
+  - Metadata: `title`, `slug`, `published`, `status`, `viewCount`
+  - Relations: `author`, `lastUpdatedBy`, `tags`, `variants`, `project`
+  - Tag fields: `tagColor`, `tagIcon`
+  - Statistics: `wordCount`, `characterCount`, `readTimeMinutes`
+  - Timestamps: `createdAt`, `updatedAt`, `publishedAt`
+
+### Changed
+
+- **API**: Updated `GET /v1/articles` and `GET /v1/articles/:slug` to support field selection via `select` query parameter
+- **SDK**: Replaced `optionalFields` with `select` parameter (backwards compatible via type alias)
+- **HttpClient**: Enhanced to serialize `select` parameter as JSON
+- **Format utility**: Added field filtering logic while maintaining backwards compatibility
+
+### Improved
+
+- **Performance**: List endpoints can now return significantly lighter payloads by excluding `content` field
+- **Flexibility**: Clients can optimize response size based on their specific needs
+- **Documentation**: Added comprehensive field selection examples in SDK and API docs
+- **RSS Feed**: Continues to include full content (unchanged, as required by RSS spec)
+
+### Backwards Compatibility
+
+- Without `select` parameter: All fields included by default (existing behavior)
+- `optionalFields` remains supported as a legacy alias for `select`
+- No breaking changes to existing API or SDK usage
+
 ## [0.0.11] - 2025-12-21
 
 ### Fixed

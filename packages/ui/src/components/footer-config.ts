@@ -14,12 +14,12 @@ export const defaultFooterSections: FooterSection[] = [
     title: "Product",
     links: [
       {
-        href: "https://simplist.blog#features",
+        href: "https://www.simplist.blog#features",
         label: "Features",
         external: true,
       },
       {
-        href: "https://simplist.blog#pricing",
+        href: "https://www.simplist.blog#pricing",
         label: "Pricing",
         external: true,
       },
@@ -33,15 +33,24 @@ export const defaultFooterSections: FooterSection[] = [
   {
     title: "Legal",
     links: [
-      { href: "https://simplist.blog/legal/terms", label: "Terms of Service" },
-      { href: "https://simplist.blog/legal/privacy", label: "Privacy Policy" },
-      { href: "https://simplist.blog/legal/cookies", label: "Cookie Policy" },
       {
-        href: "https://simplist.blog/legal/gdpr",
+        href: "https://www.simplist.blog/legal/terms",
+        label: "Terms of Service",
+      },
+      {
+        href: "https://www.simplist.blog/legal/privacy",
+        label: "Privacy Policy",
+      },
+      {
+        href: "https://www.simplist.blog/legal/cookies",
+        label: "Cookie Policy",
+      },
+      {
+        href: "https://www.simplist.blog/legal/gdpr",
         label: "GDPR & Data Protection",
       },
       {
-        href: "https://simplist.blog/legal/legal-notice",
+        href: "https://www.simplist.blog/legal/legal-notice",
         label: "Legal Notice",
       },
     ],

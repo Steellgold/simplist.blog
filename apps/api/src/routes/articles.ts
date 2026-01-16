@@ -46,6 +46,23 @@ const articlesRoutes: FastifyPluginAsync = async (fastify) => {
     const status = query.status;
     const projectId = request.apiKey!.projectId;
 
+    // Parse field selection (select parameter)
+    let fieldSelection: Record<string, boolean> | undefined;
+    if (query.select) {
+      try {
+        fieldSelection =
+          typeof query.select === "string"
+            ? JSON.parse(query.select)
+            : query.select;
+      } catch (error) {
+        return reply.code(400).send({
+          error: "Bad Request",
+          message: "Invalid select parameter format. Expected JSON object.",
+          statusCode: 400,
+        });
+      }
+    }
+
     // Parse tag filters
     const tags = query.tags
       ? Array.isArray(query.tags)
@@ -89,7 +106,7 @@ const articlesRoutes: FastifyPluginAsync = async (fastify) => {
 
         // Format cached articles (converts variants array to object)
         const formattedArticles = cachedArticles.map((article) =>
-          formatArticle(article as any),
+          formatArticle(article as any, fieldSelection),
         );
 
         // Calculate pagination meta (we need total count which might not be cached)
@@ -188,7 +205,7 @@ const articlesRoutes: FastifyPluginAsync = async (fastify) => {
 
       const totalPages = Math.ceil(total / limit);
       const formattedArticles = articles.map((article) =>
-        formatArticle(article),
+        formatArticle(article, fieldSelection),
       );
 
       // Cache the articles list (async, don't wait)
@@ -245,6 +262,23 @@ const articlesRoutes: FastifyPluginAsync = async (fastify) => {
       const { includeSeo = false, baseUrl } = query;
       const projectId = request.apiKey!.projectId;
 
+      // Parse field selection (select parameter)
+      let fieldSelection: Record<string, boolean> | undefined;
+      if (query.select) {
+        try {
+          fieldSelection =
+            typeof query.select === "string"
+              ? JSON.parse(query.select)
+              : query.select;
+        } catch (error) {
+          return reply.code(400).send({
+            error: "Bad Request",
+            message: "Invalid select parameter format. Expected JSON object.",
+            statusCode: 400,
+          });
+        }
+      }
+
       try {
         // Try to get from cache first
         const cachedArticle = await getCachedArticle(projectId, slug);
@@ -253,7 +287,7 @@ const articlesRoutes: FastifyPluginAsync = async (fastify) => {
             `Cache hit for article ${slug} (project: ${projectId})`,
           );
 
-          let responseData = formatArticle(cachedArticle);
+          let responseData = formatArticle(cachedArticle, fieldSelection);
 
           // Add SEO metadata if requested
           if (includeSeo) {
@@ -322,7 +356,7 @@ const articlesRoutes: FastifyPluginAsync = async (fastify) => {
           fastify.log.error(err, "Failed to cache article"),
         );
 
-        let responseData = formatArticle(article);
+        let responseData = formatArticle(article, fieldSelection);
 
         // Add SEO metadata if requested
         if (includeSeo && "project" in article && article.project) {

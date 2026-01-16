@@ -4,9 +4,9 @@ import type { CachedArticleType, CachedArticleListItemType } from "@/types";
 const redis = getRedis();
 
 /**
- * Cache TTL in seconds (5 minutes)
+ * Cache TTL in seconds (2.5 minutes)
  */
-const CACHE_TTL = 5 * 60;
+const CACHE_TTL = 2.5 * 60;
 
 /**
  * Internal: key storing the current cache "version" for a project.

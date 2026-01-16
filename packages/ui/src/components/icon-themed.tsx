@@ -1,7 +1,7 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { ReactElement, useEffect, useState } from "react";
+import { FC, ReactElement, useEffect, useState } from "react";
 
 interface IconThemedProps {
   light: ReactElement;
@@ -9,7 +9,7 @@ interface IconThemedProps {
   className?: string;
 }
 
-export function IconThemed({ light, dark, className }: IconThemedProps) {
+export const IconThemed: FC<IconThemedProps> = ({ light, dark, className }) => {
   const { theme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -27,4 +27,4 @@ export function IconThemed({ light, dark, className }: IconThemedProps) {
   const isDark = currentTheme === "dark";
 
   return <span className={className}>{isDark ? dark : light}</span>;
-}
+};

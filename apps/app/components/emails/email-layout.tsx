@@ -356,7 +356,7 @@ export const EmailLayout = ({ previewText, children }: EmailLayoutProps) => {
                       Privacy
                     </a>
                     <a
-                      href="https://simplist.blog/legal/terms"
+                      href="https://www.simplist.blog/legal/terms"
                       className="footer-link"
                     >
                       Terms

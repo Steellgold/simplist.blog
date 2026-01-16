@@ -64,6 +64,12 @@ Retrieve a list of articles from your Simplist project with pagination, filterin
       description: "Filter by status: draft | published",
     },
     {
+      name: "select",
+      type: "string",
+      required: false,
+      description: 'JSON object to customize fields (e.g., {"content":false})',
+    },
+    {
       name: "tags",
       type: "string[]",
       required: false,
@@ -123,6 +129,12 @@ Retrieve a list of articles from your Simplist project with pagination, filterin
       description: "Search in title and content",
     },
     { name: "status", type: "string", description: "Filter by article status" },
+    {
+      name: "select",
+      type: "string",
+      description:
+        'JSON string to customize response fields (e.g., {"content":false,"variants":false})',
+    },
     {
       name: "tags",
       type: "string[]",
@@ -219,7 +231,7 @@ Returns an array of `ArticleListItem` objects (articles without full content).
 />
 
 <CodeBlock language="json">
-{`
+  {`
   {
     "data": [
       {
@@ -297,6 +309,47 @@ You can combine multiple tag filters for complex queries:
   }}
 />
 
+---
+
+## Field Selection
+
+Customize which fields are included in the response to optimize payload size. Pass a JSON object with field names set to `true` (include) or `false` (exclude).
+
+### Exclude Heavy Fields
+
+<CurlCommand
+  method="GET"
+  url='https://api.simplist.blog/v1/articles?select={"content":false,"variants":false}'
+  headers={{
+    "X-API-Key": "YOUR_API_KEY",
+  }}
+/>
+
+This excludes the `content` and `variants` fields from the response, resulting in a much lighter payload perfect for listing pages.
+
+### Include Tag Metadata
+
+<CurlCommand
+  method="GET"
+  url='https://api.simplist.blog/v1/articles?select={"tagColor":true,"tagIcon":true}'
+  headers={{
+    "X-API-Key": "YOUR_API_KEY",
+  }}
+/>
+
+This includes tag color hex codes and icon names in the response.
+
+**Available fields:**
+
+- `content`, `excerpt`, `coverImage` - Content fields
+- `title`, `slug`, `published`, `status`, `viewCount` - Metadata
+- `author`, `lastUpdatedBy`, `tags`, `variants`, `project` - Relations
+- `tagColor`, `tagIcon` - Tag-specific fields
+- `wordCount`, `characterCount`, `readTimeMinutes` - Statistics
+- `createdAt`, `updatedAt`, `publishedAt` - Timestamps
+
+---
+
 ## SDK Equivalent
 
 If you're using TypeScript/JavaScript, you can use the SDK instead: [client.articles.list()](/sdk/articles#list)
@@ -307,4 +360,9 @@ If you're using TypeScript/JavaScript, you can use the SDK instead: [client.arti
   all available tags
 - <InlineRouteLink method="GET" path="/v1/tags/:name" href="/api/get-tag" /> -
   Get a specific tag
-- <InlineRouteLink method="GET" path="/v1/articles/:slug" href="/api/get-article" /> - Get a single article
+- <InlineRouteLink
+    method="GET"
+    path="/v1/articles/:slug"
+    href="/api/get-article"
+  />
+  - Get a single article

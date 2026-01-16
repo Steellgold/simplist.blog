@@ -63,13 +63,15 @@ export interface ArticlesListQuery {
   tags?: string | string[];
   tagsAll?: string | string[];
   excludeTags?: string | string[];
-  optionalFields?: string;
+  optionalFields?: string; // Legacy support
+  select?: string | Record<string, boolean>;
 }
 
 export interface ArticleBySlugQuery {
   includeSeo?: boolean;
   baseUrl?: string;
-  optionalFields?: string;
+  optionalFields?: string; // Legacy support
+  select?: string | Record<string, boolean>;
 }
 
 export interface TagsListQuery {

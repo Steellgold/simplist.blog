@@ -108,11 +108,45 @@ export interface ProjectInfo {
   stats: ProjectStats;
 }
 
-// Optional fields configuration
-export type ArticleOptionalFields = {
+// Optional fields configuration for articles
+export type ArticleSelectFields = {
+  // Content fields
+  content?: boolean;
+  excerpt?: boolean;
+  coverImage?: boolean;
+
+  // Metadata fields
+  title?: boolean;
+  slug?: boolean;
+  published?: boolean;
+  status?: boolean;
+  viewCount?: boolean;
+
+  // Statistics fields
+  wordCount?: boolean;
+  characterCount?: boolean;
+  lineCount?: boolean;
+  readTimeMinutes?: boolean;
+
+  // Relations
+  author?: boolean;
+  lastUpdatedBy?: boolean;
+  tags?: boolean;
+  variants?: boolean;
+  project?: boolean;
+
+  // Tag-specific fields (only applies if tags are included)
   tagColor?: boolean;
   tagIcon?: boolean;
+
+  // Timestamps
+  createdAt?: boolean;
+  updatedAt?: boolean;
+  publishedAt?: boolean;
 };
+
+// Legacy alias for backwards compatibility
+export type ArticleOptionalFields = ArticleSelectFields;
 
 // Query parameters
 export interface ArticleListParams {
@@ -123,7 +157,7 @@ export interface ArticleListParams {
   published?: boolean;
   search?: string;
   status?: "draft" | "published";
-  optionalFields?: ArticleOptionalFields;
+  select?: ArticleSelectFields;
   // Tag filters
   tags?: string[]; // OR logic: at least one tag
   tagsAll?: string[]; // AND logic: all tags required
