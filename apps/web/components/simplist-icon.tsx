@@ -18,10 +18,5 @@ export const SimplistIcon = () => {
 };
 
 export const SimplistIconThemed = () => {
-  return (
-    <IconThemed
-      light={<SimplistIcon />}
-      dark={<SimplistIcon />}
-    />
-  );
+  return <IconThemed light={<SimplistIcon />} dark={<SimplistIcon />} />;
 };

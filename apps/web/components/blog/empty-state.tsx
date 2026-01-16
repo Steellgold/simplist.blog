@@ -37,7 +37,10 @@ export const EmptyState: FC<EmptyStateProps> = ({
 
       {(actionLabel && actionHref) || onAction ? (
         actionHref ? (
-          <Link className={buttonVariants({ variant: "default" })} href={actionHref as string}>
+          <Link
+            className={buttonVariants({ variant: "default" })}
+            href={actionHref as string}
+          >
             {actionLabel}
           </Link>
         ) : (

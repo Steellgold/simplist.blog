@@ -3,7 +3,11 @@ import { Article, ArticleVariant } from "@simplist.blog/sdk";
 import Image from "next/image";
 import { FC } from "react";
 
-export const ArticleContentSection: FC<Article | ArticleVariant> = ({ content, coverImage, title }) => {
+export const ArticleContentSection: FC<Article | ArticleVariant> = ({
+  content,
+  coverImage,
+  title,
+}) => {
   return (
     <div className="space-y-12 px-4">
       <div className="mx-auto max-w-4xl">

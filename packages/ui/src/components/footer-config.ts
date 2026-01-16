@@ -33,9 +33,18 @@ export const defaultFooterSections: FooterSection[] = [
   {
     title: "Legal",
     links: [
-      { href: "https://www.simplist.blog/legal/terms", label: "Terms of Service" },
-      { href: "https://www.simplist.blog/legal/privacy", label: "Privacy Policy" },
-      { href: "https://www.simplist.blog/legal/cookies", label: "Cookie Policy" },
+      {
+        href: "https://www.simplist.blog/legal/terms",
+        label: "Terms of Service",
+      },
+      {
+        href: "https://www.simplist.blog/legal/privacy",
+        label: "Privacy Policy",
+      },
+      {
+        href: "https://www.simplist.blog/legal/cookies",
+        label: "Cookie Policy",
+      },
       {
         href: "https://www.simplist.blog/legal/gdpr",
         label: "GDPR & Data Protection",

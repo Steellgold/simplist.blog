@@ -59,7 +59,9 @@ export const DeleteArticleButton = ({
 
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
-      <AlertDialogTrigger className={buttonVariants({ variant, size, className })}>
+      <AlertDialogTrigger
+        className={buttonVariants({ variant, size, className })}
+      >
         <TrashBin />
         Delete
       </AlertDialogTrigger>
@@ -69,7 +71,7 @@ export const DeleteArticleButton = ({
           <AlertDialogDescription>
             This will permanently delete the article{" "}
             <span className="text-foreground font-semibold">
-            &quot;{articleTitle}&quot;
+              &quot;{articleTitle}&quot;
             </span>
             . This action cannot be undone.
           </AlertDialogDescription>

@@ -256,7 +256,7 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({
     {
       delay: 2000,
       // Only auto-save drafts if title and excerpt are not empty and status is draft
-      enabled: status === "draft" && title.length > 0 && excerpt.length > 0
+      enabled: status === "draft" && title.length > 0 && excerpt.length > 0,
     },
   );
 

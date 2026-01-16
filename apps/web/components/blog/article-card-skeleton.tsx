@@ -6,7 +6,5 @@ type Props = {
 };
 
 export function ArticleCardSkeleton({ className }: Props) {
-  return (
-    <Skeleton className="h-[550px] w-full rounded-2xl" />
-  );
+  return <Skeleton className="h-[550px] w-full rounded-2xl" />;
 }

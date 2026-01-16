@@ -2,7 +2,11 @@ import { Article } from "@simplist.blog/sdk";
 import Image from "next/image";
 import { FC } from "react";
 
-export const ArticleFooterSection: FC<Article> = ({ author, publishedAt, createdAt }) => {
+export const ArticleFooterSection: FC<Article> = ({
+  author,
+  publishedAt,
+  createdAt,
+}) => {
   return (
     <footer className="px-4">
       <div className="mx-auto max-w-4xl border-t pt-8">

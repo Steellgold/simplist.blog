@@ -14,8 +14,14 @@ type ArticlePageClientProps = {
   slug: string;
 };
 
-export const ArticlePageClient: FC<ArticlePageClientProps> = ({ article, slug }) => {
-  const variant = useMemo(() => getBestMatchingVariant(article, detectUserLanguage()), [article]);
+export const ArticlePageClient: FC<ArticlePageClientProps> = ({
+  article,
+  slug,
+}) => {
+  const variant = useMemo(
+    () => getBestMatchingVariant(article, detectUserLanguage()),
+    [article],
+  );
 
   return (
     <>
@@ -28,10 +34,7 @@ export const ArticlePageClient: FC<ArticlePageClientProps> = ({ article, slug })
 
       <article className="space-y-12 py-8" lang={variant.lang}>
         <SectionWrapper>
-          <ArticleHeaderSection
-            {...article}
-            {...variant}
-          />
+          <ArticleHeaderSection {...article} {...variant} />
         </SectionWrapper>
 
         <SectionWrapper>
@@ -44,4 +47,4 @@ export const ArticlePageClient: FC<ArticlePageClientProps> = ({ article, slug })
       </article>
     </>
   );
-}
+};

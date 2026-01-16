@@ -22,7 +22,6 @@ export const HeroSection = () => {
     <section className="relative overflow-hidden px-4 py-12 md:py-32 lg:py-24">
       <div className="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
         <div className="space-y-8 text-center lg:text-left">
-
           <div className="space-y-4">
             <h1
               className="text-4xl font-semibold tracking-tight md:text-5xl lg:text-6xl"
@@ -33,7 +32,8 @@ export const HeroSection = () => {
             </h1>
 
             <p className="text-muted-foreground mx-auto max-w-xl text-lg md:text-xl lg:mx-0">
-              The developer-first headless CMS. Create articles, fetch them via API, done.
+              The developer-first headless CMS. Create articles, fetch them via
+              API, done.
             </p>
           </div>
 

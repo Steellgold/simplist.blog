@@ -88,6 +88,6 @@ const ArticleLoading = () => {
       </SectionWrapper>
     </article>
   );
-}
+};
 
 export default ArticleLoading;

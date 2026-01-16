@@ -12,4 +12,4 @@ export const ArticleContent: FC<Props> = async ({ content }) => {
       <MDXRemote source={content} components={mdxComponents} />
     </div>
   );
-}
+};

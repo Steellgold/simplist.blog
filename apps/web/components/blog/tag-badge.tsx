@@ -18,10 +18,10 @@ export const TagBadge: FC<Props> = ({ tag, size = "default" }) => {
       variant="secondary"
       className={cn(
         "flex items-center gap-1.5",
-        size === "sm" ? "text-xs" : ""
+        size === "sm" ? "text-xs" : "",
       )}
     >
       {tag.name}
     </Badge>
   );
-}
+};

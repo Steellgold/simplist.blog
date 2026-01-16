@@ -1,21 +1,28 @@
 import { TagBadge } from "@/components/blog/tag-badge";
 import { Clock, Minus } from "@gravity-ui/icons";
 import { Tag, Article } from "@simplist.blog/sdk";
-import { Avatar, AvatarFallback, AvatarImage } from "@simplist/ui/components/avatar";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@simplist/ui/components/avatar";
 import { FC } from "react";
 
 export const ArticleHeaderSection: FC<Article> = ({
-  title, excerpt,
+  title,
+  excerpt,
   author,
-  publishedAt, createdAt,
-  readTimeMinutes, tags,
+  publishedAt,
+  createdAt,
+  readTimeMinutes,
+  tags,
 }) => {
   return (
     <header className="px-4">
       <div className="mx-auto max-w-4xl space-y-2 py-8">
         <div className="mb-5.5">
           {tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-5.5">
+            <div className="mb-5.5 flex flex-wrap gap-2">
               {tags.map((tag) => (
                 <TagBadge key={tag.name} tag={tag} size="default" />
               ))}
@@ -30,7 +37,7 @@ export const ArticleHeaderSection: FC<Article> = ({
           </h1>
 
           {excerpt && (
-            <p className="text-muted-foreground text-xl leading-relaxed text-pretty md:text-1xl">
+            <p className="text-muted-foreground md:text-1xl text-xl leading-relaxed text-pretty">
               {excerpt}
             </p>
           )}
@@ -58,7 +65,7 @@ export const ArticleHeaderSection: FC<Article> = ({
             <span className="font-medium">{author.name}</span>
           </div>
 
-          <Minus className="size-3.5 text-muted-foreground -rotate-45" />
+          <Minus className="text-muted-foreground size-3.5 -rotate-45" />
 
           <div className="text-muted-foreground flex items-center gap-1.5">
             <Clock className="size-3.5" />
@@ -74,7 +81,7 @@ export const ArticleHeaderSection: FC<Article> = ({
 
           {readTimeMinutes > 0 && (
             <>
-              <Minus className="size-3.5 text-muted-foreground -rotate-45" />
+              <Minus className="text-muted-foreground size-3.5 -rotate-45" />
 
               <span className="text-muted-foreground">
                 {readTimeMinutes} min read

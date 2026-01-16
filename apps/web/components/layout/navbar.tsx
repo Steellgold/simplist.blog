@@ -41,7 +41,7 @@ export const Navbar: FC<NavbarProps> = ({ sticky = true }) => {
         className={cn(
           "mx-auto max-w-4xl",
           "rounded-2xl border border-white/10",
-          "bg-black/5 dark:bg-background/35 backdrop-blur-xl",
+          "dark:bg-background/35 bg-black/5 backdrop-blur-xl",
         )}
       >
         <div className="flex h-14 items-center justify-between px-5">
