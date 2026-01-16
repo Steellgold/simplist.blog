@@ -106,9 +106,9 @@ Retrieve a paginated list of articles with filtering and sorting options.
       description: "Filter by status",
     },
     {
-      name: "optionalFields",
-      type: "ArticleOptionalFields",
-      description: "Request optional tag fields (color, icon)",
+      name: "select",
+      type: "ArticleSelectFields",
+      description: "Customize which fields to include/exclude in response",
     },
     {
       name: "tags",
@@ -130,20 +130,59 @@ Retrieve a paginated list of articles with filtering and sorting options.
 
 ### Example
 
-<CodeBlock tabs={[
-  {
-    label: 'Basic list',
-    language: 'typescript',
-    code: `const { data, meta } = await client.articles.list({
+<CodeBlock
+  tabs={[
+    {
+      label: "Basic list",
+      language: "typescript",
+      code: `const { data, meta } = await client.articles.list({
     page: 1,
     limit: 20,
     sort: 'createdAt',
     order: 'desc',
     published: true
   })`,
-  },
-  { label: 'With optional tag fields', code: `const { data: articlesWithTags } = await client.articles.list({
-    optionalFields: {
+    },
+    {
+      label: "Exclude content",
+      language: "typescript",
+      code: `// Get articles without full content (lighter response)
+  const { data: articles } = await client.articles.list({
+    select: {
+      content: false, // Exclude heavy content field
+      excerpt: true,  // Keep excerpt
+      title: true,
+      tags: true
+    }
+  })
+
+console.log(articles[0].title) // ✓ Available
+console.log(articles[0].excerpt) // ✓ Available
+console.log(articles[0].content) // undefined - excluded`,
+    },
+    {
+      label: "Minimal fields",
+      language: "typescript",
+      code: `// Only get essential fields for a lightweight response
+  const { data: lightArticles } = await client.articles.list({
+    select: {
+      title: true,
+      slug: true,
+      excerpt: true,
+      publishedAt: true,
+      // All other fields excluded by default when using select
+      content: false,
+      author: false,
+      tags: false,
+      variants: false
+    }
+  })`,
+    },
+    {
+      label: "With tag customization",
+      code: `const { data: articlesWithTags } = await client.articles.list({
+    select: {
+      content: false, // Exclude content
       tagColor: true, // Include hex color codes
       tagIcon: true // Include icon names
     }
@@ -228,6 +267,139 @@ Combine multiple tag filters for complex queries:
 
 ---
 
+## Field Selection
+
+Control which fields are included in the response to optimize payload size and performance.
+
+### Excluding Heavy Fields
+
+By default, articles include all fields including the full `content`. Use `select` to exclude heavy fields:
+
+<CodeBlock language="tsx">
+{`
+  // Exclude content for list views (lighter response)
+  const { data: articles } = await client.articles.list({
+    select: {
+      content: false, // Exclude content
+      variants: false // Exclude translations
+    },
+    published: true,
+    limit: 20
+  })
+
+  // Perfect for blog listing pages where you only need title and excerpt
+  articles.forEach(article => {
+    console.log(article.title) // ✓ Available
+    console.log(article.excerpt) // ✓ Available
+    console.log(article.content) // undefined
+  })
+`}
+
+</CodeBlock>
+
+### Including Only Specific Fields
+
+Set fields to `true` to explicitly include them (especially useful with tag metadata):
+
+<CodeBlock language="tsx">
+{`
+  // Get articles with tag colors and icons
+  const { data: articlesWithTags } = await client.articles.list({
+    select: {
+      tagColor: true, // Include tag hex colors
+      tagIcon: true   // Include tag icons
+    }
+  })
+
+  articlesWithTags[0].tags.forEach(tag => {
+    console.log(\`\${tag.name}: \${tag.color} (\${tag.icon})\`)
+  })
+  // Output: "React: #61DAFB (react)"
+`}
+
+</CodeBlock>
+
+### Available Fields
+
+<TypeTable
+  title="ArticleSelectFields"
+  properties={[
+    {
+      name: "content",
+      type: "boolean",
+      description: "Full article content (can be large)",
+    },
+    { name: "excerpt", type: "boolean", description: "Article summary" },
+    { name: "coverImage", type: "boolean", description: "Cover image URL" },
+    { name: "title", type: "boolean", description: "Article title" },
+    { name: "slug", type: "boolean", description: "URL-friendly identifier" },
+    { name: "author", type: "boolean", description: "Author information" },
+    {
+      name: "lastUpdatedBy",
+      type: "boolean",
+      description: "Last editor information",
+    },
+    { name: "tags", type: "boolean", description: "Associated tags" },
+    {
+      name: "variants",
+      type: "boolean",
+      description: "Translations (can be large)",
+    },
+    {
+      name: "tagColor",
+      type: "boolean",
+      description: "Include tag hex colors",
+    },
+    { name: "tagIcon", type: "boolean", description: "Include tag icon names" },
+    { name: "published", type: "boolean", description: "Publication status" },
+    { name: "viewCount", type: "boolean", description: "Number of views" },
+    { name: "wordCount", type: "boolean", description: "Word count" },
+    {
+      name: "readTimeMinutes",
+      type: "boolean",
+      description: "Estimated reading time",
+    },
+    { name: "createdAt", type: "boolean", description: "Creation timestamp" },
+    {
+      name: "updatedAt",
+      type: "boolean",
+      description: "Last update timestamp",
+    },
+    {
+      name: "publishedAt",
+      type: "boolean",
+      description: "Publication timestamp",
+    },
+  ]}
+/>
+
+### Default Behavior
+
+**Without `select`:** All fields are included (backwards compatible)  
+**With `select`:** Only specified fields are included (defaults to `false` for unspecified fields)
+
+<CodeBlock language="tsx">
+{`
+  // No select = all fields included
+  const { data: full } = await client.articles.list()
+  console.log(full[0].content) // ✓ Available (includes everything)
+
+  // With select = only specified fields
+  const { data: minimal } = await client.articles.list({
+    select: {
+      title: true,
+      excerpt: true
+      // content and other fields are excluded
+    }
+  })
+
+  console.log(minimal[0].content) // undefined
+`}
+
+</CodeBlock>
+
+---
+
 ## get()
 
 Retrieve a single article by its slug, including full content.
@@ -238,7 +410,7 @@ Retrieve a single article by its slug, including full content.
     { name: "slug", type: "string", required: true },
     {
       name: "options",
-      type: "{ optionalFields?: ArticleOptionalFields }",
+      type: "{ select?: ArticleSelectFields }",
       optional: true,
     },
   ]}
@@ -251,7 +423,7 @@ Retrieve a single article by its slug, including full content.
 <CodeBlock
   tabs={[
     {
-      label: "Tag Names",
+      label: "Basic",
       language: "typescript",
       code: `const { data: article } = await client.articles.get('getting-started')
 
@@ -265,10 +437,10 @@ console.log(article.tags.map(t => t.name))
 // Output: ['JavaScript', 'TypeScript', 'React']`
   },
   {
-    label: "Tags with Infos",
+    label: "With tag metadata",
     language: "typescript",
     code:`const { data: article } = await client.articles.get('getting-started', {
-    optionalFields: {
+    select: {
       tagColor: true, // Include hex color
       tagIcon: true // Include icon name
     }
@@ -286,7 +458,21 @@ console.log(article.tags.map(t => t.name))
   // JavaScript: #EAB308 (code)
   // TypeScript: #3B82F6 (code)
   // React: #06B6D4 (component)`
-  }
+  },
+  {
+    label: "Exclude variants",
+    language: "typescript",
+    code:`// Get article without translation variants (lighter response)
+  const { data: article } = await client.articles.get('getting-started', {
+    select: {
+      variants: false // Exclude all translations
+    }
+  })
+
+  console.log(article.title) // ✓ Available
+  console.log(article.content) // ✓ Available
+  console.log(article.variants) // undefined - excluded`
+}
 ]} />
 
 ---
@@ -314,7 +500,7 @@ Search articles by query string (searches in title and content).
     published: true
   })
 
-console.log(\`Found \${results.length} articles matching "typescript"\`)
+  console.log(\`Found \${results.length} articles matching "typescript"\`)
 `}
 </CodeBlock>
 
@@ -334,7 +520,7 @@ Get only published articles (shorthand for `list({ published: true })`).
 ### Example
 
 <CodeBlock language="typescript">
-  {`
+{`
   const { data: articles } = await client.articles.published({
     limit: 10,
     sort: 'createdAt',
@@ -362,10 +548,10 @@ Get the most recently created articles.
 {`
   const { data: latest } = await client.articles.latest(5)
 
-console.log('Latest 5 articles:')
-latest.forEach(article => {
-console.log(\`- \${article.title}\`)
-})
+  console.log('Latest 5 articles:')
+  latest.forEach(article => {
+    console.log(\`- \${article.title}\`)
+  })
 `}
 
 </CodeBlock>
@@ -389,10 +575,10 @@ Get the most popular articles by view count.
 {`
   const { data: popular } = await client.articles.popular(3)
 
-console.log('Top 3 articles:')
-popular.forEach((article, i) => {
-console.log(\`\${i + 1}. \${article.title} (\${article.viewCount} views)\`)
-})
+  console.log('Top 3 articles:')
+  popular.forEach((article, i) => {
+    console.log(\`\${i + 1}. \${article.title} (\${article.viewCount} views)\`)
+  })
 `}
 
 </CodeBlock>
@@ -446,7 +632,7 @@ console.log(\`\${i + 1}. \${article.title} (\${article.viewCount} views)\`)
         />
       </div>
     )
-  }`},
+}`},
     {
       label: "Article detail page",
       language: "tsx",
@@ -457,8 +643,9 @@ console.log(\`\${i + 1}. \${article.title} (\${article.viewCount} views)\`)
   export default async function ArticlePage({
     params
   }: {
-    params: { slug: string }
+    params: Promise<{ slug: string }>
   }) {
+    const { slug } = await params;
     const client = new SimplistClient()
 
     try {
