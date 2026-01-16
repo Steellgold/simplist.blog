@@ -135,8 +135,17 @@ export class HttpClient {
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
-          // Handle optionalFields object specially (convert to comma-separated string)
+          // Handle select object (convert to JSON string)
           if (
+            key === "select" &&
+            typeof value === "object" &&
+            !Array.isArray(value)
+          ) {
+            searchParams.append(key, JSON.stringify(value));
+          }
+          // Handle optionalFields object specially (convert to comma-separated string)
+          // Legacy support - kept for backwards compatibility
+          else if (
             key === "optionalFields" &&
             typeof value === "object" &&
             !Array.isArray(value)
