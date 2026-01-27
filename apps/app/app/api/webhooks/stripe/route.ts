@@ -90,7 +90,19 @@ export const POST = async (req: Request) => {
           break;
         }
 
-        // Update subscription status and expiration
+        // Calculate the first day of the next month
+        const now = new Date();
+        const nextMonthStart = new Date(
+          now.getFullYear(),
+          now.getMonth() + 1,
+          1,
+          0,
+          0,
+          0,
+          0,
+        );
+
+        // Update subscription status, expiration, and ensure API calls reset date moves forward
         await prisma.project.update({
           where: {
             id: projectId,
@@ -100,9 +112,8 @@ export const POST = async (req: Request) => {
             subscriptionTier:
               subscription.status === "active" ? "PRO" : "STARTER",
             subscriptionExpiresAt:
-              subscription.status === "active"
-                ? getSubscriptionExpiryDate(subscription)
-                : null,
+              subscription.status === "active" ? nextMonthStart : null,
+            apiCallsResetAt: nextMonthStart,
           },
         });
 
