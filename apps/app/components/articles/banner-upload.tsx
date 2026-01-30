@@ -7,7 +7,16 @@ import {
   formatFileSizeLimit,
   isAllowedImageType,
 } from "@/lib/uploads/constants";
-import { FileArrowUp, Folder, Picture, TrashBin } from "@gravity-ui/icons";
+import type { ChangeEvent } from "react";
+import {
+  ArrowDown,
+  EllipsisVertical,
+  FileArrowUp,
+  Folder,
+  Picture,
+  Plus,
+  TrashBin,
+} from "@gravity-ui/icons";
 import { Button } from "@simplist/ui/components/button";
 import { ButtonGroup } from "@simplist/ui/components/button-group";
 import {
@@ -21,7 +30,6 @@ import { ConfirmDialog } from "@simplist/ui/components/confirm-dialog";
 import { Progress } from "@simplist/ui/components/progress";
 import { Spinner } from "@simplist/ui/components/spinner";
 import Image from "next/image";
-import type { ChangeEvent } from "react";
 import { useState } from "react";
 import { toast } from "sonner";
 

@@ -231,7 +231,7 @@ export const ArticleTagsInput: FC<ArticleTagsInputProps> = ({
             <span
               key={tag.id}
               className={cn(
-                "group flex items-center gap-1.5 rounded border px-2 py-0.5 text-sm shadow-xs",
+                "group flex items-center gap-1.5 rounded-sm border px-2 py-0.5 text-sm shadow-xs",
                 colorClasses,
               )}
             >

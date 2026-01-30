@@ -18,7 +18,8 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, Plan> = {
       { name: "Basic analytics", included: true },
       { name: "50MB storage", included: true },
       { name: "1,000 API calls/month", included: true },
-      { name: "Language variants", included: 1 },
+      { name: "Language variants", included: true },
+      { name: "AI Features", included: true }, // (15 requests/month + BYOK)
     ],
     limits: {
       maxArticles: 5,
@@ -27,6 +28,7 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, Plan> = {
       maxVariantsPerArticle: 1, // STARTER: 1 variant allowed
       maxMembers: 1, // STARTER: Solo mode only (owner)
       maxWebhooks: 1,
+      maxAiRequestsPerMonth: 15, // STARTER: 15 AI requests/month included, unlimited with BYOK
       features: {
         analytics: false, // Advanced analytics are PRO only (STARTER gets basic: 7 days, top 3, limited metrics)
         postVariants: true, // 1 variant on STARTER
@@ -34,6 +36,8 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, Plan> = {
         prioritySupport: true,
         bulkOperations: false,
         webhooks: true,
+        aiFeatures: true, // AI features available
+        aiIncludedCredits: true, // 15 requests/month included + BYOK option
       },
     },
   },
@@ -66,8 +70,9 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, Plan> = {
       { name: "Unlimited API calls/month", included: true },
       { name: "Up to 10 team members", included: true },
       { name: "Priority support", included: true },
-      { name: "Language variants", included: true },
+      { name: "Language variants", included: true }, // Unlimited
       { name: "Scheduled publishing", included: true },
+      { name: "AI Features", included: true }, // (500 requests/month + BYOK)
     ],
     limits: {
       maxArticles: -1,
@@ -76,6 +81,7 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, Plan> = {
       maxVariantsPerArticle: -1, // PRO: unlimited variants per article
       maxMembers: 10, // PRO: Up to 10 team members
       maxWebhooks: 20,
+      maxAiRequestsPerMonth: 500, // PRO: 500 AI requests/month included, unlimited with BYOK
       features: {
         analytics: true, // PRO has full access to advanced analytics
         postVariants: true,
@@ -83,6 +89,8 @@ export const SUBSCRIPTION_PLANS: Record<PlanId, Plan> = {
         prioritySupport: true,
         bulkOperations: true,
         webhooks: true,
+        aiFeatures: true, // AI features included
+        aiIncludedCredits: true, // 500 requests/month included + BYOK option
       },
     },
   },

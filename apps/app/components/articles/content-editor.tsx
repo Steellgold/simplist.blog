@@ -8,6 +8,7 @@ import {
   MediaPickerUrlInput,
 } from "@/components/media/media-picker";
 import { RichTextEditor } from "./editor";
+import type { ProjectSubscription } from "@/lib/subscription/quota-check";
 
 type ArticleContentEditorProps = {
   content: string;
@@ -15,6 +16,9 @@ type ArticleContentEditorProps = {
   textareaId?: string;
   placeholder?: string;
   projectId?: string;
+  /** AI-related props */
+  subscription?: ProjectSubscription;
+  language?: string;
 };
 
 export const ArticleContentEditor = ({
@@ -23,6 +27,8 @@ export const ArticleContentEditor = ({
   textareaId: _textareaId,
   placeholder = "Write your article here... tell your idea, your story, or share an interesting piece of information.",
   projectId,
+  subscription,
+  language,
 }: ArticleContentEditorProps) => {
   const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
 
@@ -68,6 +74,8 @@ export const ArticleContentEditor = ({
         projectId={projectId}
         className="min-h-[500px]"
         onInsertImage={handleInsertImage}
+        subscription={subscription}
+        language={language}
       />
 
       {projectId && (

@@ -85,12 +85,6 @@ export const editorTheme: EditorThemeClasses = {
   // Images
   image: "max-w-full h-auto rounded-lg my-4",
 
-  // Table
-  table: "border-collapse border border-border my-4 w-full",
-  tableCell: "border border-border p-2",
-  tableCellHeader: "border border-border p-2 bg-muted font-bold",
-  tableRow: "",
-
   // Root
   root: "outline-none",
 

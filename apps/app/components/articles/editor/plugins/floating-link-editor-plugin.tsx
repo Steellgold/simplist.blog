@@ -1,16 +1,26 @@
 "use client";
 
-import type { JSX, KeyboardEvent } from "react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { cn } from "@/lib/utils";
+import { Check, Pencil, TrashBin, Xmark } from "@gravity-ui/icons";
 import {
-  $isLinkNode,
+  $createLinkNode,
   $isAutoLinkNode,
+  $isLinkNode,
   TOGGLE_LINK_COMMAND,
-  type LinkNode,
 } from "@lexical/link";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
-import { $findMatchingParent, mergeRegister } from "@lexical/utils";
+import { mergeRegister } from "@lexical/utils";
+import { Button } from "@simplist/ui/components/button";
+import { ButtonGroup } from "@simplist/ui/components/button-group";
+import { Card, CardContent, CardFooter } from "@simplist/ui/components/card";
 import {
+  InputGroup,
+  InputGroupInput,
+  InputGroupSeparator,
+} from "@simplist/ui/components/input-group";
+import {
+  $createTextNode,
+  $findMatchingParent,
   $getSelection,
   $isLineBreakNode,
   $isRangeSelection,
@@ -23,19 +33,13 @@ import {
   type BaseSelection,
   type LexicalEditor,
 } from "lexical";
-import {
-  Check,
-  ArrowUpRightFromSquare,
-  Pencil,
-  TrashBin,
-  Xmark,
-} from "@gravity-ui/icons";
+import { ArrowUpRightFromSquare } from "lucide-react";
+import Link from "next/link";
+import type { JSX, KeyboardEvent } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-
 import { getSelectedNode } from "../utils/get-selected-node";
 import { setFloatingElemPositionForLinkEditor } from "../utils/set-floating-elem-position";
-import { Button } from "@simplist/ui/components/button";
-import { Input } from "@simplist/ui/components/input";
 
 const FloatingLinkEditor = ({
   editor,
@@ -54,8 +58,10 @@ const FloatingLinkEditor = ({
 }): JSX.Element => {
   const editorRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const textInputRef = useRef<HTMLInputElement>(null);
   const [linkUrl, setLinkUrl] = useState("");
-  const [editedLinkUrl, setEditedLinkUrl] = useState("https://");
+  const [editedLinkUrl, setEditedLinkUrl] = useState("https://example.com");
+  const [editedLinkText, setEditedLinkText] = useState("");
   const [lastSelection, setLastSelection] = useState<BaseSelection | null>(
     null,
   );
@@ -68,10 +74,13 @@ const FloatingLinkEditor = ({
 
       if (linkParent) {
         setLinkUrl(linkParent.getURL());
+        setEditedLinkText(linkParent.getTextContent());
       } else if ($isLinkNode(node)) {
         setLinkUrl(node.getURL());
+        setEditedLinkText(node.getTextContent());
       } else {
         setLinkUrl("");
+        setEditedLinkText("");
       }
 
       if (isLinkEditMode) {
@@ -98,17 +107,26 @@ const FloatingLinkEditor = ({
     ) {
       const domRect: DOMRect | undefined =
         nativeSelection.focusNode?.parentElement?.getBoundingClientRect();
+
       if (domRect) {
         domRect.y += 40;
         setFloatingElemPositionForLinkEditor(domRect, editorElem, anchorElem);
       }
+
       setLastSelection(selection);
     } else if (!activeElement || activeElement.className !== "link-input") {
       if (rootElement !== null) {
         setFloatingElemPositionForLinkEditor(null, editorElem, anchorElem);
       }
+
       setLastSelection(null);
-      setIsLinkEditMode(false);
+
+      // Only reset edit mode if we're not in edit mode or if we've moved away from link
+      if (isLinkEditMode) {
+        setIsLinkEditMode(false);
+        setEditedLinkText("");
+        setEditedLinkUrl("https://example.com");
+      }
       setLinkUrl("");
     }
 
@@ -155,6 +173,7 @@ const FloatingLinkEditor = ({
         },
         COMMAND_PRIORITY_LOW,
       ),
+
       editor.registerCommand(
         KEY_ESCAPE_COMMAND,
         () => {
@@ -176,8 +195,8 @@ const FloatingLinkEditor = ({
   }, [editor, $updateLinkEditor]);
 
   useEffect(() => {
-    if (isLinkEditMode && inputRef.current) {
-      inputRef.current.focus();
+    if (isLinkEditMode && textInputRef.current) {
+      textInputRef.current.focus();
     }
   }, [isLinkEditMode, isLink]);
 
@@ -192,20 +211,43 @@ const FloatingLinkEditor = ({
   };
 
   const handleLinkSubmission = () => {
-    if (lastSelection !== null) {
-      if (linkUrl !== "") {
-        editor.dispatchCommand(TOGGLE_LINK_COMMAND, editedLinkUrl);
-        editor.update(() => {
-          const selection = $getSelection();
-          if ($isRangeSelection(selection)) {
-            const parent = getSelectedNode(selection).getParent();
-            if ($isLinkNode(parent)) {
-              const linkNode = parent as LinkNode;
+    if (lastSelection !== null && editedLinkUrl) {
+      editor.update(() => {
+        const selection = $getSelection();
+        if ($isRangeSelection(selection)) {
+          const node = getSelectedNode(selection);
+          const linkParent = $findMatchingParent(node, $isLinkNode);
+
+          // Find the link node
+          const linkNode = linkParent || ($isLinkNode(node) ? node : null);
+
+          if (linkNode && $isLinkNode(linkNode)) {
+            // Only update URL if text hasn't changed
+            if (
+              !editedLinkText ||
+              editedLinkText === linkNode.getTextContent()
+            ) {
               linkNode.setURL(editedLinkUrl);
+            } else {
+              // Replace with a new link node (atomic operation)
+              const newLinkNode = $createLinkNode(editedLinkUrl);
+              const textNode = $createTextNode(editedLinkText);
+              newLinkNode.append(textNode);
+              linkNode.replace(newLinkNode);
+              // Move selection after the new link
+              newLinkNode.selectEnd();
             }
           }
-        });
-      }
+
+          // If no link exists, create new one
+          else if (linkUrl === "") {
+            const newLinkNode = $createLinkNode(editedLinkUrl);
+            const textNode = $createTextNode(editedLinkText || editedLinkUrl);
+            newLinkNode.append(textNode);
+            selection.insertNodes([newLinkNode]);
+          }
+        }
+      });
       setIsLinkEditMode(false);
     }
   };
@@ -214,94 +256,133 @@ const FloatingLinkEditor = ({
     editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
   };
 
+  // Close edit mode if we're in edit mode but not on a link anymore
+  useEffect(() => {
+    if (isLinkEditMode && !isLink && !linkUrl) {
+      setIsLinkEditMode(false);
+    }
+  }, [isLinkEditMode, isLink, linkUrl, setIsLinkEditMode]);
+
   // Don't render if not showing link or edit mode
   if (!isLink && !isLinkEditMode) {
     return <div ref={editorRef} style={{ display: "none" }} />;
   }
 
   return (
-    <div
+    <Card
       ref={editorRef}
-      className="bg-popover absolute top-0 left-0 z-50 flex w-full max-w-xs items-center gap-1 rounded-md border p-1.5 opacity-0 shadow-md transition-opacity will-change-transform"
+      className={cn(
+        "absolute -top-7.5 left-0 z-50",
+        "opacity-0 shadow-md transition-opacity will-change-transform",
+        {
+          "max-w-sm": isLinkEditMode,
+          "max-w-[250px]": !isLinkEditMode,
+        },
+        "p-0",
+      )}
     >
-      {!isLinkEditMode && isLink ? (
-        <>
-          <a
+      <CardContent className="flex items-center gap-1 p-1.5">
+        {!isLinkEditMode ? (
+          <Link
             href={linkUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="text-primary hover:text-primary/80 flex-1 truncate px-2 text-sm underline"
           >
             {linkUrl}
-          </a>
+          </Link>
+        ) : (
+          <InputGroup orientation="vertical">
+            <InputGroupInput
+              ref={textInputRef}
+              className="link-input text-sm"
+              placeholder="Link text"
+              value={editedLinkText}
+              onChange={(event) => {
+                setEditedLinkText(event.target.value);
+              }}
+            />
+
+            <InputGroupSeparator />
+
+            <InputGroupInput
+              ref={inputRef}
+              className="link-input text-sm"
+              placeholder="https://example.com"
+              value={editedLinkUrl}
+              onChange={(event) => {
+                setEditedLinkUrl(event.target.value);
+              }}
+            />
+          </InputGroup>
+        )}
+      </CardContent>
+
+      <CardFooter
+        className={cn("-mt-4.5 flex items-center justify-end gap-1 p-1.5")}
+      >
+        <ButtonGroup>
+          {isLinkEditMode ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-xs"
+              onClick={() => {
+                handleLinkSubmission();
+              }}
+            >
+              <Check />
+            </Button>
+          ) : (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-xs"
+              onClick={() => {
+                setIsLinkEditMode(true);
+              }}
+            >
+              <Pencil />
+            </Button>
+          )}
+
+          {isLinkEditMode ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-xs"
+              onClick={() => {
+                setIsLinkEditMode(false);
+              }}
+            >
+              <Xmark />
+            </Button>
+          ) : (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-xs"
+              onClick={() => {
+                if (linkUrl) window.open(linkUrl, "_blank");
+              }}
+            >
+              <ArrowUpRightFromSquare />
+            </Button>
+          )}
+
           <Button
             type="button"
             variant="ghost"
-            size="icon"
-            className="size-7"
+            size="icon-xs"
             onClick={() => {
-              setEditedLinkUrl(linkUrl);
-              setIsLinkEditMode(true);
+              deleteLink();
             }}
           >
-            <Pencil className="size-3.5" />
+            <TrashBin />
           </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="size-7"
-            asChild
-          >
-            <a href={linkUrl} target="_blank" rel="noopener noreferrer">
-              <ArrowUpRightFromSquare className="size-3.5" />
-            </a>
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="text-destructive hover:text-destructive size-7"
-            onClick={deleteLink}
-          >
-            <TrashBin className="size-3.5" />
-          </Button>
-        </>
-      ) : isLinkEditMode ? (
-        <>
-          <Input
-            ref={inputRef}
-            className="link-input h-7 flex-1 text-sm"
-            value={editedLinkUrl}
-            onChange={(event) => {
-              setEditedLinkUrl(event.target.value);
-            }}
-            onKeyDown={monitorInputInteraction}
-            placeholder="https://example.com"
-          />
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="size-7"
-            onClick={() => {
-              setIsLinkEditMode(false);
-            }}
-          >
-            <Xmark className="size-3.5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="size-7"
-            onClick={handleLinkSubmission}
-          >
-            <Check className="size-3.5" />
-          </Button>
-        </>
-      ) : null}
-    </div>
+        </ButtonGroup>
+      </CardFooter>
+    </Card>
   );
 };
 
@@ -352,6 +433,7 @@ const useFloatingLinkEditorToolbar = (
           $updateToolbar();
         });
       }),
+
       editor.registerCommand(
         SELECTION_CHANGE_COMMAND,
         (_payload, newEditor) => {
@@ -361,6 +443,7 @@ const useFloatingLinkEditorToolbar = (
         },
         COMMAND_PRIORITY_CRITICAL,
       ),
+
       editor.registerCommand(
         CLICK_COMMAND,
         (payload) => {

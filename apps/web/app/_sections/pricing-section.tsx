@@ -8,6 +8,7 @@ import {
   Globe,
   PersonsLock,
   Picture,
+  SparklesFill,
   Terminal,
 } from "@gravity-ui/icons";
 import NumberFlow from "@number-flow/react";
@@ -104,6 +105,14 @@ const featureDisplays: FeatureDisplay[] = [
       limits.maxMembers === -1 ? "Unlimited" : `Up to ${limits.maxMembers}`,
     skipInFree: true,
   },
+  {
+    icon: SparklesFill,
+    label: "AI",
+    getValue: (limits) =>
+      limits.maxAiRequestsPerMonth === -1
+        ? "Unlimited (BYOK only)"
+        : `${limits.maxAiRequestsPerMonth} requests/month + BYOK`,
+  },
 ];
 
 export const PricingSection = () => {
@@ -147,7 +156,7 @@ export const PricingSection = () => {
         <div className="mx-auto grid max-w-4xl gap-6 md:grid-cols-2 md:items-start">
           {/* Free Plan */}
           <Card className="bg-card/50 relative overflow-hidden backdrop-blur-sm">
-            <div className="from-muted/20 to-background pointer-events-none absolute inset-0 bg-gradient-to-br" />
+            <div className="from-muted/20 to-background pointer-events-none absolute inset-0 bg-linear-to-br" />
 
             <CardHeader className="relative">
               <CardTitle
@@ -219,7 +228,7 @@ export const PricingSection = () => {
 
           {/* Pro Plan */}
           <Card className="border-primary/50 ring-primary/20 relative overflow-hidden shadow-lg ring-1">
-            <div className="from-primary/5 via-primary/10 to-background pointer-events-none absolute inset-0 bg-gradient-to-br" />
+            <div className="from-primary/5 via-primary/10 to-background pointer-events-none absolute inset-0 bg-linear-to-br" />
 
             {/* Popular badge */}
             <div className="absolute top-4 right-4">

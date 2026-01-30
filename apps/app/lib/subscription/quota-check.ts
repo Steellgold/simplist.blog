@@ -15,7 +15,11 @@ export type ProjectSubscription = {
     apiCalls: number;
     storage: number;
     apiCallsResetAt: Date | null;
+    aiRequests: number;
+    aiRequestsResetAt: Date | null;
   };
+  /** Whether the project has a configured OpenAI API key (for BYOK) */
+  hasApiKey: boolean;
 };
 
 /** Get project's subscription tier and limits */
@@ -30,6 +34,9 @@ export const getProjectSubscription = async (
       monthlyApiCalls: true,
       apiCallsResetAt: true,
       totalStorageUsed: true,
+      monthlyAiRequests: true,
+      aiRequestsResetAt: true,
+      openaiApiKey: true,
     },
   });
 
@@ -52,7 +59,10 @@ export const getProjectSubscription = async (
       apiCalls: project.monthlyApiCalls,
       storage: project.totalStorageUsed,
       apiCallsResetAt: project.apiCallsResetAt,
+      aiRequests: project.monthlyAiRequests,
+      aiRequestsResetAt: project.aiRequestsResetAt,
     },
+    hasApiKey: !!project.openaiApiKey,
   };
 };
 
@@ -377,5 +387,143 @@ export const checkVariantQuota = async (
     allowed: true,
     current: currentVariants,
     limit: subscription.limits.maxVariantsPerArticle,
+  };
+};
+
+/**
+ * Check if project can make an AI request
+ * - Both STARTER and PRO: Check monthly limit first
+ * - If limit reached: Fall back to BYOK (if configured)
+ * - STARTER: 15 requests/month included + unlimited BYOK
+ * - PRO: 500 requests/month included + unlimited BYOK
+ */
+export const checkAiRequestQuota = async (
+  projectId: string,
+): Promise<QuotaCheckResult> => {
+  const subscription = await getProjectSubscription(projectId);
+
+  // Check if AI features are enabled
+  if (!subscription.limits.features.aiFeatures) {
+    return {
+      allowed: false,
+      reason: "AI features are not available on your plan.",
+    };
+  }
+
+  // Check monthly limit first (both STARTER and PRO have included credits)
+  const now = new Date();
+  const resetDate = subscription.usage.aiRequestsResetAt;
+  let currentRequests = subscription.usage.aiRequests;
+
+  // Check if we need to reset the counter (30-day rolling window)
+  if (resetDate) {
+    const daysSinceReset = Math.floor(
+      (now.getTime() - resetDate.getTime()) / (1000 * 60 * 60 * 24),
+    );
+
+    if (daysSinceReset >= 30) {
+      // Reset the counter
+      await prisma.project.update({
+        where: { id: projectId },
+        data: {
+          monthlyAiRequests: 0,
+          aiRequestsResetAt: now,
+        },
+      });
+
+      currentRequests = 0;
+    }
+  }
+
+  const limit = subscription.limits.maxAiRequestsPerMonth;
+
+  // If under the included limit, allow the request
+  if (limit === -1 || currentRequests < limit) {
+    return {
+      allowed: true,
+      current: currentRequests,
+      limit,
+    };
+  }
+
+  // Limit reached: Check if BYOK is configured as fallback
+  if (subscription.hasApiKey) {
+    return {
+      allowed: true,
+      current: currentRequests,
+      limit,
+    };
+  }
+
+  // No more included credits and no BYOK configured
+  return {
+    allowed: false,
+    reason: `Monthly AI request limit reached. Your ${subscription.tier} plan includes ${limit} AI requests per month. Add your own OpenAI API key in project settings for unlimited requests.`,
+    current: currentRequests,
+    limit,
+  };
+};
+
+/**
+ * Increment AI request counter
+ * - Increments for both STARTER and PRO when using included credits
+ * - Does NOT increment when using BYOK (beyond included limit)
+ */
+export const incrementAiRequestCounter = async (
+  projectId: string,
+  usingByok = false,
+): Promise<void> => {
+  // Don't increment counter if using BYOK
+  if (usingByok) {
+    return;
+  }
+
+  const subscription = await getProjectSubscription(projectId);
+
+  // Only increment if within the included limit
+  if (
+    subscription.usage.aiRequests < subscription.limits.maxAiRequestsPerMonth
+  ) {
+    await prisma.project.update({
+      where: { id: projectId },
+      data: {
+        monthlyAiRequests: {
+          increment: 1,
+        },
+      },
+    });
+  }
+};
+
+/**
+ * Get AI usage stats for a project
+ */
+export const getAiUsageStats = async (
+  projectId: string,
+): Promise<{
+  current: number;
+  limit: number;
+  hasIncludedCredits: boolean;
+  hasApiKey: boolean;
+  usingByok: boolean;
+}> => {
+  const subscription = await getProjectSubscription(projectId);
+
+  const project = await prisma.project.findUnique({
+    where: { id: projectId },
+    select: { openaiApiKey: true },
+  });
+
+  const hasApiKey = !!project?.openaiApiKey;
+  const current = subscription.usage.aiRequests;
+  const limit = subscription.limits.maxAiRequestsPerMonth;
+  const usingByok = hasApiKey && current >= limit;
+
+  return {
+    current,
+    limit,
+    hasIncludedCredits: subscription.limits.features.aiIncludedCredits,
+    hasApiKey,
+    usingByok,
   };
 };

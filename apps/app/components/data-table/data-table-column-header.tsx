@@ -6,6 +6,7 @@ import {
   ArrowUp,
   ChevronsExpandVertical,
   EyeSlash,
+  Xmark,
 } from "@gravity-ui/icons";
 import { type Column } from "@tanstack/react-table";
 
@@ -63,6 +64,12 @@ export function DataTableColumnHeader<TData, TValue>({
             <ArrowDown className="text-muted-foreground/70" />
             Desc
           </DropdownMenuItem>
+          {column.getIsSorted() && (
+            <DropdownMenuItem onClick={() => column.clearSorting()}>
+              <Xmark className="text-muted-foreground/70" />
+              Clear sort
+            </DropdownMenuItem>
+          )}
           {column.getCanHide() && (
             <>
               <DropdownMenuSeparator />

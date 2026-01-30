@@ -485,12 +485,11 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({
                     setExcerpt(newExcerpt);
                     updateActiveVariant({ excerpt: newExcerpt });
                   }}
-                  showSlugControl={
-                    !/^untitled-draft(-\d+)?$/.test(article.slug)
-                  }
-                  shouldRegenerateSlug={shouldRegenerateSlug}
-                  onSlugRegenerateChange={setShouldRegenerateSlug}
-                  currentSlug={article.slug}
+                  projectId={article.projectId}
+                  articleContent={content}
+                  subscription={subscription}
+                  activeVariant={activeVariant}
+                  defaultLanguage={defaultLanguage}
                 />
               )}
 
@@ -503,6 +502,8 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({
                 textareaId="content"
                 placeholder="Write your article content..."
                 projectId={article.projectId}
+                subscription={subscription}
+                language={getLanguageName(activeVariant || defaultLanguage)}
               />
             </div>
 
@@ -569,6 +570,9 @@ export const EditArticleForm: FC<EditArticleFormProps> = ({
                     };
                     return tempTag;
                   }}
+                  projectId={article.projectId}
+                  articleContent={content}
+                  subscription={subscription}
                 />
 
                 <VariantCard

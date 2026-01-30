@@ -5,31 +5,56 @@ import * as React from "react";
 
 import { Button } from "@simplist/ui/components/button";
 import { Input } from "@simplist/ui/components/input";
+import { Separator } from "@simplist/ui/components/separator";
 import { Textarea } from "@simplist/ui/components/textarea";
 import { cn } from "@simplist/ui/lib/utils";
 import { SelectTrigger } from "./select";
 
-function InputGroup({ className, ...props }: React.ComponentProps<"div">) {
+const inputGroupVariants = cva(
+  "group/input-group border-input dark:bg-input/30 relative flex w-full items-center rounded-md border shadow-xs transition-[color,box-shadow] outline-none min-w-0",
+  {
+    variants: {
+      orientation: {
+        horizontal: [
+          "h-9 has-[>textarea]:h-auto",
+          // Variants based on alignment for horizontal
+          "has-[>[data-align=inline-start]]:[&>input]:pl-2",
+          "has-[>[data-align=inline-end]]:[&>input]:pr-2",
+          "has-[>[data-align=block-start]]:h-auto has-[>[data-align=block-start]]:flex-col has-[>[data-align=block-start]]:[&>input]:pb-3",
+          "has-[>[data-align=block-end]]:h-auto has-[>[data-align=block-end]]:flex-col has-[>[data-align=block-end]]:[&>input]:pt-3",
+        ],
+        vertical: [
+          "h-auto flex-col w-fit",
+          // Variants based on alignment for vertical
+          "has-[>[data-align=inline-start]]:[&>input]:pt-2",
+          "has-[>[data-align=inline-end]]:[&>input]:pb-2",
+          "has-[>[data-align=block-start]]:flex-row has-[>[data-align=block-start]]:[&>input]:pr-3",
+          "has-[>[data-align=block-end]]:flex-row has-[>[data-align=block-end]]:[&>input]:pl-3",
+        ],
+      },
+    },
+    defaultVariants: {
+      orientation: "horizontal",
+    },
+  },
+);
+
+function InputGroup({
+  className,
+  orientation = "horizontal",
+  ...props
+}: React.ComponentProps<"div"> & VariantProps<typeof inputGroupVariants>) {
   return (
     <div
       data-slot="input-group"
+      data-orientation={orientation}
       role="group"
       className={cn(
-        "group/input-group border-input dark:bg-input/30 relative flex w-full items-center rounded-md border shadow-xs transition-[color,box-shadow] outline-none",
-        "h-9 min-w-0 has-[>textarea]:h-auto",
-
-        // Variants based on alignment.
-        "has-[>[data-align=inline-start]]:[&>input]:pl-2",
-        "has-[>[data-align=inline-end]]:[&>input]:pr-2",
-        "has-[>[data-align=block-start]]:h-auto has-[>[data-align=block-start]]:flex-col has-[>[data-align=block-start]]:[&>input]:pb-3",
-        "has-[>[data-align=block-end]]:h-auto has-[>[data-align=block-end]]:flex-col has-[>[data-align=block-end]]:[&>input]:pt-3",
-
-        // Focus state.
+        inputGroupVariants({ orientation }),
+        // Focus state
         "has-[[data-slot=input-group-control]:focus-visible]:border-ring has-[[data-slot=input-group-control]:focus-visible]:ring-ring/50 has-[[data-slot=input-group-control]:focus-visible]:ring-[3px]",
-
-        // Error state.
+        // Error state
         "has-[[data-slot][aria-invalid=true]]:ring-destructive/20 has-[[data-slot][aria-invalid=true]]:border-destructive dark:has-[[data-slot][aria-invalid=true]]:ring-destructive/40",
-
         className,
       )}
       {...props}
@@ -51,9 +76,20 @@ const inputGroupAddonVariants = cva(
         "block-end":
           "order-last w-full justify-start px-3 pb-3 [.border-t]:pt-3 group-has-[>input]/input-group:pb-2.5",
       },
+      orientation: {
+        horizontal: "",
+        vertical: [
+          // Adjust padding for vertical orientation
+          "data-[align=inline-start]:pl-3 data-[align=inline-start]:py-2",
+          "data-[align=inline-end]:pr-3 data-[align=inline-end]:py-2",
+          "data-[align=block-start]:h-full data-[align=block-start]:w-auto data-[align=block-start]:px-3",
+          "data-[align=block-end]:h-full data-[align=block-end]:w-auto data-[align=block-end]:px-3",
+        ],
+      },
     },
     defaultVariants: {
       align: "inline-start",
+      orientation: "horizontal",
     },
   },
 );
@@ -63,12 +99,18 @@ function InputGroupAddon({
   align = "inline-start",
   ...props
 }: React.ComponentProps<"div"> & VariantProps<typeof inputGroupAddonVariants>) {
+  const orientation =
+    (props as any)["data-orientation"] ||
+    (typeof window !== "undefined" &&
+      (props as any).parentElement?.getAttribute("data-orientation")) ||
+    "horizontal";
+
   return (
     <div
       role="group"
       data-slot="input-group-addon"
       data-align={align}
-      className={cn(inputGroupAddonVariants({ align }), className)}
+      className={cn(inputGroupAddonVariants({ align, orientation }), className)}
       onClick={(e) => {
         if ((e.target as HTMLElement).closest("button")) {
           return;
@@ -169,7 +211,36 @@ function InputGroupSelect({
     <SelectTrigger
       data-slot="input-group-control"
       className={cn(
-        "ounded-none h-auto border-0 bg-transparent shadow-none focus-visible:ring-0 dark:bg-transparent",
+        "h-auto rounded-none border-0 bg-transparent shadow-none focus-visible:ring-0 dark:bg-transparent",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+function InputGroupSeparator({
+  className,
+  orientation,
+  ...props
+}: React.ComponentProps<typeof Separator>) {
+  // Auto-detect orientation from parent if not explicitly provided
+  const parentOrientation =
+    (props as any)["data-parent-orientation"] || "horizontal";
+
+  // If in vertical InputGroup, separator should be horizontal by default, and vice versa
+  const effectiveOrientation =
+    orientation ??
+    (parentOrientation === "vertical" ? "horizontal" : "vertical");
+
+  return (
+    <Separator
+      data-slot="input-group-separator"
+      orientation={effectiveOrientation}
+      className={cn(
+        "bg-input relative !m-0",
+        "data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px data-[orientation=vertical]:self-stretch",
+        "data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full",
         className,
       )}
       {...props}
@@ -228,7 +299,8 @@ export {
   InputGroupButton,
   InputGroupInput,
   InputGroupSelect,
+  InputGroupSeparator,
   InputGroupText,
   InputGroupTextarea,
-  InputGroupToggle,
+  inputGroupVariants,
 };

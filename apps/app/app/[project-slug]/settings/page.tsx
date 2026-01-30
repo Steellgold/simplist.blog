@@ -2,10 +2,15 @@
 
 import { PageLayout } from "@/components/layout/page-layout";
 import { EmptyProject } from "@/components/projects/empty-project";
+import { AiSettingsCard } from "@/components/settings/ai-settings-card";
 import { AvatarUpload } from "@/components/ui/avatar-upload";
 import { CompactLanguageSelector } from "@/components/ui/language-selector";
 import { MiniBadge } from "@/components/ui/mini-badge";
 import { useProject } from "@/hooks/use-project-context";
+import {
+  getProjectAiSettings,
+  type AiSettings,
+} from "@/lib/actions/ai-settings";
 import { deleteProject, updateProjectSettings } from "@/lib/actions/projects";
 import {
   UpdateProjectSettingsInput,
@@ -53,7 +58,7 @@ import { Spinner } from "@simplist/ui/components/spinner";
 import { c } from "@simplist/ui/lib/color";
 import { i } from "@simplist/ui/lib/icons.enum";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 
 const SettingsPage = () => {
@@ -68,6 +73,21 @@ const SettingsPage = () => {
   const [displayType, setDisplayType] = useState<"avatar" | "icon">(
     currentProject?.avatarUrl ? "avatar" : "icon",
   );
+
+  // AI Settings state
+  const [aiSettings, setAiSettings] = useState<AiSettings | null>(null);
+  const [isLoadingAiSettings, setIsLoadingAiSettings] = useState(true);
+
+  // Load AI settings on mount
+  useEffect(() => {
+    if (currentProject?.id) {
+      setIsLoadingAiSettings(true);
+      getProjectAiSettings(currentProject.id)
+        .then(setAiSettings)
+        .catch(console.error)
+        .finally(() => setIsLoadingAiSettings(false));
+    }
+  }, [currentProject?.id]);
 
   const form = useForm<UpdateProjectSettingsInput>({
     resolver: zodResolver(updateProjectSettingsSchema),
@@ -711,6 +731,18 @@ const SettingsPage = () => {
             </Button>
           </CardFooter>
         </Card>
+
+        {/* AI Settings Card */}
+        {!isLoadingAiSettings && aiSettings && (
+          <AiSettingsCard
+            projectId={currentProject.id}
+            initialSettings={aiSettings}
+            subscriptionTier={
+              currentProject.subscriptionTier as "STARTER" | "PRO"
+            }
+            disabled={isDisabled}
+          />
+        )}
 
         {/* Danger Zone */}
         <Card variant="form-danger">

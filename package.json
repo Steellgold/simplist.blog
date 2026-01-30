@@ -14,7 +14,8 @@
     "db:build": "pnpm --filter @simplist/db run build",
     "api:build": "pnpm --filter @simplist/db --filter @simplist/limits --filter @simplist/api --filter @simplist/eslint-config --filter @simplist/typescript-config --filter api run build",
     "api:dev": "pnpm --filter api run dev",
-    "api:start": "pnpm --filter api run start"
+    "api:start": "pnpm --filter api run start",
+    "generate:ai-key": "node scripts/generate-ai-key.js"
   },
   "devDependencies": {
     "@gravity-ui/icons": "^2.16.0",

@@ -91,15 +91,13 @@ export const useVariantLimits = (projectId?: string, currentCount = 0) => {
   const max = limits?.maxVariantsPerArticle ?? 0;
   const isFree = tier === "STARTER";
 
-  const canAdd = !isFree && (max === -1 || currentCount < max);
-  const isAtLimit = isFree || (max !== -1 && currentCount >= max);
+  // STARTER can add 1 variant (max = 1), PRO has unlimited (max = -1)
+  const canAdd = max === -1 || currentCount < max;
+  const isAtLimit = max !== -1 && currentCount >= max;
 
-  const quotaError =
-    isAtLimit && !isFree
-      ? `You have reached the limit. Your ${tier} plan allows ${max} variant${max === 1 ? "" : "s"} per article.`
-      : isFree
-        ? "Language variants require the Pro plan."
-        : undefined;
+  const quotaError = isAtLimit
+    ? `You have reached the limit. Your ${tier} plan allows ${max} variant${max === 1 ? "" : "s"} per article.${isFree ? " Upgrade to Pro for unlimited variants." : ""}`
+    : undefined;
 
   return {
     isLoading,

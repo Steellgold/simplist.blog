@@ -301,6 +301,11 @@ export const CreateArticleForm: FC<CreateArticleFormProps> = ({
                     setExcerpt(newExcerpt);
                     updateActiveVariant({ excerpt: newExcerpt });
                   }}
+                  projectId={projectId}
+                  articleContent={content}
+                  subscription={subscription}
+                  activeVariant={activeVariant}
+                  defaultLanguage={defaultLanguage}
                 />
               )}
 
@@ -313,6 +318,8 @@ export const CreateArticleForm: FC<CreateArticleFormProps> = ({
                 textareaId="content"
                 placeholder="Write your article content..."
                 projectId={projectId}
+                subscription={subscription}
+                language={getLanguageName(activeVariant || defaultLanguage)}
               />
             </div>
 
@@ -381,6 +388,9 @@ export const CreateArticleForm: FC<CreateArticleFormProps> = ({
                     };
                     return tempTag;
                   }}
+                  projectId={projectId}
+                  articleContent={content}
+                  subscription={subscription}
                 />
 
                 <VariantCard
